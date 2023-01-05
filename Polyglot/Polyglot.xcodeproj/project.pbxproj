@@ -45,12 +45,14 @@
 		FF52920A2952012E00858B55 /* ThreeButtonSelectionStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5292092952012E00858B55 /* ThreeButtonSelectionStack.swift */; };
 		FF52921229520D1200858B55 /* UINavigationBarExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF52921129520D1200858B55 /* UINavigationBarExtensions.swift */; };
 		FF5606FF2964FD150071EDC7 /* UIViewControllerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5606FE2964FD150071EDC7 /* UIViewControllerExtensions.swift */; };
+		FF5844312967217700137E00 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5844302967217700137E00 /* ListViewController.swift */; };
+		FF584434296732B400137E00 /* DictionaryExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF584433296732B400137E00 /* DictionaryExtensions.swift */; };
 		FF5882BE29604E0300FC33CF /* NewWordAddingTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5882BD29604E0300FC33CF /* NewWordAddingTextView.swift */; };
 		FF5AA0072961EA62009D5237 /* WordsEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5AA0062961EA62009D5237 /* WordsEditViewController.swift */; };
 		FF5AA00B2961F208009D5237 /* Alerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5AA00A2961F208009D5237 /* Alerts.swift */; };
 		FF5B182C2961E55F00C80DC3 /* IO.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5B182B2961E55F00C80DC3 /* IO.swift */; };
 		FF5CA65F295A0A9A00BE7095 /* PracticeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5CA65E295A0A9A00BE7095 /* PracticeExtensions.swift */; };
-		FF5D129129577AC4005DEEDE /* DefaultNavController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5D129029577AC4005DEEDE /* DefaultNavController.swift */; };
+		FF5D129129577AC4005DEEDE /* NavController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5D129029577AC4005DEEDE /* NavController.swift */; };
 		FF5D129529577CB3005DEEDE /* RoundShadowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5D129429577CB3005DEEDE /* RoundShadowView.swift */; };
 		FF5DB994295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5DB993295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift */; };
 		FF62C9762951382500D41797 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9752951382500D41797 /* AppDelegate.swift */; };
@@ -153,12 +155,14 @@
 		FF5292092952012E00858B55 /* ThreeButtonSelectionStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeButtonSelectionStack.swift; sourceTree = "<group>"; };
 		FF52921129520D1200858B55 /* UINavigationBarExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UINavigationBarExtensions.swift; sourceTree = "<group>"; };
 		FF5606FE2964FD150071EDC7 /* UIViewControllerExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewControllerExtensions.swift; sourceTree = "<group>"; };
+		FF5844302967217700137E00 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
+		FF584433296732B400137E00 /* DictionaryExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryExtensions.swift; sourceTree = "<group>"; };
 		FF5882BD29604E0300FC33CF /* NewWordAddingTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWordAddingTextView.swift; sourceTree = "<group>"; };
 		FF5AA0062961EA62009D5237 /* WordsEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordsEditViewController.swift; sourceTree = "<group>"; };
 		FF5AA00A2961F208009D5237 /* Alerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alerts.swift; sourceTree = "<group>"; };
 		FF5B182B2961E55F00C80DC3 /* IO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IO.swift; sourceTree = "<group>"; };
 		FF5CA65E295A0A9A00BE7095 /* PracticeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeExtensions.swift; sourceTree = "<group>"; };
-		FF5D129029577AC4005DEEDE /* DefaultNavController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultNavController.swift; sourceTree = "<group>"; };
+		FF5D129029577AC4005DEEDE /* NavController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavController.swift; sourceTree = "<group>"; };
 		FF5D129429577CB3005DEEDE /* RoundShadowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundShadowView.swift; sourceTree = "<group>"; };
 		FF5DB993295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoResizingTextViewWithPrompt.swift; sourceTree = "<group>"; };
 		FF62C9722951382500D41797 /* Polyglot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Polyglot.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -236,6 +240,7 @@
 				FF4964BD29579C9700414AC5 /* StringExtensions.swift */,
 				FF4964CC2958BE8900414AC5 /* TimeIntervalExtensions.swift */,
 				FF495E9D2959084200EA7EA9 /* DateExtensions.swift */,
+				FF584433296732B400137E00 /* DictionaryExtensions.swift */,
 			);
 			path = TypeExtensions;
 			sourceTree = "<group>";
@@ -334,8 +339,8 @@
 				FF706DFB29514E7100DBCF8E /* LanguageButton.swift */,
 				FF5292092952012E00858B55 /* ThreeButtonSelectionStack.swift */,
 				FF4964C82958B05300414AC5 /* RoundButton.swift */,
-				FF8CDE802952995F00B36CA3 /* NewWordBottomView.swift */,
 				FF5D129429577CB3005DEEDE /* RoundShadowView.swift */,
+				FF8CDE802952995F00B36CA3 /* NewWordBottomView.swift */,
 				FF4964CA2958BAFD00414AC5 /* TimingBar.swift */,
 				FF491E7F2959ED730088FD13 /* Separator.swift */,
 				FF5882BD29604E0300FC33CF /* NewWordAddingTextView.swift */,
@@ -350,6 +355,15 @@
 				FF5606FE2964FD150071EDC7 /* UIViewControllerExtensions.swift */,
 			);
 			path = ControllerExtensions;
+			sourceTree = "<group>";
+		};
+		FF58442F2967215700137E00 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				FF5D129029577AC4005DEEDE /* NavController.swift */,
+				FF5844302967217700137E00 /* ListViewController.swift */,
+			);
+			path = Common;
 			sourceTree = "<group>";
 		};
 		FF62C9692951382500D41797 = {
@@ -411,9 +425,9 @@
 		FF62C9A629513A2800D41797 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				FF5D129029577AC4005DEEDE /* DefaultNavController.swift */,
 				FF62C9792951382500D41797 /* MainViewController.swift */,
 				FF5292062951FC9700858B55 /* MenuViewController.swift */,
+				FF58442F2967215700137E00 /* Common */,
 				FF4EFE0D295D34B700E30D6A /* History */,
 				FF495E942958FFCC00EA7EA9 /* Words */,
 				FF50250A295244D50097C2CB /* Reading */,
@@ -631,6 +645,7 @@
 				FF491E772959CC960088FD13 /* MeaningFillingPracticeView.swift in Sources */,
 				FF491E752959C4320088FD13 /* MeaningSelectionPracticeView.swift in Sources */,
 				FF4964BA29579C5A00414AC5 /* UISearchBarExtensions.swift in Sources */,
+				FF5844312967217700137E00 /* ListViewController.swift in Sources */,
 				FF62C97A2951382500D41797 /* MainViewController.swift in Sources */,
 				FF5D129529577CB3005DEEDE /* RoundShadowView.swift in Sources */,
 				FF4A21542959A5D600AD3AF8 /* Practice.swift in Sources */,
@@ -653,6 +668,7 @@
 				FF706DF5295144B000DBCF8E /* UIColorExtensions.swift in Sources */,
 				FF491E792959CCF60088FD13 /* ContextSelectionPracticeView.swift in Sources */,
 				FF495E9C295903DF00EA7EA9 /* WordsTableCell.swift in Sources */,
+				FF584434296732B400137E00 /* DictionaryExtensions.swift in Sources */,
 				FF5AA0072961EA62009D5237 /* WordsEditViewController.swift in Sources */,
 				FF52921229520D1200858B55 /* UINavigationBarExtensions.swift in Sources */,
 				FF5882BE29604E0300FC33CF /* NewWordAddingTextView.swift in Sources */,
@@ -667,7 +683,7 @@
 				FF706E032951549C00DBCF8E /* UIImageExtensions.swift in Sources */,
 				FF4EFE12295D36D900E30D6A /* HistoryRecordTableCell.swift in Sources */,
 				FF4EFE0C295D34B200E30D6A /* HistoryViewController.swift in Sources */,
-				FF5D129129577AC4005DEEDE /* DefaultNavController.swift in Sources */,
+				FF5D129129577AC4005DEEDE /* NavController.swift in Sources */,
 				FF4964C22957B01100414AC5 /* UITextViewExtensions.swift in Sources */,
 				FF4EFE0F295D358C00E30D6A /* HistoryRecord.swift in Sources */,
 				FF495E9E2959084200EA7EA9 /* DateExtensions.swift in Sources */,

@@ -11,34 +11,111 @@ import Foundation
 struct Word {
     
     var id: Int
-    var creationDate: Date
-    var modificationDate: Date
+    var cDate: Date  // Creation date.
+    var mDate: Date  // Modification date.
     
-    var word: String
+    var text: String
     var meaning: String
-    var groupNote: String
     
-    init(creationDate: Date = Date(), word: String, meaning: String, groupNote: String = "") {
+    var note: String?
+    
+    init(cDate: Date = Date(), text: String, meaning: String, note: String? = nil) {
         
-        // For adding new words.
+        self.id = cDate.hashValue  // Do not use text.hashValue, as its value can be changed.
+        self.cDate = cDate
+        self.mDate = cDate
         
-        self.word = word
+        self.text = text
         self.meaning = meaning
-        self.groupNote = groupNote
         
-        self.id = word.hashValue
-        self.creationDate = creationDate
-        self.modificationDate = creationDate
+        self.note = note
     }
     
-    func update() {
+    mutating func update(newText: String? = nil, newMeaning: String? = nil) {
         
-        // TODO: - For editing. Modify the modification date here.
+        if let newText = newText {
+            self.text = newText
+        }
         
+        if let newMeaning = newMeaning {
+            self.meaning = newMeaning
+        }
+        
+        self.mDate = Date()
     }
 }
 
 extension Word: Codable {
+    
+    enum CodingKeys: String, CodingKey {
+        
+        case id
+        case cDate
+        case mDate
+        
+        case text
+        case meaning
+        
+        case note
+        
+        // Old vars.
+        
+        case creationDate  // cDate.
+        case modificationDate  // mDate.
+        
+        case word  // text.
+        
+        case groupNote  // note
+        
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(id, forKey: .id)
+        try container.encode(cDate, forKey: .cDate)
+        try container.encode(mDate, forKey: .mDate)
+        
+        try container.encode(text, forKey: .text)
+        try container.encode(meaning, forKey: .meaning)
+        
+        try container.encode(note, forKey: .note)
+    }
+    
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        
+        id = try values.decode(Int.self, forKey: .id)
+        
+        do {
+            cDate = try values.decode(Date.self, forKey: .cDate)
+        } catch {
+            cDate = try values.decode(Date.self, forKey: .creationDate)
+        }
+        
+        do {
+            mDate = try values.decode(Date.self, forKey: .mDate)
+        } catch {
+            mDate = try values.decode(Date.self, forKey: .modificationDate)
+        }
+        
+        do {
+            text = try values.decode(String.self, forKey: .text)
+        } catch {
+            text = try values.decode(String.self, forKey: .word)
+        }
+        
+        meaning = try values.decode(String.self, forKey: .meaning)
+        
+        do {
+            note = try values.decode(String?.self, forKey: .note)
+        } catch {
+            note = try values.decode(String?.self, forKey: .groupNote)
+        }
+    }
+}
+
+extension Word {
     
     // MARK: - IO
     
@@ -47,7 +124,6 @@ extension Word: Codable {
     static func load() -> [Word] {
         do {
             let words = try readSequenceDataFromJson(fileName: Word.fileName, type: Word.self) as! [Word]
-            
             return words
         } catch {
             print(error)
@@ -63,37 +139,22 @@ extension Word: Codable {
             exit(1)
         }
     }
-    
 }
 
 extension Word {
     
-    // Only for debugging.
-//    init(word: String, meaning: String, groupNote: String = "", creationDate: Date) {
-//
-//        // For adding new words.
-//
-//        self.id = Date().hashValue
-//        self.creationDate = creationDate
-//        self.modificationDate = creationDate
-//
-//        self.word = word
-//        self.meaning = meaning
-//        self.groupNote = groupNote
-//    }
-    
-//    static var samples: [Word] = [
-//        Word(creationDate: Date(), word: "中間試験", meaning: "期中考"),
-//        Word(creationDate: Date(), word: "秘密兵器", meaning: "秘密兵器"),
-//        Word(creationDate: Date(), word: "出題範囲", meaning: "出题范围"),
-//        Word(creationDate: Date(), word: "図工", meaning: "手工"),
-//        Word(creationDate: Date(), word: "戦争から立ち直る", meaning: "从战争中重振"),
-//        Word(creationDate: Date(), word: "作戦する", meaning: "行动"),
-//        Word(creationDate: Date(), word: "水道水", meaning: "自来水"),
-//        Word(creationDate: Date(), word: "辺鄙な", meaning: "偏僻的"),
-//        Word(creationDate: Date(timeInterval: 300000, since: Date()), word: "作戦する", meaning: "行动"),
-//        Word(creationDate: Date(timeInterval: 300000, since: Date()), word: "水道水", meaning: "自来水"),
-//        Word(creationDate: Date(timeInterval: 300000, since: Date()), word: "辺鄙な", meaning: "偏僻的")
-//    ]
+    static var samples: [Word] = [
+        Word(cDate: Date(), text: "中間試験", meaning: "期中考"),
+        Word(cDate: Date(), text: "秘密兵器", meaning: "秘密兵器"),
+        Word(cDate: Date(), text: "出題範囲", meaning: "出题范围"),
+        Word(cDate: Date(), text: "図工", meaning: "手工"),
+        Word(cDate: Date(), text: "戦争から立ち直る", meaning: "从战争中重振"),
+        Word(cDate: Date(), text: "作戦する", meaning: "行动"),
+        Word(cDate: Date(), text: "水道水", meaning: "自来水"),
+        Word(cDate: Date(), text: "辺鄙な", meaning: "偏僻的"),
+        Word(cDate: Date(timeInterval: 300000, since: Date()), text: "作戦する", meaning: "行动"),
+        Word(cDate: Date(timeInterval: 300000, since: Date()), text: "水道水", meaning: "自来水"),
+        Word(cDate: Date(timeInterval: 300000, since: Date()), text: "辺鄙な", meaning: "偏僻的")
+    ]
     
 }

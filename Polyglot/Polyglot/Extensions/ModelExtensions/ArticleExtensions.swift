@@ -11,33 +11,58 @@ import Foundation
 extension Article {
     
     var query: String {
-        return title + body 
+        return title + body + source
     }
-    
-    // TODO: - Make it an extension of [Article]?
-    static func getArticle(from id: Int) -> Article? {  // TODO: - A more efficient method?
-        for article in Article.load() {  // TODO: - Update "samples".
+}
+
+extension Array where Iterator.Element == Article {
+
+    // TODO: - Simplify the for loops?
+
+    func getArticle(from id: Int) -> Article? {
+        for article in self {
             if article.id == id {
                 return article
             }
         }
         return nil
     }
+    
+    mutating func add(newArticle: Article) {
+        append(newArticle)
+    }
+    
+    mutating func updateArticle(of id: Int, newTitle: String? = nil, newBody: String? = nil, newSource: String? = nil) {
+        for i in 0..<count {
+            if self[i].id == id {
+                self[i].update(newTitle: newTitle, newBody: newBody, newSource: newSource)
+                return
+            }
+        }
+    }
+    
+    mutating func removeArticle(of id: Int) {
+        for i in 0..<count {
+            if self[i].id == id {
+                self.remove(at: i)
+                return
+            }
+        }
+    }
+    
+    func subset(containing keyWord: String) -> [Article] {
+        var subset: [Article] = []
+        for article in self {
+            if article.query.contains(keyWord) {
+                subset.append(article)
+            }
+        }
+        return subset
+    }
 }
 
 extension Array where Iterator.Element == Article {
     
-    mutating func removeArticle(of id: Int) {
-        var index: Int = -1
-        for i in 0..<count {  // TODO: - Remove the for loop here.
-            if self[i].id == id {
-                index = i
-                break
-            }
-        }
-        if index >= 0 {
-            self.remove(at: index)
-        }
-    }
+    
     
 }

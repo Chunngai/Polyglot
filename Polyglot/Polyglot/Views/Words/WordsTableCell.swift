@@ -14,7 +14,7 @@ class WordsTableCell: UITableViewCell {
     
     var word: Word! {
         didSet {
-            wordTextField.text = word.word
+            wordTextField.text = word.text
             meaningTextField.text = word.meaning
         }
     }

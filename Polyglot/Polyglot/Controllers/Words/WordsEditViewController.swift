@@ -98,7 +98,7 @@ extension WordsEditViewController {
         
         var words: [Word] = []
         
-        let sections: [String] = textView.content.trimmingWhitespacesAndNewlines().split(with: Strings.paraSeparator)
+        let sections: [String] = textView.content.strip().split(with: Strings.paraSeparator)
         for section in sections {
             let lines: [String] = section.split(with: "\n")
             
@@ -106,10 +106,10 @@ extension WordsEditViewController {
             // TODO: - Take care of the splitting results.
             
             // Date and optionally group note.
-            let firstLine = lines[0].replacingOccurrences(of: "- [ ]", with: "").trimmingWhitespacesAndNewlines()  // Replace the TODO bullet, if any.
+            let firstLine = lines[0].replacingOccurrences(of: "- [ ]", with: "").strip()  // Replace the TODO bullet, if any.
             let firstLineSplits = firstLine.split(with: "-")
             
-            let dateString = firstLineSplits[0].trimmingWhitespacesAndNewlines()
+            let dateString = firstLineSplits[0].strip()
             let dateStringSplits = dateString.split(separator: "/")
             let month: Int = Int(String(dateStringSplits[0]))!
             let day: Int = Int(String(dateStringSplits[1]))!
@@ -117,7 +117,7 @@ extension WordsEditViewController {
             
             let groupNote: String!
             if firstLineSplits.count == 2 {
-                groupNote = firstLineSplits[1].trimmingWhitespacesAndNewlines()
+                groupNote = firstLineSplits[1].strip()
             } else {
                 groupNote = ""
             }
@@ -125,14 +125,14 @@ extension WordsEditViewController {
             for i in 1..<lines.count {
                 let line = lines[i].split(separator: ".", maxSplits: 1)[1]  // Remove the numbring.
                 let lineSplits = line.split(separator: Strings.wordMeaningSeparator)
-                let word = String(lineSplits[0]).trimmingWhitespacesAndNewlines()
-                let meaning = String(lineSplits[1]).trimmingWhitespacesAndNewlines()
+                let word = String(lineSplits[0]).strip()
+                let meaning = String(lineSplits[1]).strip()
                 
                 words.append(Word(
-                    creationDate: date,
-                    word: word,
+                    cDate: date,
+                    text: word,
                     meaning: meaning,
-                    groupNote: groupNote
+                    note: groupNote
                 ))
             }
         }

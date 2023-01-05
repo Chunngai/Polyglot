@@ -250,9 +250,7 @@ extension WordsPracticeViewController: TimingBarDelegate {
                 historyRecords.append(HistoryRecord(practice: practiceList[i].practice))
             }
             
-            if currentPractice.practice.correctness != nil {
-                historyRecords.append(HistoryRecord(practice: currentPractice.practice))
-            }
+            historyRecords.append(HistoryRecord(practice: currentPractice.practice))
             
             var loadedHistory = HistoryRecord.load()  // TODO: - Update.
             loadedHistory.append(contentsOf: historyRecords)  // TODO: - Don't load every time.

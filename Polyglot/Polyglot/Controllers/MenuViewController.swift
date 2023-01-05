@@ -173,7 +173,7 @@ extension MenuViewController: ThreeItemSelectionStackDelegate {
             let translationPracticeViewController = TranslationPracticeViewController()
             translationPracticeViewController.updateValues(articles: Article.load())
             
-            let navController = DefaultNavController(rootViewController: translationPracticeViewController)
+            let navController = NavController(rootViewController: translationPracticeViewController)
             navigationController?.present(navController, animated: true, completion: nil)
         }
     }

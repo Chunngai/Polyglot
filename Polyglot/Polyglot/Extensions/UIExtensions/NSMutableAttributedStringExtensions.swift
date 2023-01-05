@@ -64,14 +64,14 @@ extension NSMutableAttributedString {
 //        )
 //    }
 //
-//    func setTextColor(for text: String? = nil, with color: UIColor) {
-//        set(
-//            attributes: [
-//                .foregroundColor : color
-//            ],
-//            for: text
-//        )
-//    }
+    func setTextColor(for text: String? = nil, with color: UIColor) {
+        add(
+            attributes: [
+                .foregroundColor : color
+            ],
+            for: text
+        )
+    }
 //
 //    func setUnderline(for text: String? = nil, style: NSUnderlineStyle = .single, color: UIColor = .black) {
 //        set(

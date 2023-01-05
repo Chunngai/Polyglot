@@ -11,6 +11,6 @@ import UIKit
 
 extension UISearchBar {
     var keyWord: String? {
-        self.text?.trimmingWhitespacesAndNewlines()
+        self.text?.strip()
     }
 }

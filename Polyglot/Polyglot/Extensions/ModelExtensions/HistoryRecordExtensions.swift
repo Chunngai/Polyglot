@@ -11,7 +11,7 @@ import Foundation
 extension HistoryRecord {
     
     var groupIdentifier: String {
-        return creationDate.dateRepresentation()
+        return creationDate.repr()
     }
     
     var practiceType: String {
@@ -40,14 +40,14 @@ extension HistoryRecord {
             
             // TODO: - Update "samples".
             // Obtain the word to practice.
-            guard let wordToPractice = Word.getWord(from: wordPractice.wordId) else {
+            guard let wordToPractice = Word.load().getWord(from: wordPractice.wordId) else {  // TODO: - load()
                 print(wordPractice.wordId)
                 return ""
             }
             
             let wordToPracticeString: String!
             if wordPractice.direction == 0 {
-                wordToPracticeString = wordToPractice.word
+                wordToPracticeString = wordToPractice.text
             } else {
                 wordToPracticeString = wordToPractice.meaning
             }
@@ -60,7 +60,7 @@ extension HistoryRecord {
                 // Obtain selection words.
                 var selectionWords: [Word?] = []
                 for wordId in wordPractice.selectionWordsIds! {
-                    selectionWords.append(Word.getWord(from: wordId))
+                    selectionWords.append(Word.load().getWord(from: wordId))  // TODO: - load()
                 }
             
                 for selectionWord in selectionWords {
@@ -71,7 +71,7 @@ extension HistoryRecord {
                     if wordPractice.direction == 0 {
                         content += "\(selectionWord!.meaning)/"
                     } else {
-                        content += "\(selectionWord!.word)/"
+                        content += "\(selectionWord!.text)/"
                     }
                     
                     if wordPractice.correctness == .incorrect {
@@ -92,7 +92,7 @@ extension HistoryRecord {
                 if wordPractice.direction == 0 {
                     keyString = wordToPractice.meaning
                 } else {
-                    keyString = wordToPractice.word
+                    keyString = wordToPractice.text
                 }
                 
                 if wordPractice.correctness == .correct {
@@ -117,7 +117,7 @@ extension HistoryRecord {
             let paraId = readingPractice.articleAndParaIds[1]
             
             // TODO: - Update "samples".
-            guard let article = Article.getArticle(from: articleId) else {
+            guard let article = Article.load().getArticle(from: articleId) else {  // TODO: - load()
                 return ""
             }
             let para = article.body.split(with: Strings.paraSeparator)[paraId]
@@ -128,7 +128,7 @@ extension HistoryRecord {
             let paraId = translationPractice.articleAndParaIds[1]
             
             // TODO: - Update "samples".
-            guard let article = Article.getArticle(from: articleId) else {
+            guard let article = Article.load().getArticle(from: articleId) else {  // TODO: - load()
                 return ""
             }
             let para = article.body.split(with: Strings.paraSeparator)[paraId]

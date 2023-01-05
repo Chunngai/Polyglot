@@ -11,10 +11,6 @@ import UIKit
 class RoundButton: UIButton {
     
     var radius: CGFloat = RoundButton.defaultRadius
-    
-    // MARK: - Controllers
-    
-    var delegate: RoundButtonDelegate!
         
     // MARK: - Init
     
@@ -41,11 +37,7 @@ class RoundButton: UIButton {
     }
     
     private func updateSetups() {
-        addTarget(
-            delegate,
-            action: #selector(delegate.tapped),
-            for: .touchUpInside
-        )
+        
     }
     
     private func updateViews() {
@@ -65,9 +57,4 @@ extension RoundButton {
     // MARK: - Constants
     
     private static let defaultRadius: CGFloat = 65
-}
-
-@objc protocol RoundButtonDelegate {
-    
-    func tapped()
 }

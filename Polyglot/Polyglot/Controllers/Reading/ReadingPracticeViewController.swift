@@ -250,13 +250,13 @@ extension ReadingPracticeViewController: TimingBarDelegate {
             var newWords: [Word] = []
             for (practiceItemIndex, newWordsInfo) in allNewWordsInfo {
                 let articleId = practiceList[practiceItemIndex].practice.articleAndParaIds[0]
-                let article = Article.getArticle(from: articleId)
+                let article = Article.load().getArticle(from: articleId)  // TODO: - load()
                 let articleTitle = article?.title
                 for newWordInfo in newWordsInfo {
                     newWords.append(Word(
-                        word: newWordInfo.word,
+                        text: newWordInfo.word,
                         meaning: newWordInfo.meaning,
-                        groupNote: articleTitle ?? ""
+                        note: articleTitle ?? ""
                     ))
                 }
             }

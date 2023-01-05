@@ -12,8 +12,8 @@ class MeaningFillingPracticeView: UIView {
 
     private var practiceItem: WordPracticeProducer.WordPracticeItem!
     
-    private var answer: String? {
-        textField.text?.trimmingWhitespacesAndNewlines()
+    private var answer: String {
+        textField.text!.strip()
     }
     
     // MARK: - Controllers
@@ -35,7 +35,7 @@ class MeaningFillingPracticeView: UIView {
         return bottomLine
     }()
     
-    private var correctAnswerLabel: UILabel = {
+    private var referenceLabel: UILabel = {
         let label = UILabel()
         label.textColor = Colors.defaultTextColor
         label.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
@@ -66,7 +66,7 @@ class MeaningFillingPracticeView: UIView {
         
         addSubview(textField)
         addSubview(bottomLine)
-        addSubview(correctAnswerLabel)
+        addSubview(referenceLabel)
     }
     
     private func updateLayouts() {
@@ -82,7 +82,7 @@ class MeaningFillingPracticeView: UIView {
             make.centerX.equalTo(textField.snp.centerX)
         }
         
-        correctAnswerLabel.snp.makeConstraints { (make) in
+        referenceLabel.snp.makeConstraints { (make) in
             make.top.equalTo(bottomLine.snp.bottom).offset(5)
             make.left.equalTo(bottomLine.snp.left)
             make.width.equalTo(bottomLine.snp.width)
@@ -99,21 +99,23 @@ extension MeaningFillingPracticeView: PracticeDelegate {
     // MARK: - Practice Delegate
     
     func check() -> Any {
-        // TODO: - Support partial correctness.
-        
         textField.resignFirstResponder()
         
-        let correctness: Bool = answer == practiceItem.key
-        if correctness {
-            textField.textColor = Colors.strongCorrectColor
-        } else {
-            textField.textColor = Colors.strongIncorrectColor
-            
-            correctAnswerLabel.isHidden = false
-            correctAnswerLabel.text = "\(Strings.meaningFillingPracticeCorrectAnswerLabelPrefix)\(practiceItem.key)"
+        // Highlight overlap chars.
+        let attributedAnswer = NSMutableAttributedString(string: answer)
+        for character in practiceItem.key {
+            if answer.contains(character) {
+                attributedAnswer.setTextColor(for: String(character), with: Colors.strongCorrectColor)
+            }
+        }
+        textField.attributedText = attributedAnswer
+        
+        if answer != practiceItem.key {
+            referenceLabel.isHidden = false
+            referenceLabel.text = "\(Strings.meaningFillingPracticeReferenceLabelPrefix)\(practiceItem.key)"
         }
         
-        return answer!
+        return answer
     }
 }
 

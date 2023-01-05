@@ -21,7 +21,7 @@ extension Date {
         return dateFormatter.string(from: self)
     }
     
-    func dateRepresentation(ofFormat format: String = "") -> String {
+    func repr(ofFormat format: String = "") -> String {
         let dateFormat = format.isEmpty
             ? defaultDateFormat
             : format

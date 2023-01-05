@@ -9,78 +9,71 @@
 import Foundation
 
 extension Word {
-
-    var groupIdentifier: String {
-        var identifier = creationDate.dateRepresentation()
-        if !groupNote.trimmingWhitespacesAndNewlines().isEmpty {
-            identifier += " · \(groupNote)"
-        }
-        return identifier
-    }
     
     var query: String {
-        return word + meaning
+        return text + meaning
     }
+    
+    var groupId: String {
+        var groupId = cDate.repr()
+        if let note = note {
+            groupId += " · \(note)"
+        }
+        return groupId
+    }
+}
 
-    // TODO: - Make it an extension of [Word]?
-    static func getWord(from id: Int) -> Word? {  // TODO: - A more efficient method?
-        for word in Word.load() {  // TODO: - don't load everytime.
+extension Array where Iterator.Element == Word {
+    
+    // TODO: - Simplify the for loops?
+    
+    func getWord(from id: Int) -> Word? {
+        for word in self {
             if word.id == id {
                 return word
             }
         }
         return nil
     }
-}
-
-extension Array where Element == Word {
     
-    mutating func append(contentsOf newWords: [Word]) {
-        
+    mutating func add(newWords: [Word]) {
         for newWord in newWords {
-            
-            // TODO: - Simplify the duplication check.
-            var shouldAdd: Bool = true
             for existingWord in self {
-                if newWord.id == existingWord.id {
-                    shouldAdd = false
-                    print("Skipped: \(newWord.word)")
-                    break
+                if newWord.id != existingWord.id {
+                    append(newWord)
+                } else {
+                    print("Skipped: \(newWord.text)")
                 }
-            }
-            
-            if shouldAdd {
-                append(newWord)
+                break
             }
         }
     }
     
-    mutating func updateWord(of id: Int, newText: String? = "", newMeaning: String? = "") {
-        for i in 0..<count {  // TODO: - Remove the for loop here.
+    mutating func updateWord(of id: Int, newText: String? = nil, newMeaning: String? = nil) {
+        for i in 0..<count {
             if self[i].id == id {
-                if let newText = newText {
-                    self[i].word = newText
-                }
-                if let newMeaning = newMeaning {
-                    self[i].meaning = newMeaning
-                }
-                self[i].modificationDate = Date()
-                
-                break
+                self[i].update(newText: newText, newMeaning: newMeaning)
+                return
             }
         }
     }
     
     mutating func removeWord(of id: Int) {
-        var index: Int = -1
-        for i in 0..<count {  // TODO: - Remove the for loop here.
+        for i in 0..<count {
             if self[i].id == id {
-                index = i
-                break
+                self.remove(at: i)
+                return
             }
         }
-        if index >= 0 {
-            self.remove(at: index)
+    }
+    
+    func subset(containing keyWord: String) -> [Word] {
+        var subset: [Word] = []
+        for word in self {
+            if word.query.contains(keyWord) {
+                subset.append(word)
+            }
         }
+        return subset
     }
 }

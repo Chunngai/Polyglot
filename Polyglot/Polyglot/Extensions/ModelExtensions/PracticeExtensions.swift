@@ -28,9 +28,9 @@ extension WordPractice {
         case .meaningFilling:  // TODO: - Consider partial correctness.
             let key: String!
             if direction == 0 {
-                key = Word.getWord(from: wordId)?.meaning
+                key = Word.load().getWord(from: wordId)?.meaning  // TODO: load()
             } else {
-                key = Word.getWord(from: wordId)?.word
+                key = Word.load().getWord(from: wordId)?.text  // TODO: load()
             }
             
             if key == typedAnswer {
@@ -103,13 +103,13 @@ struct WordPracticeProducer {
         let key: String!
         let promptTemplate: String = makePromptTemplate(for: .meaningSelection)
         if randomDirection == 0 {  // word -> meaning.
-            prompt = promptTemplate.replacingOccurrences(of: WordPracticeProducer.maskToken, with: wordToPractice.word)
+            prompt = promptTemplate.replacingOccurrences(of: WordPracticeProducer.maskToken, with: wordToPractice.text)
             selectionTexts = [selectionWords[0].meaning, selectionWords[1].meaning, selectionWords[2].meaning]
             key = wordToPractice.meaning
         } else {
             prompt = promptTemplate.replacingOccurrences(of: WordPracticeProducer.maskToken, with: wordToPractice.meaning)
-            selectionTexts = [selectionWords[0].word, selectionWords[1].word, selectionWords[2].word]
-            key = wordToPractice.word
+            selectionTexts = [selectionWords[0].text, selectionWords[1].text, selectionWords[2].text]
+            key = wordToPractice.text
         }
         
         return WordPracticeItem(practice: wordPractice, prompt: prompt, selectionTexts: selectionTexts, key: key)
@@ -129,11 +129,11 @@ struct WordPracticeProducer {
         let key: String!
         let promptTemplate: String = makePromptTemplate(for: .meaningFilling)
         if randomDirection == 0 {  // word -> meaning.
-            prompt = promptTemplate.replacingOccurrences(of: WordPracticeProducer.maskToken, with: wordToPractice.word)
+            prompt = promptTemplate.replacingOccurrences(of: WordPracticeProducer.maskToken, with: wordToPractice.text)
             key = wordToPractice.meaning
         } else {
             prompt = promptTemplate.replacingOccurrences(of: WordPracticeProducer.maskToken, with: wordToPractice.meaning)
-            key = wordToPractice.word
+            key = wordToPractice.text
         }
         
         return WordPracticeItem(practice: wordPractice, prompt: prompt, key: key)

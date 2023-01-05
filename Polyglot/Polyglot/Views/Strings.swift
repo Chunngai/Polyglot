@@ -95,7 +95,7 @@ struct Strings {
     static let meaningSelectionAndFillingPracticePromptSuffix: String = "は何と意味しますか"
     static let contextSelectionPracticePrompt: String = "適切な単語を選んでください"
     
-    static let meaningFillingPracticeCorrectAnswerLabelPrefix: String = "正解: "
+    static let meaningFillingPracticeReferenceLabelPrefix: String = "参考: "
     
     static let exitWithoutSavingAlertTitle: String = "Exit without saving"
     static let exitWithoutSavingAlertBody: String = "Edits have been made. Exit without saving them?"

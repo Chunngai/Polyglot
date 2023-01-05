@@ -14,6 +14,10 @@ class RoundShadowView: UIView {
     
     lazy var button: RoundButton = RoundButton()
     
+    // MARK: - Controllers
+    
+    var delegate: RoundShadowViewDelegate!
+    
     // MARK: - Init
     
     override init(frame: CGRect) {
@@ -29,7 +33,7 @@ class RoundShadowView: UIView {
     }
 
     private func updateSetups() {
-        
+        button.addTarget(delegate, action: #selector(delegate.tapped), for: .touchUpInside)
     }
     
     private func updateViews() {
@@ -57,4 +61,10 @@ extension RoundShadowView {
     private static let shadowOpacity: Float = 0.3
     private static let shadowRadius: CGFloat = 2
     private static let shadowOffset: CGSize = CGSize(width: 3, height: 3)
+}
+
+@objc protocol RoundShadowViewDelegate {
+    
+    func tapped()
+    
 }

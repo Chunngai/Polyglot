@@ -9,7 +9,7 @@
 import Foundation
 
 extension String {
-    func trimmingWhitespacesAndNewlines() -> String {
+    func strip() -> String {
         return self.trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
     }
 

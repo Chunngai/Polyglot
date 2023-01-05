@@ -8,11 +8,10 @@
 
 import UIKit
 
-class ReadingViewController: UIViewController {
+class ReadingViewController: ListViewController {
     
     private var dataSource: [Article]! {
         didSet {
-            // Reload table data.
             tableView.reloadData()
         }
     }
@@ -23,45 +22,9 @@ class ReadingViewController: UIViewController {
         didSet {
             Article.save(&articles)
             
-            // Also update the data source.
             dataSource = articles
         }
     }
-    
-    // MARK: - Controllers
-    
-    private var searchController: UISearchController = {
-        let searchController = UISearchController()
-        searchController.obscuresBackgroundDuringPresentation = false
-        return searchController
-    }()
-    
-    // MARK: - Views
-    
-    private var tableView: UITableView = {
-        let tableView = UITableView()
-        tableView.backgroundColor = Colors.defaultBackgroundColor
-        return tableView
-    }()
-    
-    private var practiceButtonShadowView: RoundShadowView = {
-        let roundShadowView = RoundShadowView()
-        roundShadowView.button.setImage(
-            Icons.practiceIcon,
-            for: .normal
-        )
-        roundShadowView.button.backgroundColor = Colors.defaultBackgroundColor
-        return roundShadowView
-    }()
-    
-    private lazy var navigationBarAddButton: UIBarButtonItem = {
-        let button = UIBarButtonItem(
-            barButtonSystemItem: .add,
-            target: self,
-            action: #selector(addButtonTapped)
-        )
-        return button
-    }()
     
     // MARK: - Init
     
@@ -73,42 +36,18 @@ class ReadingViewController: UIViewController {
         updateLayouts()
     }
     
-    private func updateSetups() {
+    override func updateSetups() {
+        super.updateSetups()
+        
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(ReadingTableCell.self, forCellReuseIdentifier: ReadingViewController.cellIdentifier)
 
         searchController.searchResultsUpdater = self
-        practiceButtonShadowView.button.delegate = self
         
-        // The initial data source is the articles.
+        practiceButtonShadowView.delegate = self
+        
         dataSource = articles
-    }
-    
-    private func updateViews() {
-        view.backgroundColor = Colors.defaultBackgroundColor
-        
-        navigationItem.rightBarButtonItem = navigationBarAddButton
-        navigationItem.searchController = searchController
-                        
-        view.addSubview(tableView)
-        tableView.removeRedundantSeparators()
-        
-        view.addSubview(practiceButtonShadowView)
-    }
-    
-    private func updateLayouts() {
-        tableView.snp.makeConstraints { (make) in
-            make.top.equalToSuperview().inset(navigationController!.navigationBar.frame.height + searchController.searchBar.frame.height)
-            make.bottom.equalToSuperview()
-            make.width.equalToSuperview()
-            make.centerX.equalToSuperview()
-        }
-        
-        practiceButtonShadowView.snp.makeConstraints { (make) in
-            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(10)
-            make.trailing.equalTo(view.safeAreaLayoutGuide).inset(10)
-        }
     }
     
     func updateValues() {
@@ -153,19 +92,16 @@ extension ReadingViewController: UITableViewDelegate {
         readingEditViewController.delegate = self
         readingEditViewController.updateValues(article: articles[indexPath.row])
         
-        let readingEditNavController = DefaultNavController(rootViewController: readingEditViewController)
+        let readingEditNavController = NavController(rootViewController: readingEditViewController)
         navigationController?.present(readingEditNavController, animated: true, completion: nil)
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
             
         // https://www.hackingwithswift.com/example-code/uikit/how-to-swipe-to-delete-uitableviewcells
-        
         if editingStyle == .delete {
             if let cell = tableView.cellForRow(at: indexPath) as? ReadingTableCell {
-                
-                let id = cell.article.id
-                articles.removeArticle(of: id)
+                articles.removeArticle(of: cell.article.id)
             }
         }
     }
@@ -175,29 +111,26 @@ extension ReadingViewController {
     
     // MARK: - Selectors
     
-    @objc private func addButtonTapped() {
-        
+    @objc override func addButtonTapped() {
         let readingEditViewController = ReadingEditViewController()
         readingEditViewController.delegate = self
         
-        let readingEditNavController = DefaultNavController(rootViewController: readingEditViewController)
+        let readingEditNavController = NavController(rootViewController: readingEditViewController)
         navigationController?.present(readingEditNavController, animated: true, completion: nil)
         
     }
 }
 
-extension ReadingViewController: RoundButtonDelegate {
+extension ReadingViewController: RoundShadowViewDelegate {
     
     // MARK: - RoundShadowView Delegate
     
     @objc func tapped() {
-
         let readingPracticeViewController = ReadingPracticeViewController()
         readingPracticeViewController.delegate = self
-        
         readingPracticeViewController.updateValues(articles: articles)
         
-        let readingPracticeNavController = DefaultNavController(rootViewController: readingPracticeViewController)
+        let readingPracticeNavController = NavController(rootViewController: readingPracticeViewController)
         navigationController?.present(readingPracticeNavController, animated: true, completion: nil)
     }
     
@@ -205,22 +138,14 @@ extension ReadingViewController: RoundButtonDelegate {
 
 extension ReadingViewController: ReadingEditViewControllerDelegate {
     
+    // MARK: - ReadingEditViewController Delegate
+    
     func add(article: Article) {
-        
-        // TODO: - Wrap to Article.
-        
-        articles.append(article)
+        articles.add(newArticle: article)
     }
     
     func edit(articleId: Int, newTitle: String, newBody: String, newSource: String) {
-        
-        // TODO: - Wrap to Article.
-        
-        for i in 0..<articles.count {
-            if articles[i].id == articleId {
-                articles[i].update(newTitle: newTitle, newBody: newBody, newSource: newSource)
-            }
-        }
+        articles.updateArticle(of: articleId, newTitle: newTitle, newBody: newBody, newSource: newSource)
     }
 }
 
@@ -232,20 +157,7 @@ extension ReadingViewController: UISearchResultsUpdating {
         guard let keyWord = searchController.searchBar.text else {
             return
         }
-        
-        if keyWord == "" {
-            // If no keyword is provided, load all the articles.
-            dataSource = articles
-        } else {
-            // Obtain all articles containing the keyword.
-            var matchedArticles: [Article] = []
-            for article in articles {
-                if article.query.contains(keyWord) {
-                    matchedArticles.append(article)
-                }
-            }
-            dataSource = matchedArticles
-        }
+        dataSource = articles.subset(containing: keyWord)
     }
     
 }
