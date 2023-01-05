@@ -34,8 +34,8 @@
 		FF4CA730295E869900423946 /* TranslationPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4CA72F295E869900423946 /* TranslationPracticeViewController.swift */; };
 		FF4D7CC62953952C009F6894 /* NSMutableAttributedStringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4D7CC52953952C009F6894 /* NSMutableAttributedStringExtensions.swift */; };
 		FF4EFE08295D310A00E30D6A /* BackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4EFE07295D310A00E30D6A /* BackgroundView.swift */; };
-		FF4EFE0C295D34B200E30D6A /* HistoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4EFE0B295D34B200E30D6A /* HistoryViewController.swift */; };
-		FF4EFE0F295D358C00E30D6A /* HistoryRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4EFE0E295D358C00E30D6A /* HistoryRecord.swift */; };
+		FF4EFE0C295D34B200E30D6A /* _HistoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4EFE0B295D34B200E30D6A /* _HistoryViewController.swift */; };
+		FF4EFE0F295D358C00E30D6A /* _HistoryRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4EFE0E295D358C00E30D6A /* _HistoryRecord.swift */; };
 		FF4EFE12295D36D900E30D6A /* HistoryRecordTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4EFE11295D36D900E30D6A /* HistoryRecordTableCell.swift */; };
 		FF4EFE14295D392F00E30D6A /* HistoryRecordExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4EFE13295D392F00E30D6A /* HistoryRecordExtensions.swift */; };
 		FF50250E295244F10097C2CB /* ReadingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF50250D295244F10097C2CB /* ReadingViewController.swift */; };
@@ -48,6 +48,9 @@
 		FF5844312967217700137E00 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5844302967217700137E00 /* ListViewController.swift */; };
 		FF584434296732B400137E00 /* DictionaryExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF584433296732B400137E00 /* DictionaryExtensions.swift */; };
 		FF5882BE29604E0300FC33CF /* NewWordAddingTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5882BD29604E0300FC33CF /* NewWordAddingTextView.swift */; };
+		FF591ED62967960C0004CB80 /* WordPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF591ED52967960C0004CB80 /* WordPractice.swift */; };
+		FF591ED8296796160004CB80 /* ReadingPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF591ED7296796160004CB80 /* ReadingPractice.swift */; };
+		FF591EDA296796200004CB80 /* TranslationPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF591ED9296796200004CB80 /* TranslationPractice.swift */; };
 		FF5AA0072961EA62009D5237 /* WordsEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5AA0062961EA62009D5237 /* WordsEditViewController.swift */; };
 		FF5AA00B2961F208009D5237 /* Alerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5AA00A2961F208009D5237 /* Alerts.swift */; };
 		FF5B182C2961E55F00C80DC3 /* IO.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5B182B2961E55F00C80DC3 /* IO.swift */; };
@@ -144,8 +147,8 @@
 		FF4CA72F295E869900423946 /* TranslationPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeViewController.swift; sourceTree = "<group>"; };
 		FF4D7CC52953952C009F6894 /* NSMutableAttributedStringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSMutableAttributedStringExtensions.swift; sourceTree = "<group>"; };
 		FF4EFE07295D310A00E30D6A /* BackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundView.swift; sourceTree = "<group>"; };
-		FF4EFE0B295D34B200E30D6A /* HistoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryViewController.swift; sourceTree = "<group>"; };
-		FF4EFE0E295D358C00E30D6A /* HistoryRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryRecord.swift; sourceTree = "<group>"; };
+		FF4EFE0B295D34B200E30D6A /* _HistoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _HistoryViewController.swift; sourceTree = "<group>"; };
+		FF4EFE0E295D358C00E30D6A /* _HistoryRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _HistoryRecord.swift; sourceTree = "<group>"; };
 		FF4EFE11295D36D900E30D6A /* HistoryRecordTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryRecordTableCell.swift; sourceTree = "<group>"; };
 		FF4EFE13295D392F00E30D6A /* HistoryRecordExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryRecordExtensions.swift; sourceTree = "<group>"; };
 		FF50250D295244F10097C2CB /* ReadingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingViewController.swift; sourceTree = "<group>"; };
@@ -158,6 +161,9 @@
 		FF5844302967217700137E00 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 		FF584433296732B400137E00 /* DictionaryExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryExtensions.swift; sourceTree = "<group>"; };
 		FF5882BD29604E0300FC33CF /* NewWordAddingTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWordAddingTextView.swift; sourceTree = "<group>"; };
+		FF591ED52967960C0004CB80 /* WordPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPractice.swift; sourceTree = "<group>"; };
+		FF591ED7296796160004CB80 /* ReadingPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPractice.swift; sourceTree = "<group>"; };
+		FF591ED9296796200004CB80 /* TranslationPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPractice.swift; sourceTree = "<group>"; };
 		FF5AA0062961EA62009D5237 /* WordsEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordsEditViewController.swift; sourceTree = "<group>"; };
 		FF5AA00A2961F208009D5237 /* Alerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alerts.swift; sourceTree = "<group>"; };
 		FF5B182B2961E55F00C80DC3 /* IO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IO.swift; sourceTree = "<group>"; };
@@ -298,7 +304,7 @@
 		FF4EFE0D295D34B700E30D6A /* History */ = {
 			isa = PBXGroup;
 			children = (
-				FF4EFE0B295D34B200E30D6A /* HistoryViewController.swift */,
+				FF4EFE0B295D34B200E30D6A /* _HistoryViewController.swift */,
 			);
 			path = History;
 			sourceTree = "<group>";
@@ -326,8 +332,8 @@
 			children = (
 				FF4964CE2958CE4400414AC5 /* Word.swift */,
 				FF502511295248D10097C2CB /* Article.swift */,
-				FF4A21532959A5D600AD3AF8 /* Practice.swift */,
-				FF4EFE0E295D358C00E30D6A /* HistoryRecord.swift */,
+				FF591ED2296795E70004CB80 /* Practices */,
+				FF4EFE0E295D358C00E30D6A /* _HistoryRecord.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -364,6 +370,17 @@
 				FF5844302967217700137E00 /* ListViewController.swift */,
 			);
 			path = Common;
+			sourceTree = "<group>";
+		};
+		FF591ED2296795E70004CB80 /* Practices */ = {
+			isa = PBXGroup;
+			children = (
+				FF4A21532959A5D600AD3AF8 /* Practice.swift */,
+				FF591ED52967960C0004CB80 /* WordPractice.swift */,
+				FF591ED7296796160004CB80 /* ReadingPractice.swift */,
+				FF591ED9296796200004CB80 /* TranslationPractice.swift */,
+			);
+			path = Practices;
 			sourceTree = "<group>";
 		};
 		FF62C9692951382500D41797 = {
@@ -639,6 +656,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FF591ED62967960C0004CB80 /* WordPractice.swift in Sources */,
 				FF4EFE08295D310A00E30D6A /* BackgroundView.swift in Sources */,
 				FF495E962958FFE600EA7EA9 /* WordsViewController.swift in Sources */,
 				FF502512295248D10097C2CB /* Article.swift in Sources */,
@@ -664,6 +682,7 @@
 				FF8CDE812952995F00B36CA3 /* NewWordBottomView.swift in Sources */,
 				FF4EFE14295D392F00E30D6A /* HistoryRecordExtensions.swift in Sources */,
 				FF5B182C2961E55F00C80DC3 /* IO.swift in Sources */,
+				FF591EDA296796200004CB80 /* TranslationPractice.swift in Sources */,
 				FF4964BE29579C9700414AC5 /* StringExtensions.swift in Sources */,
 				FF706DF5295144B000DBCF8E /* UIColorExtensions.swift in Sources */,
 				FF491E792959CCF60088FD13 /* ContextSelectionPracticeView.swift in Sources */,
@@ -682,10 +701,10 @@
 				FF4964CF2958CE4400414AC5 /* Word.swift in Sources */,
 				FF706E032951549C00DBCF8E /* UIImageExtensions.swift in Sources */,
 				FF4EFE12295D36D900E30D6A /* HistoryRecordTableCell.swift in Sources */,
-				FF4EFE0C295D34B200E30D6A /* HistoryViewController.swift in Sources */,
+				FF4EFE0C295D34B200E30D6A /* _HistoryViewController.swift in Sources */,
 				FF5D129129577AC4005DEEDE /* NavController.swift in Sources */,
 				FF4964C22957B01100414AC5 /* UITextViewExtensions.swift in Sources */,
-				FF4EFE0F295D358C00E30D6A /* HistoryRecord.swift in Sources */,
+				FF4EFE0F295D358C00E30D6A /* _HistoryRecord.swift in Sources */,
 				FF495E9E2959084200EA7EA9 /* DateExtensions.swift in Sources */,
 				FF4964CB2958BAFD00414AC5 /* TimingBar.swift in Sources */,
 				FF50250E295244F10097C2CB /* ReadingViewController.swift in Sources */,
@@ -693,6 +712,7 @@
 				FF4964CD2958BE8900414AC5 /* TimeIntervalExtensions.swift in Sources */,
 				FF52920A2952012E00858B55 /* ThreeButtonSelectionStack.swift in Sources */,
 				FF62C9782951382500D41797 /* SceneDelegate.swift in Sources */,
+				FF591ED8296796160004CB80 /* ReadingPractice.swift in Sources */,
 				FF5DB994295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift in Sources */,
 				FF495EA22959244C00EA7EA9 /* WordsPracticeViewController.swift in Sources */,
 				FF5CA65F295A0A9A00BE7095 /* PracticeExtensions.swift in Sources */,
