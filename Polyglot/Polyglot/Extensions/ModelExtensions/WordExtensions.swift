@@ -68,6 +68,10 @@ extension Array where Iterator.Element == Word {
     }
     
     func subset(containing keyWord: String) -> [Word] {
+        if keyWord.isEmpty {
+            return self
+        }
+        
         var subset: [Word] = []
         for word in self {
             if word.query.contains(keyWord) {

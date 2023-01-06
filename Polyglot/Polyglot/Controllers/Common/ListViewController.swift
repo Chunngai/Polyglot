@@ -57,7 +57,7 @@ class ListViewController: UIViewController {
     }
     
     func updateSetups() {
-
+        solveKeyboardLocation(view: view)
     }
     
     func updateViews() {

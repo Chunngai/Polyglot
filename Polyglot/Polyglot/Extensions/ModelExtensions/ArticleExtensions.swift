@@ -66,6 +66,10 @@ extension Array where Iterator.Element == Article {
     }
     
     func subset(containing keyWord: String) -> [Article] {
+        if keyWord.isEmpty {
+            return self
+        }
+        
         var subset: [Article] = []
         for article in self {
             if article.query.contains(keyWord) {
@@ -74,10 +78,4 @@ extension Array where Iterator.Element == Article {
         }
         return subset
     }
-}
-
-extension Array where Iterator.Element == Article {
-    
-    
-    
 }
