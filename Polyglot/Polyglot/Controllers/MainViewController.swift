@@ -72,6 +72,14 @@ class MainViewController: UIViewController {
         updateLayouts()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        UIApplication.shared.statusBarUIView?.backgroundColor = Colors.weakLightBlue
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        UIApplication.shared.statusBarUIView?.backgroundColor = Colors.defaultBackgroundColor
+    }
+    
     private func updateViews() {
         view.backgroundColor = Colors.defaultBackgroundColor
         
@@ -82,9 +90,9 @@ class MainViewController: UIViewController {
         primaryPromptLabel.attributedText = Strings.mainPrimaryPrompt
         secondaryPromptLabel.attributedText = Strings.mainSecondaryPrompt
         
-        enButton.updateValues(iconName: Assets.enIcon, langName: Strings.en, delegate: self)
-        jaButton.updateValues(iconName: Assets.jaIcon, langName: Strings.ja, delegate: self)
-        esButton.updateValues(iconName: Assets.esIcon, langName: Strings.es, delegate: self)
+        enButton.updateValues(lang: Assets.enIcon, langString: Strings.en, delegate: self)
+        jaButton.updateValues(lang: Assets.jaIcon, langString: Strings.ja, delegate: self)
+        esButton.updateValues(lang: Assets.esIcon, langString: Strings.es, delegate: self)
     }
     
     // TODO: - Update the insets and offsets here.

@@ -62,8 +62,14 @@ class MenuViewController: UIViewController {
         updateLayouts()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        UIApplication.shared.statusBarUIView?.backgroundColor = Colors.weakLightBlue
+    }
+    
     override func viewWillDisappear(_ animated: Bool) {
         navigationController?.navigationBar.backgroundColor = nil  // Reset the bg color from lightblue to nil.
+
+        UIApplication.shared.statusBarUIView?.backgroundColor = Colors.defaultBackgroundColor
     }
     
     private func updateSetups() {
@@ -79,7 +85,6 @@ class MenuViewController: UIViewController {
     
     private func updateViews() {
         view.backgroundColor = Colors.defaultBackgroundColor
-        
         view.addSubview(backgroundView)
         view.addSubview(mainView)
         

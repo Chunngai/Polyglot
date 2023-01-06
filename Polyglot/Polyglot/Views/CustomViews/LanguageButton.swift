@@ -59,14 +59,12 @@ class LanguageButton: UIButton {
         }
     }
     
-    func updateValues(iconName: String, langName: NSAttributedString, delegate: MainViewController) {
-        // Infer the language from the icon name.
-        // TODO: - Maybe use a language identifier?
-        self.lang = iconName
+    func updateValues(lang: String, langString: NSAttributedString, delegate: MainViewController) {
+        self.lang = lang
         self.delegate = delegate
         
-        flagImageView.image = UIImage(imageLiteralResourceName: iconName).scale(to: Sizes.languageFlagScaleFactor)
-        languageLabel.attributedText = langName
+        flagImageView.image = UIImage(imageLiteralResourceName: lang).scale(to: Sizes.languageFlagScaleFactor)
+        languageLabel.attributedText = langString
     }
 }
 
