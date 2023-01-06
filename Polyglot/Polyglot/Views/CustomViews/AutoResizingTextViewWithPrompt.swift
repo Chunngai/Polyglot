@@ -8,32 +8,31 @@
 
 import UIKit
 
-class AutoResizingTextViewWithPrompt: UITextView, UITextViewDelegate {
+class AutoResizingTextViewWithPrompt: UITextView {
 
-    var prompt: String!
-    var promptAttributes: [NSAttributedString.Key : Any]? = nil
+    var prompt: String! {
+        didSet {
+            text = prompt
+        }
+    }
     
+    var promptAttributes: [NSAttributedString.Key : Any]? = nil {
+        didSet {
+            updateTextAttributes()
+        }
+    }
     var textAttributes: [NSAttributedString.Key : Any]? = nil {
         didSet {
-            guard let prompt = prompt, let textViewText = text else {
-                return
-            }
+            updateTextAttributes()
+        }
+    }
+    
+    override var text: String! {
+        didSet {
+            // Only called once?
+            // For subsequent changes, textViewDidChange() will be called.
             
-            let content: NSMutableAttributedString = NSMutableAttributedString(
-                string: "\(prompt)\(textViewText)",
-                attributes: textAttributes
-            )
-            
-            if let promptAttributes = promptAttributes {
-                // Update the prompt color.
-                // The text content may contain the prompt (though rare),
-                // so make the range instead of directly using the prompt for attr setting.
-                // Note that "-1" in the code below is needed, or the attrs of all content will be set when `text` is an empty string.
-                let promptRange = NSRange(location: 0, length: prompt.count - 1)
-                content.add(attributes: promptAttributes, for: promptRange)
-            }
-            
-            attributedText = content
+            maybeAddPrompt()
         }
     }
     
@@ -96,20 +95,48 @@ extension AutoResizingTextViewWithPrompt  {
         }
     }
     
+    private func maybeAddPrompt() {
+        if let prompt = prompt, !text.starts(with: prompt) {
+            // Guarantee that the prompt is at the beginning.
+            text = prompt + text
+        }
+    }
+    
+    private func isPromptEdited(range: NSRange) -> Bool {
+        return range.location < prompt.count
+    }
+    
+    private func updateTextAttributes() {
+        let newAttributedText: NSMutableAttributedString = NSMutableAttributedString(string: text)
+        // Set attrs for the content.
+        if let textAttributes = textAttributes {
+            newAttributedText.add(attributes: textAttributes)
+        }
+        // Set attrs for the prompt.
+        // The text content may contain the prompt (though rare),
+        // so make the range instead of directly using the prompt for attr setting.
+        if let prompt = prompt, let promptAttributes = promptAttributes {
+            let promptRange = NSRange(location: 0, length: prompt.count)
+            newAttributedText.add(attributes: promptAttributes, for: promptRange)
+        }
+        attributedText = newAttributedText
+    }
+}
+
+extension AutoResizingTextViewWithPrompt: UITextViewDelegate {
+    
+    // MARK: - UITextView Delegate
+    
     func textViewDidChange(_ textView: UITextView) {
         // Automatically expand cell heights.
         guard let tableView = tableView else {
             return
         }
         adjustHeights(in: tableView)
-    }
-    
-}
-
-extension AutoResizingTextViewWithPrompt {
-    
-    private func isPromptEdited(range: NSRange) -> Bool {
-        return range.location < prompt.count
+        
+        // Update attributes for the prompt and the content.
+        maybeAddPrompt()
+        updateTextAttributes()
     }
     
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
