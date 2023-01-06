@@ -110,7 +110,7 @@ extension ReadingEditViewController {
         return cell
     }
     
-    private func getText(for identifier: Int) -> String {
+    private func getText(for identifier: Int) -> String? {
         guard let article = article else {
             return ""
         }

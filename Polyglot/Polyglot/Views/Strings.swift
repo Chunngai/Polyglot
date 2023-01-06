@@ -116,7 +116,7 @@ struct Strings {
     static let wordMeaningSeparator: Substring.Element = " "  // TODO: - Language specific or unify
     
     static let paraSeparator: String = "\n\n"
-    static let textAndMeaningSeparator: String = "\n"
+    static let textMeaningSeparator: String = "\n"
 }
 
 struct Identifiers {

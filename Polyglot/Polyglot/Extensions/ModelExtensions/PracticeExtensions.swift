@@ -191,7 +191,7 @@ struct ReadingPracticeProducer {
             let readingPractice = ReadingPractice(articleAndParaIds: [randomArticle.id, i])
             
             let para = paragraphs[i]
-            let splits = para.split(with: Strings.textAndMeaningSeparator)
+            let splits = para.split(with: Strings.textMeaningSeparator)
             let text = splits[0]
             var meaning: String = ""
             if splits.count == 2 {
@@ -245,7 +245,7 @@ struct TranslationPracticeProducer {
             )
             
             let para = paragraphs[i]
-            let textAndMeaning = para.split(with: Strings.textAndMeaningSeparator)
+            let textAndMeaning = para.split(with: Strings.textMeaningSeparator)
             if textAndMeaning.count != 2 {  // No meaning provided.
                 continue
             }

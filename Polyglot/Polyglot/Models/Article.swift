@@ -8,6 +8,42 @@
 
 import Foundation
 
+struct Paragraph: Codable {
+    
+    var id: String
+    var cDate: Date
+    
+    var text: String
+    var meaning: String?
+    
+    init(text: String, meaning: String? = nil) {
+        
+        self.id = UUID().uuidString
+        self.cDate = Date()
+        
+        self.text = text
+        self.meaning = meaning
+    }
+    
+    static let textMeaningSeparator = "\n"
+    
+    init(from paraString: String) {
+        
+        let text: String!
+        let meaning: String!
+        
+        let splits: [String] = paraString.strip().split(with: Paragraph.textMeaningSeparator)
+        text = splits[0]
+        if splits.count == 2 {
+            meaning = splits[1]
+        } else {
+            meaning = nil
+        }
+        
+        self.init(text: text, meaning: meaning)
+    }
+}
+
 struct Article {
     
     var id: Int
@@ -15,8 +51,8 @@ struct Article {
     var mDate: Date  // Modification date.
     
     var title: String
-    var body: String
-    var source: String
+    var paras: [Paragraph]
+    var source: String?
     
     init(title: String, body: String, source: String) {
                 
@@ -25,7 +61,7 @@ struct Article {
         self.mDate = cDate
         
         self.title = title
-        self.body = body
+        self.paras = Article.makeParas(from: body)
         self.source = source
     }
     
@@ -36,7 +72,7 @@ struct Article {
         }
         
         if let newBody = newBody {
-            self.body = newBody
+            updateParas(with: newBody)
         }
         
         if let newSource = newSource {
@@ -44,6 +80,65 @@ struct Article {
         }
         
         self.mDate = Date()
+    }
+}
+
+extension Article {
+    
+    static let paraSeparator: String = "\n\n"
+    
+    private static func makeParas(from body: String) -> [Paragraph] {
+        
+        // Expected body format:
+        // text 1
+        // meaning 1
+        //
+        // text 2
+        // meaning 2
+        //
+        // ...
+        let paraStrings = body
+            .strip()
+            .replaceMultipleBlankLinesWithSingleLine()
+            .split(with: Article.paraSeparator)
+        
+        var paras: [Paragraph] = []
+        for paraString in paraStrings {
+            paras.append(Paragraph(from: paraString))
+        }
+        
+        return paras
+    }
+    
+    private mutating func updateParas(with newBody: String) {
+        
+        let paraStringsInNewBody = newBody
+            .strip()
+            .replaceMultipleBlankLinesWithSingleLine()
+            .split(with: Article.paraSeparator)
+        
+        var newParas: [Paragraph] = []
+        for paraStringInNewBody in paraStringsInNewBody {
+            let paraInNewBody: Paragraph = Paragraph(from: paraStringInNewBody)
+            
+            // Check if the para is in the original paras.
+            var isNew: Bool = true
+            for paraInOldParas in self.paras {
+                if paraInNewBody.text == paraInOldParas.text
+                    && paraInNewBody.meaning == paraInOldParas.meaning {
+                    
+                    newParas.append(paraInOldParas)
+                    isNew = false
+                    
+                    break
+                }
+            }
+            if isNew {
+                newParas.append(paraInNewBody)
+            }
+        }
+        
+        self.paras = newParas
     }
 }
 
@@ -56,7 +151,7 @@ extension Article: Codable {
         case mDate
         
         case title
-        case body
+        case paras
         case source
         
         // Old vars.
@@ -64,6 +159,7 @@ extension Article: Codable {
         case creationDate  // cDate.
         case modificationDate  // mDate.
         
+        case body  // paras
     }
     
     func encode(to encoder: Encoder) throws {
@@ -74,7 +170,7 @@ extension Article: Codable {
         try container.encode(mDate, forKey: .mDate)
         
         try container.encode(title, forKey: .title)
-        try container.encode(body, forKey: .body)
+        try container.encode(paras, forKey: .paras)
         try container.encode(source, forKey: .source)
     }
     
@@ -96,7 +192,14 @@ extension Article: Codable {
         }
         
         title = try values.decode(String.self, forKey: .title)
-        body = try values.decode(String.self, forKey: .body)
+        
+        do {
+            paras = try values.decode([Paragraph].self, forKey: .paras)
+        } catch {
+            let body = try values.decode(String.self, forKey: .body)
+            paras = Article.makeParas(from: body)
+        }
+        
         source = try values.decode(String.self, forKey: .source)
     }
 }

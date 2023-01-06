@@ -59,7 +59,7 @@ class ReadingEditTableCell: UITableViewCell {
         }
     }
     
-    func updateValues(prompt: String, text: String, attributes: [NSAttributedString.Key : Any], textViewTag: Int) {
+    func updateValues(prompt: String, text: String?, attributes: [NSAttributedString.Key : Any], textViewTag: Int) {
         
         textView.prompt = prompt
         textView.text = text

@@ -133,7 +133,7 @@ extension HistoryRecord {
             }
             let para = article.body.split(with: Strings.paraSeparator)[paraId]
             
-            let textAndMeaning = para.split(with: Strings.textAndMeaningSeparator)
+            let textAndMeaning = para.split(with: Strings.textMeaningSeparator)
             let text = textAndMeaning[0]
             let meaning = textAndMeaning[1]
             if translationPractice.direction == 0 {

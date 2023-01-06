@@ -17,4 +17,9 @@ extension String {
         // https://stackoverflow.com/questions/49472570/in-swift-can-you-split-a-string-by-another-string-not-just-a-character
         return self.components(separatedBy: separator)  // Split by a string.
     }
+    
+    func replaceMultipleBlankLinesWithSingleLine() -> String {
+        // https://stackoverflow.com/questions/47796228/remove-whitespace-and-multiple-line-from-string
+        self.replacingOccurrences(of: "\\n{3,}", with: "\n\n", options: .regularExpression)
+    }
 }

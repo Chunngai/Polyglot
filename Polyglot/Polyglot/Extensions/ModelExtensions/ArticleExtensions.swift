@@ -10,8 +10,23 @@ import Foundation
 
 extension Article {
     
+    var body: String {
+        var paraStrings: [String] = []
+        for para in paras {
+            let text = para.text
+            let meaning = para.meaning
+            
+            var paraString = "\(text)"
+            if let meaning = meaning {
+                paraString = "\(paraString)\(Paragraph.textMeaningSeparator)\(meaning)"
+            }
+            paraStrings.append(paraString)
+        }
+        return paraStrings.joined(separator: Article.paraSeparator)
+    }
+    
     var query: String {
-        return title + body + source
+        return title + body
     }
 }
 
