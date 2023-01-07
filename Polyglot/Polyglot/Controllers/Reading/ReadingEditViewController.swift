@@ -54,6 +54,7 @@ class ReadingEditViewController: UITableViewController {
     private func updateSetups() {
         tableView.register(ReadingEditTableCell.self, forCellReuseIdentifier: ReadingEditViewController.cellIdentifier)
 
+        solveKeyboardLocation(view: view)
     }
     
     private func updateViews() {

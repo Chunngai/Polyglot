@@ -85,3 +85,41 @@ extension Array where Iterator.Element == Word {
         return subset
     }
 }
+
+struct GroupedWords {
+    
+    // For storing words grouped by group identifiers.
+    var groupId: String
+    var words: [Word]
+    
+    init(groupId: String, words: [Word]) {
+        self.groupId = groupId
+        self.words = words
+    }
+    
+    init(groupId: String) {
+        self.init(groupId: groupId, words: [])
+    }
+}
+
+extension Array where Iterator.Element == Word {
+    
+    // TODO: - Improve here. It's time consuming to compute.
+    var groups: [GroupedWords] {
+        var groupedWordsMapping: [String: GroupedWords] = [:]
+        for word in self {
+            let groupId = word.groupId
+            
+            groupedWordsMapping.setDefault(value: GroupedWords(groupId: groupId), for: groupId)
+            groupedWordsMapping[groupId]?.words.append(word)
+        }
+        
+        var groupedWords = Array<GroupedWords>(groupedWordsMapping.values)
+        groupedWords.sort { (item1, item2) -> Bool in
+            item1.words[0].cDate != item2.words[0].cDate
+                ? item1.words[0].cDate > item2.words[0].cDate  // First, sort by date.
+                : item1.groupId < item2.groupId  // Then, sort by groupId.
+        }
+        return groupedWords
+    }
+}

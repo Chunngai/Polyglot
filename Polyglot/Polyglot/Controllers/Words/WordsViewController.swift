@@ -8,46 +8,7 @@
 
 import UIKit
 
-struct GroupedWords {
-    
-    // For storing words grouped by group identifiers.
-    var groupId: String
-    var words: [Word]
-    
-    init(groupId: String, words: [Word]) {
-        self.groupId = groupId
-        self.words = words
-    }
-    
-    init(groupId: String) {
-        self.init(groupId: groupId, words: [])
-    }
-    
-    static func group(_ allWords: [Word]) -> [GroupedWords] {
-        var groupedWordsMapping: [String: GroupedWords] = [:]
-        for word in allWords {
-            let groupId = word.groupId
-            
-            groupedWordsMapping.setDefault(value: GroupedWords(groupId: groupId), for: groupId)
-            groupedWordsMapping[groupId]?.words.append(word)
-        }
-        
-        var groupedWords = Array<GroupedWords>(groupedWordsMapping.values)
-        groupedWords.sort { (item1, item2) -> Bool in
-            item1.words[0].cDate != item2.words[0].cDate
-            ? item1.words[0].cDate > item2.words[0].cDate  // First, sort by date.
-            : item1.groupId < item2.groupId  // Then, sort by groupId.
-        }
-        return groupedWords
-    }
-}
-
 class WordsViewController: ListViewController {
-        
-    // TODO: - Don't make it a computed property. Too time-consuming.
-    private var groupedWords: [GroupedWords] {
-        return GroupedWords.group(words)
-    }
     
     private var dataSource: [GroupedWords]! {
         didSet {
@@ -60,8 +21,11 @@ class WordsViewController: ListViewController {
     private var words: [Word] = Word.load() {
         didSet {
             Word.save(&words)
-                        
-            dataSource = groupedWords
+
+            // If the search controller is not active,
+            // present all words.
+            // Otherwise, present the matched words.
+            updateSearchResults(for: searchController)
         }
     }
     
@@ -87,7 +51,7 @@ class WordsViewController: ListViewController {
         
         practiceButtonShadowView.button.addTarget(self, action: #selector(tapped), for: .touchUpInside)
         
-        dataSource = groupedWords
+        dataSource = words.groups
     }
     
     override func updateViews() {
@@ -272,7 +236,7 @@ extension WordsViewController: UISearchResultsUpdating {
         guard let keyWord = searchController.searchBar.text else {
             return
         }
-        dataSource = [GroupedWords(groupId: "", words: words.subset(containing: keyWord))]
+        dataSource = words.subset(containing: keyWord).groups
     }
 }
 

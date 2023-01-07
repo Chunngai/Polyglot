@@ -107,6 +107,10 @@ extension AutoResizingTextViewWithPrompt  {
     }
     
     private func updateTextAttributes() {
+        // Store the current selected range.
+        // https://stackoverflow.com/questions/34914948/how-to-stop-cursor-changing-position-when-i-setattributedtext-in-uitextview-dele
+        let currentSelectedRange: NSRange = selectedRange
+        
         let newAttributedText: NSMutableAttributedString = NSMutableAttributedString(string: text)
         // Set attrs for the content.
         if let textAttributes = textAttributes {
@@ -120,6 +124,9 @@ extension AutoResizingTextViewWithPrompt  {
             newAttributedText.add(attributes: promptAttributes, for: promptRange)
         }
         attributedText = newAttributedText
+        
+        // Recover the selected range.
+        selectedRange = currentSelectedRange
     }
 }
 

@@ -22,12 +22,17 @@ class ThreeButtonSelectionStack: UIStackView {
     var buttons: [UIButton] = {
         var buttons: [UIButton] = []
         for _ in 0..<3 {
-            let button = UIButton()
-            button.titleLabel?.textColor = Colors.weakTextColor
-            button.backgroundColor = Colors.weakLightBlue
-            button.layer.masksToBounds = false
-            button.layer.cornerRadius = Sizes.defaultCornerRadius
-                        
+            let button: UIButton = {
+                let button = UIButton()
+                button.titleLabel?.textColor = Colors.weakTextColor
+                button.titleLabel?.lineBreakMode = .byTruncatingTail
+                button.titleEdgeInsets = UIEdgeInsets(top: 10, left: 20, bottom: 10, right: 20)
+                button.backgroundColor = Colors.weakLightBlue
+                button.layer.masksToBounds = false
+                // https://stackoverflow.com/questions/31353302/change-a-uibuttons-text-padding-programmatically-in-swift
+                button.layer.cornerRadius = Sizes.defaultCornerRadius
+                return button
+            }()
             buttons.append(button)
         }
         return buttons
