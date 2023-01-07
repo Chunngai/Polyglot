@@ -36,16 +36,20 @@ extension Array where Iterator.Element == Word {
         return nil
     }
     
+    mutating func add(newWord: Word) {
+        for existingWord in self {
+            // Duplication check with the text var.
+            if newWord.text == existingWord.text {
+                print("Skipped: \(newWord.text)")
+                return
+            }
+        }
+        append(newWord)
+    }
+    
     mutating func add(newWords: [Word]) {
         for newWord in newWords {
-            for existingWord in self {
-                if newWord.id != existingWord.id {
-                    append(newWord)
-                } else {
-                    print("Skipped: \(newWord.text)")
-                }
-                break
-            }
+            add(newWord: newWord)
         }
     }
     

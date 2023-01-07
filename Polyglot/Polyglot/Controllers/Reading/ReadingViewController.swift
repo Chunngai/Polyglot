@@ -45,7 +45,7 @@ class ReadingViewController: ListViewController {
 
         searchController.searchResultsUpdater = self
         
-        practiceButtonShadowView.delegate = self
+        practiceButtonShadowView.button.addTarget(self, action: #selector(tapped), for: .touchUpInside)
         
         dataSource = articles
     }
@@ -119,11 +119,6 @@ extension ReadingViewController {
         navigationController?.present(readingEditNavController, animated: true, completion: nil)
         
     }
-}
-
-extension ReadingViewController: RoundShadowViewDelegate {
-    
-    // MARK: - RoundShadowView Delegate
     
     @objc func tapped() {
         let readingPracticeViewController = ReadingPracticeViewController()
@@ -133,7 +128,6 @@ extension ReadingViewController: RoundShadowViewDelegate {
         let readingPracticeNavController = NavController(rootViewController: readingPracticeViewController)
         navigationController?.present(readingPracticeNavController, animated: true, completion: nil)
     }
-    
 }
 
 extension ReadingViewController: ReadingEditViewControllerDelegate {

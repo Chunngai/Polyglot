@@ -104,6 +104,8 @@ class TranslationPracticeViewController: UIViewController {
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         
         practiceStatus = .beforeAnswering
+        
+        solveKeyboardLocation(view: self.view)
     }
     
     private func updateViews() {

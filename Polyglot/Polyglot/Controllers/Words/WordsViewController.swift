@@ -85,9 +85,31 @@ class WordsViewController: ListViewController {
         
         searchController.searchResultsUpdater = self
         
-        practiceButtonShadowView.delegate = self
+        practiceButtonShadowView.button.addTarget(self, action: #selector(tapped), for: .touchUpInside)
         
         dataSource = groupedWords
+    }
+    
+    override func updateViews() {
+        super.updateViews()
+        
+        // Reset a right button item being able to
+        // handle tapping and long pressing.
+        // https://stackoverflow.com/questions/60596312/how-to-detect-longpress-in-barbuttonitem
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: {
+            let button = UIButton()
+            button.setImage(Icons.addIcon, for: .normal)
+            
+            button.addGestureRecognizer(UITapGestureRecognizer(
+                target: self,
+                action: #selector(addButtonTapped)
+            ))
+            button.addGestureRecognizer(UILongPressGestureRecognizer(
+                target: self,
+                action: #selector(addButtonLongPressed)
+            ))
+            return button
+        }())
     }
     
     func updateValues() {
@@ -115,7 +137,6 @@ extension WordsViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         
-        cell.delegate = self
         let word = dataSource[indexPath.section].words[indexPath.row]
         cell.updateValues(word: word)
         
@@ -143,6 +164,76 @@ extension WordsViewController: UITableViewDelegate {
             }
         }
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if let cell = tableView.cellForRow(at: indexPath) as? WordsTableCell {
+            presentWordEditingAlert(for: cell.word)
+        }
+    }
+}
+
+extension WordsViewController {
+    
+    // MARK: - Utils
+    
+    private func add(word: Word) {
+        words.add(newWord: word)
+    }
+    
+    func updateWord(of id: Int, newText: String, newMeaning: String) {
+        words.updateWord(of: id, newText: newText, newMeaning: newMeaning)
+    }
+}
+
+extension WordsViewController {
+    
+    // MARK: - Alerts
+    
+    private func presentWordEditingAlert(for word: Word? = nil) {
+        
+        // https://www.zerotoappstore.com/build-an-alert-dialog-box-with-text-input-in-swift.html
+        
+        let alert = UIAlertController(title: Strings.addingNewWordAlertTitle, message: nil, preferredStyle: .alert)
+        
+        alert.addTextField { (textField) in
+            if let word = word {
+                textField.text = word.text
+            } else {
+                textField.placeholder = Strings.addingNewWordAlertTextFieldPlaceholderForText
+            }
+        }
+        alert.addTextField { (textField) in
+            if let word = word {
+                textField.text = word.meaning
+            } else {
+                textField.placeholder = Strings.addingNewWordAlertTextFieldPlaceHolderForMeaning
+            }
+        }
+
+        alert.addAction(UIAlertAction(title: Strings.ok, style: .default, handler: { [weak alert] (_) in
+            
+            var text: String = ""
+            var meaning: String = ""
+            if let textField = alert?.textFields?[0], let textFieldInput = textField.text {
+                text = textFieldInput
+            }
+            if let textField = alert?.textFields?[1], let textFieldInput = textField.text {
+                meaning = textFieldInput
+            }
+            
+            if let word = word {
+                self.updateWord(of: word.id, newText: text, newMeaning: meaning)
+            } else {
+                self.add(word: Word(text: text, meaning: meaning))
+            }
+        }))
+        alert.addAction(UIAlertAction(title: Strings.cancel, style: .cancel, handler: { (_) in
+            return
+        }))
+
+        self.present(alert, animated: true, completion: nil)
+    }
+    
 }
 
 extension WordsViewController {
@@ -150,14 +241,25 @@ extension WordsViewController {
     // MARK: - Selectors
     
     @objc override func addButtonTapped() {
-        
+        presentWordEditingAlert()
+    }
+    
+    @objc func addButtonLongPressed() {
         let wordsEditViewController = WordsEditViewController()
         wordsEditViewController.delegate = self
         wordsEditViewController.updateValues()
         
         let navController = NavController(rootViewController: wordsEditViewController)
         navigationController?.present(navController, animated: true, completion: nil)
-        
+    }
+    
+    @objc func tapped() {
+        let wordsPracticeViewController = WordsPracticeViewController()
+        wordsPracticeViewController.delegate = self
+        wordsPracticeViewController.updateValues(words: words)
+
+        let wordsPracticeNavController = NavController(rootViewController: wordsPracticeViewController)
+        navigationController?.present(wordsPracticeNavController, animated: true, completion: nil)
     }
 }
 
@@ -174,37 +276,12 @@ extension WordsViewController: UISearchResultsUpdating {
     }
 }
 
-extension WordsViewController: RoundShadowViewDelegate {
-    
-    // MARK: - RoundShadowView Delegate
-
-    @objc func tapped() {
-
-        let wordsPracticeViewController = WordsPracticeViewController()
-        wordsPracticeViewController.delegate = self
-        wordsPracticeViewController.updateValues(words: words)
-
-        let wordsPracticeNavController = NavController(rootViewController: wordsPracticeViewController)
-        navigationController?.present(wordsPracticeNavController, animated: true, completion: nil)
-    }
-
-}
-
 extension WordsViewController: WordsEditViewControllerDelegate {
     
     // MARK: - WordsEditViewController Delegate
     
     func add(words: [Word]) {
         self.words.add(newWords: words)
-    }
-}
-
-extension WordsViewController: WordsTableCellDelegate {
-    
-    // MARK: - WordsTableCell Delegate
-    
-    func updateWord(of id: Int, newText: String, newMeaning: String) {
-        words.updateWord(of: id, newText: newText, newMeaning: newMeaning)
     }
 }
 

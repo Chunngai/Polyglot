@@ -89,11 +89,11 @@ class MenuViewController: UIViewController {
         view.addSubview(mainView)
         
         mainView.addSubview(promptView)
+        mainView.addSubview(contentSelectionStackView)
+
         promptView.addSubview(primaryPromptLabel)
         promptView.addSubview(languageFlagImageView)
         promptView.addSubview(secondaryPromptLabel)
-        
-        mainView.addSubview(contentSelectionStackView)
         
         primaryPromptLabel.attributedText = Strings.menuPrimaryPrompt
         secondaryPromptLabel.attributedText = Strings.menuSecondaryPrompt

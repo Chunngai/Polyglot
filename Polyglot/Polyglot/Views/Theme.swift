@@ -42,6 +42,7 @@ struct Icons {
     static let translateIcon = UIImage(imageLiteralResourceName: "translate")
     static let previousIcon = UIImage(imageLiteralResourceName: "previous")
     static let nextIcon = UIImage(imageLiteralResourceName: "next")
+    static let addIcon = UIImage(imageLiteralResourceName: "add")
 }
 
 struct Sizes {
