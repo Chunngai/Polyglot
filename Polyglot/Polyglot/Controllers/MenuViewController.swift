@@ -63,13 +63,14 @@ class MenuViewController: UIViewController {
     }
 
     override func viewWillAppear(_ animated: Bool) {
-        UIApplication.shared.statusBarUIView?.backgroundColor = Colors.weakLightBlue
+        super.viewWillAppear(animated)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
-        navigationController?.navigationBar.backgroundColor = nil  // Reset the bg color from lightblue to nil.
-
-        UIApplication.shared.statusBarUIView?.backgroundColor = Colors.defaultBackgroundColor
+        super.viewWillDisappear(animated)
+        
+        // Reset the bg color from lightblue to nil.
+        navigationController?.navigationBar.backgroundColor = nil
     }
     
     private func updateSetups() {

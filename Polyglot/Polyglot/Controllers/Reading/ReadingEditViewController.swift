@@ -26,6 +26,23 @@ class ReadingEditViewController: UITableViewController {
     
     // MARK: - Init
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        // Due to the hidden nav bar separator,
+        // table content will be displayed under the status bar.
+        // Assigning a bg color for the status bar
+        // can solve the problem.
+        UIApplication.shared.statusBarUIView?.backgroundColor = Colors.defaultBackgroundColor
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        // Reset the bg color.
+        UIApplication.shared.statusBarUIView?.backgroundColor = nil
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
