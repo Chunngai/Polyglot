@@ -10,7 +10,7 @@ import UIKit
 
 class MeaningSelectionPracticeView: UIView {
 
-    private var practiceItem: WordPracticeProducer.WordPracticeItem! {
+    private var practiceItem: WordPracticeProducer.Item! {
         didSet {
             let buttonTexts: [String] = practiceItem.selectionTexts!
             selectionStack.updateValues(buttonTexts: buttonTexts)
@@ -62,7 +62,7 @@ class MeaningSelectionPracticeView: UIView {
         }
     }
     
-    func updateValues(practiceItem: WordPracticeProducer.WordPracticeItem) {
+    func updateValues(practiceItem: WordPracticeProducer.Item) {
         self.practiceItem = practiceItem
     }
 }

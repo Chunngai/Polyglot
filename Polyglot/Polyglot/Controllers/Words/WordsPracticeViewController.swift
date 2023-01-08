@@ -11,11 +11,6 @@ import UIKit
 class WordsPracticeViewController: UIViewController {
     
     private var practiceProducer: WordPracticeProducer!
-    private var practiceList: [WordPracticeProducer.WordPracticeItem]!
-    private var currentPracticeIndex: Int!
-    private var currentPractice: WordPracticeProducer.WordPracticeItem {
-        return practiceList[currentPracticeIndex]
-    }
     
     var practiceStatus: PracticeStatus! {
         didSet {
@@ -83,9 +78,6 @@ class WordsPracticeViewController: UIViewController {
         updateSetups()
         updateViews()
         updateLayouts()
-        
-        // TODO: - Wrap the code.
-        updatePracticeView()
     }
     
     private func updateSetups() {
@@ -141,8 +133,7 @@ class WordsPracticeViewController: UIViewController {
     
     func updateValues(words: [Word]) {
         practiceProducer = WordPracticeProducer(words: words)
-        practiceList = practiceProducer.make()
-        currentPracticeIndex = 0
+        updatePracticeView()
     }
 }
 
@@ -158,17 +149,17 @@ extension WordsPracticeViewController {
         }
         
         // Make a new one.
-        switch currentPractice.practice.type {
+        switch practiceProducer.currentPractice.practice.practiceType {
         case .meaningSelection:
             practiceView = MeaningSelectionPracticeView()
             if let meaningSelectionPracticeView = practiceView as? MeaningSelectionPracticeView {
-                meaningSelectionPracticeView.updateValues(practiceItem: currentPractice)
+                meaningSelectionPracticeView.updateValues(practiceItem: practiceProducer.currentPractice)
                 meaningSelectionPracticeView.delegate = self
             }
         case .meaningFilling:
             practiceView = MeaningFillingPracticeView()
             if let meaningFillingPracticeView = practiceView as? MeaningFillingPracticeView {
-                meaningFillingPracticeView.updateValues(practiceItem: currentPractice)
+                meaningFillingPracticeView.updateValues(practiceItem: practiceProducer.currentPractice)
                 meaningFillingPracticeView.delegate = self
             }
         case .contextSelection:
@@ -185,7 +176,7 @@ extension WordsPracticeViewController {
         
         // Update the prompt.
         promptLabel.attributedText = NSAttributedString(
-            string: practiceList[currentPracticeIndex].prompt,
+            string: practiceProducer.currentPractice.prompt,
             attributes: Attributes.practicePromptAttributes
         )
     }
@@ -207,29 +198,23 @@ extension WordsPracticeViewController {
     
     @objc func cancelButtonTapped() {
         stopPracticing()
-        
-        navigationController?.dismiss(animated: true, completion: nil)
     }
     
     @objc func doneButtonTapped() {
         // TODO: - Simplify.
-        if [WordPractice.WordPracticeType.meaningSelection, WordPractice.WordPracticeType.contextSelection].contains(currentPractice.practice.type) {
+        if [WordPractice.PracticeType.meaningSelection, WordPractice.PracticeType.contextSelection].contains(practiceProducer.currentPractice.practice.practiceType) {
             let selectedWordId = practiceView.check() as! Int
-            practiceList[currentPracticeIndex].practice.selectedWordId = selectedWordId
-        } else if currentPractice.practice.type == .meaningFilling {
+            practiceProducer.currentPractice.practice.selectedWordId = selectedWordId
+        } else if practiceProducer.currentPractice.practice.practiceType == .meaningFilling {
             let typedAnswer = practiceView.check() as! String
-            practiceList[currentPracticeIndex].practice.typedAnswer = typedAnswer
+            practiceProducer.currentPractice.practice.filledText = typedAnswer
         }
         
         practiceStatus = .finished
     }
     
     @objc func nextButtonTapped() {
-        // TODO: - Wrap.
-        currentPracticeIndex += 1
-        if currentPracticeIndex >= practiceList.count {
-            practiceList.append(contentsOf: practiceProducer.make())
-        }
+        practiceProducer.next()
         
         updatePracticeView()
         
@@ -246,11 +231,11 @@ extension WordsPracticeViewController: TimingBarDelegate {
         // TODO: - Merge.
         func saveHistoryRecords() {
             var historyRecords: [HistoryRecord] = []
-            for i in 0..<currentPracticeIndex {
-                historyRecords.append(HistoryRecord(practice: practiceList[i].practice))
+            for i in 0..<practiceProducer.currentPracticeIndex {
+                historyRecords.append(HistoryRecord(practice: practiceProducer.practiceList[i].practice))
             }
             
-            historyRecords.append(HistoryRecord(practice: currentPractice.practice))
+            historyRecords.append(HistoryRecord(practice: practiceProducer.currentPractice.practice))
             
             var loadedHistory = HistoryRecord.load()  // TODO: - Update.
             loadedHistory.append(contentsOf: historyRecords)  // TODO: - Don't load every time.
@@ -259,8 +244,10 @@ extension WordsPracticeViewController: TimingBarDelegate {
         
         saveHistoryRecords()
         
-        doneButton.isHidden = true
-        nextButton.isHidden = true
+//        doneButton.isHidden = true
+//        nextButton.isHidden = true
+        navigationController?.dismiss(animated: true, completion: nil)
+
     }
     
 }

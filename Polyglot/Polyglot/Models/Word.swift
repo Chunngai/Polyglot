@@ -31,7 +31,7 @@ struct Word {
         self.note = note
     }
     
-    mutating func update(newText: String? = nil, newMeaning: String? = nil) {
+    mutating func update(newText: String? = nil, newMeaning: String? = nil, newNote: String? = nil) {
         
         if let newText = newText {
             self.text = newText
@@ -39,6 +39,10 @@ struct Word {
         
         if let newMeaning = newMeaning {
             self.meaning = newMeaning
+        }
+        
+        if let newNote = newNote {
+            self.note = newNote
         }
         
         self.mDate = Date()

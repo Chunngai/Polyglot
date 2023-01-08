@@ -11,33 +11,33 @@ import UIKit
 
 extension NSMutableAttributedString {
     
-    func locateRange(text: String? = nil) -> NSRange? {
-        let range: NSRange?
-        if let text = text {
-            range = self.mutableString.range(of: text)
-        } else {
-            range = NSMakeRange(0, self.length)
-        }
-        return range
-    }
-    
-//    func set(attributes: [NSAttributedString.Key: Any], for range: NSRange) {
-//        set(attributes: attributes, for: range)
-//    }
-//    
-//    func set(attributes: [NSAttributedString.Key: Any], for text: String? = nil) {
-//        let range = locateRange(text: text)
-//        
-//        if range!.location != NSNotFound {
-//            set(attributes: attributes, for: range!)
+//    func locateRange(text: String? = nil) -> NSRange {
+//        let range: NSRange?
+//        if let text = text {
+//            range = self.mutableString.range(of: text)
+//        } else {
+//            range = NSMakeRange(0, self.length)
 //        }
+//        return range!
 //    }
     
     func add(attributes: [NSAttributedString.Key: Any], for text: String? = nil) {
-        let range = locateRange(text: text)
+
+        // https://stackoverflow.com/questions/27180184/color-all-occurrences-of-string-in-swift
         
-        if range!.location != NSNotFound {
-            add(attributes: attributes, for: range!)
+        let attrStr = self
+        let attrStrLen = attrStr.string.count
+        
+        let searchStr = text ?? self.string
+        let searchStrLen = searchStr.count
+        
+        var range = NSRange(location: 0, length: attrStr.length)
+        while (range.location != NSNotFound) {
+            range = (attrStr.string as NSString).range(of: searchStr, options: [], range: range)
+            if (range.location != NSNotFound) {
+                attrStr.add(attributes: attributes, for: NSRange(location: range.location, length: searchStrLen))
+                range = NSRange(location: range.location + range.length, length: attrStrLen - (range.location + range.length))
+            }
         }
     }
     

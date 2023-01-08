@@ -13,11 +13,6 @@ class TranslationPracticeViewController: UIViewController {
     private var allNewWordsInfo: [Int : [NewWordInfo]] = [:]
     
     private var practiceProducer: TranslationPracticeProducer!
-    private var practiceList: [TranslationPracticeProducer.TranslationPracticeItem]!
-    private var currentPracticeIndex: Int!
-    private var currentPractice: TranslationPracticeProducer.TranslationPracticeItem {
-        return practiceList[currentPracticeIndex]
-    }
     
     var practiceStatus: PracticeStatus! {
         didSet {
@@ -175,9 +170,6 @@ class TranslationPracticeViewController: UIViewController {
     
     func updateValues(articles: [Article]) {
         practiceProducer = TranslationPracticeProducer(articles: articles)
-        practiceList = practiceProducer.make()
-        currentPracticeIndex = 0
-        
         updatePractice()
     }
 }
@@ -203,20 +195,20 @@ extension TranslationPracticeViewController {
 
         // Update the text.
         textView.attributedText = NSMutableAttributedString(
-            string: currentPractice.textToTranslate,
+            string: practiceProducer.currentPractice.text,
             attributes: Attributes.longTextAttributes
         )
         
         // Recover new words of the current text, if any.
-        if allNewWordsInfo.keys.contains(currentPracticeIndex) {
-            textView.newWordsInfo = allNewWordsInfo[currentPracticeIndex]!
+        if allNewWordsInfo.keys.contains(practiceProducer.currentPracticeIndex) {
+            textView.newWordsInfo = allNewWordsInfo[practiceProducer.currentPracticeIndex]!
             textView.highlightAll()  // TODO: - Wrap?
         }
     }
     
     private func displayTranslation() {
         textView.attributedText = NSAttributedString(
-            string: "\(currentPractice.textToTranslate)\n\nTranslation:\n\(currentPractice.textMeaning)",  // TODO: - Update here.
+            string: "\(practiceProducer.currentPractice.text)\n\nTranslation:\n\(practiceProducer.currentPractice.meaning)",  // TODO: - Update here.
             attributes: Attributes.longTextAttributes
         )
         
@@ -246,14 +238,9 @@ extension TranslationPracticeViewController {
     
     @objc func nextButtonTapped() {
         // Store new words of the previous text.
-        allNewWordsInfo[currentPracticeIndex] = textView.newWordsInfo
+        allNewWordsInfo[practiceProducer.currentPracticeIndex] = textView.newWordsInfo
 
-        // TODO: - Wrap.
-        currentPracticeIndex += 1
-        if currentPracticeIndex >= practiceList.count {
-            practiceList.append(contentsOf: practiceProducer.make())
-        }
-        
+        practiceProducer.next()
         updatePractice()
         
         practiceStatus = .beforeAnswering
@@ -269,7 +256,7 @@ extension TranslationPracticeViewController: TimingBarDelegate {
         // TODO: - Move elsewhere
         // New words are saved only the next button is pressed.
         // If the button is not pressed, the new words will not be saved.
-        allNewWordsInfo[currentPracticeIndex] = textView.newWordsInfo
+        allNewWordsInfo[practiceProducer.currentPracticeIndex] = textView.newWordsInfo
         
         // TODO: - Merge with reading practice?
         func saveNewWords() {
@@ -277,7 +264,7 @@ extension TranslationPracticeViewController: TimingBarDelegate {
             for (practiceItemIndex, newWordsInfo) in allNewWordsInfo {
                 
                 // TODO: - Simplify this block.
-                let articleId = practiceList[practiceItemIndex].practice.articleAndParaIds[0]
+                let articleId = practiceProducer.practiceList[practiceItemIndex].practice.articleId
                 let article = Article.load().getArticle(from: articleId)  // TODO: - load()
                 let articleTitle = article?.title
                 
@@ -285,21 +272,22 @@ extension TranslationPracticeViewController: TimingBarDelegate {
                     newWords.append(Word(
                         text: newWordInfo.word,
                         meaning: newWordInfo.meaning,
-                        note: articleTitle ?? ""
+                        note: articleTitle ?? nil
                     ))
                 }
             }
             
             var loadedWords = Word.load()  // TODO: - Update.
-            loadedWords.append(contentsOf: newWords)  // TODO: - Don't load every time.
+            loadedWords.add(newWords: newWords)  // TODO: - Don't load every time.
             Word.save(&loadedWords)
         }
         
+        var historyRecords: [HistoryRecord] = []
         // TODO: - Merge.
         func saveHistoryRecords() {
-            var historyRecords: [HistoryRecord] = []
-            for i in 0...currentPracticeIndex {
-                historyRecords.append(HistoryRecord(practice: practiceList[i].practice))
+            
+            for i in 0...practiceProducer.currentPracticeIndex {
+                historyRecords.append(HistoryRecord(practice: practiceProducer.practiceList[i].practice))
             }
             
             var loadedHistory = HistoryRecord.load()  // TODO: - Update.
@@ -312,7 +300,7 @@ extension TranslationPracticeViewController: TimingBarDelegate {
         
         doneButton.isHidden = true
         nextButton.isHidden = true
-//        navigationController?.dismiss(animated: true, completion: nil)
+        //        navigationController?.dismiss(animated: true, completion: nil)
         
     }
     

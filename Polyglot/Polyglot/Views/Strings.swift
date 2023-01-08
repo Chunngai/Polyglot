@@ -61,6 +61,7 @@ struct Strings {
     static let addingNewWordAlertTitle: String = "新単語"
     static let addingNewWordAlertTextFieldPlaceholderForText: String = "新単語を入力してください"
     static let addingNewWordAlertTextFieldPlaceHolderForMeaning: String = "その意味を入力してください"
+    static let addingNewWordAlertTextFieldPlaceHolderForNote: String = "ノートを入力してください"
     
 //    static let articleTitlePrompt = NSMutableAttributedString (
 //        string: "タイトル: ",

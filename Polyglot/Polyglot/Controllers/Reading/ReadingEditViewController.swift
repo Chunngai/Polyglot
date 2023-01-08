@@ -54,7 +54,7 @@ class ReadingEditViewController: UITableViewController {
     private func updateSetups() {
         tableView.register(ReadingEditTableCell.self, forCellReuseIdentifier: ReadingEditViewController.cellIdentifier)
 
-        solveKeyboardLocation(view: view)
+//        solveKeyboardLocation(view: view)
     }
     
     private func updateViews() {
@@ -186,6 +186,8 @@ extension ReadingEditViewController {
     
     @objc private func doneButtonTapped() {
 
+        // TODO: - Ensure that the article body is not empty.
+        
         if let article = article {
             // Edit an existing article.
             delegate.edit(

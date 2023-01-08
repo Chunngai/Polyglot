@@ -47,6 +47,7 @@
 		FF5606FF2964FD150071EDC7 /* UIViewControllerExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5606FE2964FD150071EDC7 /* UIViewControllerExtensions.swift */; };
 		FF5844312967217700137E00 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5844302967217700137E00 /* ListViewController.swift */; };
 		FF584434296732B400137E00 /* DictionaryExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF584433296732B400137E00 /* DictionaryExtensions.swift */; };
+		FF585DEE296A40BC00409F85 /* UIntExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF585DED296A40BC00409F85 /* UIntExtensions.swift */; };
 		FF5882BE29604E0300FC33CF /* NewWordAddingTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5882BD29604E0300FC33CF /* NewWordAddingTextView.swift */; };
 		FF591ED62967960C0004CB80 /* WordPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF591ED52967960C0004CB80 /* WordPractice.swift */; };
 		FF591ED8296796160004CB80 /* ReadingPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF591ED7296796160004CB80 /* ReadingPractice.swift */; };
@@ -73,6 +74,9 @@
 		FF706E032951549C00DBCF8E /* UIImageExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706E022951549C00DBCF8E /* UIImageExtensions.swift */; };
 		FF793A482968A7D60026B8C7 /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF793A472968A7D60026B8C7 /* UIApplication.swift */; };
 		FF8CDE812952995F00B36CA3 /* NewWordBottomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8CDE802952995F00B36CA3 /* NewWordBottomView.swift */; };
+		FFBD60412969D713004165FC /* WordPracticeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60402969D713004165FC /* WordPracticeExtensions.swift */; };
+		FFBD60432969D721004165FC /* ReadingPracticeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60422969D721004165FC /* ReadingPracticeExtensions.swift */; };
+		FFBD60452969D733004165FC /* TranslationPracticeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60442969D733004165FC /* TranslationPracticeExtensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -161,6 +165,7 @@
 		FF5606FE2964FD150071EDC7 /* UIViewControllerExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewControllerExtensions.swift; sourceTree = "<group>"; };
 		FF5844302967217700137E00 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 		FF584433296732B400137E00 /* DictionaryExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryExtensions.swift; sourceTree = "<group>"; };
+		FF585DED296A40BC00409F85 /* UIntExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIntExtensions.swift; sourceTree = "<group>"; };
 		FF5882BD29604E0300FC33CF /* NewWordAddingTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWordAddingTextView.swift; sourceTree = "<group>"; };
 		FF591ED52967960C0004CB80 /* WordPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPractice.swift; sourceTree = "<group>"; };
 		FF591ED7296796160004CB80 /* ReadingPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPractice.swift; sourceTree = "<group>"; };
@@ -192,6 +197,9 @@
 		FF706E022951549C00DBCF8E /* UIImageExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtensions.swift; sourceTree = "<group>"; };
 		FF793A472968A7D60026B8C7 /* UIApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIApplication.swift; sourceTree = "<group>"; };
 		FF8CDE802952995F00B36CA3 /* NewWordBottomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWordBottomView.swift; sourceTree = "<group>"; };
+		FFBD60402969D713004165FC /* WordPracticeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPracticeExtensions.swift; sourceTree = "<group>"; };
+		FFBD60422969D721004165FC /* ReadingPracticeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPracticeExtensions.swift; sourceTree = "<group>"; };
+		FFBD60442969D733004165FC /* TranslationPracticeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeExtensions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -250,6 +258,7 @@
 				FF4964CC2958BE8900414AC5 /* TimeIntervalExtensions.swift */,
 				FF495E9D2959084200EA7EA9 /* DateExtensions.swift */,
 				FF584433296732B400137E00 /* DictionaryExtensions.swift */,
+				FF585DED296A40BC00409F85 /* UIntExtensions.swift */,
 			);
 			path = TypeExtensions;
 			sourceTree = "<group>";
@@ -259,7 +268,7 @@
 			children = (
 				FF495E982959039A00EA7EA9 /* WordExtensions.swift */,
 				FF4964BF29579DA100414AC5 /* ArticleExtensions.swift */,
-				FF5CA65E295A0A9A00BE7095 /* PracticeExtensions.swift */,
+				FFBD603D2969D701004165FC /* Practices */,
 				FF4EFE13295D392F00E30D6A /* HistoryRecordExtensions.swift */,
 			);
 			path = ModelExtensions;
@@ -506,6 +515,17 @@
 			path = Reading;
 			sourceTree = "<group>";
 		};
+		FFBD603D2969D701004165FC /* Practices */ = {
+			isa = PBXGroup;
+			children = (
+				FF5CA65E295A0A9A00BE7095 /* PracticeExtensions.swift */,
+				FFBD60402969D713004165FC /* WordPracticeExtensions.swift */,
+				FFBD60422969D721004165FC /* ReadingPracticeExtensions.swift */,
+				FFBD60442969D733004165FC /* TranslationPracticeExtensions.swift */,
+			);
+			path = Practices;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -661,8 +681,10 @@
 			files = (
 				FF591ED62967960C0004CB80 /* WordPractice.swift in Sources */,
 				FF4EFE08295D310A00E30D6A /* BackgroundView.swift in Sources */,
+				FFBD60412969D713004165FC /* WordPracticeExtensions.swift in Sources */,
 				FF495E962958FFE600EA7EA9 /* WordsViewController.swift in Sources */,
 				FF502512295248D10097C2CB /* Article.swift in Sources */,
+				FFBD60432969D721004165FC /* ReadingPracticeExtensions.swift in Sources */,
 				FF491E772959CC960088FD13 /* MeaningFillingPracticeView.swift in Sources */,
 				FF491E752959C4320088FD13 /* MeaningSelectionPracticeView.swift in Sources */,
 				FF4964BA29579C5A00414AC5 /* UISearchBarExtensions.swift in Sources */,
@@ -697,9 +719,11 @@
 				FF5882BE29604E0300FC33CF /* NewWordAddingTextView.swift in Sources */,
 				FF495EA029591DEC00EA7EA9 /* WordsTableHeaderView.swift in Sources */,
 				FF62C9A929513A5000D41797 /* Theme.swift in Sources */,
+				FFBD60452969D733004165FC /* TranslationPracticeExtensions.swift in Sources */,
 				FF706DF1295142AF00DBCF8E /* Strings.swift in Sources */,
 				FF62C9762951382500D41797 /* AppDelegate.swift in Sources */,
 				FF4CA730295E869900423946 /* TranslationPracticeViewController.swift in Sources */,
+				FF585DEE296A40BC00409F85 /* UIntExtensions.swift in Sources */,
 				FF4D7CC62953952C009F6894 /* NSMutableAttributedStringExtensions.swift in Sources */,
 				FF495E992959039A00EA7EA9 /* WordExtensions.swift in Sources */,
 				FF4964CF2958CE4400414AC5 /* Word.swift in Sources */,

@@ -61,7 +61,8 @@ class WordsTableHeaderView: UITableViewHeaderFooterView {
         
         label.snp.makeConstraints { (make) in
             make.top.bottom.equalToSuperview().inset(padding / 2)
-            make.left.equalToSuperview().inset(padding)
+            make.leading.equalToSuperview().inset(padding)
+            make.trailing.equalToSuperview().inset(padding)
         }
     }
     

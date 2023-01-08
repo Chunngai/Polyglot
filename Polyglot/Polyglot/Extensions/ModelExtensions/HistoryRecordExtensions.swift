@@ -16,7 +16,7 @@ extension HistoryRecord {
     
     var practiceType: String {
         if let wordPractice = practice as? WordPractice {
-            switch wordPractice.type {
+            switch wordPractice.practiceType {
             case .meaningSelection:
                 return Strings.meaningSelectionPractice
             case .meaningFilling:
@@ -52,7 +52,7 @@ extension HistoryRecord {
                 wordToPracticeString = wordToPractice.meaning
             }
             
-            switch wordPractice.type {
+            switch wordPractice.practiceType {
             case .meaningSelection:
                 
                 var content: String = "\(wordToPracticeString!) -\n"
@@ -98,9 +98,9 @@ extension HistoryRecord {
                 if wordPractice.correctness == .correct {
                     return "\(wordToPracticeString!) -\n\(keyString!)"
                 } else if wordPractice.correctness == .incorrect {
-                    return "\(wordToPracticeString!) -\n\(keyString!)✓ \(wordPractice.typedAnswer!)✕"
+                    return "\(wordToPracticeString!) -\n\(keyString!)✓ \(wordPractice.filledText!)✕"
                 } else if wordPractice.correctness == .partiallyCorrect {
-                    return "\(wordToPracticeString!) -\n\(keyString!)✓ \(wordPractice.typedAnswer!)✕"  // TODO: - Update here.
+                    return "\(wordToPracticeString!) -\n\(keyString!)✓ \(wordPractice.filledText!)✕"  // TODO: - Update here.
                 } else {
                     return "???"
                 }
@@ -113,29 +113,28 @@ extension HistoryRecord {
                 return ""
             }
         } else if let readingPractice = practice as? ReadingPractice {
-            let articleId = readingPractice.articleAndParaIds[0]
-            let paraId = readingPractice.articleAndParaIds[1]
+            let articleId = readingPractice.articleId
+            let paraId = readingPractice.paragraphId
             
             // TODO: - Update "samples".
             guard let article = Article.load().getArticle(from: articleId) else {  // TODO: - load()
                 return ""
             }
-            let para = article.body.split(with: Strings.paraSeparator)[paraId]
+            let para = article.paras.getParagraph(from: paraId)?.text ?? ""
             
             return para
         } else if let translationPractice = practice as? TranslationPractice {
-            let articleId = translationPractice.articleAndParaIds[0]
-            let paraId = translationPractice.articleAndParaIds[1]
+            let articleId = translationPractice.articleId
+            let paraId = translationPractice.paragraphId
             
             // TODO: - Update "samples".
             guard let article = Article.load().getArticle(from: articleId) else {  // TODO: - load()
                 return ""
             }
-            let para = article.body.split(with: Strings.paraSeparator)[paraId]
+            let para = article.paras.getParagraph(from: paraId)
             
-            let textAndMeaning = para.split(with: Strings.textMeaningSeparator)
-            let text = textAndMeaning[0]
-            let meaning = textAndMeaning[1]
+            let text = para?.text ?? ""
+            let meaning = para?.meaning ?? ""
             if translationPractice.direction == 0 {
                 return text
             } else {

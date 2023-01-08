@@ -8,6 +8,27 @@
 
 import Foundation
 
+extension Paragraph {
+    
+    var isParallel: Bool {
+        return meaning != nil
+    }
+    
+}
+
+extension Array where Iterator.Element == Paragraph {
+    
+    func getParagraph(from id: String) -> Paragraph? {
+        for paragraph in self {
+            if paragraph.id == id {
+                return paragraph
+            }
+        }
+        return nil
+    }
+    
+}
+
 extension Article {
     
     var body: String {
@@ -78,4 +99,13 @@ extension Array where Iterator.Element == Article {
         }
         return subset
     }
+}
+
+extension Article {
+    
+    static let dummyArticle: Article = Article(
+        title: "Dummy article",
+        body: "The article list is empty.\nThis is a dummy article."
+    )
+    
 }

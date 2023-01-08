@@ -138,19 +138,6 @@ extension WordsViewController: UITableViewDelegate {
 
 extension WordsViewController {
     
-    // MARK: - Utils
-    
-    private func add(word: Word) {
-        words.add(newWord: word)
-    }
-    
-    func updateWord(of id: Int, newText: String, newMeaning: String) {
-        words.updateWord(of: id, newText: newText, newMeaning: newMeaning)
-    }
-}
-
-extension WordsViewController {
-    
     // MARK: - Alerts
     
     private func presentWordEditingAlert(for word: Word? = nil) {
@@ -160,17 +147,24 @@ extension WordsViewController {
         let alert = UIAlertController(title: Strings.addingNewWordAlertTitle, message: nil, preferredStyle: .alert)
         
         alert.addTextField { (textField) in
-            if let word = word {
+            if let word = word, !word.text.isEmpty {
                 textField.text = word.text
             } else {
                 textField.placeholder = Strings.addingNewWordAlertTextFieldPlaceholderForText
             }
         }
         alert.addTextField { (textField) in
-            if let word = word {
+            if let word = word, !word.meaning.isEmpty {
                 textField.text = word.meaning
             } else {
                 textField.placeholder = Strings.addingNewWordAlertTextFieldPlaceHolderForMeaning
+            }
+        }
+        alert.addTextField { (textField) in
+            if let word = word, let note = word.note, !note.isEmpty {
+                textField.text = word.note
+            } else {
+                textField.placeholder = Strings.addingNewWordAlertTextFieldPlaceHolderForNote
             }
         }
 
@@ -178,17 +172,21 @@ extension WordsViewController {
             
             var text: String = ""
             var meaning: String = ""
+            var note: String?
             if let textField = alert?.textFields?[0], let textFieldInput = textField.text {
                 text = textFieldInput
             }
             if let textField = alert?.textFields?[1], let textFieldInput = textField.text {
                 meaning = textFieldInput
             }
+            if let textField = alert?.textFields?[2] {
+                note = textField.text
+            }
             
             if let word = word {
-                self.updateWord(of: word.id, newText: text, newMeaning: meaning)
+                self.words.updateWord(of: word.id, newText: text, newMeaning: meaning, newNote: note)
             } else {
-                self.add(word: Word(text: text, meaning: meaning))
+                self.words.add(newWord: Word(text: text, meaning: meaning, note: note))
             }
         }))
         alert.addAction(UIAlertAction(title: Strings.cancel, style: .cancel, handler: { (_) in

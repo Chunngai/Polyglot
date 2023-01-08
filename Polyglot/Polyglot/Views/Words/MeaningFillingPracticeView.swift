@@ -10,7 +10,7 @@ import UIKit
 
 class MeaningFillingPracticeView: UIView {
 
-    private var practiceItem: WordPracticeProducer.WordPracticeItem!
+    private var practiceItem: WordPracticeProducer.Item!
     
     private var answer: String {
         textField.text!.strip()
@@ -89,7 +89,7 @@ class MeaningFillingPracticeView: UIView {
         }
     }
     
-    func updateValues(practiceItem: WordPracticeProducer.WordPracticeItem) {
+    func updateValues(practiceItem: WordPracticeProducer.Item) {
         self.practiceItem = practiceItem
     }
 }

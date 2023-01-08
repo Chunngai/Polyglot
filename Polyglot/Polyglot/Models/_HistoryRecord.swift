@@ -61,7 +61,7 @@ extension HistoryRecord: Codable {
             self.practice = practice
         } else {
             // Default value.
-            self.practice = WordPractice(wordId: 0, type: .contextSelection, direction: 0)
+            self.practice = TranslationPractice(articleId: 0, paragraphId: "", direction: 0)
         }
     }
 }

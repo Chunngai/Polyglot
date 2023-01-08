@@ -16,7 +16,7 @@ extension Word {
     
     var groupId: String {
         var groupId = cDate.repr()
-        if let note = note {
+        if let note = note, !note.isEmpty {
             groupId += " · \(note)"
         }
         return groupId
@@ -53,10 +53,10 @@ extension Array where Iterator.Element == Word {
         }
     }
     
-    mutating func updateWord(of id: Int, newText: String? = nil, newMeaning: String? = nil) {
+    mutating func updateWord(of id: Int, newText: String? = nil, newMeaning: String? = nil, newNote: String? = nil) {
         for i in 0..<count {
             if self[i].id == id {
-                self[i].update(newText: newText, newMeaning: newMeaning)
+                self[i].update(newText: newText, newMeaning: newMeaning, newNote: newNote)
                 return
             }
         }
@@ -84,6 +84,24 @@ extension Array where Iterator.Element == Word {
         }
         return subset
     }
+    
+    func contains(_ word: Word) -> Bool {
+        for existingWord in self {
+            if existingWord.id == word.id {
+                return true
+            }
+        }
+        return false
+    }
+}
+
+extension Word {
+    
+    static let dummyWord: Word = Word(
+        text: "Dummy word",
+        meaning: "Dummy word"
+    )
+    
 }
 
 struct GroupedWords {

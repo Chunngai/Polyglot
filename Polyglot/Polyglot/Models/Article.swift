@@ -54,7 +54,7 @@ struct Article {
     var paras: [Paragraph]
     var source: String?
     
-    init(title: String, body: String, source: String) {
+    init(title: String, body: String, source: String? = nil) {
                 
         self.cDate = Date()
         self.id = cDate.hashValue  // Do not use body.hashValue, as its value can be changed.

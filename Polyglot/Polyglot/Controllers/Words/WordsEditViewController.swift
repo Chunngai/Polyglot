@@ -119,7 +119,7 @@ extension WordsEditViewController {
             if firstLineSplits.count == 2 {
                 groupNote = firstLineSplits[1].strip()
             } else {
-                groupNote = ""
+                groupNote = nil
             }
             
             for i in 1..<lines.count {
