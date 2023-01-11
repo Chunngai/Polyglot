@@ -18,41 +18,61 @@ class MenuViewController: UIViewController {
     
     private lazy var mainView: UIView = {
         let view = UIView()
-        view.backgroundColor = nil
         return view
     }()
     
     private lazy var promptView: UIView = {
         let view = UIView()
-        view.backgroundColor = nil
         return view
     }()
     private let primaryPromptLabel: UILabel = {
         let label = UILabel()
-        label.backgroundColor = nil
+        label.attributedText = Strings.menuPrimaryPrompt
         return label
     }()
-    private let languageFlagImageView: UIImageView = UIImageView()
     private let secondaryPromptLabel: UILabel = {
         let label = UILabel()
-        label.backgroundColor = nil
+        label.attributedText = Strings.menuSecondaryPrompt
         return label
     }()
+    private lazy var langImageView: UIImageView = UIImageView()
     
-    // TODO: - Maybe convert to a table later?
-    private lazy var contentSelectionStackView: ThreeButtonSelectionStack = {
+    private lazy var menuButtonStackView: ThreeButtonSelectionStack = {
         let stackView = ThreeButtonSelectionStack()
-        stackView.updateValues(
-            buttonTexts: [
-                Strings.words,
-                Strings.reading,
-                Strings.translation
-            ]
-        )
+        stackView.set(texts: [
+            Strings.words,
+            Strings.reading,
+            Strings.translation
+        ])
         return stackView
     }()
     
     // MARK: - Init
+    
+    // https://stackoverflow.com/questions/30679129/how-to-write-init-methods-of-a-uiviewcontroller-in-swift
+    
+    convenience init(lang: String) {
+        self.init(nibName:nil, bundle:nil)
+        
+        self.lang = lang
+        self.langImageView.image = {
+            // TODO: - Simplify here.
+            switch lang {
+            case Strings.en: return Images.enImage
+            case Strings.ja: return Images.jaImage
+            case Strings.es: return Images.esImage
+            default: return UIImage()
+            }
+        }()
+    }
+
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+    }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -74,14 +94,7 @@ class MenuViewController: UIViewController {
     }
     
     private func updateSetups() {
-//        navigationItem.rightBarButtonItem = UIBarButtonItem(
-//            image: UIImage(imageLiteralResourceName: Assets.historyIcon),
-//            style: .plain,
-//            target: self,
-//            action: #selector(showHistory)
-//        )
-        
-        contentSelectionStackView.delegate = self
+        menuButtonStackView.delegate = self
     }
     
     private func updateViews() {
@@ -90,14 +103,11 @@ class MenuViewController: UIViewController {
         view.addSubview(mainView)
         
         mainView.addSubview(promptView)
-        mainView.addSubview(contentSelectionStackView)
+        mainView.addSubview(menuButtonStackView)
 
         promptView.addSubview(primaryPromptLabel)
-        promptView.addSubview(languageFlagImageView)
+        promptView.addSubview(langImageView)
         promptView.addSubview(secondaryPromptLabel)
-        
-        primaryPromptLabel.attributedText = Strings.menuPrimaryPrompt
-        secondaryPromptLabel.attributedText = Strings.menuSecondaryPrompt
     }
     
     // TODO: - Update the insets and offsets here.
@@ -126,7 +136,7 @@ class MenuViewController: UIViewController {
             make.top.equalToSuperview()
             make.left.equalToSuperview()
         }
-        languageFlagImageView.snp.makeConstraints { (make) in
+        langImageView.snp.makeConstraints { (make) in
             make.top.equalTo(primaryPromptLabel.snp.top)
             make.left.equalTo(primaryPromptLabel.snp.right).offset(20)
         }
@@ -135,52 +145,35 @@ class MenuViewController: UIViewController {
             make.left.equalTo(primaryPromptLabel.snp.left)
         }
         
-        contentSelectionStackView.snp.makeConstraints { (make) in
+        menuButtonStackView.snp.makeConstraints { (make) in
             make.top.equalTo(backgroundView.snp.bottom).offset(30)
             make.centerX.equalToSuperview()
             make.width.equalToSuperview()
         }
     }
-    
-    func updateValues(lang: String) {
-        self.lang = lang
-        
-        // TODO: - Use the font size of the primary prompt to scale.
-        languageFlagImageView.image = UIImage(imageLiteralResourceName: lang).scale(to: Sizes.languageFlagScaleFactor)
-    }
 }
-
-extension MenuViewController {
-    
-    // MARK: - Selectors
-    
-    @objc private func showHistory() {
-        let historyViewController = HistoryViewController()
-        historyViewController.updateValues()
-        navigationController?.pushViewController(historyViewController, animated: true)
-    }
-}
-
 
 extension MenuViewController: ThreeItemSelectionStackDelegate {
     
     @objc func buttonSelected(sender: UIButton) {
-        if sender.tag == contentSelectionStackView.buttonTags[0] {
-            let wordsViewController = WordsViewController()
-            wordsViewController.updateValues()
-            navigationController?.pushViewController(wordsViewController, animated: true)
-        } else if sender.tag == contentSelectionStackView.buttonTags[1] {
-            let readingViewController = ReadingViewController()
-            readingViewController.updateValues()
-            navigationController?.pushViewController(readingViewController, animated: true)
-        } else if sender.tag == contentSelectionStackView.buttonTags[2] {
+        
+        switch sender.tag {
+        case 0: navigationController?.pushViewController(
+            WordsViewController(),
+            animated: true
+        )
+        case 1: navigationController?.pushViewController(
+            ReadingViewController(),
+            animated: true
+        )
+        case 2:
             // TODO: - Error when articles.count == 0.
-            
             let translationPracticeViewController = TranslationPracticeViewController()
             translationPracticeViewController.updateValues(articles: Article.load())
             
             let navController = NavController(rootViewController: translationPracticeViewController)
             navigationController?.present(navController, animated: true, completion: nil)
+        default: return
         }
     }
     

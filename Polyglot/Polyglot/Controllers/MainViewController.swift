@@ -17,57 +17,66 @@ class MainViewController: UIViewController {
     
     private lazy var mainView: UIView = {
         let view = UIView()
-        view.backgroundColor = nil
         return view
     }()
     
     private lazy var promptView: UIView = {
         let view = UIView()
-        view.backgroundColor = nil
         return view
     }()
     private let primaryPromptLabel: UILabel = {
         let label = UILabel()
-        label.backgroundColor = nil
+        label.attributedText = Strings.mainPrimaryPrompt
         return label
     }()
     private let secondaryPromptLabel: UILabel = {
         let label = UILabel()
-        label.backgroundColor = nil
+        label.attributedText = Strings.mainSecondaryPrompt
         return label
     }()
     
     // TODO: - Maybe convert to a table later?
     private lazy var languageButtonStackView: UIStackView = {
         let stackView = UIStackView()
-        stackView.backgroundColor = nil
         stackView.axis = .horizontal
         stackView.alignment = .center
         stackView.distribution = .fillEqually
         return stackView
     }()
-    // TODO: - Update here.
-    private var enButton: LanguageButton = LanguageButton()
-    private var jaButton: LanguageButton = LanguageButton()
-    private var esButton: LanguageButton = LanguageButton()
+    private var enButton: LanguageButton = {
+        let button = LanguageButton(langCode: Strings.en)
+        button.set(attributedText: NSAttributedString(
+            string: Strings.enString,
+            attributes: Attributes.langStringAttrs
+        ))
+        button.set(image: Images.enImage)
+        return button
+    }()
+    private var jaButton: LanguageButton = {
+           let button = LanguageButton(langCode: Strings.ja)
+           button.set(attributedText: NSAttributedString(
+               string: Strings.jaString,
+               attributes: Attributes.langStringAttrs
+           ))
+           button.set(image: Images.jaImage)
+           return button
+       }()
+    private var esButton: LanguageButton = {
+           let button = LanguageButton(langCode: Strings.es)
+           button.set(attributedText: NSAttributedString(
+               string: Strings.esString,
+               attributes: Attributes.langStringAttrs
+           ))
+           button.set(image: Images.esImage)
+           return button
+       }()
     
     // MARK: - Init
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        view.addSubview(backgroundView)
-        view.addSubview(mainView)
-                
-        mainView.addSubview(promptView)
-        promptView.addSubview(primaryPromptLabel)
-        promptView.addSubview(secondaryPromptLabel)
-        
-        mainView.addSubview(languageButtonStackView)
-        languageButtonStackView.addArrangedSubview(enButton)
-        languageButtonStackView.addArrangedSubview(jaButton)
-        languageButtonStackView.addArrangedSubview(esButton)
-        
+        updateSetups()
         updateViews()
         updateLayouts()
     }
@@ -76,22 +85,35 @@ class MainViewController: UIViewController {
         super.viewWillDisappear(animated)
         
         // Reset the bg color from lightblue to nil.
+        // Without resetting, the nav bar looks ugly
+        // when switching from main view to menu view.
         navigationController?.navigationBar.backgroundColor = nil
     }
     
+    private func updateSetups() {
+        enButton.delegate = self
+        jaButton.delegate = self
+        esButton.delegate = self
+    }
+    
     private func updateViews() {
-        view.backgroundColor = Colors.defaultBackgroundColor
-        
-        // The white navi bar shadows the view.
+        // The white navi bar shadows the background view.
         // Set to the same color to hide it.
         navigationController?.navigationBar.backgroundColor = Colors.weakLightBlue
         
-        primaryPromptLabel.attributedText = Strings.mainPrimaryPrompt
-        secondaryPromptLabel.attributedText = Strings.mainSecondaryPrompt
+        view.backgroundColor = Colors.defaultBackgroundColor
+        view.addSubview(backgroundView)
+        view.addSubview(mainView)
+                
+        mainView.addSubview(promptView)
+        mainView.addSubview(languageButtonStackView)
+
+        promptView.addSubview(primaryPromptLabel)
+        promptView.addSubview(secondaryPromptLabel)
         
-        enButton.updateValues(lang: Assets.enIcon, langString: Strings.en, delegate: self)
-        jaButton.updateValues(lang: Assets.jaIcon, langString: Strings.ja, delegate: self)
-        esButton.updateValues(lang: Assets.esIcon, langString: Strings.es, delegate: self)
+        languageButtonStackView.addArrangedSubview(enButton)
+        languageButtonStackView.addArrangedSubview(jaButton)
+        languageButtonStackView.addArrangedSubview(esButton)
     }
     
     // TODO: - Update the insets and offsets here.
@@ -136,9 +158,7 @@ class MainViewController: UIViewController {
 extension MainViewController: LanguageButtonDelegate {
     
     func selectLanguage(lang: String) {
-        let menuViewController = MenuViewController()
-        menuViewController.updateValues(lang: lang)
-        
+        let menuViewController = MenuViewController(lang: lang)
         navigationController?.pushViewController(menuViewController, animated: true)
     }
     

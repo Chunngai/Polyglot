@@ -34,6 +34,17 @@ struct Colors {
     static let separatorColor: UIColor = .lightGray
 }
 
+struct Images {
+    
+    static let backgroundImage: UIImage = UIImage(imageLiteralResourceName: "background")
+    
+    // Lang images.
+    static let enImage: UIImage = UIImage(imageLiteralResourceName: Strings.en).scale(to: Sizes.langImageScalingFactor)
+    static let jaImage: UIImage = UIImage(imageLiteralResourceName: Strings.ja).scale(to: Sizes.langImageScalingFactor)
+    static let esImage: UIImage = UIImage(imageLiteralResourceName: Strings.es).scale(to: Sizes.langImageScalingFactor)
+    
+}
+
 struct Icons {
     static let practiceIcon = UIImage(imageLiteralResourceName: "practice")
     static let cancelIcon = UIImage(imageLiteralResourceName: "cancel")
@@ -51,7 +62,7 @@ struct Sizes {
     static let primaryPromptFontSize: CGFloat = 50
     static let secondaryPromptFontSize: CGFloat = 20
     
-    static let languageFlagScaleFactor: CGFloat = 0.6
+    static let langImageScalingFactor: CGFloat = 0.6
     
     static let bigFontSize: CGFloat = 23
     static let mediumFontSize: CGFloat = 20
@@ -83,6 +94,8 @@ struct Attributes {
         NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.mediumFontSize, weight: .black),
         NSAttributedString.Key.foregroundColor : Colors.defaultTextColor
     ]
+    
+    static let langStringAttrs = Attributes.inactiveSelectionButtonTextAttributes
     
     static var defaultParaStyle: NSMutableParagraphStyle {
         let paragraph = NSMutableParagraphStyle()

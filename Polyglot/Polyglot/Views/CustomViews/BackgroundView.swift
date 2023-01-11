@@ -15,7 +15,7 @@ class BackgroundView: UIView {
         view.backgroundColor = Colors.weakLightBlue
         return view
     }()
-    private var backgroundViewBottom: UIImageView = UIImageView(image: UIImage(imageLiteralResourceName: Assets.background))
+    private var backgroundViewBottom: UIImageView = UIImageView(image: Images.backgroundImage)
     
     // MARK: - Init
     

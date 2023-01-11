@@ -52,10 +52,6 @@ class ReadingViewController: ListViewController {
         
         dataSource = articles
     }
-    
-    func updateValues() {
-        
-    }
 }
 
 extension ReadingViewController: UITableViewDataSource {

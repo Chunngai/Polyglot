@@ -10,31 +10,26 @@ import UIKit
 
 class LanguageButton: UIButton {
 
-    private var lang: String!
+    private var langCode: String!
     
     // MARK: - Controllers
-    private var delegate: MainViewController!
+    
+    var delegate: MainViewController!
     
     // MARK: - Views
     
-    private lazy var flagImageView: UIImageView = UIImageView()
+    private lazy var langImageView: UIImageView = UIImageView()
     
-    private lazy var languageLabel: UILabel = {
-        let label = UILabel()
-        label.backgroundColor = nil
-        return label
-    }()
+    private lazy var langLabel: UILabel = UILabel()
     
     // MARK: - Init
         
-    override init(frame: CGRect) {
+    init(frame: CGRect = .zero, langCode: String) {
         super.init(frame: frame)
         
-        addTarget(self, action: #selector(tapped), for: .touchUpInside)
+        self.langCode = langCode
         
-        addSubview(flagImageView)
-        addSubview(languageLabel)
-        
+        updateSetups()
         updateViews()
         updateLayouts()
     }
@@ -43,28 +38,30 @@ class LanguageButton: UIButton {
         super.init(coder: coder)
     }
 
+    private func updateSetups() {
+        addTarget(self, action: #selector(tapped), for: .touchUpInside)
+    }
+    
     private func updateViews() {
-        backgroundColor = nil
+        addSubview(langImageView)
+        addSubview(langLabel)
     }
     
     private func updateLayouts() {
-        flagImageView.snp.makeConstraints { (make) in
+        langImageView.snp.makeConstraints { (make) in
             make.left.equalToSuperview()
             make.centerY.equalToSuperview()
         }
         
-        languageLabel.snp.makeConstraints { (make) in
-            make.top.equalTo(flagImageView.snp.bottom).offset(10)
-            make.centerX.equalTo(flagImageView.snp.centerX)
+        langLabel.snp.makeConstraints { (make) in
+            make.top.equalTo(langImageView.snp.bottom).offset(10)
+            make.centerX.equalTo(langImageView.snp.centerX)
         }
     }
     
     func updateValues(lang: String, langString: NSAttributedString, delegate: MainViewController) {
-        self.lang = lang
         self.delegate = delegate
         
-        flagImageView.image = UIImage(imageLiteralResourceName: lang).scale(to: Sizes.languageFlagScaleFactor)
-        languageLabel.attributedText = langString
     }
 }
 
@@ -73,8 +70,25 @@ extension LanguageButton {
     // MARK: - Selectors.
     
     @objc private func tapped() {
-        delegate.selectLanguage(lang: self.lang)
+        delegate.selectLanguage(lang: self.langCode)
     }
+}
+
+extension LanguageButton {
+    
+    func set(text: String? = nil, attributedText: NSAttributedString? = nil) {
+        if let text = text {
+            langLabel.text = text
+        }
+        if let attributedText = attributedText {
+            langLabel.attributedText = attributedText
+        }
+    }
+    
+    func set(image: UIImage) {
+        langImageView.image = image
+    }
+    
 }
 
 protocol LanguageButtonDelegate {

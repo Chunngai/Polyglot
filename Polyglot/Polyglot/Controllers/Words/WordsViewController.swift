@@ -75,10 +75,6 @@ class WordsViewController: ListViewController {
             return button
         }())
     }
-    
-    func updateValues() {
-        
-    }
 }
 
 extension WordsViewController: UITableViewDataSource {

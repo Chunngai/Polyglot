@@ -10,30 +10,46 @@ import UIKit
 
 class ThreeButtonSelectionStack: UIStackView {
     
-    private var selectionIndex: Int!
-    var buttonTags: [Int]!
-    
+    private var selectedButtonIndex: Int!
+    var selectedButton: UIButton? {
+        guard let selectedButtonIndex = selectedButtonIndex else {
+            return nil
+        }
+        return buttons[selectedButtonIndex]
+    }
+        
     // MARK: - Controllers
     
-    var delegate: ThreeItemSelectionStackDelegate!
+    var delegate: ThreeItemSelectionStackDelegate! {
+        didSet {
+            for i in 0..<buttons.count {
+                // https://stackoverflow.com/questions/37870701/how-to-use-one-ibaction-for-multiple-buttons-in-swift
+                buttons[i].addTarget(
+                    delegate,
+                    action: #selector(delegate.buttonSelected(sender:)),
+                    for: .touchUpInside
+                )
+            }
+        }
+    }
     
     // MARK: - Views
     
     var buttons: [UIButton] = {
         var buttons: [UIButton] = []
-        for _ in 0..<3 {
-            let button: UIButton = {
+        for i in 0..<3 {
+            buttons.append({
                 let button = UIButton()
                 button.titleLabel?.textColor = Colors.weakTextColor
                 button.titleLabel?.lineBreakMode = .byTruncatingTail
+                // https://stackoverflow.com/questions/31353302/change-a-uibuttons-text-padding-programmatically-in-swift
                 button.titleEdgeInsets = UIEdgeInsets(top: 10, left: 20, bottom: 10, right: 20)
                 button.backgroundColor = Colors.weakLightBlue
                 button.layer.masksToBounds = false
-                // https://stackoverflow.com/questions/31353302/change-a-uibuttons-text-padding-programmatically-in-swift
                 button.layer.cornerRadius = Sizes.defaultCornerRadius
+                button.tag = i
                 return button
-            }()
-            buttons.append(button)
+            }())
         }
         return buttons
     }()
@@ -43,25 +59,19 @@ class ThreeButtonSelectionStack: UIStackView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        buttonTags = []
-        for i in 0..<buttons.count {
-            let button = buttons[i]
-            
-            button.tag = i
-            buttonTags.append(i)
-            
-            // https://stackoverflow.com/questions/37870701/how-to-use-one-ibaction-for-multiple-buttons-in-swift
-            button.addTarget(delegate, action: #selector(delegate.buttonSelected(sender:)), for: .touchUpInside)
-            
-            addArrangedSubview(button)
-        }
-        
+        updateSetups()
         updateViews()
         updateLayouts()
     }
     
     required init(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    private func updateSetups() {
+        for button in buttons {
+            addArrangedSubview(button)
+        }
     }
     
     private func updateViews() {
@@ -79,14 +89,20 @@ class ThreeButtonSelectionStack: UIStackView {
             }
         }
     }
+}
+
+extension ThreeButtonSelectionStack {
     
-    func updateValues(buttonTexts: [String], textAttributes: [NSAttributedString.Key : Any] = Attributes.inactiveSelectionButtonTextAttributes) {
+    func set(texts: [String]) {
+        
         for i in 0..<buttons.count {
-            let attributedText = NSAttributedString(
-                string: buttonTexts[i],
-                attributes: textAttributes
+            buttons[i].setAttributedTitle(
+                NSAttributedString(
+                    string: texts[i],
+                    attributes: Attributes.inactiveSelectionButtonTextAttributes
+                ),
+                for: .normal
             )
-            buttons[i].setAttributedTitle(attributedText, for: .normal)
         }
     }
 }
@@ -95,16 +111,9 @@ extension ThreeButtonSelectionStack {
     
     // MARK: - Utils
     
-    var selectedButton: UIButton? {
-        guard let selectionIndex = selectionIndex else {
-            return nil
-        }
-        return buttons[selectionIndex]
-    }
-    
     func selectButton(of index: Int) {
-        selectionIndex = index
-        activateButtonsIn(buttonIndices: [selectionIndex], alsoInactivateOthers: true)
+        selectedButtonIndex = index
+        activateButtonsIn(buttonIndices: [selectedButtonIndex], alsoInactivateOthers: true)
     }
     
     // For changing styles between inactive & active.
@@ -121,23 +130,31 @@ extension ThreeButtonSelectionStack {
     }
     
     private func activateButtonsIn(buttonIndices: [Int], alsoInactivateOthers: Bool = true) {
-        changeStyle(for: buttonIndices, textAttributes: Attributes.activeSelectionButtonTextAttributes, backgroundColor: Colors.activateSelectionButtonBackgroundColor)
+        changeStyle(
+            for: buttonIndices,
+            textAttributes: Attributes.activeSelectionButtonTextAttributes,
+            backgroundColor: Colors.activateSelectionButtonBackgroundColor
+        )
         
         if alsoInactivateOthers {
             let otherIndices: [Int] = Array(Set(0..<buttons.count).subtracting(buttonIndices))
-            inactivateButtonsIn(
+            deactivateButtonsIn(
                 buttonIndices: otherIndices,
                 alsoActivateOthers: false
             )
         }
     }
     
-    private func inactivateButtonsIn(buttonIndices: [Int], alsoActivateOthers: Bool = true) {
-        changeStyle(for: buttonIndices, textAttributes: Attributes.inactiveSelectionButtonTextAttributes, backgroundColor: Colors.inactivateSelectionButtonBackgroundColor)
+    private func deactivateButtonsIn(buttonIndices: [Int], alsoActivateOthers: Bool = true) {
+        changeStyle(
+            for: buttonIndices,
+            textAttributes: Attributes.inactiveSelectionButtonTextAttributes,
+            backgroundColor: Colors.inactivateSelectionButtonBackgroundColor
+        )
         
         if alsoActivateOthers {
             let otherIndices: [Int] = Array(Set(0..<buttons.count).subtracting(buttonIndices))
-            inactivateButtonsIn(
+            deactivateButtonsIn(
                 buttonIndices: otherIndices,
                 alsoActivateOthers: false
             )

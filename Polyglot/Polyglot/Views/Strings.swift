@@ -10,18 +10,25 @@ import Foundation
 import UIKit
 
 struct Assets {
-    static let speechBubbleBackground = "speech_bubble"
-    
-    static let enIcon = "en"
-    static let jaIcon = "ja"
-    static let esIcon = "es"
-    
     static let historyIcon = "history"
     
     static let background: String = "background"
 }
 
 struct Strings {
+    
+    // Language codes.
+    static let en: String = "en"
+    static let ja: String = "ja"
+    static let es: String = "es"
+    
+    // Language strings.
+    static let enString: String = "英語"
+    static let jaString: String = "日本語"
+    static let esString: String = "スペイン語"
+}
+
+extension Strings {
     
     static let mainPrimaryPrompt = NSAttributedString (
         string: "こんにちは",
@@ -41,19 +48,6 @@ struct Strings {
         attributes: Attributes.secondaryPromptAttributes
     )
     
-    static let en = NSAttributedString (
-        string: "英語",
-        attributes: Attributes.inactiveSelectionButtonTextAttributes
-    )
-    static let ja = NSAttributedString (
-        string: "日本語",
-        attributes: Attributes.inactiveSelectionButtonTextAttributes
-    )
-    static let es = NSAttributedString (
-        string: "スペイン語",
-        attributes: Attributes.inactiveSelectionButtonTextAttributes
-    )
-    
     static let words = "単語"
     static let reading = "読解"
     static let translation = "通訳"
@@ -62,19 +56,6 @@ struct Strings {
     static let addingNewWordAlertTextFieldPlaceholderForText: String = "新単語を入力してください"
     static let addingNewWordAlertTextFieldPlaceHolderForMeaning: String = "その意味を入力してください"
     static let addingNewWordAlertTextFieldPlaceHolderForNote: String = "ノートを入力してください"
-    
-//    static let articleTitlePrompt = NSMutableAttributedString (
-//        string: "タイトル: ",
-//        attributes: Attributes.newArticleTitleAttributes
-//    )
-//    static let articleBodyPrompt = NSMutableAttributedString (
-//        string: "本文: \n",
-//        attributes: Attributes.longTextAttributes
-//    )
-//    static let articleSourcePrompt = NSMutableAttributedString (
-//        string: "ソース: ",
-//        attributes: Attributes.longTextAttributes
-//    )
     
     static let articleTitlePrompt: String = "タイトル: "
     static let articleBodyPrompt: String = "本文: \n"

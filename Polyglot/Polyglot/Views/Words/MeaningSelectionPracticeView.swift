@@ -13,7 +13,7 @@ class MeaningSelectionPracticeView: UIView {
     private var practiceItem: WordPracticeProducer.Item! {
         didSet {
             let buttonTexts: [String] = practiceItem.selectionTexts!
-            selectionStack.updateValues(buttonTexts: buttonTexts)
+            selectionStack.set(texts: buttonTexts)
         }
     }
     
