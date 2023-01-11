@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import IQKeyboardManagerSwift
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -20,6 +21,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         self.window?.makeKeyAndVisible()
         
         guard let _ = (scene as? UIWindowScene) else { return }
+        
+        // https://github.com/hackiftekhar/IQKeyboardManager
+        IQKeyboardManager.shared.enable = true
+        // https://stackoverflow.com/questions/40124364/how-to-hide-toolbar-in-iqkeyboardmanager-ios-swift-3
+        IQKeyboardManager.shared.enableAutoToolbar = false
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {

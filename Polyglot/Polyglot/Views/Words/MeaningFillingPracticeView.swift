@@ -73,7 +73,7 @@ class MeaningFillingPracticeView: UIView {
         textField.snp.makeConstraints { (make) in
             make.width.equalToSuperview()
             make.centerX.equalToSuperview()
-            make.centerY.equalToSuperview().offset(-30)  // TODO: - Remove here after solve the keyboard issue.
+            make.centerY.equalToSuperview()
         }
         
         bottomLine.snp.makeConstraints { (make) in

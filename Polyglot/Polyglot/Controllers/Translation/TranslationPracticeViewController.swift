@@ -68,8 +68,6 @@ class TranslationPracticeViewController: PracticeViewController {
         super.updateSetups()
         
         practiceStatus = .beforeAnswering
-        
-        solveKeyboardLocation()
     }
     
     override func updateViews() {

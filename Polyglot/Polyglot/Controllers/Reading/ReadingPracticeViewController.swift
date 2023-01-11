@@ -52,8 +52,6 @@ class ReadingPracticeViewController: PracticeViewController {
     
     override func updateSetups() {
         super.updateSetups()
-        
-        solveKeyboardLocation()
     }
     
     override func updateViews() {

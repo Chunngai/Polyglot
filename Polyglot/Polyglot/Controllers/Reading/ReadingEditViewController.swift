@@ -53,8 +53,6 @@ class ReadingEditViewController: UITableViewController {
 
     private func updateSetups() {
         tableView.register(ReadingEditTableCell.self, forCellReuseIdentifier: ReadingEditViewController.cellIdentifier)
-
-//        solveKeyboardLocation(view: view)
     }
     
     private func updateViews() {
@@ -102,14 +100,6 @@ extension ReadingEditViewController {
         return cells[indexPath.row]
     }
 
-}
-
-extension ReadingEditViewController {
-    
-    // MARK: - UITableView Delegate
-    
-    // TODO: - Swipe to delete. Alert.
-    
 }
  
 extension ReadingEditViewController {
