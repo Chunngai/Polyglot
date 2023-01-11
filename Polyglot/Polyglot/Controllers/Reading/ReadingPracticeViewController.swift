@@ -8,46 +8,24 @@
 
 import UIKit
 
-class ReadingPracticeViewController: UIViewController {
-    
-    private var allNewWordsInfo: [Int : [NewWordInfo]] = [:]
+class ReadingPracticeViewController: PracticeViewController {
     
     private var practiceProducer: ReadingPracticeProducer!
+
+    private var allNewWordsInfo: [Int : [NewWordInfo]] = [:]
         
-    // MARK: - Controllers
-    
-    var delegate: ReadingViewController!
-    
-    // MARK: - Views
-    
-    private var mainView: UIView = {
-        let view = UIView()
-        view.backgroundColor = Colors.weakBackgroundColor
-        view.layer.masksToBounds = false
-        view.layer.cornerRadius = Sizes.defaultCornerRadius
-        return view
-    }()
-    
-    private var textView: NewWordAddingTextView = NewWordAddingTextView()
-    
-    private var translateButton: UIButton = {  // TODO: - Use another icon.
-        let button = UIButton()
-        button.setImage(Icons.translateIcon, for: .normal)
-        return button
-    }()
-    
-    private var nextButton: RoundButton = {
-        let button = RoundButton(radius: Sizes.roundButtonRadius)
-        button.setImage(Icons.nextIcon, for: .normal)
-        button.backgroundColor = Colors.weakLightBlue
-        return button
-        
-    }()
-    
-    private var timingBar: TimingBar = {
-        let bar = TimingBar(duration: Vars.practiceDuration)
-        return bar
-    }()
+    private var textViewOfPracticeView: NewWordAddingTextView {
+        get {
+            guard practiceView != nil else {
+                return NewWordAddingTextView()
+            }
+            return (practiceView as! ReadingPracticeView).textView
+        }
+        set {
+            (practiceView as! ReadingPracticeView).textView = newValue
+        }
+    }
+    private var bottomViewOffset: CGFloat!
     
     // MARK: - Init
     
@@ -57,110 +35,79 @@ class ReadingPracticeViewController: UIViewController {
         updateSetups()
         updateViews()
         updateLayouts()
+        updatePracticeView()
     }
     
     override func viewDidLayoutSubviews() {
-        // https://stackoverflow.com/questions/55492684/how-to-get-the-frame-of-a-uiview-that-has-been-setup-through-snapkit
-        textView.newWordBottomView.offset = UIScreen.main.bounds.maxY - mainView.frame.maxY
-    }
-    
-    private func updateSetups() {
-        translateButton.addTarget(self, action: #selector(translateButtonTapped), for: .touchUpInside)
-        
-        nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
-        
-        timingBar.delegate = self
-        
-        solveKeyboardLocation(view: self.view)
-    }
-    
-    private func updateViews() {
-        navigationItem.leftBarButtonItem = UIBarButtonItem(
-            image: Icons.cancelIcon,
-            style: .plain,
-            target: self,
-            action: #selector(cancelButtonTapped)
-        )
-        navigationItem.titleView = timingBar
-                 
-        view.backgroundColor = Colors.defaultBackgroundColor
-        view.addSubview(mainView)
-        view.addSubview(nextButton)
-        view.addSubview(textView.newWordBottomView)
-        
-        mainView.addSubview(textView)
-        mainView.addSubview(translateButton)
+        super.viewDidLayoutSubviews()
 
-        textView.newWordBottomView.frame = CGRect(
+        // https://stackoverflow.com/questions/55492684/how-to-get-the-frame-of-a-uiview-that-has-been-setup-through-snapkit
+        bottomViewOffset = UIScreen.main.bounds.maxY - mainView.frame.maxY + doneButton.radius + 20  // TODO: - Simplify here.
+        // The offset of the bottom view in the current text view
+        // has been set in updatePracticeView() before this method
+        // is called.
+        // Thus reset the offset here.
+        textViewOfPracticeView.newWordBottomView.offset = bottomViewOffset
+    }
+    
+    override func updateSetups() {
+        super.updateSetups()
+        
+        solveKeyboardLocation()
+    }
+    
+    override func updateViews() {
+        super.updateViews()
+        
+        promptLabel.isHidden = true  // No prompt label is needed.
+        doneButton.isHidden = true  // No done button is needed.
+        nextButton.isHidden = false
+    }
+    
+    override func updateLayouts() {
+        super.updateLayouts()
+    }
+    
+    override func updatePracticeView() {
+        // Remove the old practice view.
+        if practiceView != nil {
+            practiceView.removeFromSuperview()
+        }
+        // Make a new one.
+        practiceView = {
+            let practiceView = ReadingPracticeView()
+            practiceView.updateValues(practiceItem: practiceProducer.currentPractice)
+            return practiceView
+        }()
+        // Add to the main view and update layouts.
+        mainView.addSubview(practiceView)
+        practiceView.snp.makeConstraints { (make) in
+            make.top.equalToSuperview()
+            make.centerX.equalToSuperview()
+            make.width.equalToSuperview()
+            make.bottom.equalTo(nextButton.snp.top).offset(-20)
+        }
+        // Also remember to update the textview in the practice view.
+        // TODO: - Can the code wrapped into NewWordAddingTextView?
+        view.addSubview(textViewOfPracticeView.newWordBottomView)
+        textViewOfPracticeView.newWordBottomView.frame = CGRect(
             x: view.frame.minX,
             y: view.frame.maxY,
             width: view.frame.width,
             height: view.frame.height
         )
-    }
-    
-    private func updateLayouts() {
-        mainView.snp.makeConstraints { (make) in
-            make.centerX.centerY.equalToSuperview()
-            make.width.equalToSuperview().multipliedBy(0.8)
-            make.height.equalToSuperview().multipliedBy(0.7)
-        }
-        
-        textView.snp.makeConstraints { (make) in
-            make.centerX.centerY.equalToSuperview()
-            make.width.equalToSuperview().multipliedBy(0.9)
-            make.height.equalToSuperview().multipliedBy(0.9)
-        }
-        
-        translateButton.snp.makeConstraints { (make) in
-            make.right.equalToSuperview().inset(10)
-            make.bottom.equalToSuperview().inset(15)
-        }
-        
-        nextButton.snp.makeConstraints { (make) in
-            make.centerX.equalToSuperview()
-            make.top.equalTo(mainView.snp.bottom).offset(15)
-            make.width.height.equalTo(nextButton.radius)
+        textViewOfPracticeView.newWordBottomView.offset = bottomViewOffset
+
+        // Recover new words of the current text, if any.
+        // Will not be executed if there is not a previous button.
+        if allNewWordsInfo.keys.contains(practiceProducer.currentPracticeIndex) {
+            textViewOfPracticeView.newWordsInfo = allNewWordsInfo[practiceProducer.currentPracticeIndex]!
+            textViewOfPracticeView.highlightAll()  // TODO: - Wrap?
         }
     }
     
     func updateValues(articles: [Article]) {
         practiceProducer = ReadingPracticeProducer(articles: articles)
-        updateText()
-    }
-}
-
-extension ReadingPracticeViewController {
-    
-    // MARK: - Utils
-    
-    private func updateText() {
-        
-        // Clean up.
-        // TODO: - Update here.
-        if textView.currentNewWordInfo != nil {
-            textView.currentNewWordInfo = nil
-        }
-        textView.newWordsInfo = []
-        if textView.currentSelectedTextRange != nil {
-            textView.currentSelectedTextRange = nil
-        }
-        if textView.isAddingNewWord != nil {
-            textView.isAddingNewWord = false
-        }
-        textView.newWordBottomView.clear()
-
-        // Update the text.
-        textView.attributedText = NSMutableAttributedString(
-            string: practiceProducer.currentPractice.text,
-            attributes: Attributes.longTextAttributes
-        )
-        
-        // Recover new words of the current text, if any.
-        if allNewWordsInfo.keys.contains(practiceProducer.currentPracticeIndex) {
-            textView.newWordsInfo = allNewWordsInfo[practiceProducer.currentPracticeIndex]!
-            textView.highlightAll()  // TODO: - Wrap?
-        }
     }
 }
 
@@ -168,67 +115,47 @@ extension ReadingPracticeViewController {
     
     // MARK: - Selectors
     
-    @objc private func cancelButtonTapped() {
+    @objc override func cancelButtonTapped() {
         
         // TODO: - Alert.
         
         stopPracticing()
-        
         navigationController?.dismiss(animated: true, completion: nil)
-
     }
     
-    @objc private func translateButtonTapped() {
-        print("translate")
-    }
-    
-//    @objc private func previousButtonTapped() {
-//        // Store new words of the previous text.
-//        // TODO: - Merge with the line in nextButtonTapped
-//        allNewWordsInfo[practiceProducer.currentPracticeIndex] = textView.newWordsInfo
-//
-//        currentPracticeIndex -= 1
-//        if currentPracticeIndex < 0 {
-//            currentPracticeIndex += 1  // Recover the index.
-//            return
-//        }
-//
-//        updateText()
-//    }
-    
-    @objc private func nextButtonTapped() {
+    @objc override func nextButtonTapped() {
         // Store new words of the previous text.
-        allNewWordsInfo[practiceProducer.currentPracticeIndex] = textView.newWordsInfo
+        allNewWordsInfo[practiceProducer.currentPracticeIndex] = textViewOfPracticeView.newWordsInfo
         
         practiceProducer.next()
-        
-        updateText()
+        updatePracticeView()
     }
 }
 
-extension ReadingPracticeViewController: TimingBarDelegate {
+extension ReadingPracticeViewController {
     
     // MARK: - TimeBar Delegate
     
-    func stopPracticing() {
+    override func stopPracticing() {
         
         // TODO: - Move elsewhere
         // New words are saved only the next button is pressed.
         // If the button is not pressed, the new words will not be saved.
-        allNewWordsInfo[practiceProducer.currentPracticeIndex] = textView.newWordsInfo
+        allNewWordsInfo[practiceProducer.currentPracticeIndex] = textViewOfPracticeView.newWordsInfo
         
         // TODO: - Merge.
         func saveNewWords() {
             var newWords: [Word] = []
             for (practiceItemIndex, newWordsInfo) in allNewWordsInfo {
                 let articleId = practiceProducer.practiceList[practiceItemIndex].practice.articleId
-                let article = Article.load().getArticle(from: articleId)  // TODO: - load()
+                let article = practiceProducer.dataSource.getArticle(from: articleId)
                 let articleTitle = article?.title
+                
                 for newWordInfo in newWordsInfo {
                     newWords.append(Word(
                         text: newWordInfo.word,
                         meaning: newWordInfo.meaning,
-                        note: articleTitle ?? nil
+                        note: articleTitle
                     ))
                 }
             }
@@ -238,29 +165,9 @@ extension ReadingPracticeViewController: TimingBarDelegate {
             Word.save(&loadedWords)
         }
         
-        // TODO: - Merge.
-        func saveHistoryRecords() {
-            var historyRecords: [HistoryRecord] = []
-            for i in 0...practiceProducer.currentPracticeIndex {
-                historyRecords.append(HistoryRecord(practice: practiceProducer.practiceList[i].practice))
-            }
-            
-            var loadedHistory = HistoryRecord.load()  // TODO: - Update.
-            loadedHistory.append(contentsOf: historyRecords)  // TODO: - Don't load every time.
-            HistoryRecord.save(&loadedHistory)
-        }
-        
         saveNewWords()
-        saveHistoryRecords()
         
         nextButton.isHidden = true
-//        navigationController?.dismiss(animated: true, completion: nil)
-        
-        // TODO: - Display another view later.
-        //        displaySaveNewWordsAlert(
-        //            newWordNumber: self.newWordsInfo.count,
-        //            completion: nil  self.navigationController?.dismiss(animated: true, completion: nil)
-        //        )
     }
     
 }

@@ -251,9 +251,7 @@ extension NewWordAddingTextView: NewWordBottomViewDelegate {
 }
 
 protocol NewWordAddingTextViewDelegate {
-    
-    func newWordBottomViewOffset() -> Float
-    
+        
 }
 
 struct NewWordInfo {

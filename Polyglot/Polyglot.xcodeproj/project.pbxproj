@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		FF23764E29528C840073AF96 /* ReadingPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF23764D29528C840073AF96 /* ReadingPracticeViewController.swift */; };
-		FF491E732959C2FD0088FD13 /* PracticeDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E722959C2FD0088FD13 /* PracticeDelegate.swift */; };
+		FF491E732959C2FD0088FD13 /* PracticeViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E722959C2FD0088FD13 /* PracticeViewDelegate.swift */; };
 		FF491E752959C4320088FD13 /* MeaningSelectionPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E742959C4320088FD13 /* MeaningSelectionPracticeView.swift */; };
 		FF491E772959CC960088FD13 /* MeaningFillingPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E762959CC960088FD13 /* MeaningFillingPracticeView.swift */; };
 		FF491E792959CCF60088FD13 /* ContextSelectionPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E782959CCF60088FD13 /* ContextSelectionPracticeView.swift */; };
@@ -77,6 +77,10 @@
 		FFBD60412969D713004165FC /* WordPracticeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60402969D713004165FC /* WordPracticeExtensions.swift */; };
 		FFBD60432969D721004165FC /* ReadingPracticeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60422969D721004165FC /* ReadingPracticeExtensions.swift */; };
 		FFBD60452969D733004165FC /* TranslationPracticeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60442969D733004165FC /* TranslationPracticeExtensions.swift */; };
+		FFCBB0D7296B0AA200E5B9D9 /* PracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0D6296B0AA200E5B9D9 /* PracticeViewController.swift */; };
+		FFCBB0DB296B1A6700E5B9D9 /* PracticeProducerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0DA296B1A6700E5B9D9 /* PracticeProducerDelegate.swift */; };
+		FFCBB0DD296B2E4000E5B9D9 /* ReadingPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0DC296B2E4000E5B9D9 /* ReadingPracticeView.swift */; };
+		FFCBB0E0296B45F300E5B9D9 /* TranslationPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0DF296B45F300E5B9D9 /* TranslationPracticeView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -126,7 +130,7 @@
 
 /* Begin PBXFileReference section */
 		FF23764D29528C840073AF96 /* ReadingPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPracticeViewController.swift; sourceTree = "<group>"; };
-		FF491E722959C2FD0088FD13 /* PracticeDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeDelegate.swift; sourceTree = "<group>"; };
+		FF491E722959C2FD0088FD13 /* PracticeViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeViewDelegate.swift; sourceTree = "<group>"; };
 		FF491E742959C4320088FD13 /* MeaningSelectionPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeaningSelectionPracticeView.swift; sourceTree = "<group>"; };
 		FF491E762959CC960088FD13 /* MeaningFillingPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeaningFillingPracticeView.swift; sourceTree = "<group>"; };
 		FF491E782959CCF60088FD13 /* ContextSelectionPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextSelectionPracticeView.swift; sourceTree = "<group>"; };
@@ -200,6 +204,10 @@
 		FFBD60402969D713004165FC /* WordPracticeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPracticeExtensions.swift; sourceTree = "<group>"; };
 		FFBD60422969D721004165FC /* ReadingPracticeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPracticeExtensions.swift; sourceTree = "<group>"; };
 		FFBD60442969D733004165FC /* TranslationPracticeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeExtensions.swift; sourceTree = "<group>"; };
+		FFCBB0D6296B0AA200E5B9D9 /* PracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeViewController.swift; sourceTree = "<group>"; };
+		FFCBB0DA296B1A6700E5B9D9 /* PracticeProducerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeProducerDelegate.swift; sourceTree = "<group>"; };
+		FFCBB0DC296B2E4000E5B9D9 /* ReadingPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPracticeView.swift; sourceTree = "<group>"; };
+		FFCBB0DF296B45F300E5B9D9 /* TranslationPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -231,7 +239,8 @@
 		FF491E6F2959C2DF0088FD13 /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
-				FF491E722959C2FD0088FD13 /* PracticeDelegate.swift */,
+				FF491E722959C2FD0088FD13 /* PracticeViewDelegate.swift */,
+				FFCBB0DA296B1A6700E5B9D9 /* PracticeProducerDelegate.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -380,6 +389,7 @@
 			children = (
 				FF5D129029577AC4005DEEDE /* NavController.swift */,
 				FF5844302967217700137E00 /* ListViewController.swift */,
+				FFCBB0D6296B0AA200E5B9D9 /* PracticeViewController.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -472,6 +482,7 @@
 				FF4EFE10295D36BF00E30D6A /* History */,
 				FF495E9A295903B700EA7EA9 /* Words */,
 				FF706DFE2951503700DBCF8E /* Reading */,
+				FFCBB0DE296B45DB00E5B9D9 /* Translation */,
 				FF62C9A829513A5000D41797 /* Theme.swift */,
 				FF706DF0295142AF00DBCF8E /* Strings.swift */,
 			);
@@ -511,6 +522,7 @@
 			children = (
 				FF50251329524D100097C2CB /* ReadingTableCell.swift */,
 				FF4B382E29525BD400BB3FFD /* ReadingEditTableCell.swift */,
+				FFCBB0DC296B2E4000E5B9D9 /* ReadingPracticeView.swift */,
 			);
 			path = Reading;
 			sourceTree = "<group>";
@@ -524,6 +536,14 @@
 				FFBD60442969D733004165FC /* TranslationPracticeExtensions.swift */,
 			);
 			path = Practices;
+			sourceTree = "<group>";
+		};
+		FFCBB0DE296B45DB00E5B9D9 /* Translation */ = {
+			isa = PBXGroup;
+			children = (
+				FFCBB0DF296B45F300E5B9D9 /* TranslationPracticeView.swift */,
+			);
+			path = Translation;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -687,6 +707,7 @@
 				FFBD60432969D721004165FC /* ReadingPracticeExtensions.swift in Sources */,
 				FF491E772959CC960088FD13 /* MeaningFillingPracticeView.swift in Sources */,
 				FF491E752959C4320088FD13 /* MeaningSelectionPracticeView.swift in Sources */,
+				FFCBB0E0296B45F300E5B9D9 /* TranslationPracticeView.swift in Sources */,
 				FF4964BA29579C5A00414AC5 /* UISearchBarExtensions.swift in Sources */,
 				FF5844312967217700137E00 /* ListViewController.swift in Sources */,
 				FF62C97A2951382500D41797 /* MainViewController.swift in Sources */,
@@ -696,7 +717,7 @@
 				FF23764E29528C840073AF96 /* ReadingPracticeViewController.swift in Sources */,
 				FF4964C92958B05300414AC5 /* RoundButton.swift in Sources */,
 				FF5606FF2964FD150071EDC7 /* UIViewControllerExtensions.swift in Sources */,
-				FF491E732959C2FD0088FD13 /* PracticeDelegate.swift in Sources */,
+				FF491E732959C2FD0088FD13 /* PracticeViewDelegate.swift in Sources */,
 				FF495E8E2958F38800EA7EA9 /* UITableViewExtensions.swift in Sources */,
 				FF5292072951FC9700858B55 /* MenuViewController.swift in Sources */,
 				FF5AA00B2961F208009D5237 /* Alerts.swift in Sources */,
@@ -712,9 +733,11 @@
 				FF4964BE29579C9700414AC5 /* StringExtensions.swift in Sources */,
 				FF706DF5295144B000DBCF8E /* UIColorExtensions.swift in Sources */,
 				FF491E792959CCF60088FD13 /* ContextSelectionPracticeView.swift in Sources */,
+				FFCBB0D7296B0AA200E5B9D9 /* PracticeViewController.swift in Sources */,
 				FF495E9C295903DF00EA7EA9 /* WordsTableCell.swift in Sources */,
 				FF584434296732B400137E00 /* DictionaryExtensions.swift in Sources */,
 				FF5AA0072961EA62009D5237 /* WordsEditViewController.swift in Sources */,
+				FFCBB0DB296B1A6700E5B9D9 /* PracticeProducerDelegate.swift in Sources */,
 				FF52921229520D1200858B55 /* UINavigationBarExtensions.swift in Sources */,
 				FF5882BE29604E0300FC33CF /* NewWordAddingTextView.swift in Sources */,
 				FF495EA029591DEC00EA7EA9 /* WordsTableHeaderView.swift in Sources */,
@@ -737,6 +760,7 @@
 				FF4964CB2958BAFD00414AC5 /* TimingBar.swift in Sources */,
 				FF50250E295244F10097C2CB /* ReadingViewController.swift in Sources */,
 				FF706DFC29514E7100DBCF8E /* LanguageButton.swift in Sources */,
+				FFCBB0DD296B2E4000E5B9D9 /* ReadingPracticeView.swift in Sources */,
 				FF4964CD2958BE8900414AC5 /* TimeIntervalExtensions.swift in Sources */,
 				FF52920A2952012E00858B55 /* ThreeButtonSelectionStack.swift in Sources */,
 				FF62C9782951382500D41797 /* SceneDelegate.swift in Sources */,

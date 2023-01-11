@@ -114,7 +114,7 @@ struct Strings {
     static let readingPractice: String = "読解"
     static let translationPractice: String = "通訳"
     
-    static let translationPracticePrompt: String = "この文を日本語に\n通訳してください"
+    static let translationPracticePrompt: String = "この文を\n通訳してください"
     
     static let wordEditTextViewPrompt: String = "フォーマット：\n日付 - ノート\n1. 単語１\n2. 単語2\n\n日付 - ノート\n1. 単語１\n2. 単語2\n\n"
     

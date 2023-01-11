@@ -72,7 +72,8 @@ class MeaningFillingPracticeView: UIView {
     private func updateLayouts() {
         textField.snp.makeConstraints { (make) in
             make.width.equalToSuperview()
-            make.centerX.centerY.equalToSuperview()
+            make.centerX.equalToSuperview()
+            make.centerY.equalToSuperview().offset(-30)  // TODO: - Remove here after solve the keyboard issue.
         }
         
         bottomLine.snp.makeConstraints { (make) in
@@ -94,7 +95,7 @@ class MeaningFillingPracticeView: UIView {
     }
 }
 
-extension MeaningFillingPracticeView: PracticeDelegate {
+extension MeaningFillingPracticeView: PracticeViewDelegate {
     
     // MARK: - Practice Delegate
     

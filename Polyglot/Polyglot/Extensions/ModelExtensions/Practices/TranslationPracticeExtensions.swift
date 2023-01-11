@@ -8,13 +8,16 @@
 
 import Foundation
 
-struct TranslationPracticeProducer {
+struct TranslationPracticeProducer: PracticeProducerDelegate {
     
-    var articles: [Article] {
+    typealias T = Article
+    typealias U = TranslationPracticeProducer.Item
+    
+    var dataSource: [Article] {
         didSet {
             
-            if articles.isEmpty {
-                articles.append(Article.dummyArticle)
+            if dataSource.isEmpty {
+                dataSource.append(Article.dummyArticle)
             }
             
         }
@@ -29,11 +32,16 @@ struct TranslationPracticeProducer {
         }
     }
     var currentPractice: TranslationPracticeProducer.Item {
-        return practiceList[currentPracticeIndex]
+        get {
+            return practiceList[currentPracticeIndex]
+        }
+        set {
+            practiceList[currentPracticeIndex] = newValue
+        }
     }
     
     init(articles: [Article]) {
-        self.articles = articles
+        self.dataSource = articles
         
         self.practiceList = []
         self.currentPracticeIndex = 0
@@ -43,7 +51,7 @@ struct TranslationPracticeProducer {
     
     func make() -> TranslationPracticeProducer.Item {
         // Randomly choose an article.
-        let randomArticle = articles.randomElement()!
+        let randomArticle = dataSource.randomElement()!
         // Randomly choose a paragraph.
         let randomParagraph = randomArticle.paras.randomElement()!
         if !randomParagraph.isParallel {
@@ -74,7 +82,9 @@ struct TranslationPracticeProducer {
 
 extension TranslationPracticeProducer {
     
-    struct Item {
+    struct Item: PracticeItemDelegate {
+        
+        typealias T = TranslationPractice
         
         var practice: TranslationPractice
         

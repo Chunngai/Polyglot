@@ -10,7 +10,10 @@ import Foundation
 import UIKit
 
 extension UIViewController {
-    func solveKeyboardLocation(view: UIView) {
+    
+    // TODO: - Not working properly. The keyboard height is not correct.
+    
+    func solveKeyboardLocation() {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }

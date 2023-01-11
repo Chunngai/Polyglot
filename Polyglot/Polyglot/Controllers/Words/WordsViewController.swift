@@ -217,7 +217,6 @@ extension WordsViewController {
     
     @objc func tapped() {
         let wordsPracticeViewController = WordsPracticeViewController()
-        wordsPracticeViewController.delegate = self
         wordsPracticeViewController.updateValues(words: words)
 
         let wordsPracticeNavController = NavController(rootViewController: wordsPracticeViewController)

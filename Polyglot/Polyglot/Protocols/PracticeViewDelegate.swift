@@ -1,5 +1,5 @@
 //
-//  PracticeDelegate.swift
+//  PracticeViewDelegate.swift
 //  Polyglot
 //
 //  Created by Sola on 2022/12/26.
@@ -9,7 +9,8 @@
 import Foundation
 import UIKit
 
-protocol PracticeDelegate: UIView {
+protocol PracticeViewDelegate: UIView {
     
+    // TODO: - Is it needed?
     func check() -> Any
 }

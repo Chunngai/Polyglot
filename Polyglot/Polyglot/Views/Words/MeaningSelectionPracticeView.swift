@@ -17,8 +17,11 @@ class MeaningSelectionPracticeView: UIView {
         }
     }
     
-    private var answer: String? {
-        selectionStack.selectedButton?.titleLabel!.text
+    private var answer: String {
+        selectionStack.selectedButton!.titleLabel!.text!
+    }
+    private var isCorrect: Bool {
+        answer == practiceItem.key
     }
     
     // MARK: - Controllers
@@ -67,18 +70,16 @@ class MeaningSelectionPracticeView: UIView {
     }
 }
 
-extension MeaningSelectionPracticeView: PracticeDelegate {
+extension MeaningSelectionPracticeView: PracticeViewDelegate {
     
     // MARK: - Practice Delegate
     
     func check() -> Any {
         
-        let isCorrect: Bool = answer == practiceItem.key
         if isCorrect {
             selectionStack.selectedButton!.backgroundColor = Colors.lightCorrectColor
         } else {
             selectionStack.selectedButton!.backgroundColor = Colors.lightInorrectColor
-            
             // Also highlight the correct answer.
             for button in selectionStack.buttons {
                 if button.titleLabel!.text == practiceItem.key {

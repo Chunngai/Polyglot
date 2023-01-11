@@ -8,13 +8,16 @@
 
 import Foundation
 
-struct WordPracticeProducer {
+struct WordPracticeProducer: PracticeProducerDelegate {
     
-    var words: [Word] {
+    typealias T = Word
+    typealias U = WordPracticeProducer.Item
+    
+    var dataSource: [Word] {
         didSet {
             
-            if words.isEmpty {
-                words.append(Word.dummyWord)
+            if dataSource.isEmpty {
+                dataSource.append(Word.dummyWord)
             }
             
         }
@@ -38,7 +41,7 @@ struct WordPracticeProducer {
     }
     
     init(words: [Word]) {
-        self.words = words
+        self.dataSource = words
         
         self.practiceList = []
         self.currentPracticeIndex = 0
@@ -48,7 +51,7 @@ struct WordPracticeProducer {
     
     func make() -> WordPracticeProducer.Item {
         // Randomly choose a word.
-        let randomWord = words.randomElement()!
+        let randomWord = dataSource.randomElement()!
         // Randomly choose a practice type.
         let randomPracticeType = Int.random(in: 0...1)  // TODO: - Udate here after the context practice is done.
         
@@ -93,7 +96,7 @@ extension WordPracticeProducer {
         var selectionWords: [Word] = [wordToPractice]
         // Randomly choose two words.
         while true {
-            let selectionWord = words.randomElement()!
+            let selectionWord = dataSource.randomElement()!
             if !selectionWords.contains(selectionWord) {
                 selectionWords.append(selectionWord)
             }
@@ -155,7 +158,9 @@ extension WordPracticeProducer {
 
 extension WordPracticeProducer {
     
-    struct Item {
+    struct Item: PracticeItemDelegate {
+        
+        typealias T = WordPractice
         
         var practice: WordPractice
         

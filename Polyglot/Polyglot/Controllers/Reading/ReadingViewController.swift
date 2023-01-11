@@ -22,7 +22,10 @@ class ReadingViewController: ListViewController {
         didSet {
             Article.save(&articles)
             
-            dataSource = articles
+            // If the search controller is not active,
+            // present all articles.
+            // Otherwise, present the matched articles.
+            updateSearchResults(for: searchController)
         }
     }
     
@@ -88,12 +91,14 @@ extension ReadingViewController: UITableViewDelegate {
     // MARK: - UITableView Delegate
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let readingEditViewController = ReadingEditViewController()
-        readingEditViewController.delegate = self
-        readingEditViewController.updateValues(article: articles[indexPath.row])
-        
-        let readingEditNavController = NavController(rootViewController: readingEditViewController)
-        navigationController?.present(readingEditNavController, animated: true, completion: nil)
+        if let cell = tableView.cellForRow(at: indexPath) as? ReadingTableCell {
+            let readingEditViewController = ReadingEditViewController()
+            readingEditViewController.delegate = self
+            readingEditViewController.updateValues(article: cell.article)
+            
+            let readingEditNavController = NavController(rootViewController: readingEditViewController)
+            navigationController?.present(readingEditNavController, animated: true, completion: nil)
+        }
     }
     
     func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
@@ -122,7 +127,6 @@ extension ReadingViewController {
     
     @objc func tapped() {
         let readingPracticeViewController = ReadingPracticeViewController()
-        readingPracticeViewController.delegate = self
         readingPracticeViewController.updateValues(articles: articles)
         
         let readingPracticeNavController = NavController(rootViewController: readingPracticeViewController)

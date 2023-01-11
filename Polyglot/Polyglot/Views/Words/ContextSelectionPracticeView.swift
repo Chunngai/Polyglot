@@ -38,7 +38,7 @@ class ContextSelectionPracticeView: UIView {
     
 }
 
-extension ContextSelectionPracticeView: PracticeDelegate {
+extension ContextSelectionPracticeView: PracticeViewDelegate {
     
     // MARK: - Practice Delegate
     
