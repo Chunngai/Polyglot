@@ -44,7 +44,7 @@ class ThreeButtonSelectionStack: UIStackView {
                 button.titleLabel?.lineBreakMode = .byTruncatingTail
                 // https://stackoverflow.com/questions/31353302/change-a-uibuttons-text-padding-programmatically-in-swift
                 button.titleEdgeInsets = UIEdgeInsets(top: 10, left: 20, bottom: 10, right: 20)
-                button.backgroundColor = Colors.weakLightBlue
+                button.backgroundColor = Colors.lightBlue
                 button.layer.masksToBounds = false
                 button.layer.cornerRadius = Sizes.defaultCornerRadius
                 button.tag = i

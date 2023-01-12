@@ -115,12 +115,12 @@ extension WordsPracticeViewController {
     
     private func activateDoneButton() {
         doneButton.isEnabled = true
-        doneButton.backgroundColor = Colors.weakLightBlue
+        doneButton.backgroundColor = Colors.lightBlue
     }
     
     private func deactivateDoneButton() {
         doneButton.isEnabled = false
-        doneButton.backgroundColor = Colors.weakBackgroundColor
+        doneButton.backgroundColor = Colors.lightGrayBackgroundColor
     }
 }
 

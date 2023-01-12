@@ -16,7 +16,7 @@ class PracticeViewController: UIViewController {
     // MARK: - Views
     
     var timingBar: TimingBar = {
-        let bar = TimingBar(duration: Vars.practiceDuration)
+        let bar = TimingBar(duration: Constants.practiceDuration)
         return bar
     }()
     
@@ -36,14 +36,14 @@ class PracticeViewController: UIViewController {
     var doneButton: RoundButton = {
         let button = RoundButton(radius: Sizes.roundButtonRadius)
         button.setImage(Icons.doneIcon, for: .normal)
-        button.backgroundColor = Colors.weakLightBlue
+        button.backgroundColor = Colors.lightBlue
         return button
     }()
     
     var nextButton: RoundButton = {
         let button = RoundButton(radius: Sizes.roundButtonRadius)
         button.setImage(Icons.nextIcon, for: .normal)
-        button.backgroundColor = Colors.weakLightBlue
+        button.backgroundColor = Colors.lightBlue
         button.isHidden = true
         return button
     }()

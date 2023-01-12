@@ -23,7 +23,7 @@ class ReadingPracticeView: UIView {
     
     var mainView: UIView = {
         let view = UIView()
-        view.backgroundColor = Colors.weakBackgroundColor
+        view.backgroundColor = Colors.lightGrayBackgroundColor
         view.layer.masksToBounds = false
         view.layer.cornerRadius = Sizes.defaultCornerRadius
         return view

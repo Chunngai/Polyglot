@@ -23,7 +23,7 @@ class TimingBar: UIView {
     private var progressView: UIProgressView = {
         let progressView = UIProgressView(progressViewStyle: .bar)
         progressView.trackTintColor = Colors.timingBarTintColor
-        progressView.progressTintColor = Colors.weakLightBlue
+        progressView.progressTintColor = Colors.lightBlue
         progressView.layer.masksToBounds = true
         progressView.layer.cornerRadius = Sizes.smallCornerRadius
         return progressView
@@ -80,11 +80,24 @@ extension TimingBar {
     // MARK: - Utils
     
     private func presentTimeUpAlert(duration: TimeInterval, completion: @escaping (_ isOk: Bool) -> Void) {
-        let reachedMaxDuration: Bool = duration == Vars.maxPracticeDuration
+        let reachedMaxDuration: Bool = duration == Constants.maxPracticeDuration
         
+        let message: String = {
+            var message: String = ""
+            if !reachedMaxDuration {
+                message = Strings.timeUpAlertBody
+            } else {
+                message = Strings.maxTimeUpAlertBody
+            }
+            
+            let minutes = duration / 60
+            message = message.replacingOccurrences(of: Strings.maskToken, with: String(minutes))
+            
+            return message
+        }()
         let alert = UIAlertController(
             title: Strings.timeUpAlertTitle,
-            message:  reachedMaxDuration ? Strings.maxTimeUpAlertBody : Strings.timeUpAlertBody,
+            message: message,
             preferredStyle: .alert
         )
         
@@ -113,11 +126,11 @@ extension TimingBar {
     
     private func timeUp() {
         
-        if duration != Vars.maxPracticeDuration {
+        if duration != Constants.maxPracticeDuration {
             presentTimeUpAlert(duration: duration) { (isOk) in
                 if isOk {
                     // Update the timing bar.
-                    self.addDuration(duration: Vars.practiceDuration)
+                    self.addDuration(duration: Constants.practiceDuration)
                     return
                 } else {
                     self.delegate.stopPracticing()

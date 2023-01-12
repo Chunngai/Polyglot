@@ -110,12 +110,21 @@ extension ReadingEditViewController {
         let cell = ReadingEditTableCell()
         cell.delegate = self
         
-        let prompt = ReadingEditViewController.prompts[identifier]
+        let prompt = getPrompt(for: identifier)  // Dynamically loading instead of using constants, coz `lang` will change.
         let text = getText(for: identifier)
         let attributes = ReadingEditViewController.attributes[identifier]
         
         cell.updateValues(prompt: prompt, text: text, attributes: attributes, textViewTag: identifier)
         return cell
+    }
+    
+    private func getPrompt(for identifier: Int) -> String {
+        switch identifier {
+        case ReadingEditViewController.titleIdentifier: return Strings.articleTitlePrompt
+        case ReadingEditViewController.bodyIdentifier: return Strings.articleBodyPrompt
+        case ReadingEditViewController.sourceIdentifier: return Strings.articleSourcePrompt
+        default: return ""
+        }
     }
     
     private func getText(for identifier: Int) -> String? {
@@ -209,15 +218,10 @@ extension ReadingEditViewController {
     private static let titleIdentifier: Int = 0
     private static let bodyIdentifier: Int = 1
     private static let sourceIdentifier: Int = 2
-    private static let prompts: [String] = [
-        Strings.articleTitlePrompt,
-        Strings.articleBodyPrompt,
-        Strings.articleSourcePrompt
-    ]
     private static let attributes: [[NSAttributedString.Key : Any]] = [
         Attributes.newArticleTitleAttributes,
-        Attributes.longTextAttributes,
-        Attributes.longTextAttributes
+        Attributes.newArticleBodyAttributes,
+        Attributes.newArticleSourceAttributes
     ]
     
 }

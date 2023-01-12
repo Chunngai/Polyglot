@@ -25,14 +25,20 @@ class MenuViewController: UIViewController {
         let view = UIView()
         return view
     }()
-    private let primaryPromptLabel: UILabel = {
+    private lazy var primaryPromptLabel: UILabel = {
         let label = UILabel()
-        label.attributedText = Strings.menuPrimaryPrompt
+        label.attributedText = NSAttributedString(
+            string: Strings.menuPrimaryPrompt,
+            attributes: Attributes.primaryPromptAttributes
+        )
         return label
     }()
-    private let secondaryPromptLabel: UILabel = {
+    private lazy var secondaryPromptLabel: UILabel = {
         let label = UILabel()
-        label.attributedText = Strings.menuSecondaryPrompt
+        label.attributedText = NSAttributedString(
+            string: Strings.menuSecondaryPrompt,
+            attributes: Attributes.secondaryPromptAttributes
+        )
         return label
     }()
     private lazy var langImageView: UIImageView = UIImageView()
@@ -42,7 +48,7 @@ class MenuViewController: UIViewController {
         stackView.set(texts: [
             Strings.words,
             Strings.reading,
-            Strings.translation
+            Strings.interpretation
         ])
         return stackView
     }()
@@ -54,16 +60,12 @@ class MenuViewController: UIViewController {
     convenience init(lang: String) {
         self.init(nibName:nil, bundle:nil)
         
+        // Should be set before the following code
+        // because Images.langImage depends on lang.
+        Variables.lang = lang
+        
         self.lang = lang
-        self.langImageView.image = {
-            // TODO: - Simplify here.
-            switch lang {
-            case Strings.en: return Images.enImage
-            case Strings.ja: return Images.jaImage
-            case Strings.es: return Images.esImage
-            default: return UIImage()
-            }
-        }()
+        self.langImageView.image = Images.langImage
     }
 
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {

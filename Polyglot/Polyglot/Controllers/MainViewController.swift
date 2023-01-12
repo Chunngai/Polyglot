@@ -11,6 +11,8 @@ import SnapKit
 
 class MainViewController: UIViewController {
 
+    private var isExecutingTextAnimation: Bool = true
+    
     // MARK: - Views
     
     private var backgroundView = BackgroundView()
@@ -26,12 +28,18 @@ class MainViewController: UIViewController {
     }()
     private let primaryPromptLabel: UILabel = {
         let label = UILabel()
-        label.attributedText = Strings.mainPrimaryPrompt
+        label.attributedText = NSAttributedString(
+            string: Strings.mainPrimaryPrompt,
+            attributes: Attributes.primaryPromptAttributes
+        )
         return label
     }()
     private let secondaryPromptLabel: UILabel = {
         let label = UILabel()
-        label.attributedText = Strings.mainSecondaryPrompt
+        label.attributedText = NSAttributedString(
+            string: Strings.mainSecondaryPrompt,
+            attributes: Attributes.secondaryPromptAttributes
+        )
         return label
     }()
     
@@ -44,7 +52,7 @@ class MainViewController: UIViewController {
         return stackView
     }()
     private var enButton: LanguageButton = {
-        let button = LanguageButton(langCode: Strings.en)
+        let button = LanguageButton(langCode: LangCodes.en)
         button.set(attributedText: NSAttributedString(
             string: Strings.enString,
             attributes: Attributes.langStringAttrs
@@ -53,7 +61,7 @@ class MainViewController: UIViewController {
         return button
     }()
     private var jaButton: LanguageButton = {
-           let button = LanguageButton(langCode: Strings.ja)
+           let button = LanguageButton(langCode: LangCodes.ja)
            button.set(attributedText: NSAttributedString(
                string: Strings.jaString,
                attributes: Attributes.langStringAttrs
@@ -62,7 +70,7 @@ class MainViewController: UIViewController {
            return button
        }()
     private var esButton: LanguageButton = {
-           let button = LanguageButton(langCode: Strings.es)
+           let button = LanguageButton(langCode: LangCodes.es)
            button.set(attributedText: NSAttributedString(
                string: Strings.esString,
                attributes: Attributes.langStringAttrs
@@ -81,6 +89,15 @@ class MainViewController: UIViewController {
         updateLayouts()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        // https://juejin.cn/post/6905235669758443533
+        // https://stackoverflow.com/questions/27501732/stop-and-start-nsthread-in-swift
+        Thread.detachNewThreadSelector(#selector(textAnimation), toTarget: self, with: nil)
+        isExecutingTextAnimation = true
+    }
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
@@ -88,6 +105,8 @@ class MainViewController: UIViewController {
         // Without resetting, the nav bar looks ugly
         // when switching from main view to menu view.
         navigationController?.navigationBar.backgroundColor = nil
+        
+        isExecutingTextAnimation = false
     }
     
     private func updateSetups() {
@@ -99,7 +118,7 @@ class MainViewController: UIViewController {
     private func updateViews() {
         // The white navi bar shadows the background view.
         // Set to the same color to hide it.
-        navigationController?.navigationBar.backgroundColor = Colors.weakLightBlue
+        navigationController?.navigationBar.backgroundColor = Colors.lightBlue
         
         view.backgroundColor = Colors.defaultBackgroundColor
         view.addSubview(backgroundView)
@@ -155,7 +174,48 @@ class MainViewController: UIViewController {
     }
 }
 
+extension MainViewController {
+
+    // MARK: - Selectors
+    
+    @objc func textAnimation() {
+        var langCodeIndex: Int = 0
+        while true {
+            // https://stackoverflow.com/questions/3073520/animate-text-change-in-uilabel
+            DispatchQueue.main.async {
+                
+                Variables.lang = LangCodes.codes[langCodeIndex]
+                langCodeIndex = (langCodeIndex + 1) % LangCodes.codes.count
+                
+                UIView.transition(
+                    with: self.view,
+                    duration: 3,
+                    // https://stackoverflow.com/questions/3237431/does-animatewithdurationanimations-block-main-thread
+                    // .allowUserInteraction is needed else the button becomes not interactive.
+                    options: [.transitionCrossDissolve, .allowUserInteraction],
+                    animations: { [weak self] in
+                        self?.primaryPromptLabel.text = Strings.mainPrimaryPrompt
+                        self?.secondaryPromptLabel.text = Strings.mainSecondaryPrompt
+                        
+                        self?.enButton.set(text: Strings.enString)
+                        self?.jaButton.set(text: Strings.jaString)
+                        self?.esButton.set(text: Strings.esString)
+                    }, completion: nil
+                )
+            }
+            Thread.sleep(forTimeInterval: 3)
+            
+            if !isExecutingTextAnimation {
+                Thread.exit()
+            }
+        }
+    }
+
+}
+
 extension MainViewController: LanguageButtonDelegate {
+    
+    // MARK: - LanguageButton Delegate
     
     func selectLanguage(lang: String) {
         let menuViewController = MenuViewController(lang: lang)

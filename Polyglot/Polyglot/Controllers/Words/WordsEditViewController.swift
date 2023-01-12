@@ -49,8 +49,8 @@ class WordsEditViewController: UIViewController {
     
     private func updateViews() {
         view.backgroundColor = Colors.defaultBackgroundColor
-        
         view.addSubview(textView)
+        
         textView.prompt = Strings.wordEditTextViewPrompt
         textView.promptAttributes = Attributes.promptTextColorAttribute
         textView.textAttributes = Attributes.longTextAttributes
@@ -98,7 +98,7 @@ extension WordsEditViewController {
         
         var words: [Word] = []
         
-        let sections: [String] = textView.content.strip().split(with: Strings.paraSeparator)
+        let sections: [String] = textView.content.strip().split(with: Article.paraSeparator)
         for section in sections {
             let lines: [String] = section.split(with: "\n")
             

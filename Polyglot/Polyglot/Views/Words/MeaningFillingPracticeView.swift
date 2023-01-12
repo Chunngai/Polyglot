@@ -24,8 +24,8 @@ class MeaningFillingPracticeView: UIView {
     
     private var textField: UITextField = {
         let textField = UITextField()
-        textField.font = UIFont.systemFont(ofSize: Sizes.bigFontSize)
-        textField.textColor = Colors.defaultTextColor
+        textField.font = UIFont.systemFont(ofSize: Sizes.largeFontSize)
+        textField.textColor = Colors.normalTextColor
         textField.textAlignment = .center
         return textField
     }()
@@ -37,7 +37,7 @@ class MeaningFillingPracticeView: UIView {
     
     private var referenceLabel: UILabel = {
         let label = UILabel()
-        label.textColor = Colors.defaultTextColor
+        label.textColor = Colors.normalTextColor
         label.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
         label.isHidden = true
         return label

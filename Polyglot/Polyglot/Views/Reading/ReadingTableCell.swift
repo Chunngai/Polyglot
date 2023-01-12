@@ -24,7 +24,7 @@ class ReadingTableCell: UITableViewCell {
     private var titleLabel: UILabel = {
         let label = UILabel()
         label.backgroundColor = Colors.defaultBackgroundColor
-        label.textColor = Colors.defaultTextColor
+        label.textColor = Colors.normalTextColor
         label.lineBreakMode = .byTruncatingTail
         label.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
         return label

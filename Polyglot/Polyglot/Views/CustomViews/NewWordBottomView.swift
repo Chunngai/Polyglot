@@ -54,7 +54,7 @@ class NewWordBottomView: UIView {
         label.numberOfLines = NewWordBottomView.wordLabelNumberOfLines
         label.lineBreakMode = .byTruncatingTail
         label.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
-        label.textColor = Colors.defaultTextColor
+        label.textColor = Colors.normalTextColor
         return label
     }()
     
@@ -111,7 +111,7 @@ class NewWordBottomView: UIView {
     }
     
     private func updateViews() {
-        backgroundColor = Colors.weakLightBlue
+        backgroundColor = Colors.lightBlue
         
         addSubview(wordLabel)
         addSubview(meaningTextField)

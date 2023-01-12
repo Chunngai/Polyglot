@@ -16,13 +16,13 @@ class WordsTableHeaderView: UITableViewHeaderFooterView {
         // [TableView] Setting the background color on UITableViewHeaderFooterView has been deprecated. Please set a custom UIView with your desired background color to the backgroundView property instead.
         
         let view = UIView()
-        view.backgroundColor = Colors.weakBackgroundColor
+        view.backgroundColor = Colors.lightGrayBackgroundColor
         return view
     }()
     
     private var label: UILabel = {
         let label = UILabel()
-        label.backgroundColor = Colors.weakBackgroundColor
+        label.backgroundColor = Colors.lightGrayBackgroundColor
         label.textColor = Colors.weakTextColor
         label.lineBreakMode = .byTruncatingTail
         label.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)

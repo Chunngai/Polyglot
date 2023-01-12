@@ -51,7 +51,7 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
         newWordBottomView.delegate = self
                 
         // Display the new word menu item at the beginning.
-        newWordMenuItem = UIMenuItem(title: Strings.newWord, action: #selector(newWordMenuItemTapped))
+        newWordMenuItem = UIMenuItem(title: Strings.newWordMenuItemString, action: #selector(newWordMenuItemTapped))
         isAddingNewWord = false
         
         isEditable = false
@@ -84,7 +84,7 @@ extension NewWordAddingTextView {
     
     func highlightAll() {
         for newWordInfo in newWordsInfo {
-            hightlight(newWordInfo.range, with: Colors.weakLightBlue)
+            hightlight(newWordInfo.range, with: Colors.lightBlue)
         }
     }
 }
@@ -219,7 +219,7 @@ extension NewWordAddingTextView: NewWordBottomViewDelegate {
         
         // Highlight the new word.
         let selectedRange = currentNewWordInfo.range
-        hightlight(selectedRange, with: Colors.weakLightBlue)
+        hightlight(selectedRange, with: Colors.lightBlue)
     }
     
     func deleteNewWord() {
@@ -242,7 +242,7 @@ extension NewWordAddingTextView: NewWordBottomViewDelegate {
         
         // Remove the highlight.
         let selectedRange = removedNewWordInfo.range
-        hightlight(selectedRange, with: Colors.weakBackgroundColor)
+        hightlight(selectedRange, with: Colors.lightGrayBackgroundColor)
     }
     
     func meaningTextFieldEditingChanged() {

@@ -24,7 +24,7 @@ class WordsTableCell: UITableViewCell {
     private var wordLabel: UILabel = {
         let label = UILabel()
         label.backgroundColor = Colors.defaultBackgroundColor
-        label.textColor = Colors.defaultTextColor
+        label.textColor = Colors.normalTextColor
         label.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
         label.textAlignment = .left
         return label

@@ -74,17 +74,13 @@ struct WordPracticeProducer: PracticeProducerDelegate {
 }
 
 extension WordPracticeProducer {
-    
-    static let maskToken: String = "[MASK]"
-    static let meaningSelectionAndFillingPracticePromptSuffix: String = "は何と意味しますか"
-    static let contextSelectionPracticePrompt: String = "適切な単語を選んでください"
-    
+        
     private func makePromptTemplate(for practiceType: WordPractice.PracticeType) -> String {
         switch practiceType {
         case .meaningSelection, .meaningFilling:
-            return "\(WordPracticeProducer.maskToken)\n\(WordPracticeProducer.meaningSelectionAndFillingPracticePromptSuffix)"
+            return Strings.meaningSelectionAndFillingPracticePrompt
         case .contextSelection:
-            return WordPracticeProducer.contextSelectionPracticePrompt
+            return Strings.contextSelectionPracticePrompt
         }
         
     }
@@ -117,7 +113,7 @@ extension WordPracticeProducer {
                 direction: randomDirection
             ),
             prompt: makePromptTemplate(for: .meaningSelection).replacingOccurrences(
-                of: WordPracticeProducer.maskToken,
+                of: Strings.maskToken,
                 with: randomDirection == 0 ?
                     wordToPractice.text :
                     wordToPractice.meaning
@@ -144,7 +140,7 @@ extension WordPracticeProducer {
                 direction: randomDirection
             ),
             prompt: makePromptTemplate(for: .meaningFilling).replacingOccurrences(
-                of: WordPracticeProducer.maskToken,
+                of: Strings.maskToken,
                 with: randomDirection == 0 ?
                     wordToPractice.text :
                     wordToPractice.meaning

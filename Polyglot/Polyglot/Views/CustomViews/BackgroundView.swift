@@ -12,7 +12,7 @@ class BackgroundView: UIView {
     
     private var backgroundViewTop: UIView = {
         let view = UIView()
-        view.backgroundColor = Colors.weakLightBlue
+        view.backgroundColor = Colors.lightBlue
         return view
     }()
     private var backgroundViewBottom: UIImageView = UIImageView(image: Images.backgroundImage)

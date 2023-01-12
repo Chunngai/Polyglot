@@ -164,7 +164,7 @@ extension WordsViewController {
             }
         }
 
-        alert.addAction(UIAlertAction(title: Strings.ok, style: .default, handler: { [weak alert] (_) in
+        alert.addAction(UIAlertAction(title: Strings.done, style: .default, handler: { [weak alert] (_) in
             
             var text: String = ""
             var meaning: String = ""
