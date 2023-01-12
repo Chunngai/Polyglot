@@ -64,7 +64,7 @@
 		FF5DB994295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5DB993295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift */; };
 		FF62C9762951382500D41797 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9752951382500D41797 /* AppDelegate.swift */; };
 		FF62C9782951382500D41797 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9772951382500D41797 /* SceneDelegate.swift */; };
-		FF62C97A2951382500D41797 /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9792951382500D41797 /* MainViewController.swift */; };
+		FF62C97A2951382500D41797 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9792951382500D41797 /* HomeViewController.swift */; };
 		FF62C97F2951382600D41797 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FF62C97E2951382600D41797 /* Assets.xcassets */; };
 		FF62C98D2951382600D41797 /* PolyglotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C98C2951382600D41797 /* PolyglotTests.swift */; };
 		FF62C9982951382600D41797 /* PolyglotUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9972951382600D41797 /* PolyglotUITests.swift */; };
@@ -196,7 +196,7 @@
 		FF62C9722951382500D41797 /* Polyglot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Polyglot.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FF62C9752951382500D41797 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		FF62C9772951382500D41797 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		FF62C9792951382500D41797 /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
+		FF62C9792951382500D41797 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		FF62C97E2951382600D41797 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		FF62C9832951382600D41797 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FF62C9882951382600D41797 /* PolyglotTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PolyglotTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -488,7 +488,7 @@
 		FF62C9A629513A2800D41797 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				FF62C9792951382500D41797 /* MainViewController.swift */,
+				FF62C9792951382500D41797 /* HomeViewController.swift */,
 				FF5292062951FC9700858B55 /* MenuViewController.swift */,
 				FF58442F2967215700137E00 /* Common */,
 				FF4EFE0D295D34B700E30D6A /* History */,
@@ -842,7 +842,7 @@
 				FFCBB0E0296B45F300E5B9D9 /* TranslationPracticeView.swift in Sources */,
 				FF4964BA29579C5A00414AC5 /* UISearchBarExtensions.swift in Sources */,
 				FF5844312967217700137E00 /* ListViewController.swift in Sources */,
-				FF62C97A2951382500D41797 /* MainViewController.swift in Sources */,
+				FF62C97A2951382500D41797 /* HomeViewController.swift in Sources */,
 				FF5D129529577CB3005DEEDE /* RoundShadowView.swift in Sources */,
 				FF4A21542959A5D600AD3AF8 /* Practice.swift in Sources */,
 				FF4964C029579DA100414AC5 /* ArticleExtensions.swift in Sources */,

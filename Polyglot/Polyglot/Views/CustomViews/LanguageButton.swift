@@ -14,7 +14,7 @@ class LanguageButton: UIButton {
     
     // MARK: - Controllers
     
-    var delegate: MainViewController!
+    var delegate: HomeViewController!
     
     // MARK: - Views
     
@@ -59,7 +59,7 @@ class LanguageButton: UIButton {
         }
     }
     
-    func updateValues(lang: String, langString: NSAttributedString, delegate: MainViewController) {
+    func updateValues(lang: String, langString: NSAttributedString, delegate: HomeViewController) {
         self.delegate = delegate
         
     }

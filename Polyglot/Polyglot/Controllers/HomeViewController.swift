@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  HomeViewController.swift
 //  Polyglot
 //
 //  Created by Sola on 2022/12/20.
@@ -9,7 +9,7 @@
 import UIKit
 import SnapKit
 
-class MainViewController: UIViewController {
+class HomeViewController: UIViewController {
 
     private var isExecutingTextAnimation: Bool = true
     
@@ -174,7 +174,7 @@ class MainViewController: UIViewController {
     }
 }
 
-extension MainViewController {
+extension HomeViewController {
 
     // MARK: - Selectors
     
@@ -213,7 +213,7 @@ extension MainViewController {
 
 }
 
-extension MainViewController: LanguageButtonDelegate {
+extension HomeViewController: LanguageButtonDelegate {
     
     // MARK: - LanguageButton Delegate
     
