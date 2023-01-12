@@ -107,16 +107,18 @@ extension Word {
 struct GroupedWords {
     
     // For storing words grouped by group identifiers.
-    var groupId: String
+    
     var words: [Word]
     
-    init(groupId: String, words: [Word]) {
-        self.groupId = groupId
-        self.words = words
+    var cDate: Date {
+        words[0].cDate
+    }
+    var groupId: String {
+        words[0].groupId
     }
     
-    init(groupId: String) {
-        self.init(groupId: groupId, words: [])
+    init(words: [Word]) {
+        self.words = words
     }
 }
 
@@ -128,16 +130,25 @@ extension Array where Iterator.Element == Word {
         for word in self {
             let groupId = word.groupId
             
-            groupedWordsMapping.setDefault(value: GroupedWords(groupId: groupId), for: groupId)
+            groupedWordsMapping.setDefault(value: GroupedWords(words: []), for: groupId)
             groupedWordsMapping[groupId]?.words.append(word)
         }
         
+        // Sort groups.
         var groupedWords = Array<GroupedWords>(groupedWordsMapping.values)
-        groupedWords.sort { (item1, item2) -> Bool in
-            item1.words[0].cDate != item2.words[0].cDate
-                ? item1.words[0].cDate > item2.words[0].cDate  // First, sort by date.
-                : item1.groupId < item2.groupId  // Then, sort by groupId.
+        groupedWords.sort { (group1, group2) -> Bool in
+            group1.cDate != group2.cDate
+                ? group1.cDate > group2.cDate  // First, sort by date.
+                : group1.groupId < group2.groupId  // Then, sort by groupId.
         }
+        
+        // Sort words in each group.
+        for i in 0..<groupedWords.count {
+            groupedWords[i].words.sort { (word1, word2) -> Bool in
+                word1.mDate > word2.mDate
+            }
+        }
+        
         return groupedWords
     }
 }
