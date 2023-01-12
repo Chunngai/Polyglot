@@ -101,7 +101,7 @@ extension ReadingEditViewController {
     }
 
 }
- 
+
 extension ReadingEditViewController {
     
     // MARK: - Utils

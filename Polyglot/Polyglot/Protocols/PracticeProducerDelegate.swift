@@ -29,7 +29,7 @@ protocol PracticeProducerDelegate {
     var currentPracticeIndex: Int { get set }
     var currentPractice: U { get set }
     
-    func make() -> U
+    func make() -> [U]
     mutating func next()
     
 }

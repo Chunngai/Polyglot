@@ -110,6 +110,16 @@ extension Article {
     
 }
 
+extension Array where Iterator.Element == Article {
+    
+    var topics: [String] {
+        self.compactMap { (article) -> String? in
+            article.topic
+        }
+    }
+    
+}
+
 extension Article {
     
     var groupId: String {

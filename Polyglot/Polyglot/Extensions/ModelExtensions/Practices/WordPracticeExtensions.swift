@@ -27,7 +27,7 @@ struct WordPracticeProducer: PracticeProducerDelegate {
     var currentPracticeIndex: Int {
         didSet {
             if currentPracticeIndex >= practiceList.count {
-                practiceList.append(make())
+                practiceList.append(contentsOf: make())
             }
         }
     }
@@ -46,10 +46,10 @@ struct WordPracticeProducer: PracticeProducerDelegate {
         self.practiceList = []
         self.currentPracticeIndex = 0
         
-        self.practiceList.append(make())
+        self.practiceList.append(contentsOf: make())
     }
     
-    func make() -> WordPracticeProducer.Item {
+    func make() -> [WordPracticeProducer.Item] {
         // Randomly choose a word.
         let randomWord = dataSource.randomElement()!
         // Randomly choose a practice type.
@@ -57,14 +57,14 @@ struct WordPracticeProducer: PracticeProducerDelegate {
         
         switch randomPracticeType {
         case WordPractice.PracticeType.meaningSelection.rawValue:
-            return makeMeaningSelectionPractice(for: randomWord)
+            return [makeMeaningSelectionPractice(for: randomWord)]
         case WordPractice.PracticeType.meaningFilling.rawValue:
-            return makeMeaningFillingPractice(for: randomWord)
+            return [makeMeaningFillingPractice(for: randomWord)]
         case WordPractice.PracticeType.contextSelection.rawValue:
-            return makeMeaningSelectionPractice(for: randomWord)  // TODO: - update.
+            return [makeMeaningSelectionPractice(for: randomWord)]  // TODO: - update.
         default:
             // Will not reach here.
-            return makeMeaningSelectionPractice(for: randomWord)
+            return [makeMeaningSelectionPractice(for: randomWord)]
         }
     }
     

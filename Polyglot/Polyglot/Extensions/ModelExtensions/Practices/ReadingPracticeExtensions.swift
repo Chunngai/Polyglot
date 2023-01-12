@@ -27,7 +27,7 @@ struct ReadingPracticeProducer: PracticeProducerDelegate {
     var currentPracticeIndex: Int {
         didSet {
             if currentPracticeIndex >= practiceList.count {
-                practiceList.append(make())
+                practiceList.append(contentsOf: make())
             }
         }
     }
@@ -46,24 +46,35 @@ struct ReadingPracticeProducer: PracticeProducerDelegate {
         self.practiceList = []
         self.currentPracticeIndex = 0
         
-        self.practiceList.append(make())
+        self.practiceList.append(contentsOf: make())
     }
     
     // TODO: - Update
-    func make() -> ReadingPracticeProducer.Item {
-        // Randomly choose an article.
-        let randomArticle = dataSource.randomElement()!
-        // Randomly choose a paragraph.
-        let randomParagraph = randomArticle.paras.randomElement()!
+    func make() -> [ReadingPracticeProducer.Item] {
+        // Randomly choose a topic.
+        let randomTopic = dataSource.topics.randomElement()!
         
-        return ReadingPracticeProducer.Item(
-            practice: ReadingPractice(
-                articleId: randomArticle.id,
-                paragraphId: randomParagraph.id
-            ),
-            text: randomParagraph.text,
-            meaning: randomParagraph.meaning
-        )
+        var practiceList: [ReadingPracticeProducer.Item] = []
+        for _ in 0..<10 {
+            
+            // Randomly choose an article.
+            let randomArticle = dataSource.compactMap({ (article) -> Article? in
+                return article.topic == randomTopic ? article : nil
+            }).randomElement()!
+            // Randomly choose a paragraph.
+            let randomParagraph = randomArticle.paras.randomElement()!
+            
+            practiceList.append(ReadingPracticeProducer.Item(
+                practice: ReadingPractice(
+                    articleId: randomArticle.id,
+                    paragraphId: randomParagraph.id
+                ),
+                text: randomParagraph.text,
+                meaning: randomParagraph.meaning
+            ))
+            
+        }
+        return practiceList
     }
     
     mutating func next() {
