@@ -226,7 +226,9 @@ extension Article {
     
     // MARK: - IO
     
-    static let fileName: String = "articles.json"
+    static var fileName: String {
+        return "articles.\(Variables.lang).json"
+    }
     
     static func load() -> [Article] {
         do {

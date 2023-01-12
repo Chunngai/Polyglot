@@ -127,7 +127,9 @@ extension Word {
     
     // MARK: - IO
     
-    static let fileName: String = "words.json"
+    static var fileName: String {
+        return "words.\(Variables.lang).json"
+    }
     
     static func load() -> [Word] {
         do {
