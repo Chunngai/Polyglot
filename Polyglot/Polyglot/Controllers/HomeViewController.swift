@@ -11,6 +11,10 @@ import SnapKit
 
 class HomeViewController: UIViewController {
 
+    private var langCodeIndex: Int = (0..<LangCodes.codes.count).randomElement()!
+    private var langCode: String {
+        return LangCodes.codes[self.langCodeIndex]
+    }
     private var isExecutingTextAnimation: Bool = true
     
     // MARK: - Views
@@ -26,18 +30,18 @@ class HomeViewController: UIViewController {
         let view = UIView()
         return view
     }()
-    private let primaryPromptLabel: UILabel = {
+    private lazy var primaryPromptLabel: UILabel = {
         let label = UILabel()
         label.attributedText = NSAttributedString(
-            string: Strings.mainPrimaryPrompt,
+            string: Strings._mainPrimaryPrompts[self.langCode]!,
             attributes: Attributes.primaryPromptAttributes
         )
         return label
     }()
-    private let secondaryPromptLabel: UILabel = {
+    private lazy var secondaryPromptLabel: UILabel = {
         let label = UILabel()
         label.attributedText = NSAttributedString(
-            string: Strings.mainSecondaryPrompt,
+            string: Strings._mainSecondaryPrompts[self.langCode]!,
             attributes: Attributes.secondaryPromptAttributes
         )
         return label
@@ -179,13 +183,12 @@ extension HomeViewController {
     // MARK: - Selectors
     
     @objc func textAnimation() {
-        var langCodeIndex: Int = (0..<LangCodes.codes.count).randomElement()!
         while true {
             // https://stackoverflow.com/questions/3073520/animate-text-change-in-uilabel
             DispatchQueue.main.async {
                 
-                let langCode = LangCodes.codes[langCodeIndex]
-                langCodeIndex = (langCodeIndex + 1) % LangCodes.codes.count
+                self.langCodeIndex = (self.langCodeIndex + 1) % LangCodes.codes.count
+                let langCode = self.langCode
 
                 UIView.transition(
                     with: self.view,

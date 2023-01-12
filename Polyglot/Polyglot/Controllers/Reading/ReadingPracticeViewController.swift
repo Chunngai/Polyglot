@@ -71,6 +71,7 @@ class ReadingPracticeViewController: PracticeViewController {
         // If it is not dismissed, the bottom view
         // of the next new word adding text view will have
         // invalid height.
+        // https://stackoverflow.com/questions/24126678/close-ios-keyboard-by-touching-anywhere-using-swift
         view.endEditing(true)
         
         // Remove the old practice view.
