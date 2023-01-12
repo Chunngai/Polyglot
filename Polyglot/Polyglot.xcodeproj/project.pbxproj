@@ -21,7 +21,7 @@
 		FF495E992959039A00EA7EA9 /* WordExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF495E982959039A00EA7EA9 /* WordExtensions.swift */; };
 		FF495E9C295903DF00EA7EA9 /* WordsTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF495E9B295903DF00EA7EA9 /* WordsTableCell.swift */; };
 		FF495E9E2959084200EA7EA9 /* DateExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF495E9D2959084200EA7EA9 /* DateExtensions.swift */; };
-		FF495EA029591DEC00EA7EA9 /* WordsTableHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF495E9F29591DEC00EA7EA9 /* WordsTableHeaderView.swift */; };
+		FF495EA029591DEC00EA7EA9 /* TableHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF495E9F29591DEC00EA7EA9 /* TableHeaderView.swift */; };
 		FF495EA22959244C00EA7EA9 /* WordsPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF495EA12959244C00EA7EA9 /* WordsPracticeViewController.swift */; };
 		FF4964BA29579C5A00414AC5 /* UISearchBarExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4964B929579C5A00414AC5 /* UISearchBarExtensions.swift */; };
 		FF4964BE29579C9700414AC5 /* StringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4964BD29579C9700414AC5 /* StringExtensions.swift */; };
@@ -152,7 +152,7 @@
 		FF495E982959039A00EA7EA9 /* WordExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordExtensions.swift; sourceTree = "<group>"; };
 		FF495E9B295903DF00EA7EA9 /* WordsTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordsTableCell.swift; sourceTree = "<group>"; };
 		FF495E9D2959084200EA7EA9 /* DateExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateExtensions.swift; sourceTree = "<group>"; };
-		FF495E9F29591DEC00EA7EA9 /* WordsTableHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordsTableHeaderView.swift; sourceTree = "<group>"; };
+		FF495E9F29591DEC00EA7EA9 /* TableHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableHeaderView.swift; sourceTree = "<group>"; };
 		FF495EA12959244C00EA7EA9 /* WordsPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordsPracticeViewController.swift; sourceTree = "<group>"; };
 		FF4964B929579C5A00414AC5 /* UISearchBarExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UISearchBarExtensions.swift; sourceTree = "<group>"; };
 		FF4964BD29579C9700414AC5 /* StringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtensions.swift; sourceTree = "<group>"; };
@@ -264,6 +264,14 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		FF24AB75297073AA00129EEF /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				FF495E9F29591DEC00EA7EA9 /* TableHeaderView.swift */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
 		FF491E6F2959C2DF0088FD13 /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
@@ -325,7 +333,6 @@
 			isa = PBXGroup;
 			children = (
 				FF495E9B295903DF00EA7EA9 /* WordsTableCell.swift */,
-				FF495E9F29591DEC00EA7EA9 /* WordsTableHeaderView.swift */,
 				FF491E742959C4320088FD13 /* MeaningSelectionPracticeView.swift */,
 				FF491E762959CC960088FD13 /* MeaningFillingPracticeView.swift */,
 				FF491E782959CCF60088FD13 /* ContextSelectionPracticeView.swift */,
@@ -502,6 +509,7 @@
 		FF62C9A729513A3700D41797 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				FF24AB75297073AA00129EEF /* Common */,
 				FF52920B2952013900858B55 /* CustomViews */,
 				FF4EFE10295D36BF00E30D6A /* History */,
 				FF495E9A295903B700EA7EA9 /* Words */,
@@ -871,7 +879,7 @@
 				FFCBB0DB296B1A6700E5B9D9 /* PracticeProducerDelegate.swift in Sources */,
 				FF52921229520D1200858B55 /* UINavigationBarExtensions.swift in Sources */,
 				FF5882BE29604E0300FC33CF /* NewWordAddingTextView.swift in Sources */,
-				FF495EA029591DEC00EA7EA9 /* WordsTableHeaderView.swift in Sources */,
+				FF495EA029591DEC00EA7EA9 /* TableHeaderView.swift in Sources */,
 				FF62C9A929513A5000D41797 /* Theme.swift in Sources */,
 				FFBD60452969D733004165FC /* TranslationPracticeExtensions.swift in Sources */,
 				FF706DF1295142AF00DBCF8E /* Strings.swift in Sources */,

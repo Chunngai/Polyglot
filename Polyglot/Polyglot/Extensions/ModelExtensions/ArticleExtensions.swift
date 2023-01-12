@@ -109,3 +109,61 @@ extension Article {
     )
     
 }
+
+extension Article {
+    
+    var groupId: String {
+        return topic ?? ""
+    }
+    
+}
+
+// TODO: - Merge with GroupedWords?
+struct GroupedArticles {
+    
+    // For storing articles grouped by group identifiers.
+    
+    var articles: [Article]
+    
+    var cDate: Date {
+        articles[0].cDate
+    }
+    var groupId: String {
+        articles[0].groupId
+    }
+    
+    init(articles: [Article]) {
+        self.articles = articles
+    }
+}
+
+extension Array where Iterator.Element == Article {
+    
+    // TODO: - Improve here. It's time consuming to compute.
+    var groups: [GroupedArticles] {
+        var groupedArticlesMapping: [String: GroupedArticles] = [:]
+        for article in self {
+            let groupId = article.groupId
+            
+            groupedArticlesMapping.setDefault(value: GroupedArticles(articles: []), for: groupId)
+            groupedArticlesMapping[groupId]?.articles.append(article)
+        }
+        
+        // Sort groups.
+        var groupedArticles = Array<GroupedArticles>(groupedArticlesMapping.values)
+        groupedArticles.sort { (group1, group2) -> Bool in
+            group1.cDate != group2.cDate
+                ? group1.cDate > group2.cDate  // First, sort by date.
+                : group1.groupId < group2.groupId  // Then, sort by groupId.
+        }
+        
+        // Sort words in each group.
+        for i in 0..<groupedArticles.count {
+            groupedArticles[i].articles.sort { (article1, article2) -> Bool in
+                article1.mDate > article2.mDate
+            }
+        }
+        
+        return groupedArticles
+    }
+}

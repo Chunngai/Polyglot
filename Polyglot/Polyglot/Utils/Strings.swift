@@ -374,8 +374,9 @@ struct Identifiers {
     
 //    static let historyTableCellIdentifier: String = "historyTableCellIdentifier"
     
+    static let tableHeaderViewIdentifier: String = "tableHeaderViewIdentifier"
+    
     static let wordsTableCellIdentifier: String = "wordsTableCellIdentifier"
-    static let wordsTableHeaderViewIdentifier: String = "wordsTableHeaderViewIdentifier"
     
     static let readingTableCellIdentifier: String = "readingTableCellIdentifier"
     static let readingEditTableCellIdentifier: String = "readingEditTableCellIdentifier"

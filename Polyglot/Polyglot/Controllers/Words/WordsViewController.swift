@@ -45,7 +45,7 @@ class WordsViewController: ListViewController {
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(WordsTableCell.self, forCellReuseIdentifier: WordsViewController.cellIdentifier)
-        tableView.register(WordsTableHeaderView.self, forHeaderFooterViewReuseIdentifier: WordsViewController.headerIdentifier)
+        tableView.register(TableHeaderView.self, forHeaderFooterViewReuseIdentifier: WordsViewController.headerIdentifier)
         
         searchController.searchResultsUpdater = self
         
@@ -109,7 +109,7 @@ extension WordsViewController: UITableViewDelegate {
     // MARK: - UITableView Delegate
  
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let headerView = WordsTableHeaderView()
+        let headerView = TableHeaderView()
         headerView.updateValues(text: dataSource[section].groupId)
         return headerView
     }
@@ -246,6 +246,6 @@ extension WordsViewController {
     
     // MARK: - Constants
     
+    private static let headerIdentifier: String = Identifiers.tableHeaderViewIdentifier
     private static let cellIdentifier: String = Identifiers.wordsTableCellIdentifier
-    static let headerIdentifier: String = Identifiers.wordsTableHeaderViewIdentifier  // TODO: - change to private later.
 }

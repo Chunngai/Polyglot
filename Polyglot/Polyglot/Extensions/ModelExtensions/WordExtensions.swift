@@ -13,14 +13,7 @@ extension Word {
     var query: String {
         return text + meaning
     }
-    
-    var groupId: String {
-        var groupId = cDate.repr()
-        if let note = note, !note.isEmpty {
-            groupId += " · \(note)"
-        }
-        return groupId
-    }
+
 }
 
 extension Array where Iterator.Element == Word {
@@ -101,6 +94,18 @@ extension Word {
         text: "Dummy word",
         meaning: "Dummy word"
     )
+    
+}
+
+extension Word {
+    
+    var groupId: String {
+        var groupId = cDate.repr()
+        if let note = note, !note.isEmpty {
+            groupId += " · \(note)"
+        }
+        return groupId
+    }
     
 }
 

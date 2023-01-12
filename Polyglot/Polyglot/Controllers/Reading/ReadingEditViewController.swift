@@ -96,7 +96,6 @@ extension ReadingEditViewController {
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // TODO: - Increase the height of body text view.
-        // TODO: - Prohibit to select the prompt.
         
         return cells[indexPath.row]
     }

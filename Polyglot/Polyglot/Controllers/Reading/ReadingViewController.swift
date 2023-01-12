@@ -10,7 +10,7 @@ import UIKit
 
 class ReadingViewController: ListViewController {
     
-    private var dataSource: [Article]! {
+    private var dataSource: [GroupedArticles]! {
         didSet {
             tableView.reloadData()
         }
@@ -50,7 +50,7 @@ class ReadingViewController: ListViewController {
         
         practiceButtonShadowView.button.addTarget(self, action: #selector(tapped), for: .touchUpInside)
         
-        dataSource = articles
+        dataSource = articles.groups
     }
 }
 
@@ -59,11 +59,11 @@ extension ReadingViewController: UITableViewDataSource {
     // MARK: - UITableView Data Source
 
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        return dataSource.count
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return dataSource.count
+        return dataSource[section].articles.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -74,7 +74,7 @@ extension ReadingViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         
-        let article = dataSource[indexPath.row]
+        let article = dataSource[indexPath.section].articles[indexPath.row]
         cell.updateValues(article: article)
         
         return cell
@@ -85,6 +85,12 @@ extension ReadingViewController: UITableViewDataSource {
 extension ReadingViewController: UITableViewDelegate {
     
     // MARK: - UITableView Delegate
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let headerView = TableHeaderView()
+        headerView.updateValues(text: dataSource[section].groupId)
+        return headerView
+    }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if let cell = tableView.cellForRow(at: indexPath) as? ReadingTableCell {
@@ -148,10 +154,11 @@ extension ReadingViewController: UISearchResultsUpdating {
     // MARK: - UISearchResultsUpdating
     
     func updateSearchResults(for searchController: UISearchController) {
+        
         guard let keyWord = searchController.searchBar.text else {
             return
         }
-        dataSource = articles.subset(containing: keyWord)
+        dataSource = articles.subset(containing: keyWord).groups
     }
     
 }
@@ -160,5 +167,6 @@ extension ReadingViewController {
     
     // MARK: - Constants
     
+    private static let headerIdentifier: String = Identifiers.tableHeaderViewIdentifier
     private static let cellIdentifier: String = Identifiers.readingTableCellIdentifier
 }

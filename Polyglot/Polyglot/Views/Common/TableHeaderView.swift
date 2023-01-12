@@ -1,5 +1,5 @@
 //
-//  WordsTableHeaderView.swift
+//  TableHeaderView.swift
 //  Polyglot
 //
 //  Created by Sola on 2022/12/26.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class WordsTableHeaderView: UITableViewHeaderFooterView {
+class TableHeaderView: UITableViewHeaderFooterView {
     
     // MARK: - Views
     
