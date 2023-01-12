@@ -179,7 +179,7 @@ extension HomeViewController {
     // MARK: - Selectors
     
     @objc func textAnimation() {
-        var langCodeIndex: Int = 0
+        var langCodeIndex: Int = (0..<LangCodes.codes.count).randomElement()!
         while true {
             // https://stackoverflow.com/questions/3073520/animate-text-change-in-uilabel
             DispatchQueue.main.async {
