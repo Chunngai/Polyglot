@@ -13,7 +13,7 @@ struct Strings {
     
     // MARK: - Language Strings
     
-    private static let _enStrings: [String : String] = [
+    static let _enStrings: [String : String] = [
         LangCodes.en : "English",
         LangCodes.ja : "英語",
         LangCodes.es : "inglés"
@@ -22,7 +22,7 @@ struct Strings {
         return Strings._enStrings[Variables.lang]!
     }
     
-    private static let _jaStrings: [String : String] = [
+    static let _jaStrings: [String : String] = [
         LangCodes.en : "Japanese",
         LangCodes.ja : "日本語",
         LangCodes.es : "japonés"
@@ -31,7 +31,7 @@ struct Strings {
         return Strings._jaStrings[Variables.lang]!
     }
     
-    private static let _esStrings: [String : String] = [
+    static let _esStrings: [String : String] = [
         LangCodes.en : "Spanish",
         LangCodes.ja : "スペイン語",
         LangCodes.es : "español"
@@ -45,7 +45,7 @@ extension Strings {
     
     // MARK: - Main Prompts
     
-    private static let _mainPrimaryPrompts: [String : String] = [
+    static let _mainPrimaryPrompts: [String : String] = [
         LangCodes.en : "Hello!",
         LangCodes.ja : "こんにちは！",
         LangCodes.es : "Hola!"
@@ -54,7 +54,7 @@ extension Strings {
         return Strings._mainPrimaryPrompts[Variables.lang]!
     }
     
-    private static let _mainSecondaryPrompts: [String : String] = [
+    static let _mainSecondaryPrompts: [String : String] = [
         
         LangCodes.en : "Choose a language to practice",
         LangCodes.ja : " 練習したい言語を選んでください",  // TODO: - The leading space is for aligning with the primary prompt.

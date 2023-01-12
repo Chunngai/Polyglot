@@ -184,9 +184,9 @@ extension MainViewController {
             // https://stackoverflow.com/questions/3073520/animate-text-change-in-uilabel
             DispatchQueue.main.async {
                 
-                Variables.lang = LangCodes.codes[langCodeIndex]
+                let langCode = LangCodes.codes[langCodeIndex]
                 langCodeIndex = (langCodeIndex + 1) % LangCodes.codes.count
-                
+
                 UIView.transition(
                     with: self.view,
                     duration: 3,
@@ -194,12 +194,12 @@ extension MainViewController {
                     // .allowUserInteraction is needed else the button becomes not interactive.
                     options: [.transitionCrossDissolve, .allowUserInteraction],
                     animations: { [weak self] in
-                        self?.primaryPromptLabel.text = Strings.mainPrimaryPrompt
-                        self?.secondaryPromptLabel.text = Strings.mainSecondaryPrompt
+                        self?.primaryPromptLabel.text = Strings._mainPrimaryPrompts[langCode]
+                        self?.secondaryPromptLabel.text = Strings._mainSecondaryPrompts[langCode]
                         
-                        self?.enButton.set(text: Strings.enString)
-                        self?.jaButton.set(text: Strings.jaString)
-                        self?.esButton.set(text: Strings.esString)
+                        self?.enButton.set(text: Strings._enStrings[langCode])
+                        self?.jaButton.set(text: Strings._jaStrings[langCode])
+                        self?.esButton.set(text: Strings._esStrings[langCode])
                     }, completion: nil
                 )
             }
