@@ -10,15 +10,15 @@ import Foundation
 
 struct ReadingPractice: Practice {
     
-    var id: Int
+    var id: String
     var cDate: Date
     
-    var articleId: Int
+    var articleId: String
     var paragraphId: String
         
-    init(articleId: Int, paragraphId: String) {
+    init(articleId: String, paragraphId: String) {
         
-        self.id = Date().hashValue
+        self.id = UUID().uuidString
         self.cDate = Date()
         
         self.articleId = articleId
@@ -56,7 +56,11 @@ extension ReadingPractice: Codable {
     init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         
-        id = try values.decode(Int.self, forKey: .id)
+        do {
+            id = try values.decode(String.self, forKey: .id)
+        } catch {
+            id = UUID().uuidString
+        }
         
         do {
             cDate = try values.decode(Date.self, forKey: .cDate)
@@ -65,11 +69,10 @@ extension ReadingPractice: Codable {
         }
         
         do {
-            articleId = try values.decode(Int.self, forKey: .articleId)
+            articleId = try values.decode(String.self, forKey: .articleId)
             paragraphId = try values.decode(String.self, forKey: .paragraphId)
         } catch {
-            let articleAndParaIds = try values.decode([Int].self, forKey: .articleAndParaIds)
-            articleId = articleAndParaIds[0]
+            articleId = ""
             paragraphId = ""
         }
     }

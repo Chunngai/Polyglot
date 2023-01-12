@@ -144,7 +144,7 @@ extension ReadingViewController: ReadingEditViewControllerDelegate {
         articles.add(newArticle: article)
     }
     
-    func edit(articleId: Int, newTitle: String, newTopic: String, newBody: String, newSource: String) {
+    func edit(articleId: String, newTitle: String, newTopic: String, newBody: String, newSource: String) {
         articles.updateArticle(of: articleId, newTitle: newTitle, newTopic: newTopic, newBody: newBody, newSource: newSource)
     }
 }

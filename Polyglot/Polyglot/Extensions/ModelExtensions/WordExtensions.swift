@@ -20,7 +20,7 @@ extension Array where Iterator.Element == Word {
     
     // TODO: - Simplify the for loops?
     
-    func getWord(from id: Int) -> Word? {
+    func getWord(from id: String) -> Word? {
         for word in self {
             if word.id == id {
                 return word
@@ -46,7 +46,7 @@ extension Array where Iterator.Element == Word {
         }
     }
     
-    mutating func updateWord(of id: Int, newText: String? = nil, newMeaning: String? = nil, newNote: String? = nil) {
+    mutating func updateWord(of id: String, newText: String? = nil, newMeaning: String? = nil, newNote: String? = nil) {
         for i in 0..<count {
             if self[i].id == id {
                 self[i].update(newText: newText, newMeaning: newMeaning, newNote: newNote)
@@ -55,7 +55,7 @@ extension Array where Iterator.Element == Word {
         }
     }
     
-    mutating func removeWord(of id: Int) {
+    mutating func removeWord(of id: String) {
         for i in 0..<count {
             if self[i].id == id {
                 self.remove(at: i)

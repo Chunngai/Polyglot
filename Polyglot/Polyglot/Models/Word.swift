@@ -10,7 +10,7 @@ import Foundation
 
 struct Word {
     
-    var id: Int
+    var id: String
     var cDate: Date  // Creation date.
     var mDate: Date  // Modification date.
     
@@ -21,7 +21,7 @@ struct Word {
     
     init(cDate: Date = Date(), text: String, meaning: String, note: String? = nil) {
         
-        self.id = cDate.hashValue  // Do not use text.hashValue, as its value can be changed.
+        self.id = UUID().uuidString
         self.cDate = cDate
         self.mDate = cDate
         
@@ -89,7 +89,11 @@ extension Word: Codable {
     init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         
-        id = try values.decode(Int.self, forKey: .id)
+        do {
+            id = try values.decode(String.self, forKey: .id)
+        } catch {
+            id = UUID().uuidString
+        }
         
         do {
             cDate = try values.decode(Date.self, forKey: .cDate)

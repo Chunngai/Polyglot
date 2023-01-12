@@ -129,16 +129,7 @@ extension WordsPracticeViewController {
     // MARK: - Selectors
     
     @objc override func doneButtonTapped() {
-        if [
-            WordPractice.PracticeType.meaningSelection,
-            WordPractice.PracticeType.contextSelection
-        ].contains(practiceProducer.currentPractice.practice.practiceType) {
-            let selectedWordId = practiceView.check() as! Int
-            practiceProducer.currentPractice.practice.selectedWordId = selectedWordId
-        } else if practiceProducer.currentPractice.practice.practiceType == .meaningFilling {
-            let filledAnswer = practiceView.check() as! String
-            practiceProducer.currentPractice.practice.filledText = filledAnswer
-        }
+        practiceProducer.currentPractice.practice.answer = practiceView.check() as! String
         
         practiceStatus = .finished
     }

@@ -107,7 +107,7 @@ extension WordPracticeProducer {
             practice: WordPractice(
                 practiceType: .meaningSelection,
                 wordId: wordToPractice.id,
-                selectionWordsIds: selectionWords.compactMap({ (word) -> Int in
+                selectionWordsIds: selectionWords.compactMap({ (word) -> String in
                     word.id
                 }),
                 direction: randomDirection
@@ -182,7 +182,7 @@ extension WordPractice {
     var correctness: Correctness {
         switch self.practiceType {
         case .meaningSelection, .contextSelection:
-            if self.wordId == self.selectedWordId {
+            if self.wordId == self.answer {
                 return .correct
             } else {
                 return .incorrect
@@ -195,7 +195,7 @@ extension WordPractice {
                 key = Word.load().getWord(from: wordId)?.text  // TODO: load()
             }
             
-            if key == filledText {
+            if key == answer {
                 return .correct
             } else {
                 return .incorrect

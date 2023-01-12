@@ -46,7 +46,7 @@ struct Paragraph: Codable {
 
 struct Article {
     
-    var id: Int
+    var id: String
     var cDate: Date  // Creation date.
     var mDate: Date  // Modification date.
     
@@ -58,7 +58,7 @@ struct Article {
     init(title: String, topic: String? = nil, body: String, source: String? = nil) {
                 
         self.cDate = Date()
-        self.id = cDate.hashValue  // Do not use body.hashValue, as its value can be changed.
+        self.id = UUID().uuidString
         self.mDate = cDate
         
         self.title = title
@@ -185,7 +185,11 @@ extension Article: Codable {
     init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         
-        id = try values.decode(Int.self, forKey: .id)
+        do {
+            id = try values.decode(String.self, forKey: .id)
+        } catch {
+            id = UUID().uuidString
+        }
         
         do {
             cDate = try values.decode(Date.self, forKey: .cDate)

@@ -10,30 +10,28 @@ import Foundation
 
 struct WordPractice: Practice {
     
-    var id: Int
+    var id: String
     var cDate: Date
         
     var practiceType: PracticeType
-    var wordId: Int  // Word to practice.
+    var wordId: String  // Word to practice.
     
     // For selection practices.
-    var selectionWordsIds: [Int]?
+    var selectionWordsIds: [String]?
     // For context practices.
-    var articleId: Int?
+    var articleId: String?
     var paragraphId: String?
 
     // 0: text -> meaning.
     // 1: meaning -> text.
     var direction: UInt
     
-    // For selection practices.
-    var selectedWordId: Int?
-    // For filling practices.
-    var filledText: String?
+    // Selected word id or filled answer.
+    var answer: String?
     
-    init(practiceType: WordPractice.PracticeType, wordId: Int, selectionWordsIds: [Int]? = nil, articleId: Int? = nil, paragraphId: String? = nil, direction: UInt, selectedWordId: Int? = nil, filledText: String? = nil) {
+    init(practiceType: WordPractice.PracticeType, wordId: String, selectionWordsIds: [String]? = nil, articleId: String? = nil, paragraphId: String? = nil, direction: UInt, answer: String? = nil) {
         
-        self.id = Date().hashValue
+        self.id = UUID().uuidString
         self.cDate = Date()
         
         self.practiceType = practiceType
@@ -45,8 +43,7 @@ struct WordPractice: Practice {
         
         self.direction = direction
         
-        self.selectedWordId = selectedWordId
-        self.filledText = filledText
+        self.answer = answer
     }
 }
 
@@ -76,8 +73,7 @@ extension WordPractice: Codable {
         
         case direction
         
-        case selectedWordId
-        case filledText
+        case answer
         
         // Old vars.
         
@@ -87,7 +83,10 @@ extension WordPractice: Codable {
         
         case articleAndSentenceIds  // articleId, paragraphId
         
-        case typedAnswer  // filledText
+        case selectedWordId  // answer
+        case filledText  // answer
+        
+        case typedAnswer  // filledText->answer
     }
     
     func encode(to encoder: Encoder) throws {
@@ -106,14 +105,17 @@ extension WordPractice: Codable {
         
         try container.encode(direction, forKey: .direction)
         
-        try container.encode(selectedWordId, forKey: .selectedWordId)
-        try container.encode(filledText, forKey: .filledText)
+        try container.encode(answer, forKey: .answer)
     }
     
     init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         
-        id = try values.decode(Int.self, forKey: .id)
+        do {
+            id = try values.decode(String.self, forKey: .id)
+        } catch {
+            id = UUID().uuidString
+        }
         
         do {
             cDate = try values.decode(Date.self, forKey: .cDate)
@@ -127,27 +129,32 @@ extension WordPractice: Codable {
             practiceType = try values.decode(WordPractice.PracticeType.self, forKey: .type)
         }
         
-        wordId = try values.decode(Int.self, forKey: .wordId)
-        
-        selectionWordsIds = try values.decode([Int]?.self, forKey: .selectionWordsIds)
+        do {
+            wordId = try values.decode(String.self, forKey: .wordId)
+        } catch {
+            wordId = ""
+        }
         
         do {
-            articleId = try values.decode(Int.self, forKey: .articleId)
+            selectionWordsIds = try values.decode([String]?.self, forKey: .selectionWordsIds)
+        } catch {
+            selectionWordsIds = ["", "", ""]
+        }
+        
+        do {
+            articleId = try values.decode(String.self, forKey: .articleId)
             paragraphId = try values.decode(String.self, forKey: .paragraphId)
         } catch {
-            let articleAndSentenceIds = try values.decode([Int]?.self, forKey: .articleAndSentenceIds)
-            articleId = articleAndSentenceIds?[0]
+            articleId = ""
             paragraphId = ""
         }
         
         direction = try values.decode(UInt.self, forKey: .direction)
         
-        selectedWordId = try values.decode(Int?.self, forKey: .selectedWordId)
-        
         do {
-            filledText = try values.decode(String?.self, forKey: .filledText)
+            answer = try values.decode(String?.self, forKey: .answer)
         } catch {
-            filledText = try values.decode(String?.self, forKey: .typedAnswer)
+            answer = ""
         }
     }
 }

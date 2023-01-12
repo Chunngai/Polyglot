@@ -55,7 +55,7 @@ extension Array where Iterator.Element == Article {
 
     // TODO: - Simplify the for loops?
 
-    func getArticle(from id: Int) -> Article? {
+    func getArticle(from id: String) -> Article? {
         for article in self {
             if article.id == id {
                 return article
@@ -68,7 +68,7 @@ extension Array where Iterator.Element == Article {
         append(newArticle)
     }
     
-    mutating func updateArticle(of id: Int, newTitle: String? = nil, newTopic: String? = nil, newBody: String? = nil, newSource: String? = nil) {
+    mutating func updateArticle(of id: String, newTitle: String? = nil, newTopic: String? = nil, newBody: String? = nil, newSource: String? = nil) {
         for i in 0..<count {
             if self[i].id == id {
                 self[i].update(newTitle: newTitle, newTopic: newTopic, newBody: newBody, newSource: newSource)
@@ -77,7 +77,7 @@ extension Array where Iterator.Element == Article {
         }
     }
     
-    mutating func removeArticle(of id: Int) {
+    mutating func removeArticle(of id: String) {
         for i in 0..<count {
             if self[i].id == id {
                 self.remove(at: i)

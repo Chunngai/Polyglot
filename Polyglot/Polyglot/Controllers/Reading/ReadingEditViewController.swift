@@ -240,6 +240,6 @@ extension ReadingEditViewController {
 protocol ReadingEditViewControllerDelegate {
     
     func add(article: Article)
-    func edit(articleId: Int, newTitle: String, newTopic: String, newBody: String, newSource: String)
+    func edit(articleId: String, newTitle: String, newTopic: String, newBody: String, newSource: String)
     
 }

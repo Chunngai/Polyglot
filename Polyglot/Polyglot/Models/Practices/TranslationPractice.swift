@@ -10,19 +10,19 @@ import Foundation
 
 struct TranslationPractice: Practice {
     
-    var id: Int
+    var id: String
     var cDate: Date
     
-    var articleId: Int
+    var articleId: String
     var paragraphId: String
     
     // 0: text -> meaning.
     // 1: meaning -> text.
     var direction: UInt
     
-    init(articleId: Int, paragraphId: String, direction: UInt) {
+    init(articleId: String, paragraphId: String, direction: UInt) {
         
-        self.id = Date().hashValue
+        self.id = UUID().uuidString
         self.cDate = Date()
         
         self.articleId = articleId
@@ -67,7 +67,11 @@ extension TranslationPractice: Codable {
     init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         
-        id = try values.decode(Int.self, forKey: .id)
+        do {
+            id = try values.decode(String.self, forKey: .id)
+        } catch {
+            id = UUID().uuidString
+        }
         
         do {
             cDate = try values.decode(Date.self, forKey: .cDate)
@@ -76,11 +80,10 @@ extension TranslationPractice: Codable {
         }
         
         do {
-            articleId = try values.decode(Int.self, forKey: .articleId)
+            articleId = try values.decode(String.self, forKey: .articleId)
             paragraphId = try values.decode(String.self, forKey: .paragraphId)
         } catch {
-            let articleAndParaIds = try values.decode([Int].self, forKey: .articleAndParaIds)
-            articleId = articleAndParaIds[0]
+            articleId = ""
             paragraphId = ""
         }
         
