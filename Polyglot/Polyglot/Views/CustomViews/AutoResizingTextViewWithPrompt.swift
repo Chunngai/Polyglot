@@ -155,17 +155,11 @@ extension AutoResizingTextViewWithPrompt: UITextViewDelegate {
     }
     
     func textViewDidChangeSelection(_ textView: UITextView) {
-
-        // When all content is deleted,
-        // textView.text.count may be less than prompt.count.
-        // Reset here.
-        if textView.text.count < prompt.count {
-            textView.text = prompt
-        }
                 
         // Disallow to select the prompt.
+        // Note that nothing should be done if no text is selected (r.length == 0)!
         var r = textView.selectedRange
-        if r.location < prompt.count {
+        if r.length != 0 && r.location < prompt.count {
             r = NSRange(location: prompt.count, length: content.count)
             textView.selectedRange = r
         }

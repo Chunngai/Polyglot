@@ -12,6 +12,7 @@ class ReadingEditViewController: UITableViewController {
     
     private lazy var cells: [ReadingEditTableCell] = [
         self.cell(for: ReadingEditViewController.titleIdentifier),
+        self.cell(for: ReadingEditViewController.topicIdentifier),
         self.cell(for: ReadingEditViewController.bodyIdentifier),
         self.cell(for: ReadingEditViewController.sourceIdentifier)
     ]
@@ -90,7 +91,7 @@ extension ReadingEditViewController {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 3
+        return cells.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -121,6 +122,7 @@ extension ReadingEditViewController {
     private func getPrompt(for identifier: Int) -> String {
         switch identifier {
         case ReadingEditViewController.titleIdentifier: return Strings.articleTitlePrompt
+        case ReadingEditViewController.topicIdentifier: return Strings.articleTopicPrompt
         case ReadingEditViewController.bodyIdentifier: return Strings.articleBodyPrompt
         case ReadingEditViewController.sourceIdentifier: return Strings.articleSourcePrompt
         default: return ""
@@ -133,6 +135,7 @@ extension ReadingEditViewController {
         }
         switch identifier {
         case ReadingEditViewController.titleIdentifier: return article.title
+        case ReadingEditViewController.topicIdentifier: return article.topic
         case ReadingEditViewController.bodyIdentifier: return article.body
         case ReadingEditViewController.sourceIdentifier: return article.source
         default: return ""
@@ -142,6 +145,7 @@ extension ReadingEditViewController {
     private var content: [String : String] {
         return [
             "title": cells[ReadingEditViewController.titleIdentifier].textView.content,
+            "topic": cells[ReadingEditViewController.topicIdentifier].textView.content,
             "body": cells[ReadingEditViewController.bodyIdentifier].textView.content,
             "source": cells[ReadingEditViewController.sourceIdentifier].textView.content
         
@@ -156,19 +160,23 @@ extension ReadingEditViewController {
     @objc private func cancelButtonTapped() {
         
         let oldTitle: String!
+        let oldTopic: String!
         let oldBody: String!
         let oldSource: String!
         if let article = article {
             oldTitle = article.title
+            oldTopic = article.topic
             oldBody = article.body
             oldSource = article.source
         } else {
             oldTitle = ""
+            oldTopic = ""
             oldBody = ""
             oldSource = ""
         }
         
         if oldTitle != content["title"]!
+            || oldTopic != content["topic"]!
             || oldBody != content["body"]!
             || oldSource != content["source"]! {
             // Edits have been made.
@@ -192,6 +200,7 @@ extension ReadingEditViewController {
             delegate.edit(
                 articleId: article.id,
                 newTitle: content["title"]!,
+                newTopic: content["topic"]!,
                 newBody: content["body"]!,
                 newSource: content["source"]!
             )
@@ -199,6 +208,7 @@ extension ReadingEditViewController {
             // Add a new article.
             let newArticle = Article(
                 title: content["title"]!,
+                topic: content["topic"]!,
                 body: content["body"]!,
                 source: content["source"]!
             )
@@ -216,10 +226,12 @@ extension ReadingEditViewController {
     private static let cellIdentifier: String = Identifiers.readingEditTableCellIdentifier
     
     private static let titleIdentifier: Int = 0
-    private static let bodyIdentifier: Int = 1
-    private static let sourceIdentifier: Int = 2
+    private static let topicIdentifier: Int = 1
+    private static let bodyIdentifier: Int = 2
+    private static let sourceIdentifier: Int = 3
     private static let attributes: [[NSAttributedString.Key : Any]] = [
         Attributes.newArticleTitleAttributes,
+        Attributes.newArticleTopicAttributes,
         Attributes.newArticleBodyAttributes,
         Attributes.newArticleSourceAttributes
     ]
@@ -229,6 +241,6 @@ extension ReadingEditViewController {
 protocol ReadingEditViewControllerDelegate {
     
     func add(article: Article)
-    func edit(articleId: Int, newTitle: String, newBody: String, newSource: String)
+    func edit(articleId: Int, newTitle: String, newTopic: String, newBody: String, newSource: String)
     
 }

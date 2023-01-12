@@ -261,6 +261,14 @@ extension Strings {
         return Strings._articleTitlePrompts[Variables.lang]!
     }
     
+    private static let _articleTopicPrompts: [String : String] = [
+        LangCodes.en : "Topic: ",
+        LangCodes.ja : "トピック：",
+        LangCodes.es : "Tema: "
+    ]
+    static var articleTopicPrompt: String {
+        return Strings._articleTopicPrompts[Variables.lang]!
+    }
     
     private static let _articleBodyPrompts: [String : String] = [
         LangCodes.en : "Body: ",

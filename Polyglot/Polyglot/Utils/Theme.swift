@@ -143,6 +143,7 @@ struct Attributes {
         NSAttributedString.Key.foregroundColor : Colors.normalTextColor,
         NSAttributedString.Key.paragraphStyle: Attributes.defaultParaStyle
     ]
+    static let newArticleTopicAttributes = Attributes.longTextAttributes
     static let newArticleBodyAttributes = Attributes.longTextAttributes
     static let newArticleSourceAttributes = Attributes.longTextAttributes
     

@@ -51,24 +51,30 @@ struct Article {
     var mDate: Date  // Modification date.
     
     var title: String
+    var topic: String?
     var paras: [Paragraph]
     var source: String?
-    
-    init(title: String, body: String, source: String? = nil) {
+        
+    init(title: String, topic: String? = nil, body: String, source: String? = nil) {
                 
         self.cDate = Date()
         self.id = cDate.hashValue  // Do not use body.hashValue, as its value can be changed.
         self.mDate = cDate
         
         self.title = title
+        self.topic = topic
         self.paras = Article.makeParas(from: body)
         self.source = source
     }
     
-    mutating func update(newTitle: String? = nil, newBody: String? = nil, newSource: String? = nil) {
+    mutating func update(newTitle: String? = nil, newTopic: String? = nil, newBody: String? = nil, newSource: String? = nil) {
         
         if let newTitle = newTitle {
             self.title = newTitle
+        }
+        
+        if let newTopic = newTopic {
+            self.topic = newTopic
         }
         
         if let newBody = newBody {
@@ -151,6 +157,7 @@ extension Article: Codable {
         case mDate
         
         case title
+        case topic
         case paras
         case source
         
@@ -170,6 +177,7 @@ extension Article: Codable {
         try container.encode(mDate, forKey: .mDate)
         
         try container.encode(title, forKey: .title)
+        try container.encode(topic, forKey: .topic)
         try container.encode(paras, forKey: .paras)
         try container.encode(source, forKey: .source)
     }
@@ -194,13 +202,19 @@ extension Article: Codable {
         title = try values.decode(String.self, forKey: .title)
         
         do {
+            topic = try values.decode(String?.self, forKey: .topic)
+        } catch {
+            topic = nil
+        }
+        
+        do {
             paras = try values.decode([Paragraph].self, forKey: .paras)
         } catch {
             let body = try values.decode(String.self, forKey: .body)
             paras = Article.makeParas(from: body)
         }
         
-        source = try values.decode(String.self, forKey: .source)
+        source = try values.decode(String?.self, forKey: .source)
     }
 }
 
