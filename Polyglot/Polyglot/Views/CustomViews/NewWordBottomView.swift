@@ -217,6 +217,7 @@ extension NewWordBottomView {
     
     @objc private func doneButtonTapped() {
         
+        meaningTextField.endEditing(true)  // Dismiss the keyboard.
         delegate.addNewWord()
     }
  

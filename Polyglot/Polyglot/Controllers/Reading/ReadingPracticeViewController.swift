@@ -67,6 +67,12 @@ class ReadingPracticeViewController: PracticeViewController {
     }
     
     override func updatePracticeView() {
+        // Dismiss the keyboard.
+        // If it is not dismissed, the bottom view
+        // of the next new word adding text view will have
+        // invalid height.
+        view.endEditing(true)
+        
         // Remove the old practice view.
         if practiceView != nil {
             practiceView.removeFromSuperview()

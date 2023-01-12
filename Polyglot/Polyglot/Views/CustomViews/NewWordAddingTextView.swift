@@ -203,11 +203,11 @@ extension NewWordAddingTextView: NewWordBottomViewDelegate {
     func addNewWord() {
         
         // Check if the mearning has been filled in.
-        if currentNewWordInfo.meaning == "" {
-            // TODO: - Highlight the textfield.
-            print("Meaning needed.")
-            return
-        }
+//        if currentNewWordInfo.meaning == "" {
+//            // TODO: - Highlight the textfield.
+//            print("Meaning needed.")
+//            return
+//        }
         
         // Add the word.
         newWordsInfo.append(currentNewWordInfo)
