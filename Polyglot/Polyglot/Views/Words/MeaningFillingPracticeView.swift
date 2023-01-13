@@ -103,12 +103,31 @@ extension MeaningFillingPracticeView: PracticeViewDelegate {
         textField.resignFirstResponder()
         
         // Highlight overlap chars.
-        let attributedAnswer = NSMutableAttributedString(string: answer.strip().lowercased())
-        for character in practiceItem.key {
-            if answer.contains(character) {
-                attributedAnswer.setTextColor(for: String(character), with: Colors.strongCorrectColor)
+        // Don't lowercase here, or the text in the text field will be lowercased
+        // when highlighted.
+        let attributedAnswer = NSMutableAttributedString(string: answer.strip())
+        
+        var itemsInKey: [String] = []
+        var itemsInAnswer: [String] = []
+        if Variables.lang == LangCodes.ja {
+            itemsInKey = practiceItem.key.map( {String($0)} )
+            itemsInAnswer = answer.map( {String($0)} )
+        } else if Variables.lang == LangCodes.en || Variables.lang == LangCodes.es {
+            itemsInKey = practiceItem.key.split(with: " ")
+            itemsInAnswer = practiceItem.key.split(with: " ")
+        }
+        let lowercasedItemsInAnswer = itemsInAnswer.map( {$0.lowercased()} )
+        
+        for itemInKey in itemsInKey {
+            if lowercasedItemsInAnswer.contains(itemInKey.lowercased()) {
+                attributedAnswer.setTextColor(
+                    for: String(itemInKey),
+                    with: Colors.strongCorrectColor,
+                    ignoreCasing: true
+                )
             }
         }
+        
         textField.attributedText = attributedAnswer
         
         if answer != practiceItem.key {

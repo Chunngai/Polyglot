@@ -121,7 +121,7 @@ extension AutoResizingTextViewWithPrompt  {
         // so make the range instead of directly using the prompt for attr setting.
         if let prompt = prompt, let promptAttributes = promptAttributes {
             let promptRange = NSRange(location: 0, length: prompt.count)
-            newAttributedText.add(attributes: promptAttributes, for: promptRange)
+            newAttributedText.addAttributes(promptAttributes, range: promptRange)
         }
         attributedText = newAttributedText
         

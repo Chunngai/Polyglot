@@ -11,38 +11,29 @@ import UIKit
 
 extension NSMutableAttributedString {
     
-//    func locateRange(text: String? = nil) -> NSRange {
-//        let range: NSRange?
-//        if let text = text {
-//            range = self.mutableString.range(of: text)
-//        } else {
-//            range = NSMakeRange(0, self.length)
-//        }
-//        return range!
-//    }
-    
-    func add(attributes: [NSAttributedString.Key: Any], for text: String? = nil) {
+    func add(attributes: [NSAttributedString.Key: Any], for text: String? = nil, ignoreCasing: Bool = false) {
 
         // https://stackoverflow.com/questions/27180184/color-all-occurrences-of-string-in-swift
         
-        let attrStr = self
-        let attrStrLen = attrStr.string.count
+        var attrStr = self.string
+        let attrStrLen = attrStr.count
         
-        let searchStr = text ?? self.string
+        var searchStr = text ?? self.string
         let searchStrLen = searchStr.count
         
-        var range = NSRange(location: 0, length: attrStr.length)
+        if ignoreCasing {
+            attrStr = attrStr.lowercased()
+            searchStr = searchStr.lowercased()
+        }
+        
+        var range = NSRange(location: 0, length: attrStr.count)
         while (range.location != NSNotFound) {
-            range = (attrStr.string as NSString).range(of: searchStr, options: [], range: range)
+            range = (attrStr as NSString).range(of: searchStr, options: [], range: range)
             if (range.location != NSNotFound) {
-                attrStr.add(attributes: attributes, for: NSRange(location: range.location, length: searchStrLen))
+                self.addAttributes(attributes, range: NSRange(location: range.location, length: searchStrLen))
                 range = NSRange(location: range.location + range.length, length: attrStrLen - (range.location + range.length))
             }
         }
-    }
-    
-    func add(attributes: [NSAttributedString.Key: Any], for range: NSRange) {
-        addAttributes(attributes, range: range)
     }
 }
 
@@ -64,12 +55,13 @@ extension NSMutableAttributedString {
 //        )
 //    }
 //
-    func setTextColor(for text: String? = nil, with color: UIColor) {
+    func setTextColor(for text: String? = nil, with color: UIColor, ignoreCasing: Bool = false) {
         add(
             attributes: [
                 .foregroundColor : color
             ],
-            for: text
+            for: text,
+            ignoreCasing: ignoreCasing
         )
     }
 //
