@@ -103,7 +103,7 @@ extension MeaningFillingPracticeView: PracticeViewDelegate {
         textField.resignFirstResponder()
         
         // Highlight overlap chars.
-        let attributedAnswer = NSMutableAttributedString(string: answer)
+        let attributedAnswer = NSMutableAttributedString(string: answer.strip().lowercased())
         for character in practiceItem.key {
             if answer.contains(character) {
                 attributedAnswer.setTextColor(for: String(character), with: Colors.strongCorrectColor)
@@ -129,7 +129,7 @@ extension MeaningFillingPracticeView {
             return
         }
         
-        if !text.isEmpty {
+        if !text.strip().isEmpty {
             delegate.practiceStatus = .afterAnswering
         } else {
             delegate.practiceStatus = .beforeAnswering

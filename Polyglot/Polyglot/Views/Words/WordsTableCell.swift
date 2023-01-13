@@ -21,6 +21,8 @@ class WordsTableCell: UITableViewCell {
     
     // MARK: - Views
     
+    private var mainView: UIView = UIView()
+    
     private var wordLabel: UILabel = {
         let label = UILabel()
         label.backgroundColor = Colors.defaultBackgroundColor
@@ -54,6 +56,23 @@ class WordsTableCell: UITableViewCell {
         updateLayouts()
     }
     
+    override func layoutSubviews() {
+        let padding = wordLabel.font?.pointSize ?? 20
+        
+        wordLabel.snp.makeConstraints { (make) in
+            make.leading.equalToSuperview()
+            make.centerY.equalToSuperview()
+        }
+        
+        // Before layoutSubview(), the width of the word label is not clear,
+        // resulting in a wrong layout of the meaning label.
+        meaningLabel.snp.makeConstraints { (make) in
+            make.leading.equalTo(wordLabel.snp.trailing).offset(padding)
+            make.trailing.equalToSuperview()
+            make.centerY.equalToSuperview()
+        }
+    }
+    
     private func updateSetups() {
       
     }
@@ -61,23 +80,17 @@ class WordsTableCell: UITableViewCell {
     private func updateViews() {
         selectionStyle = .none
         
-        addSubview(wordLabel)
-        addSubview(meaningLabel)
+        addSubview(mainView)
+        
+        mainView.addSubview(wordLabel)
+        mainView.addSubview(meaningLabel)
     }
     
     private func updateLayouts() {
-        let padding = wordLabel.font?.pointSize ?? 20
-        
-        wordLabel.snp.makeConstraints { (make) in
-            make.top.equalToSuperview().inset(padding)
-            make.leading.equalToSuperview().inset(padding)
-            make.centerY.equalToSuperview()
-        }
-        
-        meaningLabel.snp.makeConstraints { (make) in
-            make.top.equalTo(wordLabel.snp.top)
-            make.leading.equalTo(wordLabel.snp.trailing).offset(padding)
-            make.centerY.equalToSuperview()
+        mainView.snp.makeConstraints { (make) in
+            make.height.equalToSuperview()
+            make.width.equalToSuperview().multipliedBy(0.9)
+            make.centerX.centerY.equalToSuperview()
         }
     }
     

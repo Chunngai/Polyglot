@@ -90,7 +90,7 @@ extension TimingBar {
                 message = Strings.maxTimeUpAlertBody
             }
             
-            let minutes = duration / 60
+            let minutes: Int = Int(duration / 60)
             message = message.replacingOccurrences(of: Strings.maskToken, with: String(minutes))
             
             return message
