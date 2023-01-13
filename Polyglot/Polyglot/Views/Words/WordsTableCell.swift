@@ -57,11 +57,16 @@ class WordsTableCell: UITableViewCell {
     }
     
     override func layoutSubviews() {
+        super.layoutSubviews()  // Don't forget it, or the separator will not be displayed.
+        
         let padding = wordLabel.font?.pointSize ?? 20
         
-        wordLabel.snp.makeConstraints { (make) in
+        // Use updateConstraints instead of makeConstraints,
+        // else the text will be truncated after scrolling.
+        wordLabel.snp.updateConstraints { (make) in
             make.leading.equalToSuperview()
             make.centerY.equalToSuperview()
+            make.width.equalTo(wordLabel.intrinsicContentSize)
         }
         
         // Before layoutSubview(), the width of the word label is not clear,
