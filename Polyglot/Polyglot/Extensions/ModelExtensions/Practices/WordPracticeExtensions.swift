@@ -50,22 +50,25 @@ struct WordPracticeProducer: PracticeProducerDelegate {
     }
     
     func make() -> [WordPracticeProducer.Item] {
-        // Randomly choose a word.
-        let randomWord = dataSource.randomElement()!
-        // Randomly choose a practice type.
-        let randomPracticeType = Int.random(in: 0...1)  // TODO: - Udate here after the context practice is done.
-        
-        switch randomPracticeType {
-        case WordPractice.PracticeType.meaningSelection.rawValue:
-            return [makeMeaningSelectionPractice(for: randomWord)]
-        case WordPractice.PracticeType.meaningFilling.rawValue:
-            return [makeMeaningFillingPractice(for: randomWord)]
-        case WordPractice.PracticeType.contextSelection.rawValue:
-            return [makeMeaningSelectionPractice(for: randomWord)]  // TODO: - update.
-        default:
-            // Will not reach here.
-            return [makeMeaningSelectionPractice(for: randomWord)]
+        // Randomly choose 10 words.
+        var randomWords: [Word] = []
+        for _ in 0..<10 {
+            let randomWord = dataSource.randomElement()!
+            if !randomWords.contains(randomWord) {
+                randomWords.append(randomWord)
+            }
         }
+        
+        var practiceList: [WordPracticeProducer.Item] = []
+        for randomWord in randomWords {
+            for direction in Array<UInt>(arrayLiteral: 0, 1) {
+                practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: direction))
+                practiceList.append(makeMeaningFillingPractice(for: randomWord, in: direction))
+            }
+        }
+        practiceList.shuffle()
+        
+        return practiceList
     }
     
     mutating func next() {
@@ -85,10 +88,7 @@ extension WordPracticeProducer {
         
     }
     
-    private func makeMeaningSelectionPractice(for wordToPractice: Word) -> WordPracticeProducer.Item {
-        // Randomly choose a direction.
-        let randomDirection: UInt = UInt.random(in: 0...1)  // 0-1.
-        
+    private func makeMeaningSelectionPractice(for wordToPractice: Word, in randomDirection: UInt) -> WordPracticeProducer.Item {
         var selectionWords: [Word] = [wordToPractice]
         // Randomly choose two words.
         while true {
@@ -129,10 +129,7 @@ extension WordPracticeProducer {
         )
     }
     
-    private func makeMeaningFillingPractice(for wordToPractice: Word) -> WordPracticeProducer.Item {
-        // Randomly choose a direction.
-        let randomDirection: UInt = UInt.random(in: 0...1)  // 0-1.
-        
+    private func makeMeaningFillingPractice(for wordToPractice: Word, in randomDirection: UInt) -> WordPracticeProducer.Item {
         return WordPracticeProducer.Item(
             practice: WordPractice(
                 practiceType: .meaningFilling,
