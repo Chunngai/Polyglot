@@ -50,17 +50,11 @@ struct WordPracticeProducer: PracticeProducerDelegate {
     }
     
     func make() -> [WordPracticeProducer.Item] {
-        // Randomly choose 10 words.
-        var randomWords: [Word] = []
-        for _ in 0..<10 {
-            let randomWord = dataSource.randomElement()!
-            if !randomWords.contains(randomWord) {
-                randomWords.append(randomWord)
-            }
-        }
+        // Randomly choose a group.
+        let randomGroup = dataSource.groups.randomElement()!
         
         var practiceList: [WordPracticeProducer.Item] = []
-        for randomWord in randomWords {
+        for randomWord in randomGroup.words {
             for direction in Array<UInt>(arrayLiteral: 0, 1) {
                 practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: direction))
                 practiceList.append(makeMeaningFillingPractice(for: randomWord, in: direction))

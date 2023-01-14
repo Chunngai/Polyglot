@@ -11,7 +11,7 @@ import Foundation
 extension Word {
     
     var query: String {
-        return text + meaning
+        return (text + meaning).lowercased()
     }
 
 }

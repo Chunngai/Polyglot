@@ -47,7 +47,7 @@ extension Article {
     }
     
     var query: String {
-        return title + body
+        return (title + body).lowercased()
     }
 }
 

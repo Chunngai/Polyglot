@@ -40,6 +40,7 @@ class MeaningFillingPracticeView: UIView {
         label.textColor = Colors.normalTextColor
         label.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
         label.isHidden = true
+        label.numberOfLines = 0
         return label
     }()
     
@@ -102,10 +103,13 @@ extension MeaningFillingPracticeView: PracticeViewDelegate {
     func check() -> Any {
         textField.resignFirstResponder()
         
-        // Highlight overlap chars.
         // Don't lowercase here, or the text in the text field will be lowercased
         // when highlighted.
-        let attributedAnswer = NSMutableAttributedString(string: answer.strip())
+        let attributedAnswer = NSMutableAttributedString(string: answer
+            .strip()
+            .replacingOccurrences(of: ",", with: " ,")  // Handle commas.
+            .replacingOccurrences(of: "-", with: " -")  // Handle dashes.
+        )
         
         var itemsInKey: [String] = []
         var itemsInAnswer: [String] = []
@@ -118,6 +122,7 @@ extension MeaningFillingPracticeView: PracticeViewDelegate {
         }
         let lowercasedItemsInAnswer = itemsInAnswer.map( {$0.lowercased()} )
         
+        // Highlight overlap chars.
         for itemInKey in itemsInKey {
             if lowercasedItemsInAnswer.contains(itemInKey.lowercased()) {
                 attributedAnswer.setTextColor(
@@ -130,7 +135,7 @@ extension MeaningFillingPracticeView: PracticeViewDelegate {
         
         textField.attributedText = attributedAnswer
         
-        if answer != practiceItem.key {
+        if answer.lowercased() != practiceItem.key.lowercased() {
             referenceLabel.isHidden = false
             referenceLabel.text = "\(Strings.meaningFillingPracticeReferenceLabelPrefix)\(practiceItem.key)"
         }
