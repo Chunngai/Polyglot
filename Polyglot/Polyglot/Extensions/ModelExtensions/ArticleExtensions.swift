@@ -47,7 +47,7 @@ extension Article {
     }
     
     var query: String {
-        return (title + body).lowercased()
+        return title + body
     }
 }
 
@@ -93,7 +93,7 @@ extension Array where Iterator.Element == Article {
         
         var subset: [Article] = []
         for article in self {
-            if article.query.contains(keyWord) {
+            if article.query.lowercased().contains(keyWord.lowercased()) {
                 subset.append(article)
             }
         }

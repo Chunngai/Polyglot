@@ -11,7 +11,7 @@ import Foundation
 extension Word {
     
     var query: String {
-        return (text + meaning).lowercased()
+        return text + meaning
     }
 
 }
@@ -71,7 +71,7 @@ extension Array where Iterator.Element == Word {
         
         var subset: [Word] = []
         for word in self {
-            if word.query.contains(keyWord) {
+            if word.query.lowercased().contains(keyWord.lowercased()) {
                 subset.append(word)
             }
         }
