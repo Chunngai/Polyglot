@@ -11,24 +11,27 @@ import UIKit
 
 extension NSMutableAttributedString {
     
-    func add(attributes: [NSAttributedString.Key: Any], for text: String? = nil, ignoreCasing: Bool = false) {
+    func add(attributes: [NSAttributedString.Key: Any], for text: String? = nil, ignoreCasing: Bool = false, ignoreAccents: Bool = false) {
 
         // https://stackoverflow.com/questions/27180184/color-all-occurrences-of-string-in-swift
         
-        var attrStr = self.string
+        let attrStr = self.string
         let attrStrLen = attrStr.count
         
-        var searchStr = text ?? self.string
+        let searchStr = text ?? self.string
         let searchStrLen = searchStr.count
         
+        var options: NSString.CompareOptions = NSString.CompareOptions()
         if ignoreCasing {
-            attrStr = attrStr.lowercased()
-            searchStr = searchStr.lowercased()
+            options.insert(.caseInsensitive)
+        }
+        if ignoreAccents {
+            options.insert(.diacriticInsensitive)
         }
         
         var range = NSRange(location: 0, length: attrStr.count)
         while (range.location != NSNotFound) {
-            range = (attrStr as NSString).range(of: searchStr, options: [], range: range)
+            range = (attrStr as NSString).range(of: searchStr, options: options, range: range)
             if (range.location != NSNotFound) {
                 self.addAttributes(attributes, range: NSRange(location: range.location, length: searchStrLen))
                 range = NSRange(location: range.location + range.length, length: attrStrLen - (range.location + range.length))
@@ -55,13 +58,14 @@ extension NSMutableAttributedString {
 //        )
 //    }
 //
-    func setTextColor(for text: String? = nil, with color: UIColor, ignoreCasing: Bool = false) {
+    func setTextColor(for text: String? = nil, with color: UIColor, ignoreCasing: Bool = false, ignoreAccents: Bool = false) {
         add(
             attributes: [
                 .foregroundColor : color
             ],
             for: text,
-            ignoreCasing: ignoreCasing
+            ignoreCasing: ignoreCasing,
+            ignoreAccents: ignoreAccents
         )
     }
 //

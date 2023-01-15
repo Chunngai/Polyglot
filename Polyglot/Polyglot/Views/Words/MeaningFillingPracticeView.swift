@@ -128,7 +128,8 @@ extension MeaningFillingPracticeView: PracticeViewDelegate {
                 attributedAnswer.setTextColor(
                     for: String(itemInKey),
                     with: Colors.strongCorrectColor,
-                    ignoreCasing: true
+                    ignoreCasing: true,
+                    ignoreAccents: true
                 )
             }
         }
