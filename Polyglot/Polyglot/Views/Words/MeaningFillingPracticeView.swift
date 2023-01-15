@@ -27,6 +27,8 @@ class MeaningFillingPracticeView: UIView {
         textField.font = UIFont.systemFont(ofSize: Sizes.largeFontSize)
         textField.textColor = Colors.normalTextColor
         textField.textAlignment = .center
+        textField.adjustsFontSizeToFitWidth = true
+        textField.minimumFontSize = Sizes.smallFontSize
         return textField
     }()
     

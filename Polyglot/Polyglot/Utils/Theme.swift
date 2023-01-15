@@ -84,9 +84,10 @@ struct Sizes {
     static let mediumFontSize: CGFloat = 20
     static let smallFontSize: CGFloat = 14
     
-    // MARK: - Image Scaling.
+    // MARK: - Scaling.
     
     static let langImageScalingFactor: CGFloat = 0.6
+    static let minimumScaleFactorForText: CGFloat = 0.5
     
     // MARK: - Spacings.
     

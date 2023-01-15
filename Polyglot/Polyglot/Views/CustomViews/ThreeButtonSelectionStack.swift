@@ -41,7 +41,10 @@ class ThreeButtonSelectionStack: UIStackView {
             buttons.append({
                 let button = UIButton()
                 button.titleLabel?.textColor = Colors.weakTextColor
-                button.titleLabel?.lineBreakMode = .byTruncatingTail
+//                button.titleLabel?.lineBreakMode = .byTruncatingTail
+                // https://stackoverflow.com/questions/4865458/dynamically-changing-font-size-of-uilabel
+                button.titleLabel?.adjustsFontSizeToFitWidth = true
+                button.titleLabel?.minimumScaleFactor = Sizes.minimumScaleFactorForText
                 // https://stackoverflow.com/questions/31353302/change-a-uibuttons-text-padding-programmatically-in-swift
                 button.titleEdgeInsets = UIEdgeInsets(top: 10, left: 20, bottom: 10, right: 20)
                 button.backgroundColor = Colors.lightBlue
