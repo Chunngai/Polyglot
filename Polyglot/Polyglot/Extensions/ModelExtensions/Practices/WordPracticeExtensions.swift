@@ -10,20 +10,20 @@ import Foundation
 
 struct WordPracticeProducer: PracticeProducerDelegate {
     
-    typealias T = GroupedWords
+    typealias T = Word
     typealias U = WordPracticeProducer.Item
     
     static let maxGroupSize: Int = 10
     
-    var dataSource: [GroupedWords] {
+    var dataSource: [Word] {
         didSet {
             
             if dataSource.isEmpty {
-                dataSource.append(GroupedWords(words: [Word.dummyWord]))
+                dataSource.append(Word.dummyWord)
             }
-            
         }
     }
+    private var groupedDataSource: [GroupedWords]!
     
     var practiceList: [WordPracticeProducer.Item]
     var currentPracticeIndex: Int {
@@ -43,7 +43,8 @@ struct WordPracticeProducer: PracticeProducerDelegate {
     }
     
     init(words: [Word]) {
-        self.dataSource = words.grouped(into: WordPracticeProducer.maxGroupSize)
+        self.dataSource = words
+        groupedDataSource = self.dataSource.grouped(into: WordPracticeProducer.maxGroupSize)
         
         self.practiceList = []
         self.currentPracticeIndex = 0
@@ -53,7 +54,7 @@ struct WordPracticeProducer: PracticeProducerDelegate {
     
     func make() -> [WordPracticeProducer.Item] {
         // Randomly choose a group.
-        let randomGroup = dataSource.randomElement()!
+        let randomGroup = groupedDataSource.randomElement()!
         
         var practiceList: [WordPracticeProducer.Item] = []
         for randomWord in randomGroup.words {
@@ -88,7 +89,7 @@ extension WordPracticeProducer {
         var selectionWords: [Word] = [wordToPractice]
         // Randomly choose two words.
         while true {
-            let selectionWord = dataSource.randomElement()!.words.randomElement()!
+            let selectionWord = groupedDataSource.randomElement()!.words.randomElement()!
             if !selectionWords.contains(selectionWord) {
                 selectionWords.append(selectionWord)
             }
