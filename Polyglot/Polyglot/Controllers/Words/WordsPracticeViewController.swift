@@ -147,6 +147,7 @@ extension WordsPracticeViewController {
     // MARK: - TimingBar Delegate
     
     override func stopPracticing() {
+        practiceProducer.save()
         navigationController?.dismiss(animated: true, completion: nil)
     }
     

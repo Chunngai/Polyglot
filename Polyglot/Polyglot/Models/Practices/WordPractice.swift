@@ -158,3 +158,31 @@ extension WordPractice: Codable {
         }
     }
 }
+
+extension WordPractice {
+    
+    // MARK: - IO
+    
+    static var fileName: String {
+        return "wordPractices.\(Variables.lang).json"
+    }
+    
+    static func load() -> [WordPractice] {
+        do {
+            let wordPractices = try readSequenceDataFromJson(fileName: WordPractice.fileName, type: WordPractice.self) as! [WordPractice]
+            return wordPractices
+        } catch {
+            print(error)
+            exit(1)
+        }
+    }
+    
+    static func save(_ wordPractices: inout [WordPractice]) {
+        do {
+            try writeSequenceDataFromJson(fileName: WordPractice.fileName, data: wordPractices)
+        } catch {
+            print(error)
+            exit(1)
+        }
+    }
+}

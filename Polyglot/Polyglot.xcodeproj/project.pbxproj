@@ -50,7 +50,6 @@
 		FF55D156296F3AEC0092FB6B /* Variables.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF55D155296F3AEC0092FB6B /* Variables.swift */; };
 		FF5844312967217700137E00 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5844302967217700137E00 /* ListViewController.swift */; };
 		FF584434296732B400137E00 /* DictionaryExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF584433296732B400137E00 /* DictionaryExtensions.swift */; };
-		FF585DEE296A40BC00409F85 /* UIntExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF585DED296A40BC00409F85 /* UIntExtensions.swift */; };
 		FF5882BE29604E0300FC33CF /* NewWordAddingTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5882BD29604E0300FC33CF /* NewWordAddingTextView.swift */; };
 		FF591ED62967960C0004CB80 /* WordPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF591ED52967960C0004CB80 /* WordPractice.swift */; };
 		FF591ED8296796160004CB80 /* ReadingPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF591ED7296796160004CB80 /* ReadingPractice.swift */; };
@@ -182,7 +181,6 @@
 		FF55D155296F3AEC0092FB6B /* Variables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Variables.swift; sourceTree = "<group>"; };
 		FF5844302967217700137E00 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 		FF584433296732B400137E00 /* DictionaryExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryExtensions.swift; sourceTree = "<group>"; };
-		FF585DED296A40BC00409F85 /* UIntExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIntExtensions.swift; sourceTree = "<group>"; };
 		FF5882BD29604E0300FC33CF /* NewWordAddingTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWordAddingTextView.swift; sourceTree = "<group>"; };
 		FF591ED52967960C0004CB80 /* WordPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPractice.swift; sourceTree = "<group>"; };
 		FF591ED7296796160004CB80 /* ReadingPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPractice.swift; sourceTree = "<group>"; };
@@ -305,7 +303,6 @@
 				FF4964CC2958BE8900414AC5 /* TimeIntervalExtensions.swift */,
 				FF495E9D2959084200EA7EA9 /* DateExtensions.swift */,
 				FF584433296732B400137E00 /* DictionaryExtensions.swift */,
-				FF585DED296A40BC00409F85 /* UIntExtensions.swift */,
 				FF5FE945297431C30002691C /* ArrayExtensions.swift */,
 			);
 			path = TypeExtensions;
@@ -888,7 +885,6 @@
 				FF706DF1295142AF00DBCF8E /* Strings.swift in Sources */,
 				FF62C9762951382500D41797 /* AppDelegate.swift in Sources */,
 				FF4CA730295E869900423946 /* TranslationPracticeViewController.swift in Sources */,
-				FF585DEE296A40BC00409F85 /* UIntExtensions.swift in Sources */,
 				FF4D7CC62953952C009F6894 /* NSMutableAttributedStringExtensions.swift in Sources */,
 				FF495E992959039A00EA7EA9 /* WordExtensions.swift in Sources */,
 				FF4964CF2958CE4400414AC5 /* Word.swift in Sources */,

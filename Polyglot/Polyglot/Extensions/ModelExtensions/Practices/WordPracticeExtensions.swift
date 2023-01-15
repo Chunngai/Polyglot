@@ -163,36 +163,54 @@ extension WordPracticeProducer {
     
 }
 
-extension WordPractice {
+extension WordPracticeProducer {
     
-    enum Correctness: UInt, Codable {
-        
-        case incorrect
-        case correct
-        case partiallyCorrect  // E.g., for meaning filling.
-    }
+    // MARK: - IO
     
-    var correctness: Correctness {
-        switch self.practiceType {
-        case .meaningSelection, .contextSelection:
-            if self.wordId == self.answer {
-                return .correct
-            } else {
-                return .incorrect
-            }
-        case .meaningFilling:  // TODO: - Consider partial correctness.
-            let key: String!
-            if direction == 0 {
-                key = Word.load().getWord(from: wordId)?.meaning  // TODO: load()
-            } else {
-                key = Word.load().getWord(from: wordId)?.text  // TODO: load()
-            }
-            
-            if key == answer {
-                return .correct
-            } else {
-                return .incorrect
-            }
+    func save() {
+        var practicesToSave: [WordPractice] = []
+        for practiceIndex in 0..<currentPracticeIndex {
+            practicesToSave.append(practiceList[practiceIndex].practice)
         }
+        
+        if currentPractice.practice.answer != nil {
+            practicesToSave.append(currentPractice.practice)
+        }
+        
+        WordPractice.save(&practicesToSave)
     }
 }
+
+//extension WordPractice {
+//
+//    enum Correctness: UInt, Codable {
+//
+//        case incorrect
+//        case correct
+//        case partiallyCorrect  // E.g., for meaning filling.
+//    }
+//
+//    var correctness: Correctness {
+//        switch self.practiceType {
+//        case .meaningSelection, .contextSelection:
+//            if self.wordId == self.answer {
+//                return .correct
+//            } else {
+//                return .incorrect
+//            }
+//        case .meaningFilling:  // TODO: - Consider partial correctness.
+//            let key: String!
+//            if direction == 0 {
+//                key = Word.load().getWord(from: wordId)?.meaning  // TODO: load()
+//            } else {
+//                key = Word.load().getWord(from: wordId)?.text  // TODO: load()
+//            }
+//
+//            if key == answer {
+//                return .correct
+//            } else {
+//                return .incorrect
+//            }
+//        }
+//    }
+//}

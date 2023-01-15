@@ -66,7 +66,7 @@ struct TranslationPracticeProducer: PracticeProducerDelegate {
                 return make()  // TODO: - Use a translation api instead?
             }
             // Randomly choose a direction.
-            let randomDirection = UInt.random(from: [0.2, 0.8])  // 0.2 prob for text -> meaning and 0.8 prob for meaning -> text.
+            let randomDirection = Array<UInt>(arrayLiteral: 0, 1).randomElement(from: [0.2, 0.8])!  // 0.2 prob for text -> meaning and 0.8 prob for meaning -> text.
             
             practiceList.append(TranslationPracticeProducer.Item(
                 practice: TranslationPractice(
