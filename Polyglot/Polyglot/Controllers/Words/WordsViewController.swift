@@ -51,7 +51,7 @@ class WordsViewController: ListViewController {
         
         practiceButtonShadowView.button.addTarget(self, action: #selector(tapped), for: .touchUpInside)
         
-        dataSource = words.groups
+        dataSource = words.grouped()
     }
     
     override func updateViews() {
@@ -229,7 +229,7 @@ extension WordsViewController: UISearchResultsUpdating {
         guard let keyWord = searchController.searchBar.text else {
             return
         }
-        dataSource = words.subset(containing: keyWord).groups
+        dataSource = words.subset(containing: keyWord).grouped()
     }
 }
 

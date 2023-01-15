@@ -130,7 +130,7 @@ struct GroupedWords {
 extension Array where Iterator.Element == Word {
     
     // TODO: - Improve here. It's time consuming to compute.
-    var groups: [GroupedWords] {
+    func grouped(into size: Int? = nil) -> [GroupedWords] {
         var groupedWordsMapping: [String: GroupedWords] = [:]
         for word in self {
             let groupId = word.groupId
@@ -139,8 +139,23 @@ extension Array where Iterator.Element == Word {
             groupedWordsMapping[groupId]?.words.append(word)
         }
         
-        // Sort groups.
         var groupedWords = Array<GroupedWords>(groupedWordsMapping.values)
+        if let size = size {
+            var tmpArray: [GroupedWords] = []
+            for group in groupedWords {
+                if group.words.count <= size {
+                    tmpArray.append(group)
+                } else {
+                    let chunkedWords = group.words.chunked(into: size)
+                    for chunk in chunkedWords {
+                        tmpArray.append(GroupedWords(words: chunk))
+                    }
+                }
+            }
+            groupedWords = tmpArray
+        }
+        
+        // Sort groups.
         groupedWords.sort { (group1, group2) -> Bool in
             group1.cDate != group2.cDate
                 ? group1.cDate > group2.cDate  // First, sort by date.

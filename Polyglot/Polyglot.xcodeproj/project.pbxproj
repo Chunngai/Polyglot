@@ -62,6 +62,7 @@
 		FF5D129129577AC4005DEEDE /* NavController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5D129029577AC4005DEEDE /* NavController.swift */; };
 		FF5D129529577CB3005DEEDE /* RoundShadowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5D129429577CB3005DEEDE /* RoundShadowView.swift */; };
 		FF5DB994295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5DB993295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift */; };
+		FF5FE946297431C30002691C /* ArrayExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5FE945297431C30002691C /* ArrayExtensions.swift */; };
 		FF62C9762951382500D41797 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9752951382500D41797 /* AppDelegate.swift */; };
 		FF62C9782951382500D41797 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9772951382500D41797 /* SceneDelegate.swift */; };
 		FF62C97A2951382500D41797 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9792951382500D41797 /* HomeViewController.swift */; };
@@ -193,6 +194,7 @@
 		FF5D129029577AC4005DEEDE /* NavController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavController.swift; sourceTree = "<group>"; };
 		FF5D129429577CB3005DEEDE /* RoundShadowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundShadowView.swift; sourceTree = "<group>"; };
 		FF5DB993295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoResizingTextViewWithPrompt.swift; sourceTree = "<group>"; };
+		FF5FE945297431C30002691C /* ArrayExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayExtensions.swift; sourceTree = "<group>"; };
 		FF62C9722951382500D41797 /* Polyglot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Polyglot.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FF62C9752951382500D41797 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		FF62C9772951382500D41797 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -304,6 +306,7 @@
 				FF495E9D2959084200EA7EA9 /* DateExtensions.swift */,
 				FF584433296732B400137E00 /* DictionaryExtensions.swift */,
 				FF585DED296A40BC00409F85 /* UIntExtensions.swift */,
+				FF5FE945297431C30002691C /* ArrayExtensions.swift */,
 			);
 			path = TypeExtensions;
 			sourceTree = "<group>";
@@ -890,6 +893,7 @@
 				FF495E992959039A00EA7EA9 /* WordExtensions.swift in Sources */,
 				FF4964CF2958CE4400414AC5 /* Word.swift in Sources */,
 				FF706E032951549C00DBCF8E /* UIImageExtensions.swift in Sources */,
+				FF5FE946297431C30002691C /* ArrayExtensions.swift in Sources */,
 				FF4EFE12295D36D900E30D6A /* HistoryRecordTableCell.swift in Sources */,
 				FF4EFE0C295D34B200E30D6A /* _HistoryViewController.swift in Sources */,
 				FF5D129129577AC4005DEEDE /* NavController.swift in Sources */,
