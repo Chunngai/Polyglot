@@ -13,8 +13,6 @@ struct WordPracticeProducer: PracticeProducerDelegate {
     typealias T = Word
     typealias U = WordPracticeProducer.Item
     
-    static let maxGroupSize: Int = 10
-    
     var dataSource: [Word] {
         didSet {
             
@@ -23,7 +21,6 @@ struct WordPracticeProducer: PracticeProducerDelegate {
             }
         }
     }
-    private var groupedDataSource: [GroupedWords]!
     
     var practiceList: [WordPracticeProducer.Item]
     var currentPracticeIndex: Int {
@@ -44,7 +41,6 @@ struct WordPracticeProducer: PracticeProducerDelegate {
     
     init(words: [Word]) {
         self.dataSource = words
-        groupedDataSource = self.dataSource.grouped(into: WordPracticeProducer.maxGroupSize)
         
         self.practiceList = []
         self.currentPracticeIndex = 0
@@ -53,11 +49,90 @@ struct WordPracticeProducer: PracticeProducerDelegate {
     }
     
     func make() -> [WordPracticeProducer.Item] {
-        // Randomly choose a group.
-        let randomGroup = groupedDataSource.randomElement()!
+        
+        func calculateProbs() -> [Double] {
+            
+            guard !practices.isEmpty else {
+                return Array<Double>(
+                    repeating: 1.0 / Double(dataSource.count),
+                    count: dataSource.count
+                )
+            }
+            
+            var wordProbMapping: [String: Double] = {
+                var map: [String: Double] = [:]
+                for word in dataSource {
+                    map[word.id] = 0.0
+                }
+                return map
+            }()
+            for practice in practices {
+                guard let word = dataSource.getWord(from: practice.wordId) else {
+                    continue
+                }
+                guard var answer = practice.answer else {
+                    continue
+                }
+                
+                let key = practice.direction == 0 ?
+                    word.meaning :
+                    word.text
+                answer = {
+                    let selectedWord: Word!
+                    switch practice.practiceType {
+                    case .meaningSelection: selectedWord = dataSource.getWord(from: answer)
+                    case .meaningFilling: return answer
+                    case .contextSelection: selectedWord = dataSource.getWord(from: answer)
+                    }
+                    return practice.direction == 0 ?
+                        selectedWord.meaning :
+                        selectedWord.text
+                }()
+                
+                let val: Double = {
+                    let correctness = Correctness.checkCorrectness(key: key, answer: answer)
+//                    print(key, answer, correctness)
+                    switch correctness {
+                    case .correct:
+                        return -1  // Decrease the weight.
+                    case .incorrect:
+                        return +1  // Increase the weight.
+                    case .partiallyCorrect:
+                        return 0  // Keep the weight unchanged.
+                    }
+                }()
+                
+                wordProbMapping[word.id]! += val
+            }
+            
+            var probs: [Double] = []
+            for word in dataSource {
+                let prob = wordProbMapping[word.id]!
+                probs.append(prob)
+            }
+            
+            probs = probs.toNonNegatives()!
+//            print(probs)
+            
+            return probs
+        }
+        
+        let probs = calculateProbs()
+        
+        // Randomly choose some words.
+        var randomWords: [Word] = []
+        while true {
+            let randomWord = dataSource.randomElement(from: probs)!
+            if !randomWords.contains(randomWord) {
+                randomWords.append(randomWord)
+            }
+            if randomWords.count == WordPracticeProducer.batchSize {
+                break
+            }
+        }
         
         var practiceList: [WordPracticeProducer.Item] = []
-        for randomWord in randomGroup.words {
+        for randomWord in randomWords {
             for direction in Array<UInt>(arrayLiteral: 0, 1) {
                 practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: direction))
                 practiceList.append(makeMeaningFillingPractice(for: randomWord, in: direction))
@@ -71,6 +146,10 @@ struct WordPracticeProducer: PracticeProducerDelegate {
     mutating func next() {
         currentPracticeIndex += 1
     }
+    
+    static let batchSize: Int = 6
+    
+    private var practices: [WordPractice] = WordPractice.load()
 }
 
 extension WordPracticeProducer {
@@ -89,7 +168,7 @@ extension WordPracticeProducer {
         var selectionWords: [Word] = [wordToPractice]
         // Randomly choose two words.
         while true {
-            let selectionWord = groupedDataSource.randomElement()!.words.randomElement()!
+            let selectionWord = dataSource.randomElement()!
             if !selectionWords.contains(selectionWord) {
                 selectionWords.append(selectionWord)
             }
@@ -168,50 +247,38 @@ extension WordPracticeProducer {
     
     // MARK: - IO
     
-    func save() {
+    mutating func save() {
         var practicesToSave: [WordPractice] = []
         for practiceIndex in 0..<currentPracticeIndex {
             practicesToSave.append(practiceList[practiceIndex].practice)
         }
-        
         if currentPractice.practice.answer != nil {
             practicesToSave.append(currentPractice.practice)
         }
         
-        WordPractice.save(&practicesToSave)
+        practices.append(contentsOf: practicesToSave)
+        WordPractice.save(&practices)
     }
 }
 
-//extension WordPractice {
-//
-//    enum Correctness: UInt, Codable {
-//
-//        case incorrect
-//        case correct
-//        case partiallyCorrect  // E.g., for meaning filling.
-//    }
-//
-//    var correctness: Correctness {
-//        switch self.practiceType {
-//        case .meaningSelection, .contextSelection:
-//            if self.wordId == self.answer {
-//                return .correct
-//            } else {
-//                return .incorrect
-//            }
-//        case .meaningFilling:  // TODO: - Consider partial correctness.
-//            let key: String!
-//            if direction == 0 {
-//                key = Word.load().getWord(from: wordId)?.meaning  // TODO: load()
-//            } else {
-//                key = Word.load().getWord(from: wordId)?.text  // TODO: load()
-//            }
-//
-//            if key == answer {
-//                return .correct
-//            } else {
-//                return .incorrect
-//            }
-//        }
-//    }
-//}
+enum Correctness: UInt {
+
+    case incorrect
+    case correct
+    case partiallyCorrect  // E.g., for meaning filling.
+    
+    static func checkCorrectness(key: String, answer: String) -> Correctness {
+        let key = key.normalized
+        let answer = answer.normalized
+        
+        if key == answer {
+            return .correct
+        }
+        
+        if !Set(key.components).intersection(Set(answer.components)).isEmpty {
+            return .partiallyCorrect
+        } else {
+            return .incorrect
+        }
+    }
+}

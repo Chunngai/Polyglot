@@ -10,7 +10,6 @@ import Foundation
 
 extension Array {
     
-        
     func randomElement(from probabilities: [Double]) -> Element? {
 
         guard !self.isEmpty else {
@@ -43,6 +42,24 @@ extension Array {
         
         return stride(from: 0, to: count, by: size).map {
             Array(self[$0 ..< Swift.min($0 + size, count)])
+        }
+    }
+}
+
+extension Array where Iterator.Element == Double {
+    
+    func toNonNegatives() -> [Double]? {
+        guard !self.isEmpty else {
+            return nil
+        }
+        
+        let minVal = self.min()!
+        if minVal >= 0 {
+            return self
+        } else {
+            return self.map { (val) -> Double in
+                val + abs(minVal)
+            }
         }
     }
 }

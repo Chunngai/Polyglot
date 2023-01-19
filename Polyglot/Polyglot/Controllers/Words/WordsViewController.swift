@@ -143,6 +143,7 @@ extension WordsViewController {
         let alert = UIAlertController(title: Strings.addingNewWordAlertTitle, message: nil, preferredStyle: .alert)
         
         alert.addTextField { (textField) in
+            textField.autocorrectionType = .yes
             if let word = word, !word.text.isEmpty {
                 textField.text = word.text
             } else {
@@ -150,6 +151,7 @@ extension WordsViewController {
             }
         }
         alert.addTextField { (textField) in
+            textField.autocorrectionType = .yes
             if let word = word, !word.meaning.isEmpty {
                 textField.text = word.meaning
             } else {

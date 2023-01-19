@@ -11,6 +11,9 @@ import UIKit
 class MeaningFillingPracticeView: UIView {
 
     private var practiceItem: WordPracticeProducer.Item!
+    private var key: String {
+        return practiceItem.key
+    }
     
     private var answer: String {
         textField.text!.strip()
@@ -105,30 +108,15 @@ extension MeaningFillingPracticeView: PracticeViewDelegate {
     func check() -> Any {
         textField.resignFirstResponder()
         
-        // Don't lowercase here, or the text in the text field will be lowercased
-        // when highlighted.
-        let attributedAnswer = NSMutableAttributedString(string: answer
-            .strip()
-            .replacingOccurrences(of: ",", with: " ,")  // Handle commas.
-            .replacingOccurrences(of: "-", with: " -")  // Handle dashes.
-        )
+        let attributedAnswer = NSMutableAttributedString(string: answer)
         
-        var itemsInKey: [String] = []
-        var itemsInAnswer: [String] = []
-        if Variables.lang == LangCodes.ja {
-            itemsInKey = practiceItem.key.map( {String($0)} )
-            itemsInAnswer = answer.map( {String($0)} )
-        } else if Variables.lang == LangCodes.en || Variables.lang == LangCodes.es {
-            itemsInKey = practiceItem.key.split(with: " ")
-            itemsInAnswer = practiceItem.key.split(with: " ")
-        }
-        let lowercasedItemsInAnswer = itemsInAnswer.map( {$0.lowercased()} )
-        
+        let keyComponents = key.normalized.components
+        let answerComponents = answer.normalized.components
         // Highlight overlap chars.
-        for itemInKey in itemsInKey {
-            if lowercasedItemsInAnswer.contains(itemInKey.lowercased()) {
+        for keyComponent in keyComponents {
+            if answerComponents.contains(keyComponent) {
                 attributedAnswer.setTextColor(
-                    for: String(itemInKey),
+                    for: keyComponent,
                     with: Colors.strongCorrectColor,
                     ignoreCasing: true,
                     ignoreAccents: true
@@ -138,7 +126,7 @@ extension MeaningFillingPracticeView: PracticeViewDelegate {
         
         textField.attributedText = attributedAnswer
         
-        if answer.lowercased() != practiceItem.key.lowercased() {
+        if Correctness.checkCorrectness(key: key, answer: answer) != .correct {
             referenceLabel.isHidden = false
             referenceLabel.text = "\(Strings.meaningFillingPracticeReferenceLabelPrefix)\(practiceItem.key)"
         }
