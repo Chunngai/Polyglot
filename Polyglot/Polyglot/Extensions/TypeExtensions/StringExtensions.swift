@@ -31,24 +31,34 @@ extension String {
 
 extension String {
     
+    // TODO: - Improve the code here.
+    
     var normalized: String {
-        // TODO: - Handle other punctuations.
-        return self.strip()
-            .replaceMultipleSpacesWithSingleOne()
+        var s = self.strip()
             .lowercased()
             .folding(options: .diacriticInsensitive, locale: nil)  // https://stackoverflow.com/questions/36727310/is-there-a-way-to-convert-special-characters-to-normal-characters-in-swift
-            .replacingOccurrences(of: ",", with: " ,")  // Handle commas.
-            .replacingOccurrences(of: "-", with: " - ")  // Handle dashes.
-            .replacingOccurrences(of: "'", with: " '")
+        
+        if Variables.lang == LangCodes.ja {
+            s = s.replacingOccurrences(of: " ", with: "")
+        } else if Variables.lang == LangCodes.en || Variables.lang == LangCodes.es {
+            s = s.replaceMultipleSpacesWithSingleOne()
+        }
+        
+        return s
     }
     
     var components: [String] {
+        var s: String = self
+        for punct in ",.-'" {  // TODO: - Handle other punctuations.
+            s = s.replacingOccurrences(of: String(punct), with: "")
+        }
+        
         if Variables.lang == LangCodes.ja {
-            return self.map( {String($0)} )
+            return s.map( {String($0)} )
         } else if Variables.lang == LangCodes.en || Variables.lang == LangCodes.es {
-            return self.split(with: " ")
+            return s.split(with: " ")
         } else {
-            return [self]
+            return [s]
         }
     }
     
