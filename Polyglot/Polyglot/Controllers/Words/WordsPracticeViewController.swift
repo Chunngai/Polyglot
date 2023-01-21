@@ -129,7 +129,7 @@ extension WordsPracticeViewController {
     // MARK: - Selectors
     
     @objc override func doneButtonTapped() {
-        practiceProducer.currentPractice.practice.answer = practiceView.check() as! String
+        practiceProducer.currentPractice.practice.answer = (practiceView as! WordPracticeViewDelegate).check()
         
         practiceStatus = .finished
     }

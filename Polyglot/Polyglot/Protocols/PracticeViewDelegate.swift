@@ -11,6 +11,10 @@ import UIKit
 
 protocol PracticeViewDelegate: UIView {
     
-    // TODO: - Is it needed?
-    func check() -> Any
+}
+
+protocol WordPracticeViewDelegate: PracticeViewDelegate {
+    
+    func check() -> String
+    
 }

@@ -8,7 +8,7 @@
 
 import UIKit
 
-class TranslationPracticeView: UIView {
+class TranslationPracticeView: UIView, PracticeViewDelegate {
 
     private var practiceItem: TranslationPracticeProducer.Item! {
         didSet {
@@ -69,14 +69,5 @@ class TranslationPracticeView: UIView {
     
     func updateValues(practiceItem: TranslationPracticeProducer.Item) {
         self.practiceItem = practiceItem
-    }
-}
-
-extension TranslationPracticeView: PracticeViewDelegate {
-    
-    // MARK: - Practice Delegate
-    
-    func check() -> Any {
-        return ""
     }
 }

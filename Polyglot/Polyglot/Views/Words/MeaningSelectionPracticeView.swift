@@ -70,11 +70,11 @@ class MeaningSelectionPracticeView: UIView {
     }
 }
 
-extension MeaningSelectionPracticeView: PracticeViewDelegate {
+extension MeaningSelectionPracticeView: WordPracticeViewDelegate {
     
-    // MARK: - Practice Delegate
+    // MARK: - WordPracticeView Delegate
     
-    func check() -> Any {
+    func check() -> String {
         
         if isCorrect {
             selectionStack.selectedButton!.backgroundColor = Colors.lightCorrectColor

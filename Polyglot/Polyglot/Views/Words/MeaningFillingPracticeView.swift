@@ -101,11 +101,11 @@ class MeaningFillingPracticeView: UIView {
     }
 }
 
-extension MeaningFillingPracticeView: PracticeViewDelegate {
+extension MeaningFillingPracticeView: WordPracticeViewDelegate {
     
-    // MARK: - Practice Delegate
+    // MARK: - WordPracticeView Delegate
     
-    func check() -> Any {
+    func check() -> String {
         textField.resignFirstResponder()
         
         let attributedAnswer = NSMutableAttributedString(string: answer)

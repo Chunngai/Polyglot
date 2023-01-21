@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ReadingPracticeView: UIView {
+class ReadingPracticeView: UIView, PracticeViewDelegate {
 
     private var practiceItem: ReadingPracticeProducer.Item! {
         didSet {
@@ -97,13 +97,4 @@ extension ReadingPracticeView {
         
     }
     
-}
-
-extension ReadingPracticeView: PracticeViewDelegate {
-    
-    // MARK: - Practice Delegate
-    
-    func check() -> Any {
-        return ""
-    }
 }

@@ -38,11 +38,11 @@ class ContextSelectionPracticeView: UIView {
     
 }
 
-extension ContextSelectionPracticeView: PracticeViewDelegate {
+extension ContextSelectionPracticeView: WordPracticeViewDelegate {
     
-    // MARK: - Practice Delegate
+    // MARK: - WordPracticeView Delegate
     
-    func check() -> Any {
+    func check() -> String {
         return ""
     }
 }
