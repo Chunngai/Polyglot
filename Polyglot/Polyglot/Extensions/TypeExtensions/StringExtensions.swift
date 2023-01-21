@@ -49,7 +49,7 @@ extension String {
     
     var components: [String] {
         var s: String = self
-        for punct in ",.-'" {  // TODO: - Handle other punctuations.
+        for punct in ",.-'%" {  // TODO: - Handle other punctuations.
             s = s.replacingOccurrences(of: String(punct), with: "")
         }
         
