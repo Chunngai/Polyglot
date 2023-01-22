@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import NaturalLanguage
 
 class ContextSelectionPracticeView: UIView {
 
@@ -42,7 +43,11 @@ extension ContextSelectionPracticeView: WordPracticeViewDelegate {
     
     // MARK: - WordPracticeView Delegate
     
-    func check() -> String {
+    func submit() -> String {
         return ""
+    }
+    
+    func updateViews(for correctness: WordPractice.Correctness, key: String, tokenizer: NLTokenizer) {
+        
     }
 }

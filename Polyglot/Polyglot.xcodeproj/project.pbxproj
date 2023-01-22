@@ -392,7 +392,6 @@
 				FF4964CE2958CE4400414AC5 /* Word.swift */,
 				FF502511295248D10097C2CB /* Article.swift */,
 				FF591ED2296795E70004CB80 /* Practices */,
-				FF4EFE0E295D358C00E30D6A /* _HistoryRecord.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -461,6 +460,7 @@
 			isa = PBXGroup;
 			children = (
 				FF502510295248BF0097C2CB /* Models */,
+				FF4EFE0E295D358C00E30D6A /* _HistoryRecord.swift */,
 				FF62C9A629513A2800D41797 /* Controllers */,
 				FF62C9A729513A3700D41797 /* Views */,
 				FF491E6F2959C2DF0088FD13 /* Protocols */,

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import NaturalLanguage
 
 struct WordPracticeProducer: PracticeProducerDelegate {
     
@@ -70,28 +71,19 @@ struct WordPracticeProducer: PracticeProducerDelegate {
                 guard let word = dataSource.getWord(from: practice.wordId) else {
                     continue
                 }
-                guard var answer = practice.answer else {
+                guard let correctness = practice.correctness else {
                     continue
                 }
                 
-                let key = practice.direction == 0 ?
-                    word.meaning :
-                    word.text
-                answer = {
-                    let selectedWord: Word!
-                    switch practice.practiceType {
-                    case .meaningSelection: selectedWord = dataSource.getWord(from: answer)
-                    case .meaningFilling: return answer
-                    case .contextSelection: selectedWord = dataSource.getWord(from: answer)
-                    }
-                    return practice.direction == 0 ?
-                        selectedWord.meaning :
-                        selectedWord.text
-                }()
+                print(
+                    practice.practiceType,
+                    practice.direction == 0 ?
+                        dataSource.getWord(from: practice.wordId)!.meaning :
+                        dataSource.getWord(from: practice.wordId)!.text,
+                    correctness
+                )
                 
                 let val: Double = {
-                    let correctness = Correctness.checkCorrectness(key: key, answer: answer)
-//                    print(key, answer, correctness)
                     switch correctness {
                     case .correct:
                         return -1  // Decrease the weight.
@@ -112,7 +104,7 @@ struct WordPracticeProducer: PracticeProducerDelegate {
             }
             
             probs = probs.toNonNegatives()!
-//            print(probs)
+            print(probs)
             
             return probs
         }
@@ -147,9 +139,17 @@ struct WordPracticeProducer: PracticeProducerDelegate {
         currentPracticeIndex += 1
     }
     
-    static let batchSize: Int = 6
+    private static let batchSize: Int = 6
     
     private var practices: [WordPractice] = WordPractice.load()
+}
+
+extension WordPracticeProducer {
+    
+    mutating func submit(answer: String) {
+        currentPractice.checkCorrectness(answer: answer)
+    }
+    
 }
 
 extension WordPracticeProducer {
@@ -239,8 +239,37 @@ extension WordPracticeProducer {
         var context: String?
         
         var key: String
+        
+        var tokenizer: NLTokenizer {
+            let lang = practice.direction == 0 ?
+                Variables.pairedLang :
+                Variables.lang
+            print(lang)
+            
+            let tokenizer = NLTokenizer(unit: .word)
+            tokenizer.setLanguage(LangCodes.toNLLanguage(langCode: lang))
+            
+            return tokenizer
+        }
+        
+        mutating func checkCorrectness(answer: String) {
+            let keyComponents = key.normalized.components(from: tokenizer)
+            let answerComponents = answer.normalized.components(from: tokenizer)
+            
+            let correctness: WordPractice.Correctness!
+            if key == answer {
+                correctness = .correct
+            } else {
+                if !Set(keyComponents).intersection(Set(answerComponents)).isEmpty {
+                    correctness = .partiallyCorrect
+                } else {
+                    correctness = .incorrect
+                }
+            }
+            
+            practice.correctness = correctness
+        }
     }
-    
 }
 
 extension WordPracticeProducer {
@@ -252,33 +281,11 @@ extension WordPracticeProducer {
         for practiceIndex in 0..<currentPracticeIndex {
             practicesToSave.append(practiceList[practiceIndex].practice)
         }
-        if currentPractice.practice.answer != nil {
+        if currentPractice.practice.correctness != nil {
             practicesToSave.append(currentPractice.practice)
         }
         
         practices.append(contentsOf: practicesToSave)
         WordPractice.save(&practices)
-    }
-}
-
-enum Correctness: UInt {
-
-    case incorrect
-    case correct
-    case partiallyCorrect  // E.g., for meaning filling.
-    
-    static func checkCorrectness(key: String, answer: String) -> Correctness {
-        let key = key.normalized
-        let answer = answer.normalized
-        
-        if key == answer {
-            return .correct
-        }
-        
-        if !Set(key.components).intersection(Set(answer.components)).isEmpty {
-            return .partiallyCorrect
-        } else {
-            return .incorrect
-        }
     }
 }

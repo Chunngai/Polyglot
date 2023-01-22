@@ -7,15 +7,11 @@
 //
 
 import UIKit
+import NaturalLanguage
 
 class MeaningFillingPracticeView: UIView {
-
-    private var practiceItem: WordPracticeProducer.Item!
-    private var key: String {
-        return practiceItem.key
-    }
     
-    private var answer: String {
+    var answer: String {
         textField.text!.strip()
     }
     
@@ -95,23 +91,24 @@ class MeaningFillingPracticeView: UIView {
             make.width.equalTo(bottomLine.snp.width)
         }
     }
-    
-    func updateValues(practiceItem: WordPracticeProducer.Item) {
-        self.practiceItem = practiceItem
-    }
 }
 
 extension MeaningFillingPracticeView: WordPracticeViewDelegate {
     
     // MARK: - WordPracticeView Delegate
     
-    func check() -> String {
+    func submit() -> String {
         textField.resignFirstResponder()
+   
+        return answer
+    }
+    
+    func updateViews(for correctness: WordPractice.Correctness, key: String, tokenizer: NLTokenizer) {
         
         let attributedAnswer = NSMutableAttributedString(string: answer)
         
-        let keyComponents = key.normalized.components
-        let answerComponents = answer.normalized.components
+        let keyComponents = key.normalized.components(from: tokenizer)
+        let answerComponents = answer.normalized.components(from: tokenizer)
         // Highlight overlap chars.
         for keyComponent in keyComponents {
             if answerComponents.contains(keyComponent) {
@@ -126,12 +123,10 @@ extension MeaningFillingPracticeView: WordPracticeViewDelegate {
         
         textField.attributedText = attributedAnswer
         
-        if Correctness.checkCorrectness(key: key, answer: answer) != .correct {
+        if correctness != .correct {
             referenceLabel.isHidden = false
-            referenceLabel.text = "\(Strings.meaningFillingPracticeReferenceLabelPrefix)\(practiceItem.key)"
+            referenceLabel.text = "\(Strings.meaningFillingPracticeReferenceLabelPrefix)\(key)"
         }
-        
-        return answer
     }
 }
 

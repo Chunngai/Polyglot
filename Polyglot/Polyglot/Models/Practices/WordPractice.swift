@@ -26,10 +26,9 @@ struct WordPractice: Practice {
     // 1: meaning -> text.
     var direction: UInt
     
-    // Selected word id or filled answer.
-    var answer: String?
+    var correctness: Correctness!
     
-    init(practiceType: WordPractice.PracticeType, wordId: String, selectionWordsIds: [String]? = nil, articleId: String? = nil, paragraphId: String? = nil, direction: UInt, answer: String? = nil) {
+    init(practiceType: WordPractice.PracticeType, wordId: String, selectionWordsIds: [String]? = nil, articleId: String? = nil, paragraphId: String? = nil, direction: UInt, correctness: Correctness? = nil) {
         
         self.id = UUID().uuidString
         self.cDate = Date()
@@ -43,18 +42,25 @@ struct WordPractice: Practice {
         
         self.direction = direction
         
-        self.answer = answer
+        self.correctness = correctness
     }
 }
 
 extension WordPractice {
     
-    enum PracticeType: Int, Codable {
+    enum PracticeType: UInt, Codable {
         case meaningSelection
         case meaningFilling
         case contextSelection
     }
     
+    enum Correctness: UInt, Codable {
+
+        case incorrect
+        case correct
+        case partiallyCorrect  // E.g., for meaning filling.
+    }
+
 }
 
 extension WordPractice: Codable {
@@ -73,7 +79,7 @@ extension WordPractice: Codable {
         
         case direction
         
-        case answer
+        case correctness
         
         // Old vars.
         
@@ -85,8 +91,8 @@ extension WordPractice: Codable {
         
         case selectedWordId  // answer
         case filledText  // answer
-        
         case typedAnswer  // filledText->answer
+        case answer
     }
     
     func encode(to encoder: Encoder) throws {
@@ -105,7 +111,7 @@ extension WordPractice: Codable {
         
         try container.encode(direction, forKey: .direction)
         
-        try container.encode(answer, forKey: .answer)
+        try container.encode(correctness, forKey: .correctness)
     }
     
     init(from decoder: Decoder) throws {
@@ -152,9 +158,9 @@ extension WordPractice: Codable {
         direction = try values.decode(UInt.self, forKey: .direction)
         
         do {
-            answer = try values.decode(String?.self, forKey: .answer)
+            correctness = try values.decode(Correctness?.self, forKey: .correctness)
         } catch {
-            answer = ""
+            correctness = nil
         }
     }
 }

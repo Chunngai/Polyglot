@@ -25,8 +25,8 @@ struct Word {
         self.cDate = cDate
         self.mDate = cDate
         
-        self.text = text.lowercased()
-        self.meaning = meaning.lowercased()
+        self.text = text.lowercased().strip()
+        self.meaning = meaning.lowercased().strip()
         
         self.note = note
     }
@@ -34,11 +34,11 @@ struct Word {
     mutating func update(newText: String? = nil, newMeaning: String? = nil, newNote: String? = nil) {
         
         if let newText = newText {
-            self.text = newText.lowercased()
+            self.text = newText.lowercased().strip()
         }
         
         if let newMeaning = newMeaning {
-            self.meaning = newMeaning.lowercased()
+            self.meaning = newMeaning.lowercased().strip()
         }
         
         if let newNote = newNote {

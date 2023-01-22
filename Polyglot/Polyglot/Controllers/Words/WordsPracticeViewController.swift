@@ -62,14 +62,13 @@ class WordsPracticeViewController: PracticeViewController {
             case .meaningSelection:
                 return {
                     let practiceView = MeaningSelectionPracticeView()
-                    practiceView.updateValues(practiceItem: practiceProducer.currentPractice)
+                    practiceView.updateValues(selectionTexts: practiceProducer.currentPractice.selectionTexts!)
                     practiceView.delegate = self
                     return practiceView
                 }()
             case .meaningFilling:
                 return {
                     let practiceView = MeaningFillingPracticeView()
-                    practiceView.updateValues(practiceItem: practiceProducer.currentPractice)
                     practiceView.delegate = self
                     return practiceView
                 }()
@@ -129,8 +128,14 @@ extension WordsPracticeViewController {
     // MARK: - Selectors
     
     @objc override func doneButtonTapped() {
-        practiceProducer.currentPractice.practice.answer = (practiceView as! WordPracticeViewDelegate).check()
-        
+        let answer = (practiceView as! WordPracticeViewDelegate).submit()
+        practiceProducer.submit(answer: answer)
+        (practiceView as! WordPracticeViewDelegate).updateViews(
+            for: practiceProducer.currentPractice.practice.correctness!,
+            key: practiceProducer.currentPractice.key,
+            tokenizer: practiceProducer.currentPractice.tokenizer
+        )
+                
         practiceStatus = .finished
     }
     

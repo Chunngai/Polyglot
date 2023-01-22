@@ -8,6 +8,7 @@
 
 import Foundation
 import UIKit
+import NaturalLanguage
 
 protocol PracticeViewDelegate: UIView {
     
@@ -15,6 +16,7 @@ protocol PracticeViewDelegate: UIView {
 
 protocol WordPracticeViewDelegate: PracticeViewDelegate {
     
-    func check() -> String
+    func submit() -> String
+    func updateViews(for correctness: WordPractice.Correctness, key: String, tokenizer: NLTokenizer)
     
 }

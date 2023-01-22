@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import NaturalLanguage
 
 extension String {
     func strip() -> String {
@@ -31,35 +32,23 @@ extension String {
 
 extension String {
     
-    // TODO: - Improve the code here.
-    
     var normalized: String {
-        var s = self.strip()
+        return self.strip()
             .lowercased()
             .folding(options: .diacriticInsensitive, locale: nil)  // https://stackoverflow.com/questions/36727310/is-there-a-way-to-convert-special-characters-to-normal-characters-in-swift
-        
-        if Variables.lang == LangCodes.ja {
-            s = s.replacingOccurrences(of: " ", with: "")
-        } else if Variables.lang == LangCodes.en || Variables.lang == LangCodes.es {
-            s = s.replaceMultipleSpacesWithSingleOne()
-        }
-        
-        return s
     }
     
-    var components: [String] {
-        var s: String = self
-        for punct in ",.-'%" {  // TODO: - Handle other punctuations.
-            s = s.replacingOccurrences(of: String(punct), with: "")
-        }
+    func components(from tokenizer: NLTokenizer) -> [String] {
         
-        if Variables.lang == LangCodes.ja {
-            return s.map( {String($0)} )
-        } else if Variables.lang == LangCodes.en || Variables.lang == LangCodes.es {
-            return s.split(with: " ")
-        } else {
-            return [s]
+        tokenizer.string = self
+        
+        var tokens: [String] = []
+        tokenizer.enumerateTokens(in: self.startIndex..<self.endIndex) { (range, attributes) -> Bool in
+            tokens.append(String(self[range]))
+            return true
         }
+        print(tokens)
+        return tokens
     }
     
 }

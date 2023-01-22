@@ -7,22 +7,9 @@
 //
 
 import UIKit
+import NaturalLanguage
 
 class MeaningSelectionPracticeView: UIView {
-
-    private var practiceItem: WordPracticeProducer.Item! {
-        didSet {
-            let buttonTexts: [String] = practiceItem.selectionTexts!
-            selectionStack.set(texts: buttonTexts)
-        }
-    }
-    
-    private var answer: String {
-        selectionStack.selectedButton!.titleLabel!.text!
-    }
-    private var isCorrect: Bool {
-        answer == practiceItem.key
-    }
     
     // MARK: - Controllers
     
@@ -30,10 +17,7 @@ class MeaningSelectionPracticeView: UIView {
     
     // MARK: - Views
     
-    private var selectionStack: ThreeButtonSelectionStack = {
-        let stack = ThreeButtonSelectionStack()
-        return stack
-    }()
+    private var selectionStack: ThreeButtonSelectionStack = ThreeButtonSelectionStack()
     
     // MARK: - Init
     
@@ -65,8 +49,8 @@ class MeaningSelectionPracticeView: UIView {
         }
     }
     
-    func updateValues(practiceItem: WordPracticeProducer.Item) {
-        self.practiceItem = practiceItem
+    func updateValues(selectionTexts: [String]) {
+        selectionStack.set(texts: selectionTexts)
     }
 }
 
@@ -74,21 +58,24 @@ extension MeaningSelectionPracticeView: WordPracticeViewDelegate {
     
     // MARK: - WordPracticeView Delegate
     
-    func check() -> String {
-        
-        if isCorrect {
+    func submit() -> String {
+        return selectionStack.selectedButton!.titleLabel!.text!
+    }
+    
+    func updateViews(for correctness: WordPractice.Correctness, key: String, tokenizer: NLTokenizer) {
+        if correctness == .correct {
             selectionStack.selectedButton!.backgroundColor = Colors.lightCorrectColor
         } else {
             selectionStack.selectedButton!.backgroundColor = Colors.lightInorrectColor
+            
             // Also highlight the correct answer.
             for button in selectionStack.buttons {
-                if button.titleLabel!.text == practiceItem.key {
+                if button.titleLabel!.text == key {
                     button.backgroundColor = Colors.lightCorrectColor
+                    break
                 }
             }
         }
-        
-        return practiceItem.practice.selectionWordsIds![selectionStack.selectedButton!.tag]
     }
 }
 
