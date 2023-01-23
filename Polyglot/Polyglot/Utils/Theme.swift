@@ -109,7 +109,7 @@ struct Attributes {
     static var defaultParaStyle: NSMutableParagraphStyle {
         let paragraph = NSMutableParagraphStyle()
         paragraph.lineSpacing = 10
-        paragraph.alignment = .left
+        paragraph.alignment = .justified
         return paragraph
     }
     
