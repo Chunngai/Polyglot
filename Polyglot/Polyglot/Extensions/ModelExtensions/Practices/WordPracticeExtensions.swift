@@ -257,7 +257,7 @@ extension WordPracticeProducer {
             let answerComponents = answer.normalized.components(from: tokenizer)
             
             let correctness: WordPractice.Correctness!
-            if key == answer {
+            if keyComponents == answerComponents {
                 correctness = .correct
             } else {
                 if !Set(keyComponents).intersection(Set(answerComponents)).isEmpty {
