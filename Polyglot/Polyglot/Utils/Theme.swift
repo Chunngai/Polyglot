@@ -92,6 +92,7 @@ struct Sizes {
     // MARK: - Spacings.
     
     static let defaultStackSpacing: CGFloat = 15
+    static let defaultLineSpacing: CGFloat = 10
     
 }
 
@@ -107,10 +108,15 @@ struct Attributes {
     // MARK: - Paras.
     
     static var defaultParaStyle: NSMutableParagraphStyle {
-        let paragraph = NSMutableParagraphStyle()
-        paragraph.lineSpacing = 10
-        paragraph.alignment = .justified
-        return paragraph
+        let paraStyle = NSMutableParagraphStyle()
+        paraStyle.lineSpacing = Sizes.defaultLineSpacing
+        paraStyle.alignment = .justified
+        return paraStyle
+    }
+    static var leftAlignedParaStyle: NSMutableParagraphStyle {
+        let paraStyle = Attributes.defaultParaStyle
+        paraStyle.alignment = .left
+        return paraStyle
     }
     
     static let longTextAttributes = [
@@ -130,7 +136,7 @@ struct Attributes {
     
     static let practicePromptAttributes = [
         NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.largeFontSize),
-        NSAttributedString.Key.paragraphStyle : Attributes.defaultParaStyle
+        NSAttributedString.Key.paragraphStyle : Attributes.leftAlignedParaStyle
     ]
     
     // MARK: - Grey Prompts.

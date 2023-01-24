@@ -72,6 +72,9 @@ class TranslationPracticeViewController: PracticeViewController {
     
     override func updateViews() {
         super.updateViews()
+        
+        // Update the prompt.
+        promptLabel.text = Strings.translationPracticePrompt
     }
     
     override func updateLayouts() {
@@ -113,12 +116,6 @@ class TranslationPracticeViewController: PracticeViewController {
             height: view.frame.height
         )
         textViewOfPracticeView.newWordBottomView.offset = bottomViewOffset
-        
-        // Update the prompt.
-        promptLabel.attributedText = NSAttributedString(
-            string: Strings.translationPracticePrompt,
-            attributes: Attributes.practicePromptAttributes
-        )
     }
     
     func updateValues(articles: [Article]) {

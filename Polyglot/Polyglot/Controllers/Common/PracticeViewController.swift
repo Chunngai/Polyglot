@@ -28,6 +28,7 @@ class PracticeViewController: UIViewController {
     var promptLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
+        label.attributedText = NSAttributedString(string: " ", attributes: Attributes.practicePromptAttributes)
         return label
     }()
     
