@@ -316,10 +316,10 @@ extension Strings {
     }
     
     private static let _articleBodyPrompts: [String : String] = [
-        LangCode.en : "Body: ",
+        LangCode.en : "Body: \n",
         LangCode.ja : "本文：\n",
-        LangCode.es : "Cuerpo: ",
-        LangCode.ru : "Тело: "
+        LangCode.es : "Cuerpo: \n",
+        LangCode.ru : "Тело: \n"
     ]
     static var articleBodyPrompt: String {
         return Strings._articleBodyPrompts[Variables.lang]!
