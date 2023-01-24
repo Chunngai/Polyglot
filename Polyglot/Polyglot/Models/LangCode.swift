@@ -15,6 +15,7 @@ struct LangCode {
     static let en: String = "en"
     static let ja: String = "ja"
     static let es: String = "es"
+    static let ru: String = "ru"
     
 }
 
@@ -26,6 +27,7 @@ extension LangCode {
         case LangCode.en: return .english
         case LangCode.ja: return .japanese
         case LangCode.es: return .spanish
+        case LangCode.ru: return .russian
         default: return .english
         }
     }

@@ -55,10 +55,12 @@ class HomeViewController: UIViewController {
     }()
         
     private var langCollectionView: UICollectionView = {
-                
+        
+        // https://itisjoe.gitbooks.io/swiftgo/content/uikit/uicollectionview.html
+        
         let collectionLayout: UICollectionViewFlowLayout = {
             let layout = UICollectionViewFlowLayout()
-            layout.minimumLineSpacing = Sizes.defaultCollectionLayoutMinimumLineSpacing
+            layout.minimumLineSpacing = Sizes.defaultLineSpacing
             layout.minimumInteritemSpacing = Sizes.defaultCollectionLayoutMinimumInteritemSpacing
             layout.itemSize = CGSize(
                 width: HomeViewController.cellSize,
@@ -162,16 +164,19 @@ class HomeViewController: UIViewController {
         }
         
         langCollectionView.snp.makeConstraints { (make) in
-            var rowNumber = CGFloat(learningLanguages.count) / CGFloat(HomeViewController.numberOfCellsInSection)
-            if rowNumber != CGFloat(Int(rowNumber)) {
+            var rowNumber: Int = learningLanguages.count / HomeViewController.numberOfCellsInSection
+            if CGFloat(learningLanguages.count).truncatingRemainder(dividingBy: CGFloat(HomeViewController.numberOfCellsInSection)) != 0 {
                 rowNumber += 1
             }
+            
+            let rowHeight = HomeViewController.cellSize
+                + (langCollectionView.collectionViewLayout as! UICollectionViewFlowLayout).minimumLineSpacing
             
             make.top.equalTo(backgroundView.snp.bottom).offset(30)
             make.centerX.equalToSuperview()
             make.width.equalToSuperview()
             make.height.equalTo(
-                (HomeViewController.cellSize * 1.1) * rowNumber
+                (rowHeight) * CGFloat(rowNumber)
             )
         }
     }
@@ -186,7 +191,7 @@ extension HomeViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return HomeViewController.numberOfCellsInSection
+        return learningLanguages.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
