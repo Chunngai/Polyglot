@@ -15,7 +15,7 @@ class HomeViewController: UIViewController {
     
     private var indexOfDisplayingLang: Int! {
         didSet {
-            indexOfDisplayingLang = (self.indexOfDisplayingLang + 1) % learningLanguages.count
+            indexOfDisplayingLang = (self.indexOfDisplayingLang) % learningLanguages.count
         }
     }
     private var displayingLang: String {
