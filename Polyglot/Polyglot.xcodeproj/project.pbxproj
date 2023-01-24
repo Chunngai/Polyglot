@@ -49,6 +49,7 @@
 		FF52921229520D1200858B55 /* UINavigationBarExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF52921129520D1200858B55 /* UINavigationBarExtensions.swift */; };
 		FF55D156296F3AEC0092FB6B /* Variables.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF55D155296F3AEC0092FB6B /* Variables.swift */; };
 		FF5690142980367A00CA2C7B /* LangCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5690132980367A00CA2C7B /* LangCode.swift */; };
+		FF56901829803D6C00CA2C7B /* LangCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF56901729803D6C00CA2C7B /* LangCell.swift */; };
 		FF5844312967217700137E00 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5844302967217700137E00 /* ListViewController.swift */; };
 		FF584434296732B400137E00 /* DictionaryExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF584433296732B400137E00 /* DictionaryExtensions.swift */; };
 		FF5882BE29604E0300FC33CF /* NewWordAddingTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5882BD29604E0300FC33CF /* NewWordAddingTextView.swift */; };
@@ -74,7 +75,6 @@
 		FF62C9BF29513C3900D41797 /* SnapKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FF62C9BB29513C3000D41797 /* SnapKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FF706DF1295142AF00DBCF8E /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706DF0295142AF00DBCF8E /* Strings.swift */; };
 		FF706DF5295144B000DBCF8E /* UIColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706DF4295144B000DBCF8E /* UIColorExtensions.swift */; };
-		FF706DFC29514E7100DBCF8E /* LanguageButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706DFB29514E7100DBCF8E /* LanguageButton.swift */; };
 		FF706E032951549C00DBCF8E /* UIImageExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706E022951549C00DBCF8E /* UIImageExtensions.swift */; };
 		FF793A482968A7D60026B8C7 /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF793A472968A7D60026B8C7 /* UIApplication.swift */; };
 		FF8CDE812952995F00B36CA3 /* NewWordBottomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8CDE802952995F00B36CA3 /* NewWordBottomView.swift */; };
@@ -181,6 +181,7 @@
 		FF52921129520D1200858B55 /* UINavigationBarExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UINavigationBarExtensions.swift; sourceTree = "<group>"; };
 		FF55D155296F3AEC0092FB6B /* Variables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Variables.swift; sourceTree = "<group>"; };
 		FF5690132980367A00CA2C7B /* LangCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCode.swift; sourceTree = "<group>"; };
+		FF56901729803D6C00CA2C7B /* LangCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCell.swift; sourceTree = "<group>"; };
 		FF5844302967217700137E00 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 		FF584433296732B400137E00 /* DictionaryExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryExtensions.swift; sourceTree = "<group>"; };
 		FF5882BD29604E0300FC33CF /* NewWordAddingTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWordAddingTextView.swift; sourceTree = "<group>"; };
@@ -211,7 +212,6 @@
 		FF62C9B529513C3000D41797 /* SnapKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SnapKit.xcodeproj; path = "../../../Downloads/SnapKit-develop/SnapKit.xcodeproj"; sourceTree = "<group>"; };
 		FF706DF0295142AF00DBCF8E /* Strings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
 		FF706DF4295144B000DBCF8E /* UIColorExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorExtensions.swift; sourceTree = "<group>"; };
-		FF706DFB29514E7100DBCF8E /* LanguageButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageButton.swift; sourceTree = "<group>"; };
 		FF706E022951549C00DBCF8E /* UIImageExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtensions.swift; sourceTree = "<group>"; };
 		FF793A472968A7D60026B8C7 /* UIApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIApplication.swift; sourceTree = "<group>"; };
 		FF8CDE802952995F00B36CA3 /* NewWordBottomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWordBottomView.swift; sourceTree = "<group>"; };
@@ -403,17 +403,24 @@
 			isa = PBXGroup;
 			children = (
 				FF4EFE07295D310A00E30D6A /* BackgroundView.swift */,
-				FF706DFB29514E7100DBCF8E /* LanguageButton.swift */,
 				FF5292092952012E00858B55 /* ThreeButtonSelectionStack.swift */,
 				FF4964C82958B05300414AC5 /* RoundButton.swift */,
 				FF5D129429577CB3005DEEDE /* RoundShadowView.swift */,
 				FF8CDE802952995F00B36CA3 /* NewWordBottomView.swift */,
-				FF4964CA2958BAFD00414AC5 /* TimingBar.swift */,
 				FF491E7F2959ED730088FD13 /* Separator.swift */,
 				FF5882BD29604E0300FC33CF /* NewWordAddingTextView.swift */,
+				FF4964CA2958BAFD00414AC5 /* TimingBar.swift */,
 				FF5DB993295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift */,
 			);
 			path = CustomViews;
+			sourceTree = "<group>";
+		};
+		FF56901929803E9D00CA2C7B /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				FF56901729803D6C00CA2C7B /* LangCell.swift */,
+			);
+			path = Home;
 			sourceTree = "<group>";
 		};
 		FF58442F2967215700137E00 /* Common */ = {
@@ -512,8 +519,9 @@
 		FF62C9A729513A3700D41797 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				FF24AB75297073AA00129EEF /* Common */,
 				FF52920B2952013900858B55 /* CustomViews */,
+				FF24AB75297073AA00129EEF /* Common */,
+				FF56901929803E9D00CA2C7B /* Home */,
 				FF4EFE10295D36BF00E30D6A /* History */,
 				FF495E9A295903B700EA7EA9 /* Words */,
 				FF706DFE2951503700DBCF8E /* Reading */,
@@ -880,6 +888,7 @@
 				FF495E9C295903DF00EA7EA9 /* WordsTableCell.swift in Sources */,
 				FF584434296732B400137E00 /* DictionaryExtensions.swift in Sources */,
 				FF5AA0072961EA62009D5237 /* WordsEditViewController.swift in Sources */,
+				FF56901829803D6C00CA2C7B /* LangCell.swift in Sources */,
 				FFCBB0DB296B1A6700E5B9D9 /* PracticeProducerDelegate.swift in Sources */,
 				FF52921229520D1200858B55 /* UINavigationBarExtensions.swift in Sources */,
 				FF5882BE29604E0300FC33CF /* NewWordAddingTextView.swift in Sources */,
@@ -902,7 +911,6 @@
 				FF495E9E2959084200EA7EA9 /* DateExtensions.swift in Sources */,
 				FF4964CB2958BAFD00414AC5 /* TimingBar.swift in Sources */,
 				FF50250E295244F10097C2CB /* ReadingViewController.swift in Sources */,
-				FF706DFC29514E7100DBCF8E /* LanguageButton.swift in Sources */,
 				FF55D156296F3AEC0092FB6B /* Variables.swift in Sources */,
 				FFCBB0DD296B2E4000E5B9D9 /* ReadingPracticeView.swift in Sources */,
 				FF4964CD2958BE8900414AC5 /* TimeIntervalExtensions.swift in Sources */,

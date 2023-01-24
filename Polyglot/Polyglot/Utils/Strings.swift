@@ -39,6 +39,15 @@ struct Strings {
     static var esString: String {
         return Strings._esStrings[Variables.lang]!
     }
+    
+    static func langStrings(for langCode: String) -> [String: String] {
+        switch langCode {
+        case LangCode.en: return Strings._enStrings
+        case LangCode.ja: return Strings._jaStrings
+        case LangCode.es: return Strings._esStrings
+        default: return [:]
+        }
+    }
 }
 
 extension Strings {
@@ -374,11 +383,18 @@ struct Identifiers {
     
 //    static let historyTableCellIdentifier: String = "historyTableCellIdentifier"
     
-    static let tableHeaderViewIdentifier: String = "tableHeaderViewIdentifier"
+    // MARK: - UICollectionViewCell Identifiers
+    
+    static let langCellIdentifier: String = "languageCell"
+    
+    // MARK: - UITableViewCell Identifiers
     
     static let wordsTableCellIdentifier: String = "wordsTableCellIdentifier"
-    
     static let readingTableCellIdentifier: String = "readingTableCellIdentifier"
+    
+    // MARK: - UITableViewHeaderFooterView Identifiers
+    
+    static let tableHeaderViewIdentifier: String = "tableHeaderViewIdentifier"
     static let readingEditTableCellIdentifier: String = "readingEditTableCellIdentifier"
     
 }

@@ -44,13 +44,13 @@ struct Images {
     static let jaImage: UIImage = UIImage(imageLiteralResourceName: LangCode.ja).scale(to: Sizes.langImageScalingFactor)
     static let esImage: UIImage = UIImage(imageLiteralResourceName: LangCode.es).scale(to: Sizes.langImageScalingFactor)
     
-    private static let _langImages: [String : UIImage] = [
+    static let langImages: [String : UIImage] = [
         LangCode.en: Images.enImage,
         LangCode.ja: Images.jaImage,
         LangCode.es: Images.esImage
     ]
     static var langImage: UIImage {
-        return Images._langImages[Variables.lang]!
+        return Images.langImages[Variables.lang]!
     }
 }
 
@@ -93,6 +93,8 @@ struct Sizes {
     
     static let defaultStackSpacing: CGFloat = 15
     static let defaultLineSpacing: CGFloat = 10
+    static let defaultCollectionLayoutMinimumLineSpacing: CGFloat = 0
+    static let defaultCollectionLayoutMinimumInteritemSpacing: CGFloat = 0
     
 }
 

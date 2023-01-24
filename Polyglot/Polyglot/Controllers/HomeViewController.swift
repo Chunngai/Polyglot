@@ -13,13 +13,13 @@ class HomeViewController: UIViewController {
 
     private let learningLanguages = LangCode.loadLearningLanguages()
     
-    private var langCodeIndex: Int! {
+    private var indexOfDisplayingLang: Int! {
         didSet {
-            langCodeIndex = (self.langCodeIndex + 1) % learningLanguages.count
+            indexOfDisplayingLang = (self.indexOfDisplayingLang + 1) % learningLanguages.count
         }
     }
-    private var langCode: String {
-        return learningLanguages[self.langCodeIndex]
+    private var displayingLang: String {
+        return learningLanguages[self.indexOfDisplayingLang]
     }
     
     private var isExecutingTextAnimation: Bool = true
@@ -40,7 +40,7 @@ class HomeViewController: UIViewController {
     private lazy var primaryPromptLabel: UILabel = {
         let label = UILabel()
         label.attributedText = NSAttributedString(
-            string: Strings._mainPrimaryPrompts[self.langCode]!,
+            string: Strings._mainPrimaryPrompts[self.displayingLang]!,
             attributes: Attributes.primaryPromptAttributes
         )
         return label
@@ -48,47 +48,32 @@ class HomeViewController: UIViewController {
     private lazy var secondaryPromptLabel: UILabel = {
         let label = UILabel()
         label.attributedText = NSAttributedString(
-            string: Strings._mainSecondaryPrompts[self.langCode]!,
+            string: Strings._mainSecondaryPrompts[self.displayingLang]!,
             attributes: Attributes.secondaryPromptAttributes
         )
         return label
     }()
-    
-    // TODO: - Maybe convert to a table later?
-    private lazy var languageButtonStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.alignment = .center
-        stackView.distribution = .fillEqually
-        return stackView
+        
+    private var langCollectionView: UICollectionView = {
+                
+        let collectionLayout: UICollectionViewFlowLayout = {
+            let layout = UICollectionViewFlowLayout()
+            layout.minimumLineSpacing = Sizes.defaultCollectionLayoutMinimumLineSpacing
+            layout.minimumInteritemSpacing = Sizes.defaultCollectionLayoutMinimumInteritemSpacing
+            layout.itemSize = CGSize(
+                width: HomeViewController.cellSize,
+                height: HomeViewController.cellSize
+            )
+            return layout
+        }()
+        
+        let collectionView = UICollectionView(
+            frame: .zero,
+            collectionViewLayout: collectionLayout
+        )
+        collectionView.backgroundColor = Colors.defaultBackgroundColor
+        return collectionView
     }()
-    private var enButton: LanguageButton = {
-        let button = LanguageButton(langCode: LangCode.en)
-        button.set(attributedText: NSAttributedString(
-            string: Strings.enString,
-            attributes: Attributes.langStringAttrs
-        ))
-        button.set(image: Images.enImage)
-        return button
-    }()
-    private var jaButton: LanguageButton = {
-           let button = LanguageButton(langCode: LangCode.ja)
-           button.set(attributedText: NSAttributedString(
-               string: Strings.jaString,
-               attributes: Attributes.langStringAttrs
-           ))
-           button.set(image: Images.jaImage)
-           return button
-       }()
-    private var esButton: LanguageButton = {
-           let button = LanguageButton(langCode: LangCode.es)
-           button.set(attributedText: NSAttributedString(
-               string: Strings.esString,
-               attributes: Attributes.langStringAttrs
-           ))
-           button.set(image: Images.esImage)
-           return button
-       }()
     
     // MARK: - Init
     
@@ -121,11 +106,12 @@ class HomeViewController: UIViewController {
     }
     
     private func updateSetups() {
-        enButton.delegate = self
-        jaButton.delegate = self
-        esButton.delegate = self
         
-        langCodeIndex = (0..<learningLanguages.count).randomElement()!
+        langCollectionView.dataSource = self
+        langCollectionView.delegate = self
+        langCollectionView.register(LangCell.self, forCellWithReuseIdentifier: Identifiers.langCellIdentifier)
+        
+        indexOfDisplayingLang = (0..<learningLanguages.count).randomElement()!
     }
     
     private func updateViews() {
@@ -138,14 +124,10 @@ class HomeViewController: UIViewController {
         view.addSubview(mainView)
                 
         mainView.addSubview(promptView)
-        mainView.addSubview(languageButtonStackView)
+        mainView.addSubview(langCollectionView)
 
         promptView.addSubview(primaryPromptLabel)
         promptView.addSubview(secondaryPromptLabel)
-        
-        languageButtonStackView.addArrangedSubview(enButton)
-        languageButtonStackView.addArrangedSubview(jaButton)
-        languageButtonStackView.addArrangedSubview(esButton)
     }
     
     // TODO: - Update the insets and offsets here.
@@ -179,12 +161,62 @@ class HomeViewController: UIViewController {
             make.left.equalTo(primaryPromptLabel.snp.left)
         }
         
-        languageButtonStackView.snp.makeConstraints { (make) in
+        langCollectionView.snp.makeConstraints { (make) in
+            var rowNumber = CGFloat(learningLanguages.count) / CGFloat(HomeViewController.numberOfCellsInSection)
+            if rowNumber != CGFloat(Int(rowNumber)) {
+                rowNumber += 1
+            }
+            
             make.top.equalTo(backgroundView.snp.bottom).offset(30)
             make.centerX.equalToSuperview()
             make.width.equalToSuperview()
+            make.height.equalTo(
+                (HomeViewController.cellSize * 1.1) * rowNumber
+            )
         }
     }
+}
+
+extension HomeViewController: UICollectionViewDataSource {
+    
+    // MARK: - UICollectionView Data Source
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return HomeViewController.numberOfCellsInSection
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: Identifiers.langCellIdentifier,
+            for: indexPath
+        ) as? LangCell else {
+            return UICollectionViewCell()
+        }
+    
+        cell.langCode = learningLanguages[indexPath.row]
+        cell.langOfLangLabelText = learningLanguages[indexOfDisplayingLang]
+        
+        return cell
+    }
+}
+
+extension HomeViewController: UICollectionViewDelegate {
+    
+    // MARK: - UICollectionView Delegate
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let cell = collectionView.cellForItem(at: indexPath) as? LangCell else {
+            return
+        }
+        
+        let menuViewController = MenuViewController(lang: cell.langCode)
+        navigationController?.pushViewController(menuViewController, animated: true)
+    }
+    
 }
 
 extension HomeViewController {
@@ -196,8 +228,8 @@ extension HomeViewController {
             // https://stackoverflow.com/questions/3073520/animate-text-change-in-uilabel
             DispatchQueue.main.async {
                 
-                self.langCodeIndex += 1
-                let langCode = self.langCode
+                self.indexOfDisplayingLang += 1
+                let displayingLang = self.displayingLang
 
                 UIView.transition(
                     with: self.view,
@@ -206,13 +238,16 @@ extension HomeViewController {
                     // .allowUserInteraction is needed else the button becomes not interactive.
                     options: [.transitionCrossDissolve, .allowUserInteraction],
                     animations: { [weak self] in
-                        self?.primaryPromptLabel.text = Strings._mainPrimaryPrompts[langCode]
-                        self?.secondaryPromptLabel.text = Strings._mainSecondaryPrompts[langCode]
+                        self?.primaryPromptLabel.text = Strings._mainPrimaryPrompts[displayingLang]
+                        self?.secondaryPromptLabel.text = Strings._mainSecondaryPrompts[displayingLang]
                         
-                        self?.enButton.set(text: Strings._enStrings[langCode])
-                        self?.jaButton.set(text: Strings._jaStrings[langCode])
-                        self?.esButton.set(text: Strings._esStrings[langCode])
-                    }, completion: nil
+                        if let cells = self?.langCollectionView.visibleCells {
+                            for cell in cells {
+                                (cell as! LangCell).langOfLangLabelText = displayingLang
+                            }
+                        }
+                    },
+                    completion: nil
                 )
             }
             Thread.sleep(forTimeInterval: 3)
@@ -225,13 +260,12 @@ extension HomeViewController {
 
 }
 
-extension HomeViewController: LanguageButtonDelegate {
+extension HomeViewController {
     
-    // MARK: - LanguageButton Delegate
+    // MARK: - Constants
     
-    func selectLanguage(lang: String) {
-        let menuViewController = MenuViewController(lang: lang)
-        navigationController?.pushViewController(menuViewController, animated: true)
-    }
+    static let mainViewWidth: CGFloat = UIScreen.main.bounds.width * 0.8
+    static let cellSize: CGFloat = HomeViewController.mainViewWidth / 3.0 * 0.9
+    static let numberOfCellsInSection: Int = 3
     
 }
