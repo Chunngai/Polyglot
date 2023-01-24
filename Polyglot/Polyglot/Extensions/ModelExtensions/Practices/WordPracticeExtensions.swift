@@ -247,7 +247,7 @@ extension WordPracticeProducer {
             print(lang)
             
             let tokenizer = NLTokenizer(unit: .word)
-            tokenizer.setLanguage(LangCodes.toNLLanguage(langCode: lang))
+            tokenizer.setLanguage(LangCode.toNLLanguage(langCode: lang))
             
             return tokenizer
         }

@@ -48,6 +48,7 @@
 		FF52920A2952012E00858B55 /* ThreeButtonSelectionStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5292092952012E00858B55 /* ThreeButtonSelectionStack.swift */; };
 		FF52921229520D1200858B55 /* UINavigationBarExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF52921129520D1200858B55 /* UINavigationBarExtensions.swift */; };
 		FF55D156296F3AEC0092FB6B /* Variables.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF55D155296F3AEC0092FB6B /* Variables.swift */; };
+		FF5690142980367A00CA2C7B /* LangCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5690132980367A00CA2C7B /* LangCode.swift */; };
 		FF5844312967217700137E00 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5844302967217700137E00 /* ListViewController.swift */; };
 		FF584434296732B400137E00 /* DictionaryExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF584433296732B400137E00 /* DictionaryExtensions.swift */; };
 		FF5882BE29604E0300FC33CF /* NewWordAddingTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5882BD29604E0300FC33CF /* NewWordAddingTextView.swift */; };
@@ -179,6 +180,7 @@
 		FF5292092952012E00858B55 /* ThreeButtonSelectionStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeButtonSelectionStack.swift; sourceTree = "<group>"; };
 		FF52921129520D1200858B55 /* UINavigationBarExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UINavigationBarExtensions.swift; sourceTree = "<group>"; };
 		FF55D155296F3AEC0092FB6B /* Variables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Variables.swift; sourceTree = "<group>"; };
+		FF5690132980367A00CA2C7B /* LangCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCode.swift; sourceTree = "<group>"; };
 		FF5844302967217700137E00 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 		FF584433296732B400137E00 /* DictionaryExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryExtensions.swift; sourceTree = "<group>"; };
 		FF5882BD29604E0300FC33CF /* NewWordAddingTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWordAddingTextView.swift; sourceTree = "<group>"; };
@@ -392,6 +394,7 @@
 				FF4964CE2958CE4400414AC5 /* Word.swift */,
 				FF502511295248D10097C2CB /* Article.swift */,
 				FF591ED2296795E70004CB80 /* Practices */,
+				FF5690132980367A00CA2C7B /* LangCode.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -857,6 +860,7 @@
 				FF23764E29528C840073AF96 /* ReadingPracticeViewController.swift in Sources */,
 				FF4964C92958B05300414AC5 /* RoundButton.swift in Sources */,
 				FF491E732959C2FD0088FD13 /* PracticeViewDelegate.swift in Sources */,
+				FF5690142980367A00CA2C7B /* LangCode.swift in Sources */,
 				FF495E8E2958F38800EA7EA9 /* UITableViewExtensions.swift in Sources */,
 				FF5292072951FC9700858B55 /* MenuViewController.swift in Sources */,
 				FF5AA00B2961F208009D5237 /* Alerts.swift in Sources */,

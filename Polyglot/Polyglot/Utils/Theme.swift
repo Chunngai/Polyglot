@@ -40,14 +40,14 @@ struct Images {
     
     // Lang images.
     
-    static let enImage: UIImage = UIImage(imageLiteralResourceName: LangCodes.en).scale(to: Sizes.langImageScalingFactor)
-    static let jaImage: UIImage = UIImage(imageLiteralResourceName: LangCodes.ja).scale(to: Sizes.langImageScalingFactor)
-    static let esImage: UIImage = UIImage(imageLiteralResourceName: LangCodes.es).scale(to: Sizes.langImageScalingFactor)
+    static let enImage: UIImage = UIImage(imageLiteralResourceName: LangCode.en).scale(to: Sizes.langImageScalingFactor)
+    static let jaImage: UIImage = UIImage(imageLiteralResourceName: LangCode.ja).scale(to: Sizes.langImageScalingFactor)
+    static let esImage: UIImage = UIImage(imageLiteralResourceName: LangCode.es).scale(to: Sizes.langImageScalingFactor)
     
     private static let _langImages: [String : UIImage] = [
-        LangCodes.en: Images.enImage,
-        LangCodes.ja: Images.jaImage,
-        LangCodes.es: Images.esImage
+        LangCode.en: Images.enImage,
+        LangCode.ja: Images.jaImage,
+        LangCode.es: Images.esImage
     ]
     static var langImage: UIImage {
         return Images._langImages[Variables.lang]!

@@ -14,27 +14,27 @@ struct Strings {
     // MARK: - Language Strings
     
     static let _enStrings: [String : String] = [
-        LangCodes.en : "English",
-        LangCodes.ja : "英語",
-        LangCodes.es : "inglés"
+        LangCode.en : "English",
+        LangCode.ja : "英語",
+        LangCode.es : "inglés"
     ]
     static var enString: String {
         return Strings._enStrings[Variables.lang]!
     }
     
     static let _jaStrings: [String : String] = [
-        LangCodes.en : "Japanese",
-        LangCodes.ja : "日本語",
-        LangCodes.es : "japonés"
+        LangCode.en : "Japanese",
+        LangCode.ja : "日本語",
+        LangCode.es : "japonés"
     ]
     static var jaString: String {
         return Strings._jaStrings[Variables.lang]!
     }
     
     static let _esStrings: [String : String] = [
-        LangCodes.en : "Spanish",
-        LangCodes.ja : "スペイン語",
-        LangCodes.es : "español"
+        LangCode.en : "Spanish",
+        LangCode.ja : "スペイン語",
+        LangCode.es : "español"
     ]
     static var esString: String {
         return Strings._esStrings[Variables.lang]!
@@ -46,9 +46,9 @@ extension Strings {
     // MARK: - Main Prompts
     
     static let _mainPrimaryPrompts: [String : String] = [
-        LangCodes.en : "Hello!",
-        LangCodes.ja : "こんにちは！",
-        LangCodes.es : "Hola!"
+        LangCode.en : "Hello!",
+        LangCode.ja : "こんにちは！",
+        LangCode.es : "Hola!"
     ]
     static var mainPrimaryPrompt: String {
         return Strings._mainPrimaryPrompts[Variables.lang]!
@@ -56,9 +56,9 @@ extension Strings {
     
     static let _mainSecondaryPrompts: [String : String] = [
         
-        LangCodes.en : "Choose a language to practice",
-        LangCodes.ja : " 練習したい言語を選んでください",  // TODO: - The leading space is for aligning with the primary prompt.
-        LangCodes.es : "Elija un idioma para practicar"
+        LangCode.en : "Choose a language to practice",
+        LangCode.ja : " 練習したい言語を選んでください",  // TODO: - The leading space is for aligning with the primary prompt.
+        LangCode.es : "Elija un idioma para practicar"
     ]
     static var mainSecondaryPrompt: String {
         return Strings._mainSecondaryPrompts[Variables.lang]!
@@ -67,9 +67,9 @@ extension Strings {
     // MARK: - Menu Prompts
     
     private static let _menuPrimaryPrompts: [String : String] = [
-        LangCodes.en : "English",
-        LangCodes.ja : "日本語",
-        LangCodes.es : "español"
+        LangCode.en : "English",
+        LangCode.ja : "日本語",
+        LangCode.es : "español"
     ]
     static var menuPrimaryPrompt: String {
         return Strings._menuPrimaryPrompts[Variables.lang]!
@@ -77,9 +77,9 @@ extension Strings {
     
     private static let _menuSecondaryPrompts: [String : String] = [
         
-        LangCodes.en : "What are you going to practice?",
-        LangCodes.ja : "  何を練習しますか？",  // TODO: - The leading space is for aligning with the primary prompt.
-        LangCodes.es : "¿Qué va a practicar?"
+        LangCode.en : "What are you going to practice?",
+        LangCode.ja : "  何を練習しますか？",  // TODO: - The leading space is for aligning with the primary prompt.
+        LangCode.es : "¿Qué va a practicar?"
     ]
     static var menuSecondaryPrompt: String {
         return Strings._menuSecondaryPrompts[Variables.lang]!
@@ -88,27 +88,27 @@ extension Strings {
     // MARK: - Menu Items
     
     private static let _words: [String : String] = [
-        LangCodes.en : "Words",
-        LangCodes.ja : "単語",
-        LangCodes.es : "Palabras"
+        LangCode.en : "Words",
+        LangCode.ja : "単語",
+        LangCode.es : "Palabras"
     ]
     static var words: String {
         return Strings._words[Variables.lang]!
     }
     
     private static let _reading: [String : String] = [
-        LangCodes.en : "Reading",
-        LangCodes.ja : "読解",
-        LangCodes.es : "Leer"
+        LangCode.en : "Reading",
+        LangCode.ja : "読解",
+        LangCode.es : "Leer"
     ]
     static var reading: String {
         return Strings._reading[Variables.lang]!
     }
     
     private static let _interpretation: [String : String] = [
-        LangCodes.en : "Interpretation",
-        LangCodes.ja : "通訳",
-        LangCodes.es : "Interpretación"
+        LangCode.en : "Interpretation",
+        LangCode.ja : "通訳",
+        LangCode.es : "Interpretación"
     ]
     static var interpretation: String {
         return Strings._interpretation[Variables.lang]!
@@ -120,27 +120,27 @@ extension Strings {
     // MARK: - Alert Buttons
     
     private static let _ok: [String : String] = [
-        LangCodes.en : "Ok",
-        LangCodes.ja : "はい",
-        LangCodes.es : "Sí"
+        LangCode.en : "Ok",
+        LangCode.ja : "はい",
+        LangCode.es : "Sí"
     ]
     static var ok: String {
         return Strings._ok[Variables.lang]!
     }
     
     private static let _done: [String : String] = [
-        LangCodes.en : "Done",
-        LangCodes.ja : "完了",
-        LangCodes.es : "Hecho"
+        LangCode.en : "Done",
+        LangCode.ja : "完了",
+        LangCode.es : "Hecho"
     ]
     static var done: String {
         return Strings._done[Variables.lang]!
     }
     
     private static let _cancel: [String : String] = [
-        LangCodes.en : "Cancel",
-        LangCodes.ja : "キャンセル",
-        LangCodes.es : "Cancelar"
+        LangCode.en : "Cancel",
+        LangCode.ja : "キャンセル",
+        LangCode.es : "Cancelar"
     ]
     static var cancel: String {
         return Strings._cancel[Variables.lang]!
@@ -149,18 +149,18 @@ extension Strings {
     // MARK: - Alert Prompts
     
     private static let _exitWithoutSavingAlertTitles: [String : String] = [
-        LangCodes.en : "Leave without Saving",
-        LangCodes.ja : "保存せずに終了",
-        LangCodes.es : "Salir sin Guardar"
+        LangCode.en : "Leave without Saving",
+        LangCode.ja : "保存せずに終了",
+        LangCode.es : "Salir sin Guardar"
     ]
     static var exitWithoutSavingAlertTitle: String {
         return Strings._exitWithoutSavingAlertTitles[Variables.lang]!
     }
     
     private static let _exitWithoutSavingAlertBodies: [String : String] = [
-        LangCodes.en : "Edits have been made. Leave without saving them?",
-        LangCodes.ja : "編集が行われました。 保存せずに終了しますか?",
-        LangCodes.es : "Se han hecho modificaciones. ¿Salir sin guardarlas?"
+        LangCode.en : "Edits have been made. Leave without saving them?",
+        LangCode.ja : "編集が行われました。 保存せずに終了しますか?",
+        LangCode.es : "Se han hecho modificaciones. ¿Salir sin guardarlas?"
     ]
     static var exitWithoutSavingAlertBody: String {
         return Strings._exitWithoutSavingAlertBodies[Variables.lang]!
@@ -172,36 +172,36 @@ extension Strings {
     // MARK: - Word Adding
     
     private static let _addingNewWordAlertTitles: [String : String] = [
-        LangCodes.en : "Add a New Word",
-        LangCodes.ja : "新単語を追加",
-        LangCodes.es : "Agregar una Nueva Palabra"
+        LangCode.en : "Add a New Word",
+        LangCode.ja : "新単語を追加",
+        LangCode.es : "Agregar una Nueva Palabra"
     ]
     static var addingNewWordAlertTitle: String {
         return Strings._addingNewWordAlertTitles[Variables.lang]!
     }
     
     private static let _addingNewWordAlertTextFieldPlaceholderForTexts: [String : String] = [
-        LangCodes.en : "Word",
-        LangCodes.ja : "単語",
-        LangCodes.es : "Palabra"
+        LangCode.en : "Word",
+        LangCode.ja : "単語",
+        LangCode.es : "Palabra"
     ]
     static var addingNewWordAlertTextFieldPlaceholderForText: String {
         return Strings._addingNewWordAlertTextFieldPlaceholderForTexts[Variables.lang]!
     }
     
     private static let _addingNewWordAlertTextFieldPlaceHolderForMeanings: [String : String] = [
-        LangCodes.en : "Meaning",
-        LangCodes.ja : "意味",
-        LangCodes.es : "Significado"
+        LangCode.en : "Meaning",
+        LangCode.ja : "意味",
+        LangCode.es : "Significado"
     ]
     static var addingNewWordAlertTextFieldPlaceHolderForMeaning: String {
         return Strings._addingNewWordAlertTextFieldPlaceHolderForMeanings[Variables.lang]!
     }
     
     private static let _addingNewWordAlertTextFieldPlaceHolderForNotes: [String : String] = [
-        LangCodes.en : "Notes",
-        LangCodes.ja : "ノート",
-        LangCodes.es : "Notas"
+        LangCode.en : "Notes",
+        LangCode.ja : "ノート",
+        LangCode.es : "Notas"
     ]
     static var addingNewWordAlertTextFieldPlaceHolderForNote: String {
         return Strings._addingNewWordAlertTextFieldPlaceHolderForNotes[Variables.lang]!
@@ -210,18 +210,18 @@ extension Strings {
     // MARK: - Batch Adding
     
     private static let _wordEditTextViewPrompts: [String : String] = [
-        LangCodes.en : "Format：\nDate - Notes\n1. Word １\n2. Word 2\n\nDate - Notes\n1. Word １\n2. Word 2\n\n",
-        LangCodes.ja : "フォーマット：\n日付 - ノート\n1. 単語１\n2. 単語2\n\n日付 - ノート\n1. 単語１\n2. 単語2\n\n",
-        LangCodes.es : "Formato：\nFecha - ノート\n1. Palabra １\n2. Palabra 2\n\nFecha - ノート\n1. Palabra １\n2. Palabra 2\n\n"
+        LangCode.en : "Format：\nDate - Notes\n1. Word １\n2. Word 2\n\nDate - Notes\n1. Word １\n2. Word 2\n\n",
+        LangCode.ja : "フォーマット：\n日付 - ノート\n1. 単語１\n2. 単語2\n\n日付 - ノート\n1. 単語１\n2. 単語2\n\n",
+        LangCode.es : "Formato：\nFecha - ノート\n1. Palabra １\n2. Palabra 2\n\nFecha - ノート\n1. Palabra １\n2. Palabra 2\n\n"
     ]
     static var wordEditTextViewPrompt: String {
         return Strings._wordEditTextViewPrompts[Variables.lang]!
     }
 
     private static let _wordMeaningSeparators: [String : Substring.Element] = [
-        LangCodes.en : ":",
-        LangCodes.ja : " ",
-        LangCodes.es : ":"
+        LangCode.en : ":",
+        LangCode.ja : " ",
+        LangCode.es : ":"
     ]
     static var wordMeaningSeparator: Substring.Element {
         return Strings._wordMeaningSeparators[Variables.lang]!
@@ -230,18 +230,18 @@ extension Strings {
     // MARK: - Bottom View / Text View
     
     private static let _newWordMenuItemStrings: [String : String] = [
-        LangCodes.en : "New Word",
-        LangCodes.ja : "新単語",
-        LangCodes.es : "Palabra Nueva"
+        LangCode.en : "New Word",
+        LangCode.ja : "新単語",
+        LangCode.es : "Palabra Nueva"
     ]
     static var newWordMenuItemString: String {
         return Strings._newWordMenuItemStrings[Variables.lang]!
     }
     
     private static let _newWordBottomViewMeaningPrompts: [String : String] = [
-        LangCodes.en : "Also select/type the corresponding meaning",
-        LangCodes.ja : "相応する意味も選択/入力してください",
-        LangCodes.es : "Seleccione/ingrese también el significado correspondiente"
+        LangCode.en : "Also select/type the corresponding meaning",
+        LangCode.ja : "相応する意味も選択/入力してください",
+        LangCode.es : "Seleccione/ingrese también el significado correspondiente"
     ]
     static var newWordBottomViewMeaningPrompt: String {
         return Strings._newWordBottomViewMeaningPrompts[Variables.lang]!
@@ -253,36 +253,36 @@ extension Strings {
     // MARK: - Article Adding
     
     private static let _articleTitlePrompts: [String : String] = [
-        LangCodes.en : "Title: ",
-        LangCodes.ja : "タイトル：",
-        LangCodes.es : "Título: "
+        LangCode.en : "Title: ",
+        LangCode.ja : "タイトル：",
+        LangCode.es : "Título: "
     ]
     static var articleTitlePrompt: String {
         return Strings._articleTitlePrompts[Variables.lang]!
     }
     
     private static let _articleTopicPrompts: [String : String] = [
-        LangCodes.en : "Topic: ",
-        LangCodes.ja : "トピック：",
-        LangCodes.es : "Tema: "
+        LangCode.en : "Topic: ",
+        LangCode.ja : "トピック：",
+        LangCode.es : "Tema: "
     ]
     static var articleTopicPrompt: String {
         return Strings._articleTopicPrompts[Variables.lang]!
     }
     
     private static let _articleBodyPrompts: [String : String] = [
-        LangCodes.en : "Body: ",
-        LangCodes.ja : "本文：\n",
-        LangCodes.es : "Cuerpo: "
+        LangCode.en : "Body: ",
+        LangCode.ja : "本文：\n",
+        LangCode.es : "Cuerpo: "
     ]
     static var articleBodyPrompt: String {
         return Strings._articleBodyPrompts[Variables.lang]!
     }
     
     private static let _articleSourcePrompts: [String : String] = [
-        LangCodes.en : "Source: ",
-        LangCodes.ja : "ソース：",
-        LangCodes.es : "Fuente: "
+        LangCode.en : "Source: ",
+        LangCode.ja : "ソース：",
+        LangCode.es : "Fuente: "
     ]
     static var articleSourcePrompt: String {
         return Strings._articleSourcePrompts[Variables.lang]!
@@ -296,36 +296,36 @@ extension Strings {
     static let maskToken: String = "[MASK]"
     
     private static let _meaningSelectionAndFillingPracticePrompt: [String : String] = [
-        LangCodes.en : "What's the meaning of\n\(Strings.maskToken)?",
-        LangCodes.ja : "\(Strings.maskToken)\nは何と意味しますか",
-        LangCodes.es : "¿Cuál es el significado de\n\(Strings.maskToken)?"
+        LangCode.en : "What's the meaning of\n\(Strings.maskToken)?",
+        LangCode.ja : "\(Strings.maskToken)\nは何と意味しますか",
+        LangCode.es : "¿Cuál es el significado de\n\(Strings.maskToken)?"
     ]
     static var meaningSelectionAndFillingPracticePrompt: String {
         return Strings._meaningSelectionAndFillingPracticePrompt[Variables.lang]!
     }
         
     private static let _meaningFillingPracticeReferenceLabelPrefices: [String : String] = [
-        LangCodes.en : "Reference: ",
-        LangCodes.ja : "参考：",
-        LangCodes.es : "Referencia: "
+        LangCode.en : "Reference: ",
+        LangCode.ja : "参考：",
+        LangCode.es : "Referencia: "
     ]
     static var meaningFillingPracticeReferenceLabelPrefix: String {
         return Strings._meaningFillingPracticeReferenceLabelPrefices[Variables.lang]!
     }
     
     private static let _contextSelectionPracticePrompts: [String : String] = [
-        LangCodes.en : "Select a proper word",
-        LangCodes.ja : "適切な単語を選んでください",
-        LangCodes.es : "Seleccione una palabra adecuada"
+        LangCode.en : "Select a proper word",
+        LangCode.ja : "適切な単語を選んでください",
+        LangCode.es : "Seleccione una palabra adecuada"
     ]
     static var contextSelectionPracticePrompt: String {
         return Strings._contextSelectionPracticePrompts[Variables.lang]!
     }
     
     private static let _translationPracticePrompts: [String : String] = [
-        LangCodes.en : "Interpret the paragraph",
-        LangCodes.ja : "この段落を\n通訳してください",
-        LangCodes.es : "Interprete el párrafo"
+        LangCode.en : "Interpret the paragraph",
+        LangCode.ja : "この段落を\n通訳してください",
+        LangCode.es : "Interprete el párrafo"
     ]
     static var translationPracticePrompt: String {
         return Strings._translationPracticePrompts[Variables.lang]!
@@ -334,27 +334,27 @@ extension Strings {
     // MARK: - Timing
         
     private static let _timeUpAlertTitles: [String : String] = [
-        LangCodes.en : "Time Up",
-        LangCodes.ja : "タイムアップ",
-        LangCodes.es : "Se Acabó el Tiempo"
+        LangCode.en : "Time Up",
+        LangCode.ja : "タイムアップ",
+        LangCode.es : "Se Acabó el Tiempo"
     ]
     static var timeUpAlertTitle: String {
         return Strings._timeUpAlertTitles[Variables.lang]!
     }
     
     private static let _timeUpAlertBodies: [String : String] = [
-        LangCodes.en : "You have practiced for \(Strings.maskToken) minutes. Continue practicing?",
-        LangCodes.ja : "もう\(Strings.maskToken)分間練習しました。練習を続けますか？",
-        LangCodes.es : "¿Ha practicado por \(Strings.maskToken) minutos. Siga practicando?"
+        LangCode.en : "You have practiced for \(Strings.maskToken) minutes. Continue practicing?",
+        LangCode.ja : "もう\(Strings.maskToken)分間練習しました。練習を続けますか？",
+        LangCode.es : "¿Ha practicado por \(Strings.maskToken) minutos. Siga practicando?"
     ]
     static var timeUpAlertBody: String {
         return Strings._timeUpAlertBodies[Variables.lang]!
     }
     
     private static let _maxTimeUpAlertBodies: [String : String] = [
-        LangCodes.en : "You have practiced for \(Strings.maskToken) minutes. Take a break",
-        LangCodes.ja : "もう\(Strings.maskToken)分練習しました。少し休んでください",
-        LangCodes.es : "Ya ha practicado por \(Strings.maskToken) minutos. Tome un descanso."
+        LangCode.en : "You have practiced for \(Strings.maskToken) minutes. Take a break",
+        LangCode.ja : "もう\(Strings.maskToken)分練習しました。少し休んでください",
+        LangCode.es : "Ya ha practicado por \(Strings.maskToken) minutos. Tome un descanso."
     ]
     static var maxTimeUpAlertBody: String {
         return Strings._maxTimeUpAlertBodies[Variables.lang]!

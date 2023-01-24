@@ -11,10 +11,17 @@ import SnapKit
 
 class HomeViewController: UIViewController {
 
-    private var langCodeIndex: Int = (0..<LangCodes.codes.count).randomElement()!
-    private var langCode: String {
-        return LangCodes.codes[self.langCodeIndex]
+    private let learningLanguages = LangCode.loadLearningLanguages()
+    
+    private var langCodeIndex: Int! {
+        didSet {
+            langCodeIndex = (self.langCodeIndex + 1) % learningLanguages.count
+        }
     }
+    private var langCode: String {
+        return learningLanguages[self.langCodeIndex]
+    }
+    
     private var isExecutingTextAnimation: Bool = true
     
     // MARK: - Views
@@ -56,7 +63,7 @@ class HomeViewController: UIViewController {
         return stackView
     }()
     private var enButton: LanguageButton = {
-        let button = LanguageButton(langCode: LangCodes.en)
+        let button = LanguageButton(langCode: LangCode.en)
         button.set(attributedText: NSAttributedString(
             string: Strings.enString,
             attributes: Attributes.langStringAttrs
@@ -65,7 +72,7 @@ class HomeViewController: UIViewController {
         return button
     }()
     private var jaButton: LanguageButton = {
-           let button = LanguageButton(langCode: LangCodes.ja)
+           let button = LanguageButton(langCode: LangCode.ja)
            button.set(attributedText: NSAttributedString(
                string: Strings.jaString,
                attributes: Attributes.langStringAttrs
@@ -74,7 +81,7 @@ class HomeViewController: UIViewController {
            return button
        }()
     private var esButton: LanguageButton = {
-           let button = LanguageButton(langCode: LangCodes.es)
+           let button = LanguageButton(langCode: LangCode.es)
            button.set(attributedText: NSAttributedString(
                string: Strings.esString,
                attributes: Attributes.langStringAttrs
@@ -117,6 +124,8 @@ class HomeViewController: UIViewController {
         enButton.delegate = self
         jaButton.delegate = self
         esButton.delegate = self
+        
+        langCodeIndex = (0..<learningLanguages.count).randomElement()!
     }
     
     private func updateViews() {
@@ -187,7 +196,7 @@ extension HomeViewController {
             // https://stackoverflow.com/questions/3073520/animate-text-change-in-uilabel
             DispatchQueue.main.async {
                 
-                self.langCodeIndex = (self.langCodeIndex + 1) % LangCodes.codes.count
+                self.langCodeIndex += 1
                 let langCode = self.langCode
 
                 UIView.transition(
