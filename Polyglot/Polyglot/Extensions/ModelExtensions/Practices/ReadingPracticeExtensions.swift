@@ -70,7 +70,9 @@ struct ReadingPracticeProducer: PracticeProducerDelegate {
                     paragraphId: randomParagraph.id
                 ),
                 text: randomParagraph.text,
-                meaning: randomParagraph.meaning
+                meaning: randomParagraph.meaning,
+                textLang: Variables.lang,
+                meaningLang: Variables.pairedLang
             ))
             
         }
@@ -92,6 +94,9 @@ extension ReadingPracticeProducer {
         
         var text: String
         var meaning: String?
+        
+        var textLang: String
+        var meaningLang: String
     }
     
 }

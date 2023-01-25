@@ -28,12 +28,14 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
     
     private var newWordMenuItem: UIMenuItem!  // https://www.youtube.com/watch?v=s-LW_4ypwZo
     
-    var newWordBottomView: NewWordBottomView = NewWordBottomView()
+    var newWordBottomView: NewWordAddingBottomView!
     
     // MARK: - Init
     
-    override init(frame: CGRect, textContainer: NSTextContainer?) {
+    init(frame: CGRect = .zero, textContainer: NSTextContainer? = nil, textLang: String, meaningLang: String) {
         super.init(frame: frame, textContainer: textContainer)
+        
+        newWordBottomView = NewWordAddingBottomView(wordLang: textLang, meaningLang: meaningLang)
         
         updateConfigs()
         updateViews()
@@ -198,16 +200,9 @@ extension NewWordAddingTextView {
 
 extension NewWordAddingTextView: NewWordBottomViewDelegate {
     
-    // MARK: - NewWordBottomView Delegate
+    // MARK: - NewWordAddingBottomView Delegate
     
     func addNewWord() {
-        
-        // Check if the mearning has been filled in.
-//        if currentNewWordInfo.meaning == "" {
-//            // TODO: - Highlight the textfield.
-//            print("Meaning needed.")
-//            return
-//        }
         
         // Add the word.
         newWordsInfo.append(currentNewWordInfo)

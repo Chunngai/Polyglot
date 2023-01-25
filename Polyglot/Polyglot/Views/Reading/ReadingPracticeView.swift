@@ -9,15 +9,6 @@
 import UIKit
 
 class ReadingPracticeView: UIView, PracticeViewDelegate {
-
-    private var practiceItem: ReadingPracticeProducer.Item! {
-        didSet {
-            textView.attributedText = NSMutableAttributedString(
-                string: practiceItem.text,
-                attributes: Attributes.longTextAttributes
-            )
-        }
-    }
     
     // MARK: - Views
     
@@ -29,7 +20,7 @@ class ReadingPracticeView: UIView, PracticeViewDelegate {
         return view
     }()
     
-    var textView: NewWordAddingTextView = NewWordAddingTextView()
+    var textView: NewWordAddingTextView!
     
     var translateButton: UIButton = {  // TODO: - Use another icon.
         let button = UIButton()
@@ -39,9 +30,15 @@ class ReadingPracticeView: UIView, PracticeViewDelegate {
     
     // MARK: - Init
     
-    override init(frame: CGRect) {
+    init(frame: CGRect = .zero, text: String, textLang: String, meaningLang: String) {
         super.init(frame: frame)
         
+        textView = NewWordAddingTextView(textLang: textLang, meaningLang: meaningLang)
+        textView.attributedText = NSMutableAttributedString(
+            string: text,
+            attributes: Attributes.longTextAttributes
+        )
+                
         updateSetups()
         updateViews()
         updateLayouts()
@@ -82,10 +79,6 @@ class ReadingPracticeView: UIView, PracticeViewDelegate {
             make.right.equalToSuperview().inset(10)
             make.bottom.equalToSuperview().inset(15)
         }
-    }
-    
-    func updateValues(practiceItem: ReadingPracticeProducer.Item) {
-        self.practiceItem = practiceItem
     }
 }
 

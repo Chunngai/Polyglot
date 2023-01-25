@@ -79,7 +79,11 @@ struct TranslationPracticeProducer: PracticeProducerDelegate {
                     randomParagraph.meaning!,
                 meaning: randomDirection == 0 ?
                     randomParagraph.meaning! :
-                    randomParagraph.text
+                    randomParagraph.text,
+                // Note that the langs do not depend on the direction.
+                // TODO: - A better way?
+                textLang: Variables.lang,
+                meaningLang: Variables.pairedLang
             ))
         }
         return practiceList
@@ -100,7 +104,9 @@ extension TranslationPracticeProducer {
         
         var text: String
         var meaning: String
-        
+     
+        var textLang: String
+        var meaningLang: String
     }
     
 }

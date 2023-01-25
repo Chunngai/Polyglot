@@ -17,7 +17,8 @@ class ReadingPracticeViewController: PracticeViewController {
     private var textViewOfPracticeView: NewWordAddingTextView {
         get {
             guard practiceView != nil else {
-                return NewWordAddingTextView()
+                // Dummy text view.
+                return NewWordAddingTextView(textLang: LangCode.en, meaningLang: LangCode.en)
             }
             return (practiceView as! ReadingPracticeView).textView
         }
@@ -80,9 +81,11 @@ class ReadingPracticeViewController: PracticeViewController {
         }
         // Make a new one.
         practiceView = {
-            let practiceView = ReadingPracticeView()
-            practiceView.updateValues(practiceItem: practiceProducer.currentPractice)
-            return practiceView
+            return ReadingPracticeView(
+                text: practiceProducer.currentPractice.text,
+                textLang: practiceProducer.currentPractice.textLang,
+                meaningLang: practiceProducer.currentPractice.meaningLang
+            )
         }()
         // Add to the main view and update layouts.
         mainView.addSubview(practiceView)

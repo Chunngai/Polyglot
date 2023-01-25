@@ -1,5 +1,5 @@
 //
-//  Variables.swift
+//  Values.swift
 //  Polyglot
 //
 //  Created by Sola on 2023/1/12.
@@ -10,14 +10,17 @@ import Foundation
 
 struct Variables {
     
-    static var lang: String = LangCode.en
+    static var lang: String = ""
     
-    private static let _pairedLang: [String : String] = [
+    private static let _pairedLangs: [String : String] = [
         LangCode.en: LangCode.zh,
         LangCode.ja: LangCode.zh,
-        LangCode.es: LangCode.en
+        LangCode.es: LangCode.en,
+        LangCode.ru: LangCode.en,
     ]
-    static var pairedLang: String = Variables._pairedLang[Variables.lang]!
+    static var pairedLang: String{
+        return Variables._pairedLangs[Variables.lang]!
+    }
 }
 
 struct Constants {

@@ -9,15 +9,6 @@
 import UIKit
 
 class TranslationPracticeView: UIView, PracticeViewDelegate {
-
-    private var practiceItem: TranslationPracticeProducer.Item! {
-        didSet {
-            textView.attributedText = NSMutableAttributedString(
-                string: practiceItem.text,
-                attributes: Attributes.longTextAttributes
-            )
-        }
-    }
     
     // MARK: - Views
     
@@ -29,13 +20,19 @@ class TranslationPracticeView: UIView, PracticeViewDelegate {
         return view
     }()
     
-    var textView: NewWordAddingTextView = NewWordAddingTextView()
+    var textView: NewWordAddingTextView!
     
     // MARK: - Init
     
-    override init(frame: CGRect) {
+    init(frame: CGRect = .zero, text: String, textLang: String, meaningLang: String) {
         super.init(frame: frame)
         
+        textView = NewWordAddingTextView(textLang: textLang, meaningLang: meaningLang)
+        textView.attributedText = NSMutableAttributedString(
+            string: text,
+            attributes: Attributes.longTextAttributes
+        )
+                
         updateSetups()
         updateViews()
         updateLayouts()
@@ -65,9 +62,5 @@ class TranslationPracticeView: UIView, PracticeViewDelegate {
             make.width.equalToSuperview().multipliedBy(0.9)
             make.height.equalToSuperview().multipliedBy(0.9)
         }
-    }
-    
-    func updateValues(practiceItem: TranslationPracticeProducer.Item) {
-        self.practiceItem = practiceItem
     }
 }

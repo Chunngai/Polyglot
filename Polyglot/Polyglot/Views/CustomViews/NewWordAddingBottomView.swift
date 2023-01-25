@@ -1,5 +1,5 @@
 //
-//  NewWordBottomView.swift
+//  NewWordAddingBottomView.swift
 //  Polyglot
 //
 //  Created by Sola on 2022/12/21.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class NewWordBottomView: UIView {
+class NewWordAddingBottomView: UIView {
     
     var word: String = "" {
         didSet {
@@ -26,8 +26,15 @@ class NewWordBottomView: UIView {
     }
     
     var offset: CGFloat!
-    
     var isFloatingUp: Bool = false
+
+    private var translator: GoogleTranslator!
+    private var translations: [String] = []
+    private var translationIndex: Int = 0 {
+        didSet {
+            translationIndex = translationIndex % translations.count
+        }
+    }
     
     var isAddingNewWord: Bool! {
         didSet {
@@ -51,7 +58,7 @@ class NewWordBottomView: UIView {
     
     private lazy var wordLabel: UILabel = {  // TODO: - Support editing.
         let label = UILabel()
-        label.numberOfLines = NewWordBottomView.wordLabelNumberOfLines
+        label.numberOfLines = NewWordAddingBottomView.wordLabelNumberOfLines
         label.lineBreakMode = .byTruncatingTail
         label.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
         label.textColor = Colors.normalTextColor
@@ -85,8 +92,10 @@ class NewWordBottomView: UIView {
     
     // MARK: - Init
     
-    override init(frame: CGRect) {
+    init(frame: CGRect = .zero, wordLang: String, meaningLang: String) {
         super.init(frame: frame)
+        
+        translator = GoogleTranslator(srcLang: wordLang, trgLang: meaningLang)
         
         updateSetups()
         updateViews()
@@ -155,14 +164,14 @@ class NewWordBottomView: UIView {
     }
 }
 
-extension NewWordBottomView {
+extension NewWordAddingBottomView {
     
     // MARK: - Floating Functions.
     
     func floatUp(by offset: CGFloat) {
         UIView.animate(
-            withDuration: NewWordBottomView.floatingDuration,
-            delay: NewWordBottomView.floatingDelay,
+            withDuration: NewWordAddingBottomView.floatingDuration,
+            delay: NewWordAddingBottomView.floatingDelay,
             options: [.curveEaseIn],
             animations: {
                 self.frame = CGRect(
@@ -183,8 +192,8 @@ extension NewWordBottomView {
     
     func floatDown(by offset: CGFloat) {
         UIView.animate(
-            withDuration: NewWordBottomView.floatingDuration,
-            delay: NewWordBottomView.floatingDelay,
+            withDuration: NewWordAddingBottomView.floatingDuration,
+            delay: NewWordAddingBottomView.floatingDelay,
             options: [.curveEaseOut],
             animations: {
                 self.frame = CGRect(
@@ -207,11 +216,13 @@ extension NewWordBottomView {
         word = ""
         meaning = ""
         
+        translations = []
+        
         isAddingNewWord = true
     }
 }
 
-extension NewWordBottomView {
+extension NewWordAddingBottomView {
     
     // MARK: - Selectors
     
@@ -228,12 +239,23 @@ extension NewWordBottomView {
     
     @objc private func translateButtonTapped() {
         
-        print("translate")
-        
+        if self.translations.isEmpty {
+            self.translator.translate(query: self.word) { (translations) in
+                self.translations = translations
+                
+                // https://stackoverflow.com/questions/58087536/modifications-to-the-layout-engine-must-not-be-performed-from-a-background-thr
+                DispatchQueue.main.async {
+                    self.meaning = translations[self.translationIndex]
+                }
+            }
+        } else {
+            self.translationIndex += 1
+            self.meaning = self.translations[self.translationIndex]
+        }
     }
 }
 
-extension NewWordBottomView: UITextFieldDelegate {
+extension NewWordAddingBottomView: UITextFieldDelegate {
     
     // MARK: - UITextField Delegate
     
@@ -252,7 +274,7 @@ extension NewWordBottomView: UITextFieldDelegate {
     
 }
 
-extension NewWordBottomView {
+extension NewWordAddingBottomView {
     
     // MARK: - Constants
     

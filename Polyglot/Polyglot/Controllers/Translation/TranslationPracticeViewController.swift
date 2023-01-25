@@ -17,7 +17,8 @@ class TranslationPracticeViewController: PracticeViewController {
     private var textViewOfPracticeView: NewWordAddingTextView {
         get {
             guard practiceView != nil else {
-                return NewWordAddingTextView()
+                // Dummy text view.
+                return NewWordAddingTextView(textLang: LangCode.en, meaningLang: LangCode.en)
             }
             return (practiceView as! TranslationPracticeView).textView
         }
@@ -94,9 +95,11 @@ class TranslationPracticeViewController: PracticeViewController {
         }
         // Make a new one.
         practiceView = {
-            let practiceView = TranslationPracticeView()
-            practiceView.updateValues(practiceItem: practiceProducer.currentPractice)
-            return practiceView
+            return TranslationPracticeView(
+                text: practiceProducer.currentPractice.text,
+                textLang: practiceProducer.currentPractice.textLang,
+                meaningLang: practiceProducer.currentPractice.meaningLang
+            )
         }()
         // Add to the main view and update layouts.
         mainView.addSubview(practiceView)

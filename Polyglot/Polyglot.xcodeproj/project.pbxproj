@@ -47,11 +47,12 @@
 		FF5292072951FC9700858B55 /* MenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5292062951FC9700858B55 /* MenuViewController.swift */; };
 		FF52920A2952012E00858B55 /* ThreeButtonSelectionStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5292092952012E00858B55 /* ThreeButtonSelectionStack.swift */; };
 		FF52921229520D1200858B55 /* UINavigationBarExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF52921129520D1200858B55 /* UINavigationBarExtensions.swift */; };
-		FF55D156296F3AEC0092FB6B /* Variables.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF55D155296F3AEC0092FB6B /* Variables.swift */; };
+		FF55D156296F3AEC0092FB6B /* Values.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF55D155296F3AEC0092FB6B /* Values.swift */; };
 		FF5690142980367A00CA2C7B /* LangCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5690132980367A00CA2C7B /* LangCode.swift */; };
 		FF56901829803D6C00CA2C7B /* LangCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF56901729803D6C00CA2C7B /* LangCell.swift */; };
 		FF5844312967217700137E00 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5844302967217700137E00 /* ListViewController.swift */; };
 		FF584434296732B400137E00 /* DictionaryExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF584433296732B400137E00 /* DictionaryExtensions.swift */; };
+		FF58518F29819CF8004EB63C /* APIs.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF58518E29819CF8004EB63C /* APIs.swift */; };
 		FF5882BE29604E0300FC33CF /* NewWordAddingTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5882BD29604E0300FC33CF /* NewWordAddingTextView.swift */; };
 		FF591ED62967960C0004CB80 /* WordPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF591ED52967960C0004CB80 /* WordPractice.swift */; };
 		FF591ED8296796160004CB80 /* ReadingPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF591ED7296796160004CB80 /* ReadingPractice.swift */; };
@@ -77,7 +78,7 @@
 		FF706DF5295144B000DBCF8E /* UIColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706DF4295144B000DBCF8E /* UIColorExtensions.swift */; };
 		FF706E032951549C00DBCF8E /* UIImageExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706E022951549C00DBCF8E /* UIImageExtensions.swift */; };
 		FF793A482968A7D60026B8C7 /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF793A472968A7D60026B8C7 /* UIApplication.swift */; };
-		FF8CDE812952995F00B36CA3 /* NewWordBottomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8CDE802952995F00B36CA3 /* NewWordBottomView.swift */; };
+		FF8CDE812952995F00B36CA3 /* NewWordAddingBottomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8CDE802952995F00B36CA3 /* NewWordAddingBottomView.swift */; };
 		FFBD60412969D713004165FC /* WordPracticeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60402969D713004165FC /* WordPracticeExtensions.swift */; };
 		FFBD60432969D721004165FC /* ReadingPracticeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60422969D721004165FC /* ReadingPracticeExtensions.swift */; };
 		FFBD60452969D733004165FC /* TranslationPracticeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60442969D733004165FC /* TranslationPracticeExtensions.swift */; };
@@ -179,11 +180,12 @@
 		FF5292062951FC9700858B55 /* MenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuViewController.swift; sourceTree = "<group>"; };
 		FF5292092952012E00858B55 /* ThreeButtonSelectionStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeButtonSelectionStack.swift; sourceTree = "<group>"; };
 		FF52921129520D1200858B55 /* UINavigationBarExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UINavigationBarExtensions.swift; sourceTree = "<group>"; };
-		FF55D155296F3AEC0092FB6B /* Variables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Variables.swift; sourceTree = "<group>"; };
+		FF55D155296F3AEC0092FB6B /* Values.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Values.swift; sourceTree = "<group>"; };
 		FF5690132980367A00CA2C7B /* LangCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCode.swift; sourceTree = "<group>"; };
 		FF56901729803D6C00CA2C7B /* LangCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCell.swift; sourceTree = "<group>"; };
 		FF5844302967217700137E00 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 		FF584433296732B400137E00 /* DictionaryExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryExtensions.swift; sourceTree = "<group>"; };
+		FF58518E29819CF8004EB63C /* APIs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIs.swift; sourceTree = "<group>"; };
 		FF5882BD29604E0300FC33CF /* NewWordAddingTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWordAddingTextView.swift; sourceTree = "<group>"; };
 		FF591ED52967960C0004CB80 /* WordPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPractice.swift; sourceTree = "<group>"; };
 		FF591ED7296796160004CB80 /* ReadingPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPractice.swift; sourceTree = "<group>"; };
@@ -214,7 +216,7 @@
 		FF706DF4295144B000DBCF8E /* UIColorExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorExtensions.swift; sourceTree = "<group>"; };
 		FF706E022951549C00DBCF8E /* UIImageExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtensions.swift; sourceTree = "<group>"; };
 		FF793A472968A7D60026B8C7 /* UIApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIApplication.swift; sourceTree = "<group>"; };
-		FF8CDE802952995F00B36CA3 /* NewWordBottomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWordBottomView.swift; sourceTree = "<group>"; };
+		FF8CDE802952995F00B36CA3 /* NewWordAddingBottomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWordAddingBottomView.swift; sourceTree = "<group>"; };
 		FFBD60402969D713004165FC /* WordPracticeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPracticeExtensions.swift; sourceTree = "<group>"; };
 		FFBD60422969D721004165FC /* ReadingPracticeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPracticeExtensions.swift; sourceTree = "<group>"; };
 		FFBD60442969D733004165FC /* TranslationPracticeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeExtensions.swift; sourceTree = "<group>"; };
@@ -355,9 +357,10 @@
 			children = (
 				FF62C9A829513A5000D41797 /* Theme.swift */,
 				FF706DF0295142AF00DBCF8E /* Strings.swift */,
-				FF55D155296F3AEC0092FB6B /* Variables.swift */,
+				FF55D155296F3AEC0092FB6B /* Values.swift */,
 				FF5AA00A2961F208009D5237 /* Alerts.swift */,
 				FF5B182B2961E55F00C80DC3 /* IO.swift */,
+				FF58518E29819CF8004EB63C /* APIs.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -406,8 +409,8 @@
 				FF5292092952012E00858B55 /* ThreeButtonSelectionStack.swift */,
 				FF4964C82958B05300414AC5 /* RoundButton.swift */,
 				FF5D129429577CB3005DEEDE /* RoundShadowView.swift */,
-				FF8CDE802952995F00B36CA3 /* NewWordBottomView.swift */,
 				FF491E7F2959ED730088FD13 /* Separator.swift */,
+				FF8CDE802952995F00B36CA3 /* NewWordAddingBottomView.swift */,
 				FF5882BD29604E0300FC33CF /* NewWordAddingTextView.swift */,
 				FF4964CA2958BAFD00414AC5 /* TimingBar.swift */,
 				FF5DB993295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift */,
@@ -877,13 +880,14 @@
 				FF4B382F29525BD400BB3FFD /* ReadingEditTableCell.swift in Sources */,
 				FF50251429524D100097C2CB /* ReadingTableCell.swift in Sources */,
 				FF491E802959ED730088FD13 /* Separator.swift in Sources */,
-				FF8CDE812952995F00B36CA3 /* NewWordBottomView.swift in Sources */,
+				FF8CDE812952995F00B36CA3 /* NewWordAddingBottomView.swift in Sources */,
 				FF4EFE14295D392F00E30D6A /* HistoryRecordExtensions.swift in Sources */,
 				FF5B182C2961E55F00C80DC3 /* IO.swift in Sources */,
 				FF591EDA296796200004CB80 /* TranslationPractice.swift in Sources */,
 				FF4964BE29579C9700414AC5 /* StringExtensions.swift in Sources */,
 				FF706DF5295144B000DBCF8E /* UIColorExtensions.swift in Sources */,
 				FF491E792959CCF60088FD13 /* ContextSelectionPracticeView.swift in Sources */,
+				FF58518F29819CF8004EB63C /* APIs.swift in Sources */,
 				FFCBB0D7296B0AA200E5B9D9 /* PracticeViewController.swift in Sources */,
 				FF495E9C295903DF00EA7EA9 /* WordsTableCell.swift in Sources */,
 				FF584434296732B400137E00 /* DictionaryExtensions.swift in Sources */,
@@ -911,7 +915,7 @@
 				FF495E9E2959084200EA7EA9 /* DateExtensions.swift in Sources */,
 				FF4964CB2958BAFD00414AC5 /* TimingBar.swift in Sources */,
 				FF50250E295244F10097C2CB /* ReadingViewController.swift in Sources */,
-				FF55D156296F3AEC0092FB6B /* Variables.swift in Sources */,
+				FF55D156296F3AEC0092FB6B /* Values.swift in Sources */,
 				FFCBB0DD296B2E4000E5B9D9 /* ReadingPracticeView.swift in Sources */,
 				FF4964CD2958BE8900414AC5 /* TimeIntervalExtensions.swift in Sources */,
 				FF52920A2952012E00858B55 /* ThreeButtonSelectionStack.swift in Sources */,
