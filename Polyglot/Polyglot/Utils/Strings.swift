@@ -334,6 +334,9 @@ extension Strings {
     static var articleSourcePrompt: String {
         return Strings._articleSourcePrompts[Variables.lang]!
     }
+    
+    static let windowsNewLineSymbol: String = "\r\n"
+    static let macNewLineSymbol: String = "\n\r"
 }
 
 extension Strings {

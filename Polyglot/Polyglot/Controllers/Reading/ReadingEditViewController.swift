@@ -145,7 +145,10 @@ extension ReadingEditViewController {
         return [
             "title": cells[ReadingEditViewController.titleIdentifier].textView.content,
             "topic": cells[ReadingEditViewController.topicIdentifier].textView.content,
-            "body": cells[ReadingEditViewController.bodyIdentifier].textView.content,
+            "body": cells[ReadingEditViewController.bodyIdentifier].textView.content
+                // Handle Windows and Mac newline symbols.
+                .replacingOccurrences(of: Strings.windowsNewLineSymbol, with: "\n")
+                .replacingOccurrences(of: Strings.macNewLineSymbol, with: "\n"),
             "source": cells[ReadingEditViewController.sourceIdentifier].textView.content
         
         ]
