@@ -33,7 +33,24 @@ class NewWordAddingBottomView: UIView {
     private var translations: [String] = []
     private var translationIndex: Int = 0 {
         didSet {
+            guard !translations.isEmpty else {
+                return
+            }
+            
             translationIndex = translationIndex % translations.count
+        }
+    }
+    private var isTranslating: Bool = false {
+        didSet {
+            if isTranslating {
+                meaningTextField.isEnabled = false  // Disable editing.
+                translateButton.isHidden = true
+                spinner.startAnimating()
+            } else {
+                meaningTextField.isEnabled = true  // Enable editing.
+                spinner.stopAnimating()
+                translateButton.isHidden = false
+            }
         }
     }
     
@@ -90,6 +107,11 @@ class NewWordAddingBottomView: UIView {
         button.setImage(Icons.translateIcon, for: .normal)
         return button
     }()
+    private lazy var spinner: UIActivityIndicatorView = {
+        let spinner = UIActivityIndicatorView(style: .medium)
+        spinner.hidesWhenStopped = true
+        return spinner
+    }()
     
     // MARK: - Init
     
@@ -130,6 +152,7 @@ class NewWordAddingBottomView: UIView {
         addSubview(deleteButton)
         
         addSubview(translateButton)
+        addSubview(spinner)
     }
     
     private func updateLayouts() {
@@ -156,7 +179,11 @@ class NewWordAddingBottomView: UIView {
         
         translateButton.snp.makeConstraints { (make) in
             make.centerY.equalTo(meaningTextField.snp.centerY)
-            make.right.equalTo(doneButton.snp.right)
+            make.centerX.equalTo(doneButton.snp.centerX)
+        }
+        spinner.snp.makeConstraints { (make) in
+            make.centerY.equalTo(translateButton.snp.centerY)
+            make.centerX.equalTo(translateButton.snp.centerX)
         }
     }
     
@@ -242,11 +269,17 @@ extension NewWordAddingBottomView {
     @objc private func translateButtonTapped() {
         
         if self.translations.isEmpty {
+            
+            isTranslating = true
             self.translator.translate(query: self.word) { (translations) in
+                
                 self.translations = translations
-                if !translations.isEmpty {
-                    // https://stackoverflow.com/questions/58087536/modifications-to-the-layout-engine-must-not-be-performed-from-a-background-thr
-                    DispatchQueue.main.async {
+                
+                // https://stackoverflow.com/questions/58087536/modifications-to-the-layout-engine-must-not-be-performed-from-a-background-thr
+                DispatchQueue.main.async {
+                    self.isTranslating = false
+                    
+                    if !translations.isEmpty {
                         self.meaning = translations[self.translationIndex]
                     }
                 }
