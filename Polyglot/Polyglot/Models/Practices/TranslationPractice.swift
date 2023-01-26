@@ -18,9 +18,9 @@ struct TranslationPractice: Practice {
     
     // 0: text -> meaning.
     // 1: meaning -> text.
-    var direction: UInt
+    var direction: PracticeDirection
     
-    init(articleId: String, paragraphId: String, direction: UInt) {
+    init(articleId: String, paragraphId: String, direction: PracticeDirection) {
         
         self.id = UUID().uuidString
         self.cDate = Date()
@@ -87,6 +87,11 @@ extension TranslationPractice: Codable {
             paragraphId = ""
         }
         
-        direction = try values.decode(UInt.self, forKey: .direction)
+        do {
+            direction = try values.decode(PracticeDirection.self, forKey: .direction)
+        } catch {
+            let _direction = try values.decode(UInt.self, forKey: .direction)
+            direction = PracticeDirection(rawValue: _direction) ?? PracticeDirection(rawValue: 0)!
+        }
     }
 }

@@ -77,7 +77,7 @@ struct WordPracticeProducer: PracticeProducerDelegate {
                 
                 print(
                     practice.practiceType,
-                    practice.direction == 0 ?
+                    practice.direction == .textToMeaning ?
                         dataSource.getWord(from: practice.wordId)!.meaning :
                         dataSource.getWord(from: practice.wordId)!.text,
                     correctness
@@ -125,10 +125,12 @@ struct WordPracticeProducer: PracticeProducerDelegate {
         
         var practiceList: [WordPracticeProducer.Item] = []
         for randomWord in randomWords {
-            for direction in Array<UInt>(arrayLiteral: 0, 1) {
-                practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: direction))
-                practiceList.append(makeMeaningFillingPractice(for: randomWord, in: direction))
-            }
+            
+            practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .textToMeaning))
+            practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .meaningToText))
+            
+            practiceList.append(makeMeaningFillingPractice(for: randomWord, in: .meaningToText))
+            
         }
         practiceList.shuffle()
         
@@ -140,6 +142,7 @@ struct WordPracticeProducer: PracticeProducerDelegate {
     }
     
     private static let batchSize: Int = 6
+    private static let choiceNumber: Int = 3
     
     private var practices: [WordPractice] = WordPractice.load()
 }
@@ -164,7 +167,7 @@ extension WordPracticeProducer {
         
     }
     
-    private func makeMeaningSelectionPractice(for wordToPractice: Word, in randomDirection: UInt) -> WordPracticeProducer.Item {
+    private func makeMeaningSelectionPractice(for wordToPractice: Word, in randomDirection: PracticeDirection) -> WordPracticeProducer.Item {
         var selectionWords: [Word] = [wordToPractice]
         // Randomly choose two words.
         while true {
@@ -173,7 +176,7 @@ extension WordPracticeProducer {
                 selectionWords.append(selectionWord)
             }
             
-            if selectionWords.count == 3 {
+            if selectionWords.count == WordPracticeProducer.choiceNumber {
                 break
             }
         }
@@ -190,22 +193,22 @@ extension WordPracticeProducer {
             ),
             prompt: makePromptTemplate(for: .meaningSelection).replacingOccurrences(
                 of: Strings.maskToken,
-                with: randomDirection == 0 ?
+                with: randomDirection == .textToMeaning ?
                     wordToPractice.text :
                     wordToPractice.meaning
             ),
             selectionTexts: selectionWords.compactMap({ (word) -> String in
-                randomDirection == 0 ?
+                randomDirection == .textToMeaning ?
                     word.meaning :
                     word.text
             }),
-            key: randomDirection == 0 ?
+            key: randomDirection == .textToMeaning ?
                 wordToPractice.meaning :
                 wordToPractice.text
         )
     }
     
-    private func makeMeaningFillingPractice(for wordToPractice: Word, in randomDirection: UInt) -> WordPracticeProducer.Item {
+    private func makeMeaningFillingPractice(for wordToPractice: Word, in randomDirection: PracticeDirection) -> WordPracticeProducer.Item {
         return WordPracticeProducer.Item(
             practice: WordPractice(
                 practiceType: .meaningFilling,
@@ -214,11 +217,11 @@ extension WordPracticeProducer {
             ),
             prompt: makePromptTemplate(for: .meaningFilling).replacingOccurrences(
                 of: Strings.maskToken,
-                with: randomDirection == 0 ?
+                with: randomDirection == .textToMeaning ?
                     wordToPractice.text :
                     wordToPractice.meaning
             ),
-            key: randomDirection == 0 ?
+            key: randomDirection == .textToMeaning ?
                 wordToPractice.meaning :
                 wordToPractice.text
         )
@@ -241,7 +244,7 @@ extension WordPracticeProducer {
         var key: String
         
         var tokenizer: NLTokenizer {
-            let lang = practice.direction == 0 ?
+            let lang = practice.direction == .textToMeaning ?
                 Variables.pairedLang :
                 Variables.lang
             print(lang)

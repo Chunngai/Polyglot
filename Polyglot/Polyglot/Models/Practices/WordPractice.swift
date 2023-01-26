@@ -24,11 +24,11 @@ struct WordPractice: Practice {
 
     // 0: text -> meaning.
     // 1: meaning -> text.
-    var direction: UInt
+    var direction: PracticeDirection
     
     var correctness: Correctness!
     
-    init(practiceType: WordPractice.PracticeType, wordId: String, selectionWordsIds: [String]? = nil, articleId: String? = nil, paragraphId: String? = nil, direction: UInt, correctness: Correctness? = nil) {
+    init(practiceType: WordPractice.PracticeType, wordId: String, selectionWordsIds: [String]? = nil, articleId: String? = nil, paragraphId: String? = nil, direction: PracticeDirection, correctness: Correctness? = nil) {
         
         self.id = UUID().uuidString
         self.cDate = Date()
@@ -155,8 +155,13 @@ extension WordPractice: Codable {
             paragraphId = ""
         }
         
-        direction = try values.decode(UInt.self, forKey: .direction)
-        
+        do {
+            direction = try values.decode(PracticeDirection.self, forKey: .direction)
+        } catch {
+            let _direction = try values.decode(UInt.self, forKey: .direction)
+            direction = PracticeDirection(rawValue: _direction) ?? PracticeDirection.init(rawValue: 0)!
+        }
+                
         do {
             correctness = try values.decode(Correctness?.self, forKey: .correctness)
         } catch {

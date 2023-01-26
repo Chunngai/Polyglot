@@ -66,7 +66,7 @@ struct TranslationPracticeProducer: PracticeProducerDelegate {
                 return make()  // TODO: - Use a translation api instead?
             }
             // Randomly choose a direction.
-            let randomDirection = Array<UInt>(arrayLiteral: 0, 1).randomElement(from: [0.2, 0.8])!  // 0.2 prob for text -> meaning and 0.8 prob for meaning -> text.
+            let randomDirection = Array<PracticeDirection>(arrayLiteral: .textToMeaning, .meaningToText).randomElement(from: [0.2, 0.8])!  // 0.2 prob for text -> meaning and 0.8 prob for meaning -> text.
             
             practiceList.append(TranslationPracticeProducer.Item(
                 practice: TranslationPractice(
@@ -74,10 +74,10 @@ struct TranslationPracticeProducer: PracticeProducerDelegate {
                     paragraphId: randomParagraph.id,
                     direction: randomDirection
                 ),
-                text: randomDirection == 0 ?
+                text: randomDirection == .textToMeaning ?
                     randomParagraph.text :
                     randomParagraph.meaning!,
-                meaning: randomDirection == 0 ?
+                meaning: randomDirection == .textToMeaning ?
                     randomParagraph.meaning! :
                     randomParagraph.text,
                 // Note that the langs do not depend on the direction.
