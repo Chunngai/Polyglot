@@ -218,6 +218,7 @@ extension NewWordAddingBottomView {
         meaning = ""
         
         translations = []
+        translationIndex = 0
         
         isAddingNewWord = true
     }
@@ -252,7 +253,9 @@ extension NewWordAddingBottomView {
             }
         } else {
             self.translationIndex += 1
-            self.meaning = self.translations[self.translationIndex]
+            if !translations.isEmpty {
+                self.meaning = self.translations[self.translationIndex]
+            }
         }
     }
 }
