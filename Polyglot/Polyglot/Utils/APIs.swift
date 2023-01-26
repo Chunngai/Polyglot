@@ -68,6 +68,7 @@ struct GoogleTranslator {
                 
             } catch {
                 print(error.localizedDescription)
+                completion([])
             }
             
         }

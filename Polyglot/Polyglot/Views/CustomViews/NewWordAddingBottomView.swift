@@ -22,6 +22,7 @@ class NewWordAddingBottomView: UIView {
         }
         set {
             meaningTextField.text = newValue
+            delegate.meaningTextFieldEditingChanged()
         }
     }
     
@@ -242,10 +243,11 @@ extension NewWordAddingBottomView {
         if self.translations.isEmpty {
             self.translator.translate(query: self.word) { (translations) in
                 self.translations = translations
-                
-                // https://stackoverflow.com/questions/58087536/modifications-to-the-layout-engine-must-not-be-performed-from-a-background-thr
-                DispatchQueue.main.async {
-                    self.meaning = translations[self.translationIndex]
+                if !translations.isEmpty {
+                    // https://stackoverflow.com/questions/58087536/modifications-to-the-layout-engine-must-not-be-performed-from-a-background-thr
+                    DispatchQueue.main.async {
+                        self.meaning = translations[self.translationIndex]
+                    }
                 }
             }
         } else {
