@@ -133,7 +133,7 @@ extension TranslationPracticeViewController {
     private func displayTranslation() {
         textViewOfPracticeView.attributedText = NSAttributedString(
             string: "\(practiceProducer.currentPractice.text)\n\nTranslation:\n\(practiceProducer.currentPractice.meaning)",  // TODO: - Update here.
-            attributes: Attributes.longTextAttributes
+            attributes: Attributes.defaultLongTextAttributes
         )
         
         // Restore the highlights.

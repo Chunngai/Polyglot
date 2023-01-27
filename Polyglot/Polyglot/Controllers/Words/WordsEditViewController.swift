@@ -53,7 +53,7 @@ class WordsEditViewController: UIViewController {
         
         textView.prompt = Strings.wordEditTextViewPrompt
         textView.promptAttributes = Attributes.promptTextColorAttribute
-        textView.textAttributes = Attributes.longTextAttributes
+        textView.textAttributes = Attributes.defaultLongTextAttributes
     }
     
     private func updateLayouts() {

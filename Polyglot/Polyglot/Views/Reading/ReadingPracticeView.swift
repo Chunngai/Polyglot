@@ -36,7 +36,7 @@ class ReadingPracticeView: UIView, PracticeViewDelegate {
         textView = NewWordAddingTextView(textLang: textLang, meaningLang: meaningLang)
         textView.attributedText = NSMutableAttributedString(
             string: text,
-            attributes: Attributes.longTextAttributes
+            attributes: Attributes.defaultLongTextAttributes
         )
                 
         updateSetups()

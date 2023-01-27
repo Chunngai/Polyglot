@@ -123,11 +123,16 @@ struct Attributes {
         return paraStyle
     }
     
-    static let longTextAttributes = [
+    static let defaultLongTextAttributes = [
         NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.smallFontSize),
         NSAttributedString.Key.foregroundColor : Colors.normalTextColor,
         NSAttributedString.Key.paragraphStyle: Attributes.defaultParaStyle
     ]
+    static var leftAlignedLongTextAttributes: [NSAttributedString.Key: Any] {
+        var attrs = Attributes.defaultLongTextAttributes
+        attrs[NSAttributedString.Key.paragraphStyle] = Attributes.leftAlignedParaStyle
+        return attrs
+    }
     
     // MARK: - Black Prompts.
     
@@ -152,11 +157,11 @@ struct Attributes {
     static let newArticleTitleAttributes = [
         NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.secondaryPromptFontSize, weight: .heavy),
         NSAttributedString.Key.foregroundColor : Colors.normalTextColor,
-        NSAttributedString.Key.paragraphStyle: Attributes.defaultParaStyle
+        NSAttributedString.Key.paragraphStyle: Attributes.leftAlignedParaStyle
     ]
-    static let newArticleTopicAttributes = Attributes.longTextAttributes
-    static let newArticleBodyAttributes = Attributes.longTextAttributes
-    static let newArticleSourceAttributes = Attributes.longTextAttributes
+    static let newArticleTopicAttributes = Attributes.leftAlignedLongTextAttributes
+    static let newArticleBodyAttributes = Attributes.defaultLongTextAttributes
+    static let newArticleSourceAttributes = Attributes.leftAlignedLongTextAttributes
     
     // MARK: - Buttons.
     
