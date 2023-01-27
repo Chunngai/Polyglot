@@ -28,6 +28,11 @@ extension String {
         // https://stackoverflow.com/questions/36363415/replace-sequence-of-spaces-in-string-with-a-single-character-in-swift
         return self.replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
     }
+    
+    func normalizeBlankLines() -> String {
+        // E.g., " \n" -> "\n".
+        self.replacingOccurrences(of: "\\s*?\\n", with: "\n", options: .regularExpression)
+    }
 }
 
 extension String {

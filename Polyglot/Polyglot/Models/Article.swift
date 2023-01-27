@@ -105,6 +105,7 @@ extension Article {
         // ...
         let paraStrings = body
             .strip()
+            .normalizeBlankLines()
             .replaceMultipleBlankLinesWithSingleLine()
             .split(with: Article.paraSeparator)
         
