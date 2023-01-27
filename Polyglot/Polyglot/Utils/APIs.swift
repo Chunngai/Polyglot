@@ -44,7 +44,7 @@ struct GoogleTranslator {
         guard let url = constructUrl(from: query) else {
             return
         }
-        let request: URLRequest = URLRequest(url: url)
+        let request: URLRequest = URLRequest(url: url, timeoutInterval: Constants.requestTimeLimit)
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             
             guard let data = data, error == nil else {

@@ -246,6 +246,7 @@ extension NewWordAddingBottomView {
         
         translations = []
         translationIndex = 0
+        isTranslating = false
         
         isAddingNewWord = true
     }
