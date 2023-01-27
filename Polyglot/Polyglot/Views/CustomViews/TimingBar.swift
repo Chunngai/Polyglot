@@ -11,12 +11,26 @@ import UIKit
 class TimingBar: UIView {
 
     var duration: TimeInterval!
+    private var secondCounter: TimeInterval = 0
     
-    private var countSeconds: TimeInterval = 0
+    private var timer: Timer!
+    private var isTiming: Bool = true {
+        didSet {
+            if isTiming {
+                start()
+            } else {
+                pause()
+            }
+        }
+    }
     
     // MARK: - Controllers
     
-    var delegate: TimingBarDelegate!
+    var delegate: TimingBarDelegate! {
+        didSet {
+            delegate.timingBarSet?(toggleButton: toggleButton)
+        }
+    }
     
     // MARK: - Views
     
@@ -29,6 +43,8 @@ class TimingBar: UIView {
         return progressView
     }()
     
+    private var toggleButton: UIBarButtonItem!
+    
     // MARK: - Init
     
     init(frame: CGRect = .zero, duration: TimeInterval = TimingBar.defaultDuration) {
@@ -39,18 +55,6 @@ class TimingBar: UIView {
         updateSetups()
         updateViews()
         updateLayouts()
-        
-        activateProgress()
-    }
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        
-        updateSetups()
-        updateViews()
-        updateLayouts()
-        
-        activateProgress()
     }
     
     required init?(coder: NSCoder) {
@@ -58,7 +62,12 @@ class TimingBar: UIView {
     }
     
     private func updateSetups() {
-        
+        toggleButton = UIBarButtonItem(
+            image: nil,
+            style: .plain,
+            target: self,
+            action: #selector(toggleTimingState)
+        )
     }
     
     private func updateViews() {
@@ -76,100 +85,55 @@ class TimingBar: UIView {
 }
 
 extension TimingBar {
-    
-    // MARK: - Utils
-    
-    private func presentTimeUpAlert(duration: TimeInterval, completion: @escaping (_ isOk: Bool) -> Void) {
-        let reachedMaxDuration: Bool = duration == Constants.maxPracticeDuration
         
-        let message: String = {
-            var message: String = ""
-            if !reachedMaxDuration {
-                message = Strings.timeUpAlertBody
-            } else {
-                message = Strings.maxTimeUpAlertBody
-            }
-            
-            let minutes: Int = Int(duration / 60)
-            message = message.replacingOccurrences(of: Strings.maskToken, with: String(minutes))
-            
-            return message
-        }()
-        let alert = UIAlertController(
-            title: Strings.timeUpAlertTitle,
-            message: message,
-            preferredStyle: .alert
-        )
-        
-        let okButton = UIAlertAction(
-            title: Strings.ok,
-            style: .default,
-            handler: { (_) -> Void in
-                completion(true)
-        })
-        alert.addAction(okButton)
-        
-        if !reachedMaxDuration {
-            let cancelButton = UIAlertAction(
-                title: Strings.cancel,
-                style: .cancel,
-                handler: { (_) -> Void in
-                    completion(false)
-            })
-            alert.addAction(cancelButton)
-        }
-        
-        if let delegate = delegate as? UIViewController {
-            delegate.present(alert, animated: true, completion: nil)
-        }
+    func add(duration: TimeInterval) {
+        self.duration += duration
     }
     
-    private func timeUp() {
+    func start() {
         
-        if duration != Constants.maxPracticeDuration {
-            presentTimeUpAlert(duration: duration) { (isOk) in
-                if isOk {
-                    // Update the timing bar.
-                    self.addDuration(duration: Constants.practiceDuration)
-                    return
-                } else {
-                    self.delegate.stopPracticing()
-                }
-            }
-        } else {
-            presentTimeUpAlert(duration: duration) { (_) in
-                self.delegate.stopPracticing()
-            }
-        }
-    }
-    
-    private func activateProgress() {
+        toggleButton.image = Icons.pauseIcon
         
         // https://www.hackingwithswift.com/example-code/system/how-to-make-an-action-repeat-using-timer
+        timer = Timer.scheduledTimer(timeInterval: TimeInterval.second, target: self, selector: #selector(fireTimer), userInfo: nil, repeats: true)
+    }
+    
+    func pause() {
         
-        Timer.scheduledTimer(withTimeInterval: TimeInterval.second, repeats: true) { (timer) in
-            if self.countSeconds == self.duration {
-                timer.invalidate()
-                
-                self.timeUp()
-            }
-            
-            self.progressView.setProgress(
-                Float(self.countSeconds / self.duration),
-                animated: true
-            )
-            
-            self.countSeconds += TimeInterval.second
-        }
+        toggleButton.image = Icons.startIcon
+
+        // https://www.hackingwithswift.com/example-code/system/how-to-make-an-action-repeat-using-timer
+        timer.invalidate()
+    }
+    
+    func stop() {
+        
+        toggleButton.image = nil
+
+        timer.invalidate()
     }
 }
 
 extension TimingBar {
     
-    func addDuration(duration: TimeInterval) {
-        self.duration += duration
+    // MARK: - Selectors
+    
+    @objc private func fireTimer() {
+        if self.secondCounter == self.duration {
+            self.stop()
+            self.delegate.timingBarTimeUp(timingBar: self)
+        }
         
-        activateProgress()
+        self.progressView.setProgress(
+            Float(self.secondCounter / self.duration),
+            animated: true
+        )
+        
+        self.secondCounter += TimeInterval.second
+    }
+    
+    @objc private func toggleTimingState() {
+        isTiming.toggle()
     }
     
 }
@@ -184,6 +148,7 @@ extension TimingBar {
 
 @objc protocol TimingBarDelegate {
     
-    func stopPracticing()
+    @objc optional func timingBarSet(toggleButton: UIBarButtonItem)
+    func timingBarTimeUp(timingBar: TimingBar)
     
 }

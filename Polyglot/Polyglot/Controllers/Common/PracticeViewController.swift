@@ -67,6 +67,7 @@ class PracticeViewController: UIViewController {
     
     func updateSetups() {        
         timingBar.delegate = self
+        timingBar.start()
         
         doneButton.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
@@ -140,10 +141,75 @@ extension PracticeViewController {
 
 extension PracticeViewController: TimingBarDelegate {
     
+    private func presentTimeUpAlert(duration: TimeInterval, completion: @escaping (_ isOk: Bool) -> Void) {
+        let reachedMaxDuration: Bool = duration == Constants.maxPracticeDuration
+        
+        let message: String = {
+            var message: String = ""
+            if !reachedMaxDuration {
+                message = Strings.timeUpAlertBody
+            } else {
+                message = Strings.maxTimeUpAlertBody
+            }
+            
+            let minutes: Int = Int(duration / 60)
+            message = message.replacingOccurrences(of: Strings.maskToken, with: String(minutes))
+            
+            return message
+        }()
+        let alert = UIAlertController(
+            title: Strings.timeUpAlertTitle,
+            message: message,
+            preferredStyle: .alert
+        )
+        
+        let okButton = UIAlertAction(
+            title: Strings.ok,
+            style: .default,
+            handler: { (_) -> Void in
+                completion(true)
+        })
+        alert.addAction(okButton)
+        
+        if !reachedMaxDuration {
+            let cancelButton = UIAlertAction(
+                title: Strings.cancel,
+                style: .cancel,
+                handler: { (_) -> Void in
+                    completion(false)
+            })
+            alert.addAction(cancelButton)
+        }
+        
+        present(alert, animated: true, completion: nil)
+    }
+    
+    @objc func stopPracticing() {
+        fatalError("stopPracticing() has not been implemented.")
+    }
+    
     // MARK: - TimingBar Delegate
     
-    func stopPracticing() {
-        fatalError("stopPracticing() has not been implemented.")
+    func timingBarSet(toggleButton: UIBarButtonItem) {
+        navigationItem.rightBarButtonItem = toggleButton
+    }
+        
+    func timingBarTimeUp(timingBar: TimingBar) {
+        if timingBar.duration != Constants.maxPracticeDuration {
+            presentTimeUpAlert(duration: timingBar.duration) { (isOk) in
+                if isOk {
+                    // Update the timing bar.
+                    timingBar.add(duration: Constants.practiceDuration)
+                    timingBar.start()
+                } else {
+                    self.stopPracticing()
+                }
+            }
+        } else {
+            presentTimeUpAlert(duration: timingBar.duration) { (_) in
+                self.stopPracticing()
+            }
+        }
     }
     
 }

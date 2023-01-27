@@ -66,6 +66,8 @@ struct Icons {
     static let previousIcon = UIImage(imageLiteralResourceName: "previous")
     static let nextIcon = UIImage(imageLiteralResourceName: "next")
     static let addIcon = UIImage(imageLiteralResourceName: "add")
+    static let startIcon = UIImage(imageLiteralResourceName: "start")
+    static let pauseIcon = UIImage(imageLiteralResourceName: "pause")
     
 }
 

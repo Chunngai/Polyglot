@@ -27,7 +27,7 @@ struct Constants {
     
     // MARK: - Timing.
     
-    static let practiceDuration: TimeInterval = TimeInterval.minute * 10
+    static let practiceDuration: TimeInterval = TimeInterval.minute * 0.1
     static let maxPracticeDuration: TimeInterval = Constants.practiceDuration * 3
     
     // MARK: - Network.

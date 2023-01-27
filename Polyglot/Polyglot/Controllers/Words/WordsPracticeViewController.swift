@@ -36,10 +36,13 @@ class WordsPracticeViewController: PracticeViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        updateSetups()
-        updateViews()
-        updateLayouts()
-        updatePracticeView()
+        // Do not call the functions below,
+        // as they will be called in viewDidLoad()
+        // of the superclass.
+        // updateSetups()
+        // updateViews()
+        // updateLayouts()
+        // updatePracticeView()
     }
     
     override func updateSetups() {
