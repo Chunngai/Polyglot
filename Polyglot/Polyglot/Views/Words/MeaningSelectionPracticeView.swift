@@ -59,6 +59,8 @@ extension MeaningSelectionPracticeView: WordPracticeViewDelegate {
     // MARK: - WordPracticeView Delegate
     
     func submit() -> String {
+        selectionStack.isSelectionEnabled = false
+        
         return selectionStack.selectedButton!.titleLabel!.text!
     }
     

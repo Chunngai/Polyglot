@@ -10,6 +10,16 @@ import UIKit
 
 class ThreeButtonSelectionStack: UIStackView {
     
+    var isSelectionEnabled: Bool = true {
+        didSet {
+            if isSelectionEnabled {
+                self.isUserInteractionEnabled = true
+            } else {
+                self.isUserInteractionEnabled = false
+            }
+        }
+    }
+    
     private var selectedButtonIndex: Int!
     var selectedButton: UIButton? {
         guard let selectedButtonIndex = selectedButtonIndex else {
