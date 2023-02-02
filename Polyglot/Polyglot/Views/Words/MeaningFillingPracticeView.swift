@@ -99,6 +99,7 @@ extension MeaningFillingPracticeView: WordPracticeViewDelegate {
     
     func submit() -> String {
         textField.resignFirstResponder()
+        textField.isEnabled = false
    
         return answer
     }
