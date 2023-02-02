@@ -93,6 +93,7 @@ extension TimingBar {
     func start() {
         
         toggleButton.image = Icons.pauseIcon
+        delegate.timingBarTimingStarted?(timingBar: self)
         
         // https://www.hackingwithswift.com/example-code/system/how-to-make-an-action-repeat-using-timer
         timer = Timer.scheduledTimer(timeInterval: TimeInterval.second, target: self, selector: #selector(fireTimer), userInfo: nil, repeats: true)
@@ -101,6 +102,7 @@ extension TimingBar {
     func pause() {
         
         toggleButton.image = Icons.startIcon
+        delegate.timingBarTimingPaused?(timingBar: self)
 
         // https://www.hackingwithswift.com/example-code/system/how-to-make-an-action-repeat-using-timer
         timer.invalidate()
@@ -149,6 +151,9 @@ extension TimingBar {
 @objc protocol TimingBarDelegate {
     
     @objc optional func timingBarSet(toggleButton: UIBarButtonItem)
+    
     func timingBarTimeUp(timingBar: TimingBar)
     
+    @objc optional func timingBarTimingStarted(timingBar: TimingBar)
+    @objc optional func timingBarTimingPaused(timingBar: TimingBar)
 }

@@ -212,4 +212,21 @@ extension PracticeViewController: TimingBarDelegate {
         }
     }
     
+    func timingBarTimingStarted(timingBar: TimingBar) {
+        guard practiceView != nil else {
+            return
+        }
+        
+        // TODO: - Make the change visible.
+        practiceView.isUserInteractionEnabled = true
+    }
+    
+    func timingBarTimingPaused(timingBar: TimingBar) {
+        guard practiceView != nil else {
+            return
+        }
+        
+        // TODO: - Make the change visible.
+        practiceView.isUserInteractionEnabled = false
+    }
 }
