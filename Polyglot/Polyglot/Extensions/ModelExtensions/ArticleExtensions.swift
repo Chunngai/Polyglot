@@ -123,9 +123,9 @@ extension Article {
 extension Array where Iterator.Element == Article {
     
     var topics: [String] {
-        self.compactMap { (article) -> String? in
+        Array<String>(Set(self.compactMap { (article) -> String? in
             article.topic
-        }
+        }))
     }
     
 }
