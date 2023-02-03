@@ -23,6 +23,8 @@ struct WordPracticeProducer: PracticeProducerDelegate {
         }
     }
     
+    var batchSize: Int
+    
     var practiceList: [WordPracticeProducer.Item]
     var currentPracticeIndex: Int {
         didSet {
@@ -42,6 +44,10 @@ struct WordPracticeProducer: PracticeProducerDelegate {
     
     init(words: [Word]) {
         self.dataSource = words
+        
+        self.batchSize = dataSource.count >= WordPracticeProducer.defaultBatchSize ?
+            WordPracticeProducer.defaultBatchSize :
+            dataSource.count
         
         self.practiceList = []
         self.currentPracticeIndex = 0
@@ -118,7 +124,7 @@ struct WordPracticeProducer: PracticeProducerDelegate {
             if !randomWords.contains(randomWord) {
                 randomWords.append(randomWord)
             }
-            if randomWords.count == WordPracticeProducer.batchSize {
+            if randomWords.count == batchSize {
                 break
             }
         }
@@ -141,8 +147,7 @@ struct WordPracticeProducer: PracticeProducerDelegate {
         currentPracticeIndex += 1
     }
     
-    private static let batchSize: Int = 6
-    private static let choiceNumber: Int = 3
+    var choiceNumber: Int = WordPracticeProducer.defaultChoiceNumber
     
     private var practices: [WordPractice] = WordPractice.load()
 }
@@ -176,7 +181,7 @@ extension WordPracticeProducer {
                 selectionWords.append(selectionWord)
             }
             
-            if selectionWords.count == WordPracticeProducer.choiceNumber {
+            if selectionWords.count == choiceNumber {
                 break
             }
         }
@@ -254,16 +259,12 @@ extension WordPracticeProducer {
             
             return tokenizer
         }
-        
-        static let placeHolder: String = "〇〇"
-        
+                
         mutating func checkCorrectness(answer: String) {
             let keyComponents = key
-                .replacingOccurrences(of: WordPracticeProducer.Item.placeHolder, with: "")
                 .normalized
                 .components(from: tokenizer)
             let answerComponents = answer
-                .replacingOccurrences(of: WordPracticeProducer.Item.placeHolder, with: "")
                 .normalized
                 .components(from: tokenizer)
             
@@ -299,4 +300,13 @@ extension WordPracticeProducer {
         practices.append(contentsOf: practicesToSave)
         WordPractice.save(&practices)
     }
+}
+
+extension WordPracticeProducer {
+    
+    // MARK: - Constants
+    
+    private static let defaultBatchSize: Int = 6
+    private static let defaultChoiceNumber: Int = 3
+    
 }
