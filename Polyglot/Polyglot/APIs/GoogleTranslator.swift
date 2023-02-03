@@ -1,5 +1,5 @@
 //
-//  APIs.swift
+//  GoogleTranslator.swift
 //  Polyglot
 //
 //  Created by Sola on 2023/1/26.

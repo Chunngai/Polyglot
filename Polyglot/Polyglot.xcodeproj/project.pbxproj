@@ -52,7 +52,7 @@
 		FF56901829803D6C00CA2C7B /* LangCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF56901729803D6C00CA2C7B /* LangCell.swift */; };
 		FF5844312967217700137E00 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5844302967217700137E00 /* ListViewController.swift */; };
 		FF584434296732B400137E00 /* DictionaryExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF584433296732B400137E00 /* DictionaryExtensions.swift */; };
-		FF58518F29819CF8004EB63C /* APIs.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF58518E29819CF8004EB63C /* APIs.swift */; };
+		FF58518F29819CF8004EB63C /* GoogleTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF58518E29819CF8004EB63C /* GoogleTranslator.swift */; };
 		FF5882BE29604E0300FC33CF /* NewWordAddingTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5882BD29604E0300FC33CF /* NewWordAddingTextView.swift */; };
 		FF591ED62967960C0004CB80 /* WordPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF591ED52967960C0004CB80 /* WordPractice.swift */; };
 		FF591ED8296796160004CB80 /* ReadingPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF591ED7296796160004CB80 /* ReadingPractice.swift */; };
@@ -72,13 +72,13 @@
 		FF62C98D2951382600D41797 /* PolyglotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C98C2951382600D41797 /* PolyglotTests.swift */; };
 		FF62C9982951382600D41797 /* PolyglotUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9972951382600D41797 /* PolyglotUITests.swift */; };
 		FF62C9A929513A5000D41797 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9A829513A5000D41797 /* Theme.swift */; };
-		FF62C9BE29513C3900D41797 /* SnapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF62C9BB29513C3000D41797 /* SnapKit.framework */; };
-		FF62C9BF29513C3900D41797 /* SnapKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FF62C9BB29513C3000D41797 /* SnapKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FF706DF1295142AF00DBCF8E /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706DF0295142AF00DBCF8E /* Strings.swift */; };
 		FF706DF5295144B000DBCF8E /* UIColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706DF4295144B000DBCF8E /* UIColorExtensions.swift */; };
 		FF706E032951549C00DBCF8E /* UIImageExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706E022951549C00DBCF8E /* UIImageExtensions.swift */; };
 		FF793A482968A7D60026B8C7 /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF793A472968A7D60026B8C7 /* UIApplication.swift */; };
 		FF8CDE812952995F00B36CA3 /* NewWordAddingBottomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8CDE802952995F00B36CA3 /* NewWordAddingBottomView.swift */; };
+		FF8E5BBE298DB9BF003B6FB1 /* SnapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF8E5BBB298DB9A6003B6FB1 /* SnapKit.framework */; };
+		FF8E5BBF298DB9BF003B6FB1 /* SnapKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FF8E5BBB298DB9A6003B6FB1 /* SnapKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FFBD60412969D713004165FC /* WordPracticeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60402969D713004165FC /* WordPracticeExtensions.swift */; };
 		FFBD60432969D721004165FC /* ReadingPracticeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60422969D721004165FC /* ReadingPracticeExtensions.swift */; };
 		FFBD60452969D733004165FC /* TranslationPracticeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60442969D733004165FC /* TranslationPracticeExtensions.swift */; };
@@ -105,16 +105,16 @@
 			remoteGlobalIDString = FF62C9712951382500D41797;
 			remoteInfo = Polyglot;
 		};
-		FF62C9BA29513C3000D41797 /* PBXContainerItemProxy */ = {
+		FF8E5BBA298DB9A6003B6FB1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = FF62C9B529513C3000D41797 /* SnapKit.xcodeproj */;
+			containerPortal = FF8E5BB5298DB9A6003B6FB1 /* SnapKit.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = EEBCC9D819CC627D0083B827;
 			remoteInfo = SnapKit;
 		};
-		FF62C9BC29513C3000D41797 /* PBXContainerItemProxy */ = {
+		FF8E5BBC298DB9A6003B6FB1 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = FF62C9B529513C3000D41797 /* SnapKit.xcodeproj */;
+			containerPortal = FF8E5BB5298DB9A6003B6FB1 /* SnapKit.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = EEBCC9E219CC627E0083B827;
 			remoteInfo = "SnapKit Tests";
@@ -122,13 +122,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		FF62C9C029513C3900D41797 /* Embed Frameworks */ = {
+		FF8E5BC0298DB9BF003B6FB1 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				FF62C9BF29513C3900D41797 /* SnapKit.framework in Embed Frameworks */,
+				FF8E5BBF298DB9BF003B6FB1 /* SnapKit.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -187,7 +187,7 @@
 		FF56901729803D6C00CA2C7B /* LangCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCell.swift; sourceTree = "<group>"; };
 		FF5844302967217700137E00 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 		FF584433296732B400137E00 /* DictionaryExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryExtensions.swift; sourceTree = "<group>"; };
-		FF58518E29819CF8004EB63C /* APIs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIs.swift; sourceTree = "<group>"; };
+		FF58518E29819CF8004EB63C /* GoogleTranslator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleTranslator.swift; sourceTree = "<group>"; };
 		FF5882BD29604E0300FC33CF /* NewWordAddingTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWordAddingTextView.swift; sourceTree = "<group>"; };
 		FF591ED52967960C0004CB80 /* WordPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPractice.swift; sourceTree = "<group>"; };
 		FF591ED7296796160004CB80 /* ReadingPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPractice.swift; sourceTree = "<group>"; };
@@ -213,12 +213,12 @@
 		FF62C9972951382600D41797 /* PolyglotUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolyglotUITests.swift; sourceTree = "<group>"; };
 		FF62C9992951382600D41797 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FF62C9A829513A5000D41797 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
-		FF62C9B529513C3000D41797 /* SnapKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SnapKit.xcodeproj; path = "../../../Downloads/SnapKit-develop/SnapKit.xcodeproj"; sourceTree = "<group>"; };
 		FF706DF0295142AF00DBCF8E /* Strings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
 		FF706DF4295144B000DBCF8E /* UIColorExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorExtensions.swift; sourceTree = "<group>"; };
 		FF706E022951549C00DBCF8E /* UIImageExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtensions.swift; sourceTree = "<group>"; };
 		FF793A472968A7D60026B8C7 /* UIApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIApplication.swift; sourceTree = "<group>"; };
 		FF8CDE802952995F00B36CA3 /* NewWordAddingBottomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWordAddingBottomView.swift; sourceTree = "<group>"; };
+		FF8E5BB5298DB9A6003B6FB1 /* SnapKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SnapKit.xcodeproj; path = "../../../Downloads/SnapKit-develop/SnapKit.xcodeproj"; sourceTree = "<group>"; };
 		FFBD60402969D713004165FC /* WordPracticeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPracticeExtensions.swift; sourceTree = "<group>"; };
 		FFBD60422969D721004165FC /* ReadingPracticeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPracticeExtensions.swift; sourceTree = "<group>"; };
 		FFBD60442969D733004165FC /* TranslationPracticeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeExtensions.swift; sourceTree = "<group>"; };
@@ -235,8 +235,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FF62C9BE29513C3900D41797 /* SnapKit.framework in Frameworks */,
 				C43026072813DBE394EFE8FB /* Pods_Polyglot.framework in Frameworks */,
+				FF8E5BBE298DB9BF003B6FB1 /* SnapKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -364,7 +364,6 @@
 				FF55D155296F3AEC0092FB6B /* Values.swift */,
 				FF5AA00A2961F208009D5237 /* Alerts.swift */,
 				FF5B182B2961E55F00C80DC3 /* IO.swift */,
-				FF58518E29819CF8004EB63C /* APIs.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -485,6 +484,7 @@
 				FF491E6F2959C2DF0088FD13 /* Protocols */,
 				FF706DF3295144A000DBCF8E /* Extensions */,
 				FF4CA732295E888000423946 /* Utils */,
+				FF8E5BB1298DB68F003B6FB1 /* APIs */,
 				FF62C9752951382500D41797 /* AppDelegate.swift */,
 				FF62C9772951382500D41797 /* SceneDelegate.swift */,
 				FF62C97E2951382600D41797 /* Assets.xcassets */,
@@ -542,21 +542,12 @@
 		FF62C9AA29513B7200D41797 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				FF62C9B529513C3000D41797 /* SnapKit.xcodeproj */,
+				FF8E5BB5298DB9A6003B6FB1 /* SnapKit.xcodeproj */,
 				F18AC45591099280DCFC633D /* Pods_Polyglot.framework */,
 				907D4F8E5EB18C9B62364FB2 /* Pods_Polyglot_PolyglotUITests.framework */,
 				E379777C4FD33BCD824C64B5 /* Pods_PolyglotTests.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		FF62C9B629513C3000D41797 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				FF62C9BB29513C3000D41797 /* SnapKit.framework */,
-				FF62C9BD29513C3000D41797 /* SnapKit Tests.xctest */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		FF706DF3295144A000DBCF8E /* Extensions */ = {
@@ -577,6 +568,23 @@
 				FFCBB0DC296B2E4000E5B9D9 /* ReadingPracticeView.swift */,
 			);
 			path = Reading;
+			sourceTree = "<group>";
+		};
+		FF8E5BB1298DB68F003B6FB1 /* APIs */ = {
+			isa = PBXGroup;
+			children = (
+				FF58518E29819CF8004EB63C /* GoogleTranslator.swift */,
+			);
+			path = APIs;
+			sourceTree = "<group>";
+		};
+		FF8E5BB6298DB9A6003B6FB1 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FF8E5BBB298DB9A6003B6FB1 /* SnapKit.framework */,
+				FF8E5BBD298DB9A6003B6FB1 /* SnapKit Tests.xctest */,
+			);
+			name = Products;
 			sourceTree = "<group>";
 		};
 		FFBD603D2969D701004165FC /* Practices */ = {
@@ -609,8 +617,8 @@
 				FF62C96E2951382500D41797 /* Sources */,
 				FF62C96F2951382500D41797 /* Frameworks */,
 				FF62C9702951382500D41797 /* Resources */,
-				FF62C9C029513C3900D41797 /* Embed Frameworks */,
 				D06BA752CDE8744B961BD4E0 /* [CP] Embed Pods Frameworks */,
+				FF8E5BC0298DB9BF003B6FB1 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -696,8 +704,8 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = FF62C9B629513C3000D41797 /* Products */;
-					ProjectRef = FF62C9B529513C3000D41797 /* SnapKit.xcodeproj */;
+					ProductGroup = FF8E5BB6298DB9A6003B6FB1 /* Products */;
+					ProjectRef = FF8E5BB5298DB9A6003B6FB1 /* SnapKit.xcodeproj */;
 				},
 			);
 			projectRoot = "";
@@ -710,18 +718,18 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		FF62C9BB29513C3000D41797 /* SnapKit.framework */ = {
+		FF8E5BBB298DB9A6003B6FB1 /* SnapKit.framework */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.framework;
 			path = SnapKit.framework;
-			remoteRef = FF62C9BA29513C3000D41797 /* PBXContainerItemProxy */;
+			remoteRef = FF8E5BBA298DB9A6003B6FB1 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		FF62C9BD29513C3000D41797 /* SnapKit Tests.xctest */ = {
+		FF8E5BBD298DB9A6003B6FB1 /* SnapKit Tests.xctest */ = {
 			isa = PBXReferenceProxy;
 			fileType = wrapper.cfbundle;
 			path = "SnapKit Tests.xctest";
-			remoteRef = FF62C9BC29513C3000D41797 /* PBXContainerItemProxy */;
+			remoteRef = FF8E5BBC298DB9A6003B6FB1 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -895,7 +903,7 @@
 				FF4964BE29579C9700414AC5 /* StringExtensions.swift in Sources */,
 				FF706DF5295144B000DBCF8E /* UIColorExtensions.swift in Sources */,
 				FF491E792959CCF60088FD13 /* ContextSelectionPracticeView.swift in Sources */,
-				FF58518F29819CF8004EB63C /* APIs.swift in Sources */,
+				FF58518F29819CF8004EB63C /* GoogleTranslator.swift in Sources */,
 				FFCBB0D7296B0AA200E5B9D9 /* PracticeViewController.swift in Sources */,
 				FF495E9C295903DF00EA7EA9 /* WordsTableCell.swift in Sources */,
 				FF584434296732B400137E00 /* DictionaryExtensions.swift in Sources */,
