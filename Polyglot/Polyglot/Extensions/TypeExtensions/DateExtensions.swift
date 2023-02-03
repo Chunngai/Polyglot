@@ -32,15 +32,11 @@ extension Date {
 extension Date {
         
     // https://stackoverflow.com/questions/5979462/problem-combining-a-date-and-a-time-into-a-single-nsdate
-    static func fromYearMonthDay(year: Int? = nil, month: Int, day: Int) -> Date {
+    static func fromYearMonthDay(year: Int, month: Int, day: Int) -> Date {
         let calendar = Calendar.current
 
         var components = DateComponents()
-        if let year = year {
-            components.year = year
-        } else {
-            components.year = calendar.component(.year, from: Date())
-        }
+        components.year = year
         components.month = month
         components.day = day
         return calendar.date(from: components)!
