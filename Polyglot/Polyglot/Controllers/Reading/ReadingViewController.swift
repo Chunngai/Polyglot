@@ -88,7 +88,10 @@ extension ReadingViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let headerView = TableHeaderView()
-        headerView.updateValues(text: dataSource[section].groupId)
+        
+        let topic = dataSource[section].groupId
+        let nArticles = dataSource[section].articles.count
+        headerView.updateValues(text: "\(topic) (\(nArticles))")
         return headerView
     }
     
