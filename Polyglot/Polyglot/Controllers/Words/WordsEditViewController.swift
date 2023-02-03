@@ -45,6 +45,8 @@ class WordsEditViewController: UIViewController {
             target: self,
             action: #selector(doneButtonTapped)
         )
+        
+        textView.keyboardDismissMode = .onDrag
     }
     
     private func updateViews() {

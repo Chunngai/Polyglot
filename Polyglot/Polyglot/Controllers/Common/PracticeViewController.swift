@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import IQKeyboardManagerSwift
 
 class PracticeViewController: UIViewController {
     
@@ -71,6 +72,8 @@ class PracticeViewController: UIViewController {
         
         doneButton.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(appMovedToBackground), name: UIApplication.willResignActiveNotification, object: nil)
     }
     
     func updateViews() {
@@ -136,6 +139,17 @@ extension PracticeViewController {
     
     @objc func nextButtonTapped() {
         fatalError("nextButtonTapped() has not been implemented.")
+    }
+    
+    @objc func appMovedToBackground() {
+        // Hide the keyboard.
+        // If the keyboard is not hidden,
+        // it may shadow the textfield in the practice view
+        // when entering foreground.
+        // Seems that it's a bug of IQKeyboardManager: https://github.com/hackiftekhar/IQKeyboardManager/issues/1377
+        
+        // https://stackoverflow.com/questions/53555428/hide-the-keyboard-on-the-button-click
+        IQKeyboardManager.shared.resignFirstResponder()
     }
 }
 
