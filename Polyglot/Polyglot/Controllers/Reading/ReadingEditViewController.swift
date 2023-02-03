@@ -54,6 +54,8 @@ class ReadingEditViewController: UITableViewController {
 
     private func updateSetups() {
         tableView.register(ReadingEditTableCell.self, forCellReuseIdentifier: ReadingEditViewController.cellIdentifier)
+        // https://stackoverflow.com/questions/4399357/hide-keyboard-when-scroll-uitableview
+        tableView.keyboardDismissMode = .onDrag
     }
     
     private func updateViews() {
