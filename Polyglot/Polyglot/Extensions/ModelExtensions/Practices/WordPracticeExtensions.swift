@@ -100,7 +100,7 @@ struct WordPracticeProducer: PracticeProducerDelegate {
                 probs.append(prob)
             }
             
-            probs = probs.toNonNegatives()!
+            probs = probs.toPositives()!
             print(probs)
             
             return probs

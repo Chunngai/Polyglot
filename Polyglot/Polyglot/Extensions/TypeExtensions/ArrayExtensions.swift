@@ -48,17 +48,18 @@ extension Array {
 
 extension Array where Iterator.Element == Double {
     
-    func toNonNegatives() -> [Double]? {
+    func toPositives() -> [Double]? {
         guard !self.isEmpty else {
             return nil
         }
         
-        let minVal = self.min()!
-        if minVal >= 0 {
+        var minVal = self.min()!
+        if minVal > 0 {
             return self
         } else {
+            minVal = abs(minVal) + 1  // If minVal == 0, minVal will become 1.
             return self.map { (val) -> Double in
-                val + abs(minVal)
+                val + minVal
             }
         }
     }
