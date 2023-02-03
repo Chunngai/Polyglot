@@ -79,6 +79,38 @@ class MenuViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+//        let fm = FileManager.default
+//        var path = Bundle.main.resourcePath!
+//        path = NSString.path(withComponents: [path, "duome_\(Variables.lang)_sentences"])
+//        do {
+//            var newArticles: [Article] = []
+//
+//            // https://stackoverflow.com/questions/37239064/listing-files-in-a-specific-folder
+//            let files = try fm.contentsOfDirectory(atPath: path)
+//            for file in files {
+//                let filePath = NSString.path(withComponents: [path, file])
+//                let fileText = try! String(contentsOfFile: filePath)
+//
+//                let article: Article = {
+//                    let title = file.replacingOccurrences(of: ".txt", with: "")
+//                    let topic = "Duolingo Sentences"
+//                    let text = fileText
+//                    let source = "Duome"
+//
+//                    return Article(title: title, topic: topic, body: text, source: source)
+//                }()
+//                newArticles.append(article)
+//            }
+//
+//            var articles = Article.load()
+//            for newArticle in newArticles {
+//                articles.add(newArticle: newArticle)
+//            }
+//            Article.save(&articles)
+//        } catch {
+//
+//        }
+        
         updateSetups()
         updateViews()
         updateLayouts()
