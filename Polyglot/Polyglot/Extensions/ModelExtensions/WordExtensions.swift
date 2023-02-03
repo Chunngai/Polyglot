@@ -98,14 +98,14 @@ extension Array where Iterator.Element == Word {
     }
 }
 
-extension Word {
-    
-    static let dummyWord: Word = Word(
-        text: "Dummy word",
-        meaning: "Dummy word"
-    )
-    
-}
+//extension Word {
+//    
+//    static let dummyWord: Word = Word(
+//        text: "Dummy word",
+//        meaning: "Dummy word"
+//    )
+//    
+//}
 
 extension Word {
     

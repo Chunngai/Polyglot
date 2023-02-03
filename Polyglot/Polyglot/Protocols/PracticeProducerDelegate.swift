@@ -24,6 +24,7 @@ protocol PracticeProducerDelegate {
     associatedtype U: PracticeItemDelegate
     
     var dataSource: [T] { get set }
+    var batchSize: Int { get set }
     
     var practiceList: [U] { get set }
     var currentPracticeIndex: Int { get set }

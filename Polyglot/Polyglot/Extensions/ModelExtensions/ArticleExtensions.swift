@@ -111,14 +111,15 @@ extension Array where Iterator.Element == Article {
     }
 }
 
-extension Article {
-    
-    static let dummyArticle: Article = Article(
-        title: "Dummy article",
-        body: "The article list is empty.\nThis is a dummy article."
-    )
-    
-}
+//extension Article {
+//    
+//    static let dummyArticle: Article = Article(
+//        title: "Dummy article",
+//        topic: "Demmy topic",
+//        body: "The article list is empty.\nThis is a dummy article."
+//    )
+//    
+//}
 
 extension Array where Iterator.Element == Article {
     

@@ -14,15 +14,7 @@ struct WordPracticeProducer: PracticeProducerDelegate {
     typealias T = Word
     typealias U = WordPracticeProducer.Item
     
-    var dataSource: [Word] {
-        didSet {
-            
-            if dataSource.isEmpty {
-                dataSource.append(Word.dummyWord)
-            }
-        }
-    }
-    
+    var dataSource: [Word]
     var batchSize: Int
     
     var practiceList: [WordPracticeProducer.Item]
@@ -44,7 +36,6 @@ struct WordPracticeProducer: PracticeProducerDelegate {
     
     init(words: [Word]) {
         self.dataSource = words
-        
         self.batchSize = dataSource.count >= WordPracticeProducer.defaultBatchSize ?
             WordPracticeProducer.defaultBatchSize :
             dataSource.count

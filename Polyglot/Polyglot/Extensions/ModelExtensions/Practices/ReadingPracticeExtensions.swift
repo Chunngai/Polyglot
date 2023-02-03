@@ -13,15 +13,8 @@ struct ReadingPracticeProducer: PracticeProducerDelegate {
     typealias T = Article
     typealias U = ReadingPracticeProducer.Item
     
-    var dataSource: [Article] {
-        didSet {
-            
-            if dataSource.isEmpty {
-                dataSource.append(Article.dummyArticle)
-            }
-            
-        }
-    }
+    var dataSource: [Article]
+    var batchSize: Int
     
     var practiceList: [ReadingPracticeProducer.Item]
     var currentPracticeIndex: Int {
@@ -42,6 +35,9 @@ struct ReadingPracticeProducer: PracticeProducerDelegate {
     
     init(articles: [Article]) {
         self.dataSource = articles
+        self.batchSize = dataSource.count >= ReadingPracticeProducer.defaultBatchSize ?
+            ReadingPracticeProducer.defaultBatchSize :
+            dataSource.count
         
         self.practiceList = []
         self.currentPracticeIndex = 0
@@ -55,7 +51,7 @@ struct ReadingPracticeProducer: PracticeProducerDelegate {
         let randomTopic = dataSource.topics.randomElement()!
         
         var practiceList: [ReadingPracticeProducer.Item] = []
-        for _ in 0..<10 {
+        for _ in 0..<batchSize {
             
             // Randomly choose an article.
             let randomArticle = dataSource.compactMap({ (article) -> Article? in
@@ -98,5 +94,13 @@ extension ReadingPracticeProducer {
         var textLang: String
         var meaningLang: String
     }
+    
+}
+
+extension ReadingPracticeProducer {
+    
+    // MARK: - Constants
+    
+    static let defaultBatchSize: Int = 6
     
 }
