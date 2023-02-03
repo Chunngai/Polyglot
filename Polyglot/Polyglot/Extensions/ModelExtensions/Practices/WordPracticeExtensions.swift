@@ -101,7 +101,9 @@ struct WordPracticeProducer: PracticeProducerDelegate {
             }
             
             probs = probs.toPositives()!
-            print(probs)
+            for (word, prob) in zip(dataSource, probs) {
+                print("\(word.text):\(prob)", terminator: " ")
+            }
             
             return probs
         }
