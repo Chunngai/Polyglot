@@ -255,9 +255,17 @@ extension WordPracticeProducer {
             return tokenizer
         }
         
+        static let placeHolder: String = "〇〇"
+        
         mutating func checkCorrectness(answer: String) {
-            let keyComponents = key.normalized.components(from: tokenizer)
-            let answerComponents = answer.normalized.components(from: tokenizer)
+            let keyComponents = key
+                .replacingOccurrences(of: WordPracticeProducer.Item.placeHolder, with: "")
+                .normalized
+                .components(from: tokenizer)
+            let answerComponents = answer
+                .replacingOccurrences(of: WordPracticeProducer.Item.placeHolder, with: "")
+                .normalized
+                .components(from: tokenizer)
             
             let correctness: WordPractice.Correctness!
             if keyComponents == answerComponents {
