@@ -1,5 +1,5 @@
 //
-//  MeaningSelectionPracticeView.swift
+//  SelectionPracticeView.swift
 //  Polyglot
 //
 //  Created by Sola on 2022/12/26.
@@ -9,7 +9,7 @@
 import UIKit
 import NaturalLanguage
 
-class MeaningSelectionPracticeView: UIView {
+class SelectionPracticeView: UIView {
     
     // MARK: - Controllers
     
@@ -54,7 +54,7 @@ class MeaningSelectionPracticeView: UIView {
     }
 }
 
-extension MeaningSelectionPracticeView: WordPracticeViewDelegate {
+extension SelectionPracticeView: WordPracticeViewDelegate {
     
     // MARK: - WordPracticeView Delegate
     
@@ -81,7 +81,7 @@ extension MeaningSelectionPracticeView: WordPracticeViewDelegate {
     }
 }
 
-extension MeaningSelectionPracticeView: ThreeItemSelectionStackDelegate {
+extension SelectionPracticeView: ThreeItemSelectionStackDelegate {
     
     // MARK: - ThreeItemSelectionStack Delegate
     

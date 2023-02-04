@@ -12,7 +12,7 @@
 		C43026072813DBE394EFE8FB /* Pods_Polyglot.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F18AC45591099280DCFC633D /* Pods_Polyglot.framework */; };
 		FF23764E29528C840073AF96 /* ReadingPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF23764D29528C840073AF96 /* ReadingPracticeViewController.swift */; };
 		FF491E732959C2FD0088FD13 /* PracticeViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E722959C2FD0088FD13 /* PracticeViewDelegate.swift */; };
-		FF491E752959C4320088FD13 /* MeaningSelectionPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E742959C4320088FD13 /* MeaningSelectionPracticeView.swift */; };
+		FF491E752959C4320088FD13 /* SelectionPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E742959C4320088FD13 /* SelectionPracticeView.swift */; };
 		FF491E772959CC960088FD13 /* MeaningFillingPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E762959CC960088FD13 /* MeaningFillingPracticeView.swift */; };
 		FF491E792959CCF60088FD13 /* ContextSelectionPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E782959CCF60088FD13 /* ContextSelectionPracticeView.swift */; };
 		FF491E802959ED730088FD13 /* Separator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E7F2959ED730088FD13 /* Separator.swift */; };
@@ -148,7 +148,7 @@
 		F18AC45591099280DCFC633D /* Pods_Polyglot.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Polyglot.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FF23764D29528C840073AF96 /* ReadingPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPracticeViewController.swift; sourceTree = "<group>"; };
 		FF491E722959C2FD0088FD13 /* PracticeViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeViewDelegate.swift; sourceTree = "<group>"; };
-		FF491E742959C4320088FD13 /* MeaningSelectionPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeaningSelectionPracticeView.swift; sourceTree = "<group>"; };
+		FF491E742959C4320088FD13 /* SelectionPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionPracticeView.swift; sourceTree = "<group>"; };
 		FF491E762959CC960088FD13 /* MeaningFillingPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeaningFillingPracticeView.swift; sourceTree = "<group>"; };
 		FF491E782959CCF60088FD13 /* ContextSelectionPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextSelectionPracticeView.swift; sourceTree = "<group>"; };
 		FF491E7F2959ED730088FD13 /* Separator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Separator.swift; sourceTree = "<group>"; };
@@ -343,7 +343,7 @@
 			isa = PBXGroup;
 			children = (
 				FF495E9B295903DF00EA7EA9 /* WordsTableCell.swift */,
-				FF491E742959C4320088FD13 /* MeaningSelectionPracticeView.swift */,
+				FF491E742959C4320088FD13 /* SelectionPracticeView.swift */,
 				FF491E762959CC960088FD13 /* MeaningFillingPracticeView.swift */,
 				FF491E782959CCF60088FD13 /* ContextSelectionPracticeView.swift */,
 			);
@@ -879,7 +879,7 @@
 				FF502512295248D10097C2CB /* Article.swift in Sources */,
 				FFBD60432969D721004165FC /* ReadingPracticeExtensions.swift in Sources */,
 				FF491E772959CC960088FD13 /* MeaningFillingPracticeView.swift in Sources */,
-				FF491E752959C4320088FD13 /* MeaningSelectionPracticeView.swift in Sources */,
+				FF491E752959C4320088FD13 /* SelectionPracticeView.swift in Sources */,
 				FFCBB0E0296B45F300E5B9D9 /* TranslationPracticeView.swift in Sources */,
 				FF8E5BC3298DBD5D003B6FB1 /* JapanesePAAnalyzer.swift in Sources */,
 				FF4964BA29579C5A00414AC5 /* UISearchBarExtensions.swift in Sources */,

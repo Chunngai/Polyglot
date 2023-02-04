@@ -64,7 +64,7 @@ class WordsPracticeViewController: PracticeViewController {
             switch practiceProducer.currentPractice.practice.practiceType {
             case .meaningSelection:
                 return {
-                    let practiceView = MeaningSelectionPracticeView()
+                    let practiceView = SelectionPracticeView()
                     practiceView.updateValues(selectionTexts: practiceProducer.currentPractice.selectionTexts!)
                     practiceView.delegate = self
                     return practiceView
@@ -78,10 +78,17 @@ class WordsPracticeViewController: PracticeViewController {
             case .contextSelection:
                 // TODO: - Update here.
                 break
+            case .accentSelection:
+                return {
+                    let practiceView = SelectionPracticeView()
+                    practiceView.updateValues(selectionTexts: practiceProducer.currentPractice.selectionTexts!)
+                    practiceView.delegate = self
+                    return practiceView
+                }()
             }
             
             // Will not reach here.
-            return MeaningSelectionPracticeView()
+            return SelectionPracticeView()
         }
         
         // Remove the old practice view.

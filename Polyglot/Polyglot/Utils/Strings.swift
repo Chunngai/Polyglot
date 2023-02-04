@@ -375,6 +375,16 @@ extension Strings {
         return Strings._contextSelectionPracticePrompts[Variables.lang]!
     }
     
+    private static let _accentSelectionPracticePrompts: [String : String] = [
+        LangCode.en : "Select the accent sequence for \(Strings.maskToken).",
+        LangCode.ja : "\(Strings.maskToken)のアクセントシーケンスを選択してください。",
+        LangCode.es : "Seleccione el secuencia de acento para \(Strings.maskToken).",
+        LangCode.ru : "Выберите последовательность акцентов для \(Strings.maskToken)."
+    ]
+    static var accentSelectionPracticePrompt: String {
+        return Strings._accentSelectionPracticePrompts[Variables.lang]!
+    }
+    
     private static let _translationPracticePrompts: [String : String] = [
         LangCode.en : "Interpret the paragraph",
         LangCode.ja : "この段落を\n通訳してください",

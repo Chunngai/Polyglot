@@ -8,12 +8,21 @@
 
 import Foundation
 
-struct Token {
+struct Token: Codable {
     
     var text: String
     var baseForm: String
     var pronunciation: String
     var accentLoc: Int?
+    
+    init(text: String, baseForm: String, pronunciation: String, accentLoc: Int?) {
+        
+        self.text = text.lowercased().strip()
+        self.baseForm = baseForm.lowercased().strip()
+        self.pronunciation = pronunciation.lowercased().strip()
+        self.accentLoc = accentLoc
+        
+    }
     
 }
 
@@ -24,26 +33,34 @@ struct Word {
     var mDate: Date  // Modification date.
     
     var text: String
+    var tokens: [Token]?
+    
     var meaning: String
     
     var note: String?
     
-    init(cDate: Date = Date(), text: String, meaning: String, note: String? = nil) {
+    init(cDate: Date = Date(), text: String, tokens: [Token]? = nil, meaning: String, note: String? = nil) {
         
         self.id = UUID().uuidString
         self.cDate = cDate
         self.mDate = cDate
         
         self.text = text.lowercased().strip()
+        self.tokens = tokens
+        
         self.meaning = meaning.lowercased().strip()
         
         self.note = note
     }
     
-    mutating func update(newText: String? = nil, newMeaning: String? = nil, newNote: String? = nil) {
+    mutating func update(newText: String? = nil, newTokens: [Token]? = nil, newMeaning: String? = nil, newNote: String? = nil) {
         
         if let newText = newText {
             self.text = newText.lowercased().strip()
+        }
+        
+        if let newTokens = newTokens {
+            self.tokens = newTokens
         }
         
         if let newMeaning = newMeaning {
@@ -67,6 +84,8 @@ extension Word: Codable {
         case mDate
         
         case text
+        case tokens
+        
         case meaning
         
         case note
@@ -90,6 +109,8 @@ extension Word: Codable {
         try container.encode(mDate, forKey: .mDate)
         
         try container.encode(text, forKey: .text)
+        try container.encode(tokens, forKey: .tokens)
+        
         try container.encode(meaning, forKey: .meaning)
         
         try container.encode(note, forKey: .note)
@@ -120,6 +141,12 @@ extension Word: Codable {
             text = try values.decode(String.self, forKey: .text)
         } catch {
             text = try values.decode(String.self, forKey: .word)
+        }
+        
+        do {
+            tokens = try values.decode([Token].self, forKey: .tokens)
+        } catch {
+            tokens = nil
         }
         
         meaning = try values.decode(String.self, forKey: .meaning)

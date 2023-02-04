@@ -81,6 +81,11 @@ struct WordPracticeProducer: PracticeProducerDelegate {
                 )
                 
                 let val: Double = {
+                    
+                    if practice.practiceType == .accentSelection {
+                        return 0  // TODO: No weights for accent selection.
+                    }
+                    
                     switch correctness {
                     case .correct:
                         return -1  // Decrease the weight.
@@ -130,6 +135,9 @@ struct WordPracticeProducer: PracticeProducerDelegate {
             
             practiceList.append(makeMeaningFillingPractice(for: randomWord, in: .meaningToText))
             
+            if randomWord.tokens != nil {
+                practiceList.append(makeAccentSelectionPractice(for: randomWord))
+            }
         }
         practiceList.shuffle()
         
@@ -161,6 +169,8 @@ extension WordPracticeProducer {
             return Strings.meaningSelectionAndFillingPracticePrompt
         case .contextSelection:
             return Strings.contextSelectionPracticePrompt
+        case .accentSelection:
+            return Strings.accentSelectionPracticePrompt
         }
         
     }
@@ -223,6 +233,52 @@ extension WordPracticeProducer {
                 wordToPractice.meaning :
                 wordToPractice.text
         )
+    }
+    
+    private func makeAccentSelectionPractice(for wordToPractice: Word) -> WordPracticeProducer.Item {
+        
+        let accurateAccentSequence = wordToPractice.tokens!.map({ (token) -> String in
+            token.accentLoc != nil ? String(token.accentLoc!) : "-"
+        })
+        
+        var selectionAccentSequences = [accurateAccentSequence]
+        // Randomly generate two accent sequence.
+        for _ in 0..<2 {
+            selectionAccentSequences.append(
+                // Generate a random accent sequence.
+                wordToPractice.tokens!.map({ (token) -> String in
+                    // E.g., if the pronunciation has two chars,
+                    // vals will be [1, 2].
+                    var vals = (0..<token.pronunciation.count).map { String($0) }
+                    // Add a "-" for nil.
+                    vals += ["-"]
+                    return vals.randomElement()!
+                })
+            )
+        }
+        selectionAccentSequences.shuffle()
+        
+        let textOfAccurateAccentSequence = accurateAccentSequence.joined(separator: "/")
+        let textsOfSelectionAccentSequences = selectionAccentSequences.map { (stringList) -> String in
+            stringList.joined(separator: "/")
+        }
+        return WordPracticeProducer.Item(
+            practice: WordPractice(
+                practiceType: .accentSelection,
+                wordId: wordToPractice.id,
+                selectionAccentSequences: textsOfSelectionAccentSequences,
+                direction: .textToMeaning
+            ),
+            prompt: makePromptTemplate(for: .meaningSelection).replacingOccurrences(
+                of: Strings.maskToken,
+                with: wordToPractice.tokens!.map({ (token) -> String in
+                    token.baseForm
+                }).joined(separator: "/")
+            ),
+            selectionTexts: textsOfSelectionAccentSequences,
+            key: textOfAccurateAccentSequence
+        )
+        
     }
 }
 
