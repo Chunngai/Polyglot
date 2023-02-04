@@ -82,6 +82,23 @@ class HomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+//        let query = "今ご飯食べてる"  // 今 ご飯 食べる
+//        let query = "今ご飯食べてる人"  // 今 ご飯 食べる 人
+//        let query = "食べてる物"  // 食べる 物
+//        let query = "日本語では、花、鼻の発音が似てる。"  // 日本語 で は 花 鼻 の 発音 が 似る
+//        let query = "活発な"
+//        let query = "活発な反応"
+//        let query = "勉強する人"
+//        let query = "肌の美白や保湿をする"
+//        let query = "おいしい"
+        let query = "「民は食をもって天となす」と言われるように、中国の大晦日は何と言ってもおいしい料理が主役。春節においしい料理を食べながら一家団欒を楽しむのが恒例行事だ。ただ、体調を崩すことがないよう、特に高血糖や消化器系の弱い人は食べ過ぎや飲み過ぎ、衛生管理などに注意しなければならない。太りすぎることがない程度に、おいしい料理をたくさん食べ、ポジティブな気分で新年を迎えよう！"
+        
+        JapanesePAAnalyzer().analyze(query: query) { (paInfo) in
+            for item in paInfo {
+                print(item)
+            }
+        }
+        
         updateSetups()
         updateViews()
         updateLayouts()

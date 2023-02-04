@@ -8,6 +8,15 @@
 
 import Foundation
 
+struct Token {
+    
+    var text: String
+    var baseForm: String
+    var pronunciation: String
+    var accentLoc: Int?
+    
+}
+
 struct Word {
     
     var id: String

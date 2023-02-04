@@ -44,7 +44,10 @@ struct GoogleTranslator {
         guard let url = constructUrl(from: query) else {
             return
         }
-        let request: URLRequest = URLRequest(url: url, timeoutInterval: Constants.requestTimeLimit)
+        
+        var request: URLRequest = URLRequest(url: url, timeoutInterval: Constants.requestTimeLimit)
+        request.setValue(Constants.userAgent, forHTTPHeaderField: "User-Agent")
+        
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             
             guard let data = data, error == nil else {
@@ -78,10 +81,10 @@ struct GoogleTranslator {
 
 extension GoogleTranslator {
     
-    static let scheme = "https"
-    static let host = "translate.googleapis.com"
-    static let path = "/translate_a/single"
-    static let queryItems: [String: String] = [
+    static private let scheme = "https"
+    static private let host = "translate.googleapis.com"
+    static private let path = "/translate_a/single"
+    static private let queryItems: [String: String] = [
         "client": "gtx",
         "dt": "at",
         "ie": "UTF-8",

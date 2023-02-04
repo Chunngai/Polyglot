@@ -79,6 +79,7 @@
 		FF8CDE812952995F00B36CA3 /* NewWordAddingBottomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8CDE802952995F00B36CA3 /* NewWordAddingBottomView.swift */; };
 		FF8E5BBE298DB9BF003B6FB1 /* SnapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF8E5BBB298DB9A6003B6FB1 /* SnapKit.framework */; };
 		FF8E5BBF298DB9BF003B6FB1 /* SnapKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FF8E5BBB298DB9A6003B6FB1 /* SnapKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		FF8E5BC3298DBD5D003B6FB1 /* JapanesePAAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8E5BC2298DBD5D003B6FB1 /* JapanesePAAnalyzer.swift */; };
 		FFBD60412969D713004165FC /* WordPracticeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60402969D713004165FC /* WordPracticeExtensions.swift */; };
 		FFBD60432969D721004165FC /* ReadingPracticeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60422969D721004165FC /* ReadingPracticeExtensions.swift */; };
 		FFBD60452969D733004165FC /* TranslationPracticeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60442969D733004165FC /* TranslationPracticeExtensions.swift */; };
@@ -219,6 +220,7 @@
 		FF793A472968A7D60026B8C7 /* UIApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIApplication.swift; sourceTree = "<group>"; };
 		FF8CDE802952995F00B36CA3 /* NewWordAddingBottomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWordAddingBottomView.swift; sourceTree = "<group>"; };
 		FF8E5BB5298DB9A6003B6FB1 /* SnapKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SnapKit.xcodeproj; path = "../../../Downloads/SnapKit-develop/SnapKit.xcodeproj"; sourceTree = "<group>"; };
+		FF8E5BC2298DBD5D003B6FB1 /* JapanesePAAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JapanesePAAnalyzer.swift; sourceTree = "<group>"; };
 		FFBD60402969D713004165FC /* WordPracticeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPracticeExtensions.swift; sourceTree = "<group>"; };
 		FFBD60422969D721004165FC /* ReadingPracticeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPracticeExtensions.swift; sourceTree = "<group>"; };
 		FFBD60442969D733004165FC /* TranslationPracticeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeExtensions.swift; sourceTree = "<group>"; };
@@ -574,6 +576,7 @@
 			isa = PBXGroup;
 			children = (
 				FF58518E29819CF8004EB63C /* GoogleTranslator.swift */,
+				FF8E5BC2298DBD5D003B6FB1 /* JapanesePAAnalyzer.swift */,
 			);
 			path = APIs;
 			sourceTree = "<group>";
@@ -878,6 +881,7 @@
 				FF491E772959CC960088FD13 /* MeaningFillingPracticeView.swift in Sources */,
 				FF491E752959C4320088FD13 /* MeaningSelectionPracticeView.swift in Sources */,
 				FFCBB0E0296B45F300E5B9D9 /* TranslationPracticeView.swift in Sources */,
+				FF8E5BC3298DBD5D003B6FB1 /* JapanesePAAnalyzer.swift in Sources */,
 				FF4964BA29579C5A00414AC5 /* UISearchBarExtensions.swift in Sources */,
 				FF5844312967217700137E00 /* ListViewController.swift in Sources */,
 				FF62C97A2951382500D41797 /* HomeViewController.swift in Sources */,
