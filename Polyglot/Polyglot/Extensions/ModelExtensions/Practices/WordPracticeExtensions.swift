@@ -109,6 +109,7 @@ struct WordPracticeProducer: PracticeProducerDelegate {
             for (word, prob) in zip(dataSource, probs) {
                 print("\(word.text):\(prob)", terminator: " ")
             }
+            print()
             
             return probs
         }
@@ -237,16 +238,22 @@ extension WordPracticeProducer {
     
     private func makeAccentSelectionPractice(for wordToPractice: Word) -> WordPracticeProducer.Item {
         
-        let tokens = wordToPractice.tokens!
+        // TODO: - nil and -1 produces the same accented pronunciation.
         
-        var selectionAccentsList = [tokens.accentLocList]
-        // Randomly generate two accent sequences.
-        var iterCounter: Int = 0
-        let iterCounterLimit: Int = 50
-        while true {
+        func makePronunciationsWith(accents: [Int?], and tokens: [Token]) -> String {
+            guard accents.count == tokens.count else {
+                return "-"
+            }
             
-            // Generate a random accent sequence.
-            let selectionAccents = tokens.pronunciationList.map({ (pronunciation) -> Int? in
+            var tokens = tokens
+            for (i, accent) in accents.enumerated() {
+                tokens[i].accentLoc = accent
+            }
+            return tokens.pronunciationWithAccentList.joined(separator: Strings.tokenSeparator)
+        }
+        
+        func generateRandomAccentLocs(for tokens: [Token]) -> [Int?] {
+            return tokens.pronunciationList.map({ (pronunciation) -> Int? in
                 // E.g., if the pronunciation has two chars,
                 // vals will be [0, 1].
                 var vals: [Int?] = Array<Int>(0..<pronunciation.count)
@@ -255,39 +262,32 @@ extension WordPracticeProducer {
                 
                 return vals.randomElement()!
             })
-            if !selectionAccentsList.contains(selectionAccents) {
+        }
+        
+        let tokens = wordToPractice.tokens!
+        
+        var selectionAccentsList = [tokens.accentLocList]
+        var selectionTexts = [tokens.pronunciationWithAccentList.joined(separator: Strings.tokenSeparator)]
+        // Randomly generate two accent sequences.
+        while true {
+            // Generate a random accent sequence.
+            let selectionAccents = generateRandomAccentLocs(for: tokens)
+            let selectionText = makePronunciationsWith(accents: selectionAccents, and: tokens)
+            if !selectionTexts.contains(selectionText) {
                 selectionAccentsList.append(selectionAccents)
+                selectionTexts.append(selectionText)
             }
             
             if selectionAccentsList.count == choiceNumber {
                 break
             }
-            
-            // prevent infinite loop.
-            iterCounter += 1
-            if iterCounter == iterCounterLimit {
-                print(wordToPractice.text, "breaking the loop...")
-                break
-            }
         }
-        selectionAccentsList.shuffle()
-        
-        var selectionTexts: [String] = []
-        for selectionAccents in selectionAccentsList {
-            var _tokens = tokens
-            for (i, (_, selectionAccent)) in zip(_tokens, selectionAccents).enumerated() {
-                _tokens[i].accentLoc = selectionAccent
-            }
-            selectionTexts.append(_tokens.pronunciationWithAccentList.joined(separator: Strings.tokenSeparator))
-        }
-        // Ensure the selection number.
-        if selectionTexts.count < choiceNumber {
-            selectionTexts.append(contentsOf: [String](
-                repeating: "-",
-                count: choiceNumber - selectionTexts.count
-            ))
-        }
-        
+                
+        // Shuffle the two lists in the same order.
+        let shuffledIndices = selectionAccentsList.indices.shuffled()
+        selectionAccentsList = shuffledIndices.map { selectionAccentsList[$0] }
+        selectionTexts = shuffledIndices.map { selectionTexts[$0] }
+                
         return WordPracticeProducer.Item(
             practice: WordPractice(
                 practiceType: .accentSelection,

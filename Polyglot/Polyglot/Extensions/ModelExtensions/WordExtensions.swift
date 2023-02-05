@@ -11,7 +11,7 @@ import Foundation
 extension Token {
     
     // https://stackoverflow.com/questions/31272561/working-with-unicode-code-points-in-swift
-    static var accentSymbol: String = "\u{031A}"
+    static var accentSymbol: Character = "\u{031A}"
     
     var pronunciationWithAccent: String {
         
@@ -27,7 +27,7 @@ extension Token {
         
         // https://stackoverflow.com/questions/27103454/how-to-add-a-character-at-a-particular-index-in-string-in-swift
         pronunciation.insert(
-            contentsOf: Token.accentSymbol,
+            Token.accentSymbol,
             at: pronunciation.index(
                 pronunciation.startIndex,
                 offsetBy: accentLoc + 1
