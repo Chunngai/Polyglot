@@ -22,6 +22,8 @@ class WordsTableCell: UITableViewCell {
                 } else {
                     tokensLabel.text = "(\(textOfTokensLabel))"
                 }
+            } else {
+                tokensLabel.text = nil
             }
             
             meaningLabel.text = word.meaning
