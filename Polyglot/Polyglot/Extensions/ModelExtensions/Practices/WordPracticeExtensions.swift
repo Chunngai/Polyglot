@@ -135,7 +135,7 @@ struct WordPracticeProducer: PracticeProducerDelegate {
             
             practiceList.append(makeMeaningFillingPractice(for: randomWord, in: .meaningToText))
             
-            if let tokens = randomWord.tokens, tokens.pronunciationList.count >= 2 {  // Not needed for one-syllable words.
+            if let tokens = randomWord.tokens, tokens.pronunciationList.joined(separator: "").count >= 2 {  // Not needed for one-syllable words.
                 practiceList.append(makeAccentSelectionPractice(for: randomWord))
             }
         }
@@ -242,7 +242,7 @@ extension WordPracticeProducer {
         var selectionAccentsList = [tokens.accentLocList]
         // Randomly generate two accent sequences.
         var iterCounter: Int = 0
-        let iterCounterLimit: Int = 10
+        let iterCounterLimit: Int = 50
         while true {
             
             // Generate a random accent sequence.
@@ -266,6 +266,7 @@ extension WordPracticeProducer {
             // prevent infinite loop.
             iterCounter += 1
             if iterCounter == iterCounterLimit {
+                print(wordToPractice.text, "breaking the loop...")
                 break
             }
         }
@@ -278,6 +279,13 @@ extension WordPracticeProducer {
                 _tokens[i].accentLoc = selectionAccent
             }
             selectionTexts.append(_tokens.pronunciationWithAccentList.joined(separator: Strings.tokenSeparator))
+        }
+        // Ensure the selection number.
+        if selectionTexts.count < choiceNumber {
+            selectionTexts.append(contentsOf: [String](
+                repeating: "-",
+                count: choiceNumber - selectionTexts.count
+            ))
         }
         
         return WordPracticeProducer.Item(
@@ -326,12 +334,20 @@ extension WordPracticeProducer {
         }
                 
         mutating func checkCorrectness(answer: String) {
-            let keyComponents = key
-                .normalized
-                .components(from: tokenizer)
-            let answerComponents = answer
-                .normalized
-                .components(from: tokenizer)
+            
+            var key = self.key
+            var answer = answer
+            if practice.practiceType == .meaningFilling {
+                
+                // Do not normalize for accent practices,
+                // or the accent mark will be removed.
+                
+                key = key.normalized
+                answer = answer.normalized
+            }
+            
+            let keyComponents = key.components(from: tokenizer)
+            let answerComponents = answer.components(from: tokenizer)
             
             let correctness: WordPractice.Correctness!
             if keyComponents == answerComponents {

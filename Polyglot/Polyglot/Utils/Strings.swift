@@ -377,10 +377,10 @@ extension Strings {
     }
     
     private static let _accentSelectionPracticePrompts: [String : String] = [
-        LangCode.en : "Select the accent sequence for \(Strings.maskToken).",
-        LangCode.ja : "\(Strings.maskToken)のアクセントシーケンスを選択してください。",
-        LangCode.es : "Seleccione el secuencia de acento para \(Strings.maskToken).",
-        LangCode.ru : "Выберите последовательность акцентов для \(Strings.maskToken)."
+        LangCode.en : "Select the accent sequence for\n\(Strings.maskToken).",
+        LangCode.ja : "\(Strings.maskToken)\nのアクセントシーケンスを選択してください。",
+        LangCode.es : "Seleccione el secuencia de acento para\n\(Strings.maskToken).",
+        LangCode.ru : "Выберите последовательность акцентов для\n\(Strings.maskToken)."
     ]
     static var accentSelectionPracticePrompt: String {
         return Strings._accentSelectionPracticePrompts[Variables.lang]!
