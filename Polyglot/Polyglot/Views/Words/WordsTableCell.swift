@@ -15,6 +15,15 @@ class WordsTableCell: UITableViewCell {
     var word: Word! {
         didSet {
             wordLabel.text = word.text
+            if let tokens = word.tokens {
+                let textOfTokensLabel = tokens.pronunciationWithAccentList.joined(separator: Strings.tokenSeparator)
+                if textOfTokensLabel.normalized == word.text {  // E.g., russian words, japanese words with katakana only.
+                    wordLabel.text = textOfTokensLabel
+                } else {
+                    tokensLabel.text = "(\(textOfTokensLabel))"
+                }
+            }
+            
             meaningLabel.text = word.meaning
         }
     }
@@ -27,6 +36,15 @@ class WordsTableCell: UITableViewCell {
         let label = UILabel()
         label.backgroundColor = Colors.defaultBackgroundColor
         label.textColor = Colors.normalTextColor
+        label.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        label.textAlignment = .left
+        return label
+    }()
+    
+    private var tokensLabel: UILabel = {
+        let label = UILabel()
+        label.backgroundColor = Colors.defaultBackgroundColor
+        label.textColor = Colors.weakTextColor
         label.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
         label.textAlignment = .left
         return label
@@ -66,13 +84,19 @@ class WordsTableCell: UITableViewCell {
         wordLabel.snp.updateConstraints { (make) in
             make.leading.equalToSuperview()
             make.centerY.equalToSuperview()
-            make.width.equalTo(wordLabel.intrinsicContentSize)
+            make.width.equalTo(wordLabel.intrinsicContentSize.width)
+        }
+        
+        tokensLabel.snp.updateConstraints { (make) in
+            make.leading.equalTo(wordLabel.snp.trailing).offset(5)
+            make.centerY.equalToSuperview()
+            make.width.equalTo(tokensLabel.intrinsicContentSize.width)
         }
         
         // Before layoutSubview(), the width of the word label is not clear,
         // resulting in a wrong layout of the meaning label.
         meaningLabel.snp.makeConstraints { (make) in
-            make.leading.equalTo(wordLabel.snp.trailing).offset(padding)
+            make.leading.equalTo(tokensLabel.snp.trailing).offset(padding)
             make.trailing.equalToSuperview()
             make.centerY.equalToSuperview()
         }
@@ -88,6 +112,7 @@ class WordsTableCell: UITableViewCell {
         addSubview(mainView)
         
         mainView.addSubview(wordLabel)
+        mainView.addSubview(tokensLabel)
         mainView.addSubview(meaningLabel)
     }
     

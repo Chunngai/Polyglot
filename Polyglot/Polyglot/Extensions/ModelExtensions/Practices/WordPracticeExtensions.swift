@@ -131,6 +131,8 @@ struct WordPracticeProducer: PracticeProducerDelegate {
         var practiceList: [WordPracticeProducer.Item] = []
         for randomWord in randomWords {
             
+            // TODO: - selection practices may suffer from selection insufficiency problems.
+            
             practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .textToMeaning))
             practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .meaningToText))
             
@@ -284,6 +286,7 @@ extension WordPracticeProducer {
         }
                 
         // Shuffle the two lists in the same order.
+        // https://stackoverflow.com/questions/32726962/randomize-two-arrays-the-same-way-swift
         let shuffledIndices = selectionAccentsList.indices.shuffled()
         selectionAccentsList = shuffledIndices.map { selectionAccentsList[$0] }
         selectionTexts = shuffledIndices.map { selectionTexts[$0] }
