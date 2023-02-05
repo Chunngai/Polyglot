@@ -97,25 +97,30 @@ struct JapanesePAAnalyzer {
                     .replacingOccurrences(of: " ", with: "")
                 
                 // Make the pa.
-                var pitchLoc: Int = 0
+                var locCounter: Int = -1
+                var pitchLoc: Int = -1
                 var prevPitch: Pitch? = nil
                 for (i, pitchDiv) in pitchDivs.enumerated() {
+                    
                     let pitch = try pitchDiv.attr("style").contains(Pitch.high.rawValue) ?
                         Pitch.high :
                         Pitch.low
-                    
                     // High -> low.
                     if prevPitch == Pitch.high && pitch == Pitch.low {
-                        pitchLoc = i
+                        pitchLoc = locCounter
                     }
+                    prevPitch = pitch
+                    
+                    // Count the loc.
+                    let partialKanas = try pitchDiv.text()
+                    locCounter += partialKanas.count
+                    print(partialKanas, partialKanas.count, locCounter)
                     
                     // The accent is on the last char.
                     let isRightContained = try pitchDiv.attr("style").contains("right")
                     if i + 1 == pitchDivs.count && isRightContained {
-                        pitchLoc = i + 1
+                        pitchLoc = kana.count - 1
                     }
-                    
-                    prevPitch = pitch
                 }
                 
                 res.append(Token(

@@ -344,6 +344,7 @@ extension Strings {
     // MARK: - Practicing
     
     static let maskToken: String = "[MASK]"
+    static var tokenSeparator: String = "·"
     
     private static let _meaningSelectionAndFillingPracticePrompt: [String : String] = [
         LangCode.en : "What's the meaning of\n\(Strings.maskToken)?",

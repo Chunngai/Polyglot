@@ -8,6 +8,60 @@
 
 import Foundation
 
+extension Token {
+    
+    // https://stackoverflow.com/questions/31272561/working-with-unicode-code-points-in-swift
+    static var accentSymbol: String = "\u{031A}"
+    
+    var pronunciationWithAccent: String {
+        
+        guard let accentLoc = accentLoc else {
+            return pronunciation
+        }
+        
+        guard accentLoc >= 0 && accentLoc < pronunciation.count else {  // For heibangata of ja, the accentLoc is -1.
+            return pronunciation
+        }
+        
+        var pronunciation = self.pronunciation
+        
+        // https://stackoverflow.com/questions/27103454/how-to-add-a-character-at-a-particular-index-in-string-in-swift
+        pronunciation.insert(
+            contentsOf: Token.accentSymbol,
+            at: pronunciation.index(
+                pronunciation.startIndex,
+                offsetBy: accentLoc + 1
+            )
+        )
+        
+        return pronunciation
+        
+    }
+}
+
+extension Array where Iterator.Element == Token {
+        
+    var textList: [String] {
+        self.map { $0.text }
+    }
+    
+    var baseFormList: [String] {
+        self.map { $0.baseForm }
+    }
+    
+    var pronunciationList: [String] {
+        self.map { $0.pronunciation }
+    }
+    
+    var accentLocList: [Int?] {
+        self.map { $0.accentLoc }
+    }
+    
+    var pronunciationWithAccentList: [String] {
+        self.map { $0.pronunciationWithAccent }
+    }
+}
+
 extension Word {
     
     var query: String {

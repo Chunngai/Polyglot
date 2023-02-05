@@ -19,7 +19,7 @@ struct WordPractice: Practice {
     // For word / context selection practices.
     var selectionWordsIds: [String]?
     // For accent selection practices.
-    var selectionAccentSequences: [String]?
+    var selectionAccentsList: [[Int?]]?
     // For context practices.
     var articleId: String?
     var paragraphId: String?
@@ -30,7 +30,7 @@ struct WordPractice: Practice {
     
     var correctness: Correctness!
     
-    init(practiceType: WordPractice.PracticeType, wordId: String, selectionWordsIds: [String]? = nil, selectionAccentSequences: [String]? = nil, articleId: String? = nil, paragraphId: String? = nil, direction: PracticeDirection, correctness: Correctness? = nil) {
+    init(practiceType: WordPractice.PracticeType, wordId: String, selectionWordsIds: [String]? = nil, selectionAccentsList: [[Int?]]? = nil, articleId: String? = nil, paragraphId: String? = nil, direction: PracticeDirection, correctness: Correctness? = nil) {
         
         self.id = UUID().uuidString
         self.cDate = Date()
@@ -39,7 +39,7 @@ struct WordPractice: Practice {
         self.wordId = wordId
         
         self.selectionWordsIds = selectionWordsIds
-        self.selectionAccentSequences = selectionAccentSequences
+        self.selectionAccentsList = selectionAccentsList
         self.articleId = articleId
         self.paragraphId = paragraphId
         
@@ -78,7 +78,7 @@ extension WordPractice: Codable {
         case wordId
         
         case selectionWordsIds
-        case selectionAccentSequences
+        case selectionAccentsList
         case articleId
         case paragraphId
         
@@ -111,7 +111,7 @@ extension WordPractice: Codable {
         try container.encode(wordId, forKey: .wordId)
         
         try container.encode(selectionWordsIds, forKey: .selectionWordsIds)
-        try container.encode(selectionAccentSequences, forKey: .selectionAccentSequences)
+        try container.encode(selectionAccentsList, forKey: .selectionAccentsList)
         try container.encode(articleId, forKey: .articleId)
         try container.encode(paragraphId, forKey: .paragraphId)
         
@@ -154,9 +154,9 @@ extension WordPractice: Codable {
         }
         
         do {
-            selectionAccentSequences = try values.decode([String]?.self, forKey: .selectionAccentSequences)
+            selectionAccentsList = try values.decode([[Int?]]?.self, forKey: .selectionAccentsList)
         } catch {
-            selectionAccentSequences = ["", "", ""]
+            selectionAccentsList = [[], [], []]
         }
         
         do {

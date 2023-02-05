@@ -135,7 +135,7 @@ struct WordPracticeProducer: PracticeProducerDelegate {
             
             practiceList.append(makeMeaningFillingPractice(for: randomWord, in: .meaningToText))
             
-            if randomWord.tokens != nil {
+            if let tokens = randomWord.tokens, tokens.pronunciationList.count >= 2 {  // Not needed for one-syllable words.
                 practiceList.append(makeAccentSelectionPractice(for: randomWord))
             }
         }
@@ -237,46 +237,62 @@ extension WordPracticeProducer {
     
     private func makeAccentSelectionPractice(for wordToPractice: Word) -> WordPracticeProducer.Item {
         
-        let accurateAccentSequence = wordToPractice.tokens!.map({ (token) -> String in
-            token.accentLoc != nil ? String(token.accentLoc!) : "-"
-        })
+        let tokens = wordToPractice.tokens!
         
-        var selectionAccentSequences = [accurateAccentSequence]
-        // Randomly generate two accent sequence.
-        for _ in 0..<2 {
-            selectionAccentSequences.append(
-                // Generate a random accent sequence.
-                wordToPractice.tokens!.map({ (token) -> String in
-                    // E.g., if the pronunciation has two chars,
-                    // vals will be [1, 2].
-                    var vals = (0..<token.pronunciation.count).map { String($0) }
-                    // Add a "-" for nil.
-                    vals += ["-"]
-                    return vals.randomElement()!
-                })
-            )
+        var selectionAccentsList = [tokens.accentLocList]
+        // Randomly generate two accent sequences.
+        var iterCounter: Int = 0
+        let iterCounterLimit: Int = 10
+        while true {
+            
+            // Generate a random accent sequence.
+            let selectionAccents = tokens.pronunciationList.map({ (pronunciation) -> Int? in
+                // E.g., if the pronunciation has two chars,
+                // vals will be [0, 1].
+                var vals: [Int?] = Array<Int>(0..<pronunciation.count)
+                // Add a nil for other situations, e.g., no accent.
+                vals += [nil]
+                
+                return vals.randomElement()!
+            })
+            if !selectionAccentsList.contains(selectionAccents) {
+                selectionAccentsList.append(selectionAccents)
+            }
+            
+            if selectionAccentsList.count == choiceNumber {
+                break
+            }
+            
+            // prevent infinite loop.
+            iterCounter += 1
+            if iterCounter == iterCounterLimit {
+                break
+            }
         }
-        selectionAccentSequences.shuffle()
+        selectionAccentsList.shuffle()
         
-        let textOfAccurateAccentSequence = accurateAccentSequence.joined(separator: "/")
-        let textsOfSelectionAccentSequences = selectionAccentSequences.map { (stringList) -> String in
-            stringList.joined(separator: "/")
+        var selectionTexts: [String] = []
+        for selectionAccents in selectionAccentsList {
+            var _tokens = tokens
+            for (i, (_, selectionAccent)) in zip(_tokens, selectionAccents).enumerated() {
+                _tokens[i].accentLoc = selectionAccent
+            }
+            selectionTexts.append(_tokens.pronunciationWithAccentList.joined(separator: Strings.tokenSeparator))
         }
+        
         return WordPracticeProducer.Item(
             practice: WordPractice(
                 practiceType: .accentSelection,
                 wordId: wordToPractice.id,
-                selectionAccentSequences: textsOfSelectionAccentSequences,
+                selectionAccentsList: selectionAccentsList,
                 direction: .textToMeaning
             ),
-            prompt: makePromptTemplate(for: .meaningSelection).replacingOccurrences(
+            prompt: makePromptTemplate(for: .accentSelection).replacingOccurrences(
                 of: Strings.maskToken,
-                with: wordToPractice.tokens!.map({ (token) -> String in
-                    token.baseForm
-                }).joined(separator: "/")
+                with: tokens.baseFormList.joined(separator: Strings.tokenSeparator)
             ),
-            selectionTexts: textsOfSelectionAccentSequences,
-            key: textOfAccurateAccentSequence
+            selectionTexts: selectionTexts,
+            key: tokens.pronunciationWithAccentList.joined(separator: Strings.tokenSeparator)
         )
         
     }
