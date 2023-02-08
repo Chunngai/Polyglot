@@ -140,6 +140,11 @@ struct WordPracticeProducer: PracticeProducerDelegate {
             
             if let tokens = randomWord.tokens, tokens.pronunciationList.joined(separator: "").count >= 2 {  // Not needed for one-syllable words.
                 practiceList.append(makeAccentSelectionPractice(for: randomWord))
+            } else {
+                // TODO: - Temporary solution.
+                if Variables.lang == LangCode.ja {
+                    Word.makeTokensFor(jaWord: randomWord)
+                }
             }
         }
         practiceList.shuffle()

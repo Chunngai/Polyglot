@@ -51,6 +51,13 @@ struct Word {
         self.meaning = meaning.lowercased().strip()
         
         self.note = note
+        
+        // TODO: - Temporary solution.
+        if tokens == nil {
+            if Variables.lang == LangCode.ja {
+                Word.makeTokensFor(jaWord: self)
+            }
+        }
     }
     
     mutating func update(newText: String? = nil, newTokens: [Token]? = nil, newMeaning: String? = nil, newNote: String? = nil) {
@@ -72,6 +79,13 @@ struct Word {
         }
         
         self.mDate = Date()
+        
+        // TODO: - Temporary solution.
+        if tokens == nil || newText != nil {
+            if Variables.lang == LangCode.ja {
+                Word.makeTokensFor(jaWord: self)
+            }
+        }
     }
 }
 
@@ -202,5 +216,38 @@ extension Word {
         Word(cDate: Date(timeInterval: 300000, since: Date()), text: "水道水", meaning: "自来水"),
         Word(cDate: Date(timeInterval: 300000, since: Date()), text: "辺鄙な", meaning: "偏僻的")
     ]
+    
+}
+
+
+extension Word {
+    
+    static func makeTokensFor(jaWord word: Word) {
+        
+        // https://stackoverflow.com/questions/24056205/how-to-use-background-thread-in-swift
+        
+        DispatchQueue.global(qos: .userInitiated).async {
+           
+            sleep(UInt32.random(in: 0..<3))
+            
+            JapanesePAAnalyzer().analyze(query: word.text) { (tokens) in
+                
+                // TODO: - Update here.
+                
+                if !tokens.isEmpty {
+                
+                    var _allWords = Word.load()
+                    _allWords.updateWord(of: word.id, newTokens: tokens)
+                    Word.save(&_allWords)
+                    
+                }
+            }
+
+            DispatchQueue.main.async {
+                print("This is run on the main queue, after the previous code in outer block")
+            }
+        }
+        
+    }
     
 }

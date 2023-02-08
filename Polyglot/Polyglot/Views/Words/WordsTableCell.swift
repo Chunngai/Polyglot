@@ -15,17 +15,19 @@ class WordsTableCell: UITableViewCell {
     var word: Word! {
         didSet {
             wordLabel.text = word.text
-            if let tokens = word.tokens {
-                let textOfTokensLabel = tokens.pronunciationWithAccentList.joined(separator: Strings.tokenSeparator)
-                if textOfTokensLabel.normalized == word.text {  // E.g., russian words, japanese words with katakana only.
-                    wordLabel.text = textOfTokensLabel
+            tokensLabel.text = {
+                if let tokens = word.tokens {
+                    let textOfTokensLabel = tokens.pronunciationWithAccentList.joined(separator: Strings.tokenSeparator)
+                    if textOfTokensLabel.normalized == word.text {  // E.g., russian words, japanese words with katakana only.
+                        wordLabel.text = textOfTokensLabel
+                        return nil
+                    } else {
+                        return "(\(textOfTokensLabel))"
+                    }
                 } else {
-                    tokensLabel.text = "(\(textOfTokensLabel))"
+                    return nil
                 }
-            } else {
-                tokensLabel.text = nil
-            }
-            
+            }()
             meaningLabel.text = word.meaning
         }
     }
