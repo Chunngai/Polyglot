@@ -152,7 +152,7 @@ class HomeViewController: UIViewController {
         }
     
         promptView.snp.makeConstraints { (make) in
-            make.top.equalToSuperview()
+            make.top.equalToSuperview().offset(30)
             make.width.equalToSuperview()
             make.height.equalToSuperview().multipliedBy(0.4)
         }

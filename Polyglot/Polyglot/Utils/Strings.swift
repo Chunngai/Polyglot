@@ -80,10 +80,14 @@ extension Strings {
     
     static let _mainSecondaryPrompts: [String : String] = [
         
-        LangCode.en : "Choose a language to practice",
-        LangCode.ja : " 練習したい言語を選んでください",  // TODO: - The leading space is for aligning with the primary prompt.
-        LangCode.es : "Elija un idioma para practicar",
-        LangCode.ru : "Выберите язык для практики"
+//        LangCode.en : "Choose a language to practice",
+//        LangCode.ja : " 練習したい言語を選んでください",  // TODO: - The leading space is for aligning with the primary prompt.
+//        LangCode.es : "Elija un idioma para practicar",
+//        LangCode.ru : "Выберите язык для практики"
+        LangCode.en : " ",
+        LangCode.ja : " ",
+        LangCode.es : " ",
+        LangCode.ru : " "
     ]
     static var mainSecondaryPrompt: String {
         return Strings._mainSecondaryPrompts[Variables.lang]!
@@ -94,8 +98,8 @@ extension Strings {
     private static let _menuPrimaryPrompts: [String : String] = [
         LangCode.en : "English",
         LangCode.ja : "日本語",
-        LangCode.es : "español",
-        LangCode.ru : "русский"
+        LangCode.es : "Español",
+        LangCode.ru : "Русский"
     ]
     static var menuPrimaryPrompt: String {
         return Strings._menuPrimaryPrompts[Variables.lang]!
@@ -103,10 +107,14 @@ extension Strings {
     
     private static let _menuSecondaryPrompts: [String : String] = [
         
-        LangCode.en : "What are you going to practice?",
-        LangCode.ja : "  何を練習しますか？",  // TODO: - The leading space is for aligning with the primary prompt.
-        LangCode.es : "¿Qué va a practicar?",
-        LangCode.ru : "Что вы собираетесь практиковать?"
+//        LangCode.en : "What are you going to practice?",
+//        LangCode.ja : "  何を練習しますか？",  // TODO: - The leading space is for aligning with the primary prompt.
+//        LangCode.es : "¿Qué va a practicar?",
+//        LangCode.ru : "Что вы собираетесь практиковать?"
+        LangCode.en : " ",
+        LangCode.ja : " ",
+        LangCode.es : " ",
+        LangCode.ru : " "
     ]
     static var menuSecondaryPrompt: String {
         return Strings._menuSecondaryPrompts[Variables.lang]!

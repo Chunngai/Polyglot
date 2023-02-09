@@ -167,7 +167,7 @@ class MenuViewController: UIViewController {
             make.height.equalToSuperview().multipliedBy(0.4)
         }
         primaryPromptLabel.snp.makeConstraints { (make) in
-            make.top.equalToSuperview()
+            make.top.equalToSuperview().offset(30)
             make.left.equalToSuperview()
         }
         langImageView.snp.makeConstraints { (make) in
