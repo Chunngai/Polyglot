@@ -36,6 +36,7 @@ class SelectionPracticeView: UIView {
         textView.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
         textView.isEditable = false
         textView.isScrollEnabled = true
+        textView.showsVerticalScrollIndicator = false
         textView.attributedText = NSAttributedString(
             string: " ",
             attributes: Attributes.defaultLongTextAttributes

@@ -14,7 +14,6 @@
 		FF491E732959C2FD0088FD13 /* PracticeViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E722959C2FD0088FD13 /* PracticeViewDelegate.swift */; };
 		FF491E752959C4320088FD13 /* SelectionPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E742959C4320088FD13 /* SelectionPracticeView.swift */; };
 		FF491E772959CC960088FD13 /* MeaningFillingPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E762959CC960088FD13 /* MeaningFillingPracticeView.swift */; };
-		FF491E792959CCF60088FD13 /* ContextSelectionPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E782959CCF60088FD13 /* ContextSelectionPracticeView.swift */; };
 		FF491E802959ED730088FD13 /* Separator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E7F2959ED730088FD13 /* Separator.swift */; };
 		FF495E8E2958F38800EA7EA9 /* UITableViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF495E8D2958F38800EA7EA9 /* UITableViewExtensions.swift */; };
 		FF495E962958FFE600EA7EA9 /* WordsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF495E952958FFE600EA7EA9 /* WordsViewController.swift */; };
@@ -150,7 +149,6 @@
 		FF491E722959C2FD0088FD13 /* PracticeViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeViewDelegate.swift; sourceTree = "<group>"; };
 		FF491E742959C4320088FD13 /* SelectionPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionPracticeView.swift; sourceTree = "<group>"; };
 		FF491E762959CC960088FD13 /* MeaningFillingPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeaningFillingPracticeView.swift; sourceTree = "<group>"; };
-		FF491E782959CCF60088FD13 /* ContextSelectionPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContextSelectionPracticeView.swift; sourceTree = "<group>"; };
 		FF491E7F2959ED730088FD13 /* Separator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Separator.swift; sourceTree = "<group>"; };
 		FF495E8D2958F38800EA7EA9 /* UITableViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITableViewExtensions.swift; sourceTree = "<group>"; };
 		FF495E952958FFE600EA7EA9 /* WordsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordsViewController.swift; sourceTree = "<group>"; };
@@ -345,7 +343,6 @@
 				FF495E9B295903DF00EA7EA9 /* WordsTableCell.swift */,
 				FF491E742959C4320088FD13 /* SelectionPracticeView.swift */,
 				FF491E762959CC960088FD13 /* MeaningFillingPracticeView.swift */,
-				FF491E782959CCF60088FD13 /* ContextSelectionPracticeView.swift */,
 			);
 			path = Words;
 			sourceTree = "<group>";
@@ -906,7 +903,6 @@
 				FF591EDA296796200004CB80 /* TranslationPractice.swift in Sources */,
 				FF4964BE29579C9700414AC5 /* StringExtensions.swift in Sources */,
 				FF706DF5295144B000DBCF8E /* UIColorExtensions.swift in Sources */,
-				FF491E792959CCF60088FD13 /* ContextSelectionPracticeView.swift in Sources */,
 				FF58518F29819CF8004EB63C /* GoogleTranslator.swift in Sources */,
 				FFCBB0D7296B0AA200E5B9D9 /* PracticeViewController.swift in Sources */,
 				FF495E9C295903DF00EA7EA9 /* WordsTableCell.swift in Sources */,

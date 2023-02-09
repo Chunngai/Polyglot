@@ -74,9 +74,13 @@ struct WordPracticeProducer: PracticeProducerDelegate {
                 
                 print(
                     practice.practiceType,
-                    practice.direction == .textToMeaning ?
-                        dataSource.getWord(from: practice.wordId)!.meaning :
-                        dataSource.getWord(from: practice.wordId)!.text,
+                    {
+                        switch practice.direction {
+                        case .textToMeaning: return dataSource.getWord(from: practice.wordId)!.meaning
+                        case .meaningToText: return dataSource.getWord(from: practice.wordId)!.text
+                        case .text: return dataSource.getWord(from: practice.wordId)!.text
+                        }
+                    }(),
                     correctness
                 )
                 
@@ -379,9 +383,13 @@ extension WordPracticeProducer {
         var key: String
         
         var tokenizer: NLTokenizer {
-            let lang = practice.direction == .textToMeaning ?
-                Variables.pairedLang :
-                Variables.lang
+            let lang: String = {
+                switch practice.direction {
+                case .textToMeaning: return Variables.pairedLang
+                case .meaningToText: return Variables.lang
+                case .text: return Variables.lang
+                }
+            }()
             print(lang)
             
             let tokenizer = NLTokenizer(unit: .word)
