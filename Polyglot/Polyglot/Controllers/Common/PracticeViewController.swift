@@ -232,7 +232,7 @@ extension PracticeViewController: TimingBarDelegate {
         }
         
         // TODO: - Make the change visible.
-        practiceView.isUserInteractionEnabled = true
+        mainView.isUserInteractionEnabled = true
     }
     
     func timingBarTimingPaused(timingBar: TimingBar) {
@@ -241,6 +241,6 @@ extension PracticeViewController: TimingBarDelegate {
         }
         
         // TODO: - Make the change visible.
-        practiceView.isUserInteractionEnabled = false
+        mainView.isUserInteractionEnabled = false
     }
 }

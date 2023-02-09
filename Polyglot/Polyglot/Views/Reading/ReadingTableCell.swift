@@ -91,6 +91,6 @@ extension ReadingTableCell {
     
     // MARK: - Constants
     
-    private static let bodyLabelNumberOfLines: Int = 3
+    private static let bodyLabelNumberOfLines: Int = 2
     
 }
