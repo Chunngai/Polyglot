@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import PaddingLabel
 import IQKeyboardManagerSwift
 
 class PracticeViewController: UIViewController {
@@ -26,9 +27,16 @@ class PracticeViewController: UIViewController {
         return view
     }()
     
-    var promptLabel: UILabel = {
-        let label = UILabel()
+    var promptLabel: PaddingLabel = {
+        let label = PaddingLabel()  // TODO: - Due to the right padding, chars at the end of the text may be hidden.
+        label.backgroundColor = Colors.lightBlue
+        label.layer.masksToBounds = true
+        label.layer.cornerRadius = Sizes.smallCornerRadius
         label.numberOfLines = 0
+        label.topInset = 10
+        label.bottomInset = 10
+        label.leftInset = 20 + Sizes.smallCornerRadius * 2  // Hide the left rounding.
+        label.rightInset = 10
         label.attributedText = NSAttributedString(string: " ", attributes: Attributes.practicePromptAttributes)
         return label
     }()
@@ -96,7 +104,7 @@ class PracticeViewController: UIViewController {
     func updateLayouts() {
         mainView.snp.makeConstraints { (make) in
             make.centerX.equalToSuperview()
-            make.width.equalToSuperview().multipliedBy(0.8)
+            make.width.equalToSuperview()
             make.top.equalToSuperview().inset(navigationController!.navigationBar.frame.maxY + 100)
             make.bottom.equalToSuperview().inset(50)
         }
@@ -104,8 +112,8 @@ class PracticeViewController: UIViewController {
         
         promptLabel.snp.makeConstraints { (make) in
             make.top.equalToSuperview()
-            make.centerX.equalToSuperview()
-            make.width.equalToSuperview()
+            make.leading.equalToSuperview().offset(-promptLabel.layer.cornerRadius * 2)  // Hide the left rounding.
+            make.width.equalToSuperview().multipliedBy(0.95)
         }
         
         doneButton.snp.makeConstraints { (make) in
@@ -243,4 +251,12 @@ extension PracticeViewController: TimingBarDelegate {
         // TODO: - Make the change visible.
         mainView.isUserInteractionEnabled = false
     }
+}
+
+extension PracticeViewController {
+    
+    // MARK: - Constants
+    
+    static let practiceViewWidthRatio: CGFloat = 0.8
+    
 }

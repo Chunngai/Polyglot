@@ -8,6 +8,7 @@ target 'Polyglot' do
   # Pods for Polyglot
   pod 'IQKeyboardManagerSwift'
   pod 'SwiftSoup'
+  pod 'PaddingLabel', '1.2'
 
   target 'PolyglotTests' do
     inherit! :search_paths

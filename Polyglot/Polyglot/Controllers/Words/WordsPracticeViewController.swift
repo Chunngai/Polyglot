@@ -106,7 +106,7 @@ class WordsPracticeViewController: PracticeViewController {
         practiceView.snp.makeConstraints { (make) in
             make.top.equalTo(promptLabel.snp.bottom).offset(50)
             make.centerX.equalToSuperview()
-            make.width.equalToSuperview()
+            make.width.equalToSuperview().multipliedBy(PracticeViewController.practiceViewWidthRatio)
             make.bottom.equalTo(nextButton.snp.top).offset(-20)
         }
         

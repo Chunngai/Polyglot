@@ -356,9 +356,9 @@ extension Strings {
     static var tokenSeparator: String = "·"
     
     private static let _meaningSelectionAndFillingPracticePrompt: [String : String] = [
-        LangCode.en : "What's the meaning of\n\(Strings.maskToken)?",
-        LangCode.ja : "\(Strings.maskToken)\nは何と意味しますか",
-        LangCode.es : "¿Cuál es el significado de\n\(Strings.maskToken)?",
+        LangCode.en : "The meaning of\n\(Strings.maskToken)?",
+        LangCode.ja : "\(Strings.maskToken)\nの意味は？",
+        LangCode.es : "¿El significado de\n\(Strings.maskToken)?",
         LangCode.ru : "Что означает\n\(Strings.maskToken)?"
     ]
     static var meaningSelectionAndFillingPracticePrompt: String {
@@ -376,30 +376,30 @@ extension Strings {
     }
     
     private static let _contextSelectionPracticePrompts: [String : String] = [
-        LangCode.en : "Select a proper word",
-        LangCode.ja : "適切な単語を選んでください",
-        LangCode.es : "Seleccione una palabra adecuada",
-        LangCode.ru : "Выберите подходящее слово"
+        LangCode.en : "Select a proper word.",
+        LangCode.ja : "適切な単語を選んでください。",
+        LangCode.es : "Seleccione una palabra adecuada.",
+        LangCode.ru : "Выберите подходящее слово."
     ]
     static var contextSelectionPracticePrompt: String {
         return Strings._contextSelectionPracticePrompts[Variables.lang]!
     }
     
     private static let _accentSelectionPracticePrompts: [String : String] = [
-        LangCode.en : "Select the accent sequence for\n\(Strings.maskToken).",
-        LangCode.ja : "\(Strings.maskToken)\nのアクセントシーケンスを選択してください。",
-        LangCode.es : "Seleccione el secuencia de acento para\n\(Strings.maskToken).",
-        LangCode.ru : "Выберите последовательность акцентов для\n\(Strings.maskToken)."
+        LangCode.en : "The accents for\n\(Strings.maskToken)?",
+        LangCode.ja : "\(Strings.maskToken)\nのアクセントは？",
+        LangCode.es : "¿Los acentos para\n\(Strings.maskToken)?",
+        LangCode.ru : "Какие акценты для\n\(Strings.maskToken)?"
     ]
     static var accentSelectionPracticePrompt: String {
         return Strings._accentSelectionPracticePrompts[Variables.lang]!
     }
     
     private static let _translationPracticePrompts: [String : String] = [
-        LangCode.en : "Interpret the paragraph",
-        LangCode.ja : "この段落を\n通訳してください",
-        LangCode.es : "Interprete el párrafo",
-        LangCode.ru : "интерпретировать пункт"
+        LangCode.en : "Interpret the paragraph.",
+        LangCode.ja : "この段落を通訳してください。",
+        LangCode.es : "Interprete el párrafo.",
+        LangCode.ru : "интерпретировать пункт."
     ]
     static var translationPracticePrompt: String {
         return Strings._translationPracticePrompts[Variables.lang]!

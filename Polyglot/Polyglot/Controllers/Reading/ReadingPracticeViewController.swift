@@ -95,7 +95,7 @@ class ReadingPracticeViewController: PracticeViewController {
         practiceView.snp.makeConstraints { (make) in
             make.top.equalToSuperview()
             make.centerX.equalToSuperview()
-            make.width.equalToSuperview()
+            make.width.equalToSuperview().multipliedBy(PracticeViewController.practiceViewWidthRatio)
             make.bottom.equalTo(nextButton.snp.top).offset(-20)
         }
         // Also remember to update the textview in the practice view.
