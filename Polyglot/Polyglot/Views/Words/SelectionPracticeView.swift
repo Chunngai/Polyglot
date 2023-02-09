@@ -17,6 +17,33 @@ class SelectionPracticeView: UIView {
     
     // MARK: - Views
     
+    private var textViewBackgroundView: UIView = {
+        
+        // For content inset of the text view.
+        // Directly modifying textView.contentInset does not work well.
+        
+        let view = UIView()
+        view.backgroundColor = Colors.lightGrayBackgroundColor
+        view.layer.masksToBounds = true
+        view.layer.cornerRadius = Sizes.smallCornerRadius
+        return view
+    }()
+    
+    private var textView: UITextView = {
+        let textView = UITextView()
+        textView.backgroundColor = Colors.lightGrayBackgroundColor
+        textView.textColor = Colors.normalTextColor
+        textView.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        textView.isEditable = false
+        textView.isScrollEnabled = true
+        textView.attributedText = NSAttributedString(
+            string: " ",
+            attributes: Attributes.defaultLongTextAttributes
+        )
+        textView.isHidden = true
+        return textView
+    }()
+    
     private var selectionStack: ThreeButtonSelectionStack = ThreeButtonSelectionStack()
     
     // MARK: - Init
@@ -38,10 +65,25 @@ class SelectionPracticeView: UIView {
     }
     
     private func updateViews() {
+        addSubview(textViewBackgroundView)
+        textViewBackgroundView.addSubview(textView)
+        
         addSubview(selectionStack)
     }
     
     private func updateLayouts() {
+        textViewBackgroundView.snp.makeConstraints { (make) in
+            make.top.equalToSuperview()
+            make.width.equalToSuperview()
+            make.centerX.equalToSuperview()
+            make.height.equalToSuperview().multipliedBy(0.3)
+        }
+        textView.snp.makeConstraints { (make) in
+            make.width.equalToSuperview().multipliedBy(0.95)
+            make.height.equalToSuperview().multipliedBy(0.9)
+            make.centerX.centerY.equalToSuperview()
+        }
+        
         selectionStack.snp.makeConstraints { (make) in
             make.width.equalToSuperview()
             make.centerX.equalToSuperview()
@@ -49,8 +91,18 @@ class SelectionPracticeView: UIView {
         }
     }
     
-    func updateValues(selectionTexts: [String]) {
+    func updateValues(selectionTexts: [String], textViewText: String? = nil) {
+        
         selectionStack.set(texts: selectionTexts)
+        
+        if let textViewText = textViewText {
+            textViewBackgroundView.isHidden = false
+            textView.isHidden = false
+            textView.text = textViewText
+        } else {
+            textViewBackgroundView.isHidden = true
+            textView.isHidden = true
+        }
     }
 }
 

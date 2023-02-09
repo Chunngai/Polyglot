@@ -17,4 +17,5 @@ protocol Practice: Codable {
 enum PracticeDirection: UInt, Codable {
     case textToMeaning = 0
     case meaningToText = 1
+    case text = 2
 }

@@ -26,6 +26,7 @@ struct WordPractice: Practice {
 
     // 0: text -> meaning.
     // 1: meaning -> text.
+    // 2: text.
     var direction: PracticeDirection
     
     var correctness: Correctness!

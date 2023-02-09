@@ -135,11 +135,14 @@ struct WordPracticeProducer: PracticeProducerDelegate {
             
             practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .textToMeaning))
             practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .meaningToText))
-            
             practiceList.append(makeMeaningFillingPractice(for: randomWord, in: .meaningToText))
             
-            if let tokens = randomWord.tokens, tokens.pronunciationList.joined(separator: "").count >= 2 {  // Not needed for one-syllable words.
-                practiceList.append(makeAccentSelectionPractice(for: randomWord))
+            if let contextSelectionPractice = makeContextSelectionPractice(for: randomWord) {
+                practiceList.append(contextSelectionPractice)
+            }
+            
+            if let accentSelectionPractice = makeAccentSelectionPractice(for: randomWord) {
+                practiceList.append(accentSelectionPractice)
             } else {
                 // TODO: - Temporary solution.
                 if Variables.lang == LangCode.ja {
@@ -183,7 +186,7 @@ extension WordPracticeProducer {
         
     }
     
-    private func makeMeaningSelectionPractice(for wordToPractice: Word, in randomDirection: PracticeDirection) -> WordPracticeProducer.Item {
+    private func makeSelectionWords(for wordToPractice: Word) -> [Word] {
         var selectionWords: [Word] = [wordToPractice]
         // Randomly choose two words.
         while true {
@@ -197,14 +200,17 @@ extension WordPracticeProducer {
             }
         }
         selectionWords.shuffle()
+        return selectionWords
+    }
+    
+    private func makeMeaningSelectionPractice(for wordToPractice: Word, in randomDirection: PracticeDirection) -> WordPracticeProducer.Item {
+        let selectionWords = makeSelectionWords(for: wordToPractice)
         
         return WordPracticeProducer.Item(
             practice: WordPractice(
                 practiceType: .meaningSelection,
                 wordId: wordToPractice.id,
-                selectionWordsIds: selectionWords.compactMap({ (word) -> String in
-                    word.id
-                }),
+                selectionWordsIds: selectionWords.compactMap({ $0.id }),
                 direction: randomDirection
             ),
             prompt: makePromptTemplate(for: .meaningSelection).replacingOccurrences(
@@ -243,7 +249,46 @@ extension WordPracticeProducer {
         )
     }
     
-    private func makeAccentSelectionPractice(for wordToPractice: Word) -> WordPracticeProducer.Item {
+    private func makeContextSelectionPractice(for wordToPractice: Word) -> WordPracticeProducer.Item? {
+        
+        func makeCandidates() -> [(articleId: String, paraId: String, text: String)] {
+            var candidates: [(articleId: String, paraId: String, text: String)] = []
+            for article in Article.load() {  // TODO: - Is it proper to load articles here?
+                for para in article.paras {
+                    if para.text.contains(wordToPractice.text) {
+                        candidates.append((articleId: article.id, paraId: para.id, text: para.text))
+                    }
+                }
+            }
+            return candidates
+        }
+        
+        var candidates = makeCandidates()
+        if candidates.isEmpty {
+            return nil
+        }
+        candidates.shuffle()
+        let candidate = candidates[0]
+        
+        let selectionWords = makeSelectionWords(for: wordToPractice)
+        
+        return WordPracticeProducer.Item(
+            practice: WordPractice(
+                practiceType: .contextSelection,
+                wordId: wordToPractice.id,
+                selectionWordsIds: selectionWords.compactMap( {$0.id} ),
+                articleId: candidate.articleId,
+                paragraphId: candidate.paraId,
+                direction: .text
+            ),
+            prompt: makePromptTemplate(for: .contextSelection),
+            selectionTexts: selectionWords.compactMap( {$0.text} ),
+            context: candidate.text.replacingOccurrences(of: wordToPractice.text, with: Strings.underlineToken),
+            key: wordToPractice.text
+        )
+    }
+    
+    private func makeAccentSelectionPractice(for wordToPractice: Word) -> WordPracticeProducer.Item? {
         
         // TODO: - nil and -1 produces the same accented pronunciation.
         
@@ -271,7 +316,11 @@ extension WordPracticeProducer {
             })
         }
         
-        let tokens = wordToPractice.tokens!
+        guard let tokens = wordToPractice.tokens,
+            // Not needed for one-syllable words.
+            tokens.pronunciationList.joined(separator: "").count >= 2 else {
+            return nil
+        }
         
         var selectionAccentsList = [tokens.accentLocList]
         var selectionTexts = [tokens.pronunciationWithAccentList.joined(separator: Strings.tokenSeparator)]
@@ -301,7 +350,7 @@ extension WordPracticeProducer {
                 practiceType: .accentSelection,
                 wordId: wordToPractice.id,
                 selectionAccentsList: selectionAccentsList,
-                direction: .textToMeaning
+                direction: .text
             ),
             prompt: makePromptTemplate(for: .accentSelection).replacingOccurrences(
                 of: Strings.maskToken,
