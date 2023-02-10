@@ -146,8 +146,13 @@ struct Attributes {
     ]
     
     static let practicePromptAttributes = [
+        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.mediumFontSize),
+        NSAttributedString.Key.paragraphStyle : Attributes.leftAlignedParaStyle,
+        NSAttributedString.Key.foregroundColor : Colors.weakTextColor
+    ]
+    static let practiceWordAttributes = [
         NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.largeFontSize),
-        NSAttributedString.Key.paragraphStyle : Attributes.leftAlignedParaStyle
+        NSAttributedString.Key.foregroundColor : Colors.normalTextColor
     ]
     
     // MARK: - Grey Prompts.

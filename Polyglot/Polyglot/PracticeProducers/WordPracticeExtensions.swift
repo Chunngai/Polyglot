@@ -199,6 +199,13 @@ extension WordPracticeProducer {
         
     }
     
+    private func makePrompt(for practiceType: WordPractice.PracticeType, withWord wordInPrompt: String) -> String {
+        return makePromptTemplate(for: practiceType).replacingOccurrences(
+            of: Strings.maskToken,
+            with: wordInPrompt
+        )
+    }
+    
     private func makeSelectionWords(for wordToPractice: Word) -> [Word] {
         var selectionWords: [Word] = [wordToPractice]
         // Randomly choose two words.
@@ -218,6 +225,9 @@ extension WordPracticeProducer {
     
     private func makeMeaningSelectionPractice(for wordToPractice: Word, in randomDirection: PracticeDirection) -> WordPracticeProducer.Item {
         let selectionWords = makeSelectionWords(for: wordToPractice)
+        let wordInPrompt: String = randomDirection == .textToMeaning ?
+            wordToPractice.text :
+            wordToPractice.meaning
         
         return WordPracticeProducer.Item(
             practice: WordPractice(
@@ -226,12 +236,8 @@ extension WordPracticeProducer {
                 selectionWordsIds: selectionWords.compactMap({ $0.id }),
                 direction: randomDirection
             ),
-            prompt: makePromptTemplate(for: .meaningSelection).replacingOccurrences(
-                of: Strings.maskToken,
-                with: randomDirection == .textToMeaning ?
-                    wordToPractice.text :
-                    wordToPractice.meaning
-            ),
+            wordInPrompt: wordInPrompt,
+            prompt: makePrompt(for: .meaningSelection, withWord: wordInPrompt),
             selectionTexts: selectionWords.compactMap({ (word) -> String in
                 randomDirection == .textToMeaning ?
                     word.meaning :
@@ -244,18 +250,18 @@ extension WordPracticeProducer {
     }
     
     private func makeMeaningFillingPractice(for wordToPractice: Word, in randomDirection: PracticeDirection) -> WordPracticeProducer.Item {
+        let wordInPrompt = randomDirection == .textToMeaning ?
+            wordToPractice.text :
+            wordToPractice.meaning
+        
         return WordPracticeProducer.Item(
             practice: WordPractice(
                 practiceType: .meaningFilling,
                 wordId: wordToPractice.id,
                 direction: randomDirection
             ),
-            prompt: makePromptTemplate(for: .meaningFilling).replacingOccurrences(
-                of: Strings.maskToken,
-                with: randomDirection == .textToMeaning ?
-                    wordToPractice.text :
-                    wordToPractice.meaning
-            ),
+            wordInPrompt: wordInPrompt,
+            prompt: makePrompt(for: .meaningFilling, withWord: wordInPrompt),
             key: randomDirection == .textToMeaning ?
                 wordToPractice.meaning :
                 wordToPractice.text
@@ -294,7 +300,8 @@ extension WordPracticeProducer {
                 paragraphId: candidate.paraId,
                 direction: .text
             ),
-            prompt: makePromptTemplate(for: .contextSelection),
+            wordInPrompt: wordToPractice.text,
+            prompt: makePrompt(for: .contextSelection, withWord: wordToPractice.text),
             selectionTexts: selectionWords.compactMap( {$0.text} ),
             context: candidate.text.replacingOccurrences(of: wordToPractice.text, with: Strings.underlineToken),
             key: wordToPractice.text
@@ -365,10 +372,8 @@ extension WordPracticeProducer {
                 selectionAccentsList: selectionAccentsList,
                 direction: .text
             ),
-            prompt: makePromptTemplate(for: .accentSelection).replacingOccurrences(
-                of: Strings.maskToken,
-                with: tokens.baseFormList.joined(separator: Strings.tokenSeparator)
-            ),
+            wordInPrompt: wordToPractice.text,
+            prompt: makePrompt(for: .accentSelection, withWord: wordToPractice.text),
             selectionTexts: selectionTexts,
             key: tokens.pronunciationWithAccentList.joined(separator: Strings.tokenSeparator)
         )
@@ -384,6 +389,7 @@ extension WordPracticeProducer {
         
         var practice: WordPractice
         
+        var wordInPrompt: String
         var prompt: String
         
         var selectionTexts: [String]?

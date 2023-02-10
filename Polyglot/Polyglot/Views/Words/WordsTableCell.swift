@@ -94,7 +94,7 @@ class WordsTableCell: UITableViewCell {
         tokensLabel.snp.updateConstraints { (make) in
             make.leading.equalTo(wordLabel.snp.trailing).offset(5)
             make.centerY.equalToSuperview()
-            make.width.equalTo(tokensLabel.intrinsicContentSize.width)
+            make.width.lessThanOrEqualTo(tokensLabel.intrinsicContentSize.width)
         }
         
         // Before layoutSubview(), the width of the word label is not clear,

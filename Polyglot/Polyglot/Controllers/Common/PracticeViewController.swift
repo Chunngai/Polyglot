@@ -33,18 +33,25 @@ class PracticeViewController: UIViewController {
         return view
     }()
     
-    var promptLabel: PaddingLabel = {
-        let label = PaddingLabel()  // TODO: - Due to the right padding, chars at the end of the text may be hidden.
-        label.backgroundColor = Colors.lightBlue
-        label.layer.masksToBounds = true
-        label.layer.cornerRadius = Sizes.smallCornerRadius
-        label.numberOfLines = 0
-        label.topInset = 10
-        label.bottomInset = 10
-        label.leftInset = 20 + Sizes.smallCornerRadius * 2  // Hide the left rounding.
-        label.rightInset = 10
-        label.attributedText = NSAttributedString(string: " ", attributes: Attributes.practicePromptAttributes)
-        return label
+    var promptLabel: UITextView = {
+        let textView = UITextView()  // Use the text view for paddings.
+        textView.backgroundColor = Colors.lightBlue
+        textView.layer.masksToBounds = true
+        textView.layer.cornerRadius = Sizes.smallCornerRadius
+        textView.isEditable = false
+        textView.isSelectable = false
+        textView.contentInset = UIEdgeInsets(
+            top: 15,
+            left: 15 + Sizes.smallCornerRadius * 2,  // Hide the left rounding.
+            bottom: 15,
+            right: 15
+        )
+        // https://stackoverflow.com/questions/38714272/how-to-make-uitextview-height-dynamic-according-to-text-length
+        textView.translatesAutoresizingMaskIntoConstraints = true
+        textView.sizeToFit()
+        textView.isScrollEnabled = false
+        textView.attributedText = NSAttributedString(string: " ", attributes: Attributes.practicePromptAttributes)
+        return textView
     }()
     
     var practiceView: PracticeViewDelegate!

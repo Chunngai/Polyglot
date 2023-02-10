@@ -111,7 +111,15 @@ class WordsPracticeViewController: PracticeViewController {
         }
         
         // Update the prompt.
-        promptLabel.text = practiceProducer.currentPractice.prompt
+        let promptAttributes = NSMutableAttributedString(
+            string: practiceProducer.currentPractice.prompt,
+            attributes: Attributes.practicePromptAttributes
+        )
+        promptAttributes.add(
+            attributes: Attributes.practiceWordAttributes,
+            for: practiceProducer.currentPractice.wordInPrompt
+        )
+        promptLabel.attributedText = promptAttributes
     }
     
     func updateValues(words: [Word]) {
