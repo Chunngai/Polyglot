@@ -352,7 +352,7 @@ extension Strings {
     // MARK: - Practicing
     
     static let maskToken: String = "[MASK]"
-    static let underlineToken: String = String.init(repeating: "\u{FF3F}", count: 6)
+    static let underscoreToken: String = String.init(repeating: "\u{FF3F}", count: 6)
     static var tokenSeparator: String = "·"
     
     private static let _meaningSelectionAndFillingPracticePrompt: [String : String] = [

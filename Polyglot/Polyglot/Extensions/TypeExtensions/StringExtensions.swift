@@ -33,6 +33,11 @@ extension String {
         // E.g., " \n" -> "\n".
         self.replacingOccurrences(of: "\\s*?\\n", with: "\n", options: .regularExpression)
     }
+    
+    func nsrange(from range : Range<String.Index>) -> NSRange {
+        // https://www.jianshu.com/p/beb4e463e6da
+        return NSRange(range, in: self)
+    }
 }
 
 extension String {

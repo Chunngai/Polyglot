@@ -100,6 +100,11 @@ class SelectionPracticeView: UIView {
             textViewBackgroundView.isHidden = false
             textView.isHidden = false
             textView.text = textViewText
+            
+            // Scroll to the underscore.
+            if let range = textViewText.range(of: Strings.underscoreToken) {
+                textView.scrollRangeToVisible(textViewText.nsrange(from: range))
+            }
         } else {
             textViewBackgroundView.isHidden = true
             textView.isHidden = true

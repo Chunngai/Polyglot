@@ -303,7 +303,7 @@ extension WordPracticeProducer {
             wordInPrompt: wordToPractice.text,
             prompt: makePrompt(for: .contextSelection, withWord: wordToPractice.text),
             selectionTexts: selectionWords.compactMap( {$0.text} ),
-            context: candidate.text.replacingOccurrences(of: wordToPractice.text, with: Strings.underlineToken),
+            context: candidate.text.replacingOccurrences(of: wordToPractice.text, with: Strings.underscoreToken),
             key: wordToPractice.text
         )
     }
