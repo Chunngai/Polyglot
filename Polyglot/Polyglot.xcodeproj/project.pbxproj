@@ -59,7 +59,6 @@
 		FF5AA0072961EA62009D5237 /* WordsEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5AA0062961EA62009D5237 /* WordsEditViewController.swift */; };
 		FF5AA00B2961F208009D5237 /* Alerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5AA00A2961F208009D5237 /* Alerts.swift */; };
 		FF5B182C2961E55F00C80DC3 /* IO.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5B182B2961E55F00C80DC3 /* IO.swift */; };
-		FF5CA65F295A0A9A00BE7095 /* PracticeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5CA65E295A0A9A00BE7095 /* PracticeExtensions.swift */; };
 		FF5D129129577AC4005DEEDE /* NavController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5D129029577AC4005DEEDE /* NavController.swift */; };
 		FF5D129529577CB3005DEEDE /* RoundShadowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5D129429577CB3005DEEDE /* RoundShadowView.swift */; };
 		FF5DB994295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5DB993295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift */; };
@@ -194,7 +193,6 @@
 		FF5AA0062961EA62009D5237 /* WordsEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordsEditViewController.swift; sourceTree = "<group>"; };
 		FF5AA00A2961F208009D5237 /* Alerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alerts.swift; sourceTree = "<group>"; };
 		FF5B182B2961E55F00C80DC3 /* IO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IO.swift; sourceTree = "<group>"; };
-		FF5CA65E295A0A9A00BE7095 /* PracticeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeExtensions.swift; sourceTree = "<group>"; };
 		FF5D129029577AC4005DEEDE /* NavController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavController.swift; sourceTree = "<group>"; };
 		FF5D129429577CB3005DEEDE /* RoundShadowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundShadowView.swift; sourceTree = "<group>"; };
 		FF5DB993295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoResizingTextViewWithPrompt.swift; sourceTree = "<group>"; };
@@ -321,7 +319,6 @@
 			children = (
 				FF495E982959039A00EA7EA9 /* WordExtensions.swift */,
 				FF4964BF29579DA100414AC5 /* ArticleExtensions.swift */,
-				FFBD603D2969D701004165FC /* Practices */,
 				FF4EFE13295D392F00E30D6A /* HistoryRecordExtensions.swift */,
 			);
 			path = ModelExtensions;
@@ -481,6 +478,7 @@
 				FF62C9A629513A2800D41797 /* Controllers */,
 				FF62C9A729513A3700D41797 /* Views */,
 				FF491E6F2959C2DF0088FD13 /* Protocols */,
+				FF69103229956F65003A925A /* PracticeProducers */,
 				FF706DF3295144A000DBCF8E /* Extensions */,
 				FF4CA732295E888000423946 /* Utils */,
 				FF8E5BB1298DB68F003B6FB1 /* APIs */,
@@ -549,6 +547,16 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		FF69103229956F65003A925A /* PracticeProducers */ = {
+			isa = PBXGroup;
+			children = (
+				FFBD60402969D713004165FC /* WordPracticeExtensions.swift */,
+				FFBD60422969D721004165FC /* ReadingPracticeExtensions.swift */,
+				FFBD60442969D733004165FC /* TranslationPracticeExtensions.swift */,
+			);
+			path = PracticeProducers;
+			sourceTree = "<group>";
+		};
 		FF706DF3295144A000DBCF8E /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -585,17 +593,6 @@
 				FF8E5BBD298DB9A6003B6FB1 /* SnapKit Tests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		FFBD603D2969D701004165FC /* Practices */ = {
-			isa = PBXGroup;
-			children = (
-				FF5CA65E295A0A9A00BE7095 /* PracticeExtensions.swift */,
-				FFBD60402969D713004165FC /* WordPracticeExtensions.swift */,
-				FFBD60422969D721004165FC /* ReadingPracticeExtensions.swift */,
-				FFBD60442969D733004165FC /* TranslationPracticeExtensions.swift */,
-			);
-			path = Practices;
 			sourceTree = "<group>";
 		};
 		FFCBB0DE296B45DB00E5B9D9 /* Translation */ = {
@@ -939,7 +936,6 @@
 				FF591ED8296796160004CB80 /* ReadingPractice.swift in Sources */,
 				FF5DB994295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift in Sources */,
 				FF495EA22959244C00EA7EA9 /* WordsPracticeViewController.swift in Sources */,
-				FF5CA65F295A0A9A00BE7095 /* PracticeExtensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -9,7 +9,7 @@
 import Foundation
 import NaturalLanguage
 
-struct WordPracticeProducer: PracticeProducerDelegate {
+class WordPracticeProducer: PracticeProducerDelegate {
     
     typealias T = Word
     typealias U = WordPracticeProducer.Item
@@ -20,6 +20,15 @@ struct WordPracticeProducer: PracticeProducerDelegate {
     var practiceList: [WordPracticeProducer.Item]
     var currentPracticeIndex: Int {
         didSet {
+            if currentPracticeIndex >= practiceList.count - 5 {  // For saving time.
+                DispatchQueue.global(qos: .userInitiated).async {
+                    let newPractices = self.make()
+                    DispatchQueue.main.async {
+                        self.practiceList.append(contentsOf: newPractices)
+                    }
+                }
+            }
+            
             if currentPracticeIndex >= practiceList.count {
                 practiceList.append(contentsOf: make())
             }
@@ -159,7 +168,7 @@ struct WordPracticeProducer: PracticeProducerDelegate {
         return practiceList
     }
     
-    mutating func next() {
+    func next() {
         currentPracticeIndex += 1
     }
     
@@ -170,7 +179,7 @@ struct WordPracticeProducer: PracticeProducerDelegate {
 
 extension WordPracticeProducer {
     
-    mutating func submit(answer: String) {
+    func submit(answer: String) {
         currentPractice.checkCorrectness(answer: answer)
     }
     
@@ -434,7 +443,7 @@ extension WordPracticeProducer {
     
     // MARK: - IO
     
-    mutating func save() {
+    func save() {
         var practicesToSave: [WordPractice] = []
         for practiceIndex in 0..<currentPracticeIndex {
             practicesToSave.append(practiceList[practiceIndex].practice)
