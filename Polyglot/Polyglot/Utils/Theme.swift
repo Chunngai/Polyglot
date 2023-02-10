@@ -13,9 +13,11 @@ struct Colors {
     
     static let defaultBackgroundColor: UIColor = .white
     static let lightGrayBackgroundColor: UIColor = UIColor.intRGB2UIColor(red: 238, green: 237, blue: 244)
+    static let maskBackgroundColor: UIColor = UIColor.intRGB2UIColor(red: 0, green: 0, blue: 0, alpha: 0.6)
     
     static let normalTextColor: UIColor = .black
     static let weakTextColor: UIColor = UIColor.intRGB2UIColor(red: 106, green: 106, blue: 106)
+    static let lightTextColor: UIColor = .white
         
     static let lightBlue: UIColor = UIColor.intRGB2UIColor(red: 206, green: 238, blue: 255)
     static let strongLightBlue: UIColor = UIColor.intRGB2UIColor(red: 135, green: 211, blue: 255)

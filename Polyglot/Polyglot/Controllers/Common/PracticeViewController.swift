@@ -71,6 +71,19 @@ class PracticeViewController: UIViewController {
         return button
     }()
     
+    private var maskView: UILabel = {
+        let label = UILabel()
+        label.backgroundColor = Colors.maskBackgroundColor
+        label.text = Strings.textForPausedPractice
+        label.textColor = Colors.lightTextColor
+        label.textAlignment = .center
+        label.layer.masksToBounds = true
+        label.layer.cornerRadius = Sizes.defaultCornerRadius
+        label.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
+        label.isHidden = true
+        return label
+    }()
+    
     // MARK: - Controllers
     
     // TODO: - Can it be overriden?
@@ -108,6 +121,7 @@ class PracticeViewController: UIViewController {
                  
         view.backgroundColor = Colors.defaultBackgroundColor
         view.addSubview(mainView)
+        view.addSubview(maskView)
         
         mainView.addSubview(promptLabel)
         mainView.addSubview(doneButton)
@@ -121,7 +135,6 @@ class PracticeViewController: UIViewController {
             make.top.equalToSuperview().inset(navigationController!.navigationBar.frame.maxY + 100)
             make.bottom.equalToSuperview().inset(50)
         }
-        
         
         promptLabel.snp.makeConstraints { (make) in
             make.top.equalToSuperview()
@@ -138,6 +151,13 @@ class PracticeViewController: UIViewController {
             make.centerX.equalToSuperview()
             make.bottom.equalToSuperview().inset(20)
             make.width.height.equalTo(Sizes.roundButtonRadius)
+        }
+        
+        maskView.snp.makeConstraints { (make) in
+            make.top.equalToSuperview().inset(navigationController!.navigationBar.frame.maxY + 60)
+            make.width.equalToSuperview().multipliedBy(0.9)
+            make.centerX.equalToSuperview()
+            make.bottom.equalToSuperview().inset(30)
         }
     }
     
@@ -252,7 +272,7 @@ extension PracticeViewController: TimingBarDelegate {
             return
         }
         
-        // TODO: - Make the change visible.
+        maskView.isHidden = true
         mainView.isUserInteractionEnabled = true
     }
     
@@ -261,7 +281,7 @@ extension PracticeViewController: TimingBarDelegate {
             return
         }
         
-        // TODO: - Make the change visible.
+        maskView.isHidden = false
         mainView.isUserInteractionEnabled = false
     }
 }

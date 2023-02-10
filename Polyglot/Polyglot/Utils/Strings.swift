@@ -405,6 +405,16 @@ extension Strings {
         return Strings._translationPracticePrompts[Variables.lang]!
     }
     
+    private static let _textsForPausedPractice: [String : String] = [
+        LangCode.en : "Practice paused.",
+        LangCode.ja : "練習を一時停止しました。",
+        LangCode.es : "Práctica en pausa.",
+        LangCode.ru : "Практика приостановлена."
+    ]
+    static var textForPausedPractice: String {
+        return Strings._textsForPausedPractice[Variables.lang]!
+    }
+    
     // MARK: - Timing
         
     private static let _timeUpAlertTitles: [String : String] = [
