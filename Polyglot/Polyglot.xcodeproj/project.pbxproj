@@ -49,8 +49,6 @@
 		FF55D156296F3AEC0092FB6B /* Values.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF55D155296F3AEC0092FB6B /* Values.swift */; };
 		FF5690142980367A00CA2C7B /* LangCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5690132980367A00CA2C7B /* LangCode.swift */; };
 		FF56901829803D6C00CA2C7B /* LangCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF56901729803D6C00CA2C7B /* LangCell.swift */; };
-		FF5760AA2996F16D000C2BB3 /* TmpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5760A92996F16D000C2BB3 /* TmpViewController.swift */; };
-		FF5760AE2996F6B0000C2BB3 /* TmpViewController1.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5760AD2996F6B0000C2BB3 /* TmpViewController1.swift */; };
 		FF5844312967217700137E00 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5844302967217700137E00 /* ListViewController.swift */; };
 		FF584434296732B400137E00 /* DictionaryExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF584433296732B400137E00 /* DictionaryExtensions.swift */; };
 		FF58518F29819CF8004EB63C /* GoogleTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF58518E29819CF8004EB63C /* GoogleTranslator.swift */; };
@@ -73,7 +71,7 @@
 		FF62C9982951382600D41797 /* PolyglotUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9972951382600D41797 /* PolyglotUITests.swift */; };
 		FF62C9A929513A5000D41797 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9A829513A5000D41797 /* Theme.swift */; };
 		FF6D5A882997F7850048470B /* TmpViewController2.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6D5A872997F7850048470B /* TmpViewController2.swift */; };
-		FF6D5A8B2997F9FA0048470B /* TmpCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6D5A8A2997F9FA0048470B /* TmpCollectionViewCell.swift */; };
+		FF6D5A96299A90010048470B /* TmpCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6D5A93299A90010048470B /* TmpCollectionViewCell.swift */; };
 		FF706DF1295142AF00DBCF8E /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706DF0295142AF00DBCF8E /* Strings.swift */; };
 		FF706DF5295144B000DBCF8E /* UIColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706DF4295144B000DBCF8E /* UIColorExtensions.swift */; };
 		FF706E032951549C00DBCF8E /* UIImageExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706E022951549C00DBCF8E /* UIImageExtensions.swift */; };
@@ -187,8 +185,6 @@
 		FF55D155296F3AEC0092FB6B /* Values.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Values.swift; sourceTree = "<group>"; };
 		FF5690132980367A00CA2C7B /* LangCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCode.swift; sourceTree = "<group>"; };
 		FF56901729803D6C00CA2C7B /* LangCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCell.swift; sourceTree = "<group>"; };
-		FF5760A92996F16D000C2BB3 /* TmpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TmpViewController.swift; sourceTree = "<group>"; };
-		FF5760AD2996F6B0000C2BB3 /* TmpViewController1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TmpViewController1.swift; sourceTree = "<group>"; };
 		FF5844302967217700137E00 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 		FF584433296732B400137E00 /* DictionaryExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryExtensions.swift; sourceTree = "<group>"; };
 		FF58518E29819CF8004EB63C /* GoogleTranslator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleTranslator.swift; sourceTree = "<group>"; };
@@ -217,7 +213,7 @@
 		FF62C9992951382600D41797 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FF62C9A829513A5000D41797 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		FF6D5A872997F7850048470B /* TmpViewController2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TmpViewController2.swift; sourceTree = "<group>"; };
-		FF6D5A8A2997F9FA0048470B /* TmpCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TmpCollectionViewCell.swift; sourceTree = "<group>"; };
+		FF6D5A93299A90010048470B /* TmpCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TmpCollectionViewCell.swift; path = ../../../../../.Trash/TmpCollectionViewCell.swift; sourceTree = "<group>"; };
 		FF706DF0295142AF00DBCF8E /* Strings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
 		FF706DF4295144B000DBCF8E /* UIColorExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorExtensions.swift; sourceTree = "<group>"; };
 		FF706E022951549C00DBCF8E /* UIImageExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtensions.swift; sourceTree = "<group>"; };
@@ -521,10 +517,8 @@
 			children = (
 				FF62C9792951382500D41797 /* HomeViewController.swift */,
 				FF5292062951FC9700858B55 /* MenuViewController.swift */,
-				FF5760A92996F16D000C2BB3 /* TmpViewController.swift */,
-				FF5760AD2996F6B0000C2BB3 /* TmpViewController1.swift */,
 				FF6D5A872997F7850048470B /* TmpViewController2.swift */,
-				FF6D5A8A2997F9FA0048470B /* TmpCollectionViewCell.swift */,
+				FF6D5A93299A90010048470B /* TmpCollectionViewCell.swift */,
 				FF58442F2967215700137E00 /* Common */,
 				FF4EFE0D295D34B700E30D6A /* History */,
 				FF495E942958FFCC00EA7EA9 /* Words */,
@@ -882,10 +876,10 @@
 				FF4EFE08295D310A00E30D6A /* BackgroundView.swift in Sources */,
 				FFBD60412969D713004165FC /* WordPracticeExtensions.swift in Sources */,
 				FF495E962958FFE600EA7EA9 /* WordsViewController.swift in Sources */,
-				FF5760AE2996F6B0000C2BB3 /* TmpViewController1.swift in Sources */,
 				FF502512295248D10097C2CB /* Article.swift in Sources */,
 				FFBD60432969D721004165FC /* ReadingPracticeExtensions.swift in Sources */,
 				FF491E772959CC960088FD13 /* MeaningFillingPracticeView.swift in Sources */,
+				FF6D5A96299A90010048470B /* TmpCollectionViewCell.swift in Sources */,
 				FF491E752959C4320088FD13 /* SelectionPracticeView.swift in Sources */,
 				FF6D5A882997F7850048470B /* TmpViewController2.swift in Sources */,
 				FFCBB0E0296B45F300E5B9D9 /* TranslationPracticeView.swift in Sources */,
@@ -910,7 +904,6 @@
 				FF491E802959ED730088FD13 /* Separator.swift in Sources */,
 				FF8CDE812952995F00B36CA3 /* NewWordAddingBottomView.swift in Sources */,
 				FF4EFE14295D392F00E30D6A /* HistoryRecordExtensions.swift in Sources */,
-				FF6D5A8B2997F9FA0048470B /* TmpCollectionViewCell.swift in Sources */,
 				FF5B182C2961E55F00C80DC3 /* IO.swift in Sources */,
 				FF591EDA296796200004CB80 /* TranslationPractice.swift in Sources */,
 				FF4964BE29579C9700414AC5 /* StringExtensions.swift in Sources */,
@@ -924,7 +917,6 @@
 				FFCBB0DB296B1A6700E5B9D9 /* PracticeProducerDelegate.swift in Sources */,
 				FF52921229520D1200858B55 /* UINavigationBarExtensions.swift in Sources */,
 				FF5882BE29604E0300FC33CF /* NewWordAddingTextView.swift in Sources */,
-				FF5760AA2996F16D000C2BB3 /* TmpViewController.swift in Sources */,
 				FF495EA029591DEC00EA7EA9 /* TableHeaderView.swift in Sources */,
 				FF62C9A929513A5000D41797 /* Theme.swift in Sources */,
 				FFBD60452969D733004165FC /* TranslationPracticeExtensions.swift in Sources */,
