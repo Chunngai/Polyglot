@@ -15,7 +15,7 @@ class ReadingPracticeView: UIView, PracticeViewDelegate {
     var mainView: UIView = {
         let view = UIView()
         view.backgroundColor = Colors.lightGrayBackgroundColor
-        view.layer.masksToBounds = false
+        view.layer.masksToBounds = true
         view.layer.cornerRadius = Sizes.defaultCornerRadius
         return view
     }()
