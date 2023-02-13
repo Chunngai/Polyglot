@@ -153,7 +153,7 @@ struct Attributes {
         NSAttributedString.Key.foregroundColor : Colors.weakTextColor
     ]
     static let practiceWordAttributes = [
-        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.largeFontSize),
+        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.mediumFontSize),
         NSAttributedString.Key.foregroundColor : Colors.normalTextColor
     ]
     
