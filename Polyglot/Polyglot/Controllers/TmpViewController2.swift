@@ -14,7 +14,10 @@ class TmpViewController2: UIViewController {
     private var wordCentersInPool: [CGPoint] = []
     private var wordButtonsInRowStack: [UIView] = []
     private var wordCentersInRowStack: [CGPoint] = []
-        
+    
+    private var wordBankWidth: CGFloat!
+    private var rowStackWidth: CGFloat!
+    
     // MARK: - Models
     
     private var words: [String]!
@@ -23,16 +26,38 @@ class TmpViewController2: UIViewController {
     
     private lazy var rowStack: UIStackView = {
     
-        var lines: [UIView] = []
-        for _ in 0..<3 {  // TODO: - Dynamic.
-            lines.append({
-                let view = UIView()
-                view.backgroundColor = Colors.lightGrayBackgroundColor
-                return view
-            }())
+        func calculateRowNumber() -> Int {
+            
+            var rowNumber: Int = 1
+            var summedWidth: CGFloat = 0
+            for word in self.words {
+                
+                let itemWidth = (
+                    WordBank.itemHorizontalPadding
+                        + word.textSize(withFont: WordBankItem.labelFont).width
+                        + WordBank.itemHorizontalPadding
+                )
+                
+                summedWidth += itemWidth
+                if summedWidth > self.rowStackWidth {
+                    rowNumber += 1
+                    summedWidth = 0
+                }
+            }
+            // Handle the last row.
+            if summedWidth != 0 {
+                rowNumber += 1
+            }
+            
+            return rowNumber
         }
         
-        let stackView = UIStackView(arrangedSubviews: lines)
+        let rowNumber: Int = calculateRowNumber()
+        let rows: [WordBankItemRow] = (0..<rowNumber).map { (_) -> WordBankItemRow in
+            return WordBankItemRow()
+        }
+        
+        let stackView = UIStackView(arrangedSubviews: rows)
         stackView.backgroundColor = Colors.lightGrayBackgroundColor
         stackView.axis = .vertical
         stackView.alignment = .center
@@ -42,22 +67,7 @@ class TmpViewController2: UIViewController {
         return stackView
     }()
     
-    private lazy var wordPoolCollectionView: UICollectionView = {
-        
-        let layout: UICollectionViewFlowLayout = {
-            let layout = UICollectionViewFlowLayout()
-            layout.scrollDirection = .vertical
-            layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-            layout.minimumInteritemSpacing = TmpViewController2.horizontalMargin
-            layout.minimumLineSpacing = TmpViewController2.verticalMargin
-            return layout
-        }()
-        
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = Colors.defaultBackgroundColor
-        
-        return collectionView
-    }()
+    private lazy var wordBank: WordBank = WordBank(words: words)
     
     // MARK: - Init
     
@@ -72,11 +82,11 @@ class TmpViewController2: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
-        // https://stackoverflow.com/questions/42437966/how-to-adjust-height-of-uicollectionview-to-be-the-height-of-the-content-size-of
-        let height = wordPoolCollectionView.collectionViewLayout.collectionViewContentSize.height
-        wordPoolCollectionView.snp.updateConstraints { (make) in
-            make.width.equalToSuperview().multipliedBy(0.9)
-            make.height.equalTo(height)
+        wordBank.snp.updateConstraints { (make) in
+                        
+            make.width.equalTo(wordBankWidth)
+            // https://stackoverflow.com/questions/42437966/how-to-adjust-height-of-uicollectionview-to-be-the-height-of-the-content-size-of
+            make.height.equalTo(wordBank.collectionViewLayout.collectionViewContentSize.height)
             make.centerX.equalToSuperview()
             make.bottom.equalToSuperview().inset(200)
         }
@@ -86,51 +96,24 @@ class TmpViewController2: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        // Draw dragable buttons.
-        // TODO: - Move elsewhere?
-        for i in 0..<words.count {
-            let indexPath = IndexPath(row: i, section: 0)
-            guard let cell = wordPoolCollectionView.cellForItem(at: indexPath) as? TmpCollectionViewCell else {
-                return
-            }
-            
-            let button = TmpCollectionViewCell.createButton()
-            // TODO: - Move the button creation code into the collection view cell.
-            button.frame = CGRect(
-                x: wordPoolCollectionView.frame.origin.x + cell.frame.minX,
-                y: wordPoolCollectionView.frame.origin.y + cell.frame.minY,
-                width: cell.frame.width,
-                height: cell.frame.height
-            )
-            button.backgroundColor = Colors.strongLightBlue
-            button.setTitle(words[i], for: .normal)
-            button.addGestureRecognizer(UIPanGestureRecognizer(target: self, action: #selector(cellPanned(_:))))
-            button.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(cellTapped(_:))))
-            button.tag = i
-            view.addSubview(button)
-            wordCentersInPool.append(button.center)
-            
-            cell.backgroundButton.backgroundColor = Colors.lightGrayBackgroundColor
-            cell.backgroundButton.setTitle(nil, for: .normal)
-        }
+        makeDraggableWordBankItems()
     }
     
     private func updateSetups() {
-        wordPoolCollectionView.dataSource = self
-        wordPoolCollectionView.delegate = self
-        wordPoolCollectionView.register(TmpCollectionViewCell.self, forCellWithReuseIdentifier: "cell")
+        wordBankWidth = view.frame.width
+        rowStackWidth = view.frame.width
     }
     
     private func updateViews() {
         view.backgroundColor = Colors.defaultBackgroundColor
         view.addSubview(rowStack)
-        view.addSubview(wordPoolCollectionView)
+        view.addSubview(wordBank)
     }
     
     private func updateLayouts() {
         rowStack.snp.makeConstraints { (make) in
             make.top.equalToSuperview().inset(300)
-            make.width.equalToSuperview().multipliedBy(0.9)
+            make.width.equalTo(rowStackWidth)
             make.centerX.equalToSuperview()
         }
         for row in rowStack.arrangedSubviews {
@@ -146,43 +129,48 @@ class TmpViewController2: UIViewController {
     }
 }
 
-extension TmpViewController2: UICollectionViewDataSource {
+extension TmpViewController2 {
     
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return words.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as? TmpCollectionViewCell else {
-            return UICollectionViewCell()
+    private func makeDraggableWordBankItems() {
+        var panGestureRecognizer: UIPanGestureRecognizer {
+            return UIPanGestureRecognizer(
+                target: self,
+                action: #selector(cellPanned(_:))
+            )
         }
-        
-        cell.backgroundButton.setTitle(words[indexPath.row], for: .normal)
-        
-        return cell
-    }
-    
-}
-
-extension TmpViewController2: UICollectionViewDelegateFlowLayout {
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        
-        // https://stackoverflow.com/questions/23134986/dynamic-cell-width-of-uicollectionview-depending-on-label-width
-        
-        // TODO: - Wrap.
-        let item = words[indexPath.row]
-        let textSize = item.size(withAttributes: [
-            NSAttributedString.Key.font : UIFont.boldSystemFont(ofSize: TmpViewController2.labelFontSize)
-        ])
-        
-        let itemSize = CGSize(
-            width: textSize.width + TmpViewController2.labelHorizontalPadding * 2,
-            height: textSize.height + TmpViewController2.labelVerticalPadding * 2
-        )
-        
-        return itemSize
-        
+        var tapGestureRecognizer: UITapGestureRecognizer {
+            return UITapGestureRecognizer(
+                target: self,
+                action: #selector(cellTapped(_:))
+            )
+        }
+        for i in 0..<words.count {
+            let indexPath = IndexPath(row: i, section: 0)
+            guard let cell = wordBank.cellForItem(at: indexPath) as? WordBankItem else {
+                continue
+            }
+            guard let labelSnapShot = cell.label.snapshotView(afterScreenUpdates: false) else {
+                continue
+            }
+            
+            labelSnapShot.frame = CGRect(
+                x: wordBank.frame.origin.x + cell.frame.minX,
+                y: wordBank.frame.origin.y + cell.frame.minY,
+                width: cell.frame.width,
+                height: cell.frame.height
+            )
+            labelSnapShot.addGestureRecognizer(panGestureRecognizer)
+            labelSnapShot.addGestureRecognizer(tapGestureRecognizer)
+            labelSnapShot.tag = i
+            
+            view.addSubview(labelSnapShot)
+            
+            wordCentersInPool.append(labelSnapShot.center)
+            
+            // Hide the original label.
+            cell.label.backgroundColor = Colors.lightGrayBackgroundColor
+            cell.label.text = nil
+        }
     }
 }
 
@@ -193,10 +181,6 @@ extension TmpViewController2 {
             view.center = newCenter
         }
     }
-    
-}
-
-extension TmpViewController2 {
     
     private func isInRowStack(_ view: UIView) -> Bool {
         return rowStack.frame.intersects(view.frame)
@@ -417,7 +401,7 @@ extension TmpViewController2 {
             let wordButton = wordButtonsInRowStack[i]
             centerX += wordButton.frame.width / 2
             if i - 1 >= 0 {
-                centerX += TmpViewController2.horizontalMargin + wordButtonsInRowStack[i - 1].frame.width / 2
+                centerX += TmpViewController2.rowStackHorizontalSpacing + wordButtonsInRowStack[i - 1].frame.width / 2
             }
             if centerX + wordButton.frame.width / 2 > rowStack.frame.maxX {
                 centerX = rowStack.frame.minX + wordButton.frame.width / 2
@@ -441,7 +425,7 @@ extension TmpViewController2 {
             var centerY: CGFloat = rowStack.frame.minY + TmpViewController2.rowHeight / 2
             if let lastButton = wordButtonsInRowStack.last {
                 
-                centerX = TmpViewController2.horizontalMargin + lastButton.frame.maxX + view.frame.width / 2
+                centerX = TmpViewController2.rowStackHorizontalSpacing + lastButton.frame.maxX + view.frame.width / 2
                 centerY = lastButton.center.y
                 if centerX + view.frame.width / 2 > rowStack.frame.maxX {
                     centerX = rowStack.frame.minX + view.frame.width / 2
@@ -573,14 +557,9 @@ extension TmpViewController2 {
     
     // MARK: - Constants
     
-    static let labelFontSize: CGFloat = Sizes.mediumFontSize
-    static let horizontalMargin: CGFloat = 3
-    static let verticalMargin: CGFloat = 6
-    static let labelHorizontalPadding: CGFloat = 6
-    static let labelVerticalPadding: CGFloat = 6
-    static let rowHeight = " ".size(withAttributes: [  // TODO: - Update
-        NSAttributedString.Key.font : UIFont.boldSystemFont(ofSize: TmpViewController2.labelFontSize)
-    ]).height + TmpViewController2.labelVerticalPadding * 2
+    static let rowHeight: CGFloat = TmpViewController2.rowStackVerticalSpacing
+        + " ".textSize(withFont: WordBankItem.labelFont).height
+        + TmpViewController2.rowStackVerticalSpacing
     static let rowStackHorizontalSpacing: CGFloat = 3
     static let rowStackVerticalSpacing: CGFloat = 6
 }

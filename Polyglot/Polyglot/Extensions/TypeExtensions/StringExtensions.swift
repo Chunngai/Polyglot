@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import NaturalLanguage
 
 extension String {
@@ -37,6 +38,13 @@ extension String {
     func nsrange(from range : Range<String.Index>) -> NSRange {
         // https://www.jianshu.com/p/beb4e463e6da
         return NSRange(range, in: self)
+    }
+}
+
+extension String {
+    
+    func textSize(withFont font: UIFont) -> CGSize {
+        return self.size(withAttributes: [NSAttributedString.Key.font : font])
     }
 }
 

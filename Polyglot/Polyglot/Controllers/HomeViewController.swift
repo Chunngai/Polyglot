@@ -83,7 +83,7 @@ class HomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-//        dragAndDropDebug()
+        dragAndDropDebug()
         
         //        jaPaDebug()
         
@@ -304,7 +304,7 @@ extension HomeViewController {
         }
     }
     
-    private func dargAndDropDebug() {
+    private func dragAndDropDebug() {
         let controller = TmpViewController2()
         controller.updateValues(words: {
             let tokenizer = NLTokenizer(unit: .word)

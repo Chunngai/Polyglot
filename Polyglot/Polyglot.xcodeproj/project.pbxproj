@@ -70,8 +70,9 @@
 		FF62C98D2951382600D41797 /* PolyglotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C98C2951382600D41797 /* PolyglotTests.swift */; };
 		FF62C9982951382600D41797 /* PolyglotUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9972951382600D41797 /* PolyglotUITests.swift */; };
 		FF62C9A929513A5000D41797 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9A829513A5000D41797 /* Theme.swift */; };
+		FF63DDFC299AC17C0088C10B /* WordBank.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF63DDFB299AC17C0088C10B /* WordBank.swift */; };
+		FF63DE00299AD2F90088C10B /* WordBankItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF63DDFF299AD2F90088C10B /* WordBankItem.swift */; };
 		FF6D5A882997F7850048470B /* TmpViewController2.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6D5A872997F7850048470B /* TmpViewController2.swift */; };
-		FF6D5A96299A90010048470B /* TmpCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6D5A93299A90010048470B /* TmpCollectionViewCell.swift */; };
 		FF706DF1295142AF00DBCF8E /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706DF0295142AF00DBCF8E /* Strings.swift */; };
 		FF706DF5295144B000DBCF8E /* UIColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706DF4295144B000DBCF8E /* UIColorExtensions.swift */; };
 		FF706E032951549C00DBCF8E /* UIImageExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706E022951549C00DBCF8E /* UIImageExtensions.swift */; };
@@ -89,6 +90,7 @@
 		FFCBB0DB296B1A6700E5B9D9 /* PracticeProducerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0DA296B1A6700E5B9D9 /* PracticeProducerDelegate.swift */; };
 		FFCBB0DD296B2E4000E5B9D9 /* ReadingPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0DC296B2E4000E5B9D9 /* ReadingPracticeView.swift */; };
 		FFCBB0E0296B45F300E5B9D9 /* TranslationPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0DF296B45F300E5B9D9 /* TranslationPracticeView.swift */; };
+		FFD7DF6D299D376000019D51 /* WordBankItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD7DF6C299D376000019D51 /* WordBankItemRow.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -212,8 +214,9 @@
 		FF62C9972951382600D41797 /* PolyglotUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolyglotUITests.swift; sourceTree = "<group>"; };
 		FF62C9992951382600D41797 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FF62C9A829513A5000D41797 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		FF63DDFB299AC17C0088C10B /* WordBank.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordBank.swift; sourceTree = "<group>"; };
+		FF63DDFF299AD2F90088C10B /* WordBankItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordBankItem.swift; sourceTree = "<group>"; };
 		FF6D5A872997F7850048470B /* TmpViewController2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TmpViewController2.swift; sourceTree = "<group>"; };
-		FF6D5A93299A90010048470B /* TmpCollectionViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = TmpCollectionViewCell.swift; path = ../../../../../.Trash/TmpCollectionViewCell.swift; sourceTree = "<group>"; };
 		FF706DF0295142AF00DBCF8E /* Strings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
 		FF706DF4295144B000DBCF8E /* UIColorExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorExtensions.swift; sourceTree = "<group>"; };
 		FF706E022951549C00DBCF8E /* UIImageExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtensions.swift; sourceTree = "<group>"; };
@@ -230,6 +233,7 @@
 		FFCBB0DA296B1A6700E5B9D9 /* PracticeProducerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeProducerDelegate.swift; sourceTree = "<group>"; };
 		FFCBB0DC296B2E4000E5B9D9 /* ReadingPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPracticeView.swift; sourceTree = "<group>"; };
 		FFCBB0DF296B45F300E5B9D9 /* TranslationPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeView.swift; sourceTree = "<group>"; };
+		FFD7DF6C299D376000019D51 /* WordBankItemRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordBankItemRow.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -417,6 +421,9 @@
 				FF5882BD29604E0300FC33CF /* NewWordAddingTextView.swift */,
 				FF4964CA2958BAFD00414AC5 /* TimingBar.swift */,
 				FF5DB993295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift */,
+				FF63DDFB299AC17C0088C10B /* WordBank.swift */,
+				FF63DDFF299AD2F90088C10B /* WordBankItem.swift */,
+				FFD7DF6C299D376000019D51 /* WordBankItemRow.swift */,
 			);
 			path = CustomViews;
 			sourceTree = "<group>";
@@ -518,7 +525,6 @@
 				FF62C9792951382500D41797 /* HomeViewController.swift */,
 				FF5292062951FC9700858B55 /* MenuViewController.swift */,
 				FF6D5A872997F7850048470B /* TmpViewController2.swift */,
-				FF6D5A93299A90010048470B /* TmpCollectionViewCell.swift */,
 				FF58442F2967215700137E00 /* Common */,
 				FF4EFE0D295D34B700E30D6A /* History */,
 				FF495E942958FFCC00EA7EA9 /* Words */,
@@ -879,7 +885,6 @@
 				FF502512295248D10097C2CB /* Article.swift in Sources */,
 				FFBD60432969D721004165FC /* ReadingPracticeExtensions.swift in Sources */,
 				FF491E772959CC960088FD13 /* MeaningFillingPracticeView.swift in Sources */,
-				FF6D5A96299A90010048470B /* TmpCollectionViewCell.swift in Sources */,
 				FF491E752959C4320088FD13 /* SelectionPracticeView.swift in Sources */,
 				FF6D5A882997F7850048470B /* TmpViewController2.swift in Sources */,
 				FFCBB0E0296B45F300E5B9D9 /* TranslationPracticeView.swift in Sources */,
@@ -900,6 +905,7 @@
 				FF793A482968A7D60026B8C7 /* UIApplication.swift in Sources */,
 				FF4B382B29525A4300BB3FFD /* ReadingEditViewController.swift in Sources */,
 				FF4B382F29525BD400BB3FFD /* ReadingEditTableCell.swift in Sources */,
+				FF63DE00299AD2F90088C10B /* WordBankItem.swift in Sources */,
 				FF50251429524D100097C2CB /* ReadingTableCell.swift in Sources */,
 				FF491E802959ED730088FD13 /* Separator.swift in Sources */,
 				FF8CDE812952995F00B36CA3 /* NewWordAddingBottomView.swift in Sources */,
@@ -921,6 +927,7 @@
 				FF62C9A929513A5000D41797 /* Theme.swift in Sources */,
 				FFBD60452969D733004165FC /* TranslationPracticeExtensions.swift in Sources */,
 				FF706DF1295142AF00DBCF8E /* Strings.swift in Sources */,
+				FF63DDFC299AC17C0088C10B /* WordBank.swift in Sources */,
 				FF62C9762951382500D41797 /* AppDelegate.swift in Sources */,
 				FF4CA730295E869900423946 /* TranslationPracticeViewController.swift in Sources */,
 				FF4D7CC62953952C009F6894 /* NSMutableAttributedStringExtensions.swift in Sources */,
@@ -944,6 +951,7 @@
 				FF591ED8296796160004CB80 /* ReadingPractice.swift in Sources */,
 				FF5DB994295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift in Sources */,
 				FF495EA22959244C00EA7EA9 /* WordsPracticeViewController.swift in Sources */,
+				FFD7DF6D299D376000019D51 /* WordBankItemRow.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
