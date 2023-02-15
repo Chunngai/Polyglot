@@ -73,22 +73,23 @@ class SelectionPracticeView: UIView {
     }
     
     private func updateLayouts() {
-        textViewBackgroundView.snp.makeConstraints { (make) in
-            make.top.equalToSuperview()
-            make.width.equalToSuperview()
-            make.centerX.equalToSuperview()
-            make.height.equalToSuperview().multipliedBy(0.3)
-        }
-        textView.snp.makeConstraints { (make) in
-            make.width.equalToSuperview().multipliedBy(0.95)
-            make.height.equalToSuperview().multipliedBy(0.9)
-            make.centerX.centerY.equalToSuperview()
-        }
         
         selectionStack.snp.makeConstraints { (make) in
             make.width.equalToSuperview()
             make.centerX.equalToSuperview()
             make.bottom.equalToSuperview()
+        }
+        
+        textViewBackgroundView.snp.makeConstraints { (make) in
+            make.top.equalToSuperview()
+            make.bottom.equalTo(selectionStack.snp.top).offset(-20)
+            make.width.equalToSuperview()
+            make.centerX.equalToSuperview()
+        }
+        textView.snp.makeConstraints { (make) in
+            make.width.equalToSuperview().multipliedBy(0.95)
+            make.height.equalToSuperview().multipliedBy(0.9)
+            make.centerX.centerY.equalToSuperview()
         }
     }
     

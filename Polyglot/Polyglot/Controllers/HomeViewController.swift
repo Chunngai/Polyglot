@@ -83,9 +83,9 @@ class HomeViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        dragAndDropDebug()
+//        dragAndDropDebug()
         
-        //        jaPaDebug()
+//        jaPaDebug()
         
         updateSetups()
         updateViews()
