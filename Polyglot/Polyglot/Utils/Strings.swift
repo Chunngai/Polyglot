@@ -464,6 +464,7 @@ struct Identifiers {
     // MARK: - UICollectionViewCell Identifiers
     
     static let langCellIdentifier: String = "languageCell"
+    static let wordBankItemCellIdentifier: String = "wordBankItem"
     
     // MARK: - UITableViewCell Identifiers
     

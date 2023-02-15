@@ -71,7 +71,7 @@ class WordsPracticeViewController: PracticeViewController {
                 }()
             case .meaningFilling:
                 return {
-                    let practiceView = MeaningFillingPracticeView()
+                    let practiceView = FillingPracticeView()
                     practiceView.delegate = self
                     return practiceView
                 }()

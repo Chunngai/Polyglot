@@ -1,5 +1,5 @@
 //
-//  MeaningFillingPracticeView.swift
+//  FillingPracticeView.swift
 //  Polyglot
 //
 //  Created by Sola on 2022/12/26.
@@ -9,7 +9,7 @@
 import UIKit
 import NaturalLanguage
 
-class MeaningFillingPracticeView: UIView {
+class FillingPracticeView: UIView {
     
     var answer: String {
         textField.text!.strip()
@@ -93,7 +93,7 @@ class MeaningFillingPracticeView: UIView {
     }
 }
 
-extension MeaningFillingPracticeView: WordPracticeViewDelegate {
+extension FillingPracticeView: WordPracticeViewDelegate {
     
     // MARK: - WordPracticeView Delegate
     
@@ -131,7 +131,7 @@ extension MeaningFillingPracticeView: WordPracticeViewDelegate {
     }
 }
 
-extension MeaningFillingPracticeView {
+extension FillingPracticeView {
     
     // MARK: - Selectors
     
@@ -151,7 +151,7 @@ extension MeaningFillingPracticeView {
     
 }
 
-extension MeaningFillingPracticeView: UITextFieldDelegate {
+extension FillingPracticeView: UITextFieldDelegate {
     
     // MARK: - UITextField Delegate
     

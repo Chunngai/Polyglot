@@ -27,8 +27,8 @@ class ListViewController: UIViewController {
         return tableView
     }()
     
-    var practiceButtonShadowView: RoundShadowView = {
-        let roundShadowView = RoundShadowView()
+    var practiceButtonShadowView: RoundButtonWithShadow = {
+        let roundShadowView = RoundButtonWithShadow()
         roundShadowView.button.setImage(
             Icons.practiceIcon,
             for: .normal
