@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import NaturalLanguage
 
 struct Variables {
     
@@ -20,6 +21,18 @@ struct Variables {
     ]
     static var pairedLang: String{
         return Variables._pairedLangs[Variables.lang]!
+    }
+    
+    static func tokenizerOfLang(of unit: NLTokenUnit = .word) -> NLTokenizer {
+        let tokenizer = NLTokenizer(unit: unit)
+        tokenizer.setLanguage(LangCode.toNLLanguage(langCode: Variables.lang))
+        return tokenizer
+    }
+    
+    static func tokenizerOfPairedLang(of unit: NLTokenUnit = .word) -> NLTokenizer {
+        let tokenizer = NLTokenizer(unit: unit)
+        tokenizer.setLanguage(LangCode.toNLLanguage(langCode: Variables.pairedLang))
+        return tokenizer
     }
 }
 

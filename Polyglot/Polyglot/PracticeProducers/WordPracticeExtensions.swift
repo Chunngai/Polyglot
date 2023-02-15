@@ -405,12 +405,13 @@ extension WordPracticeProducer {
                 case .text: return Variables.lang
                 }
             }()
-            print(lang)
+//            print(lang)
             
-            let tokenizer = NLTokenizer(unit: .word)
-            tokenizer.setLanguage(LangCode.toNLLanguage(langCode: lang))
-            
-            return tokenizer
+            if lang == Variables.lang {
+                return Variables.tokenizerOfLang()
+            } else {
+                return Variables.tokenizerOfPairedLang()
+            }
         }
                 
         mutating func checkCorrectness(answer: String) {

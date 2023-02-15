@@ -60,13 +60,13 @@ extension String {
         
         tokenizer.string = self
         
-        var tokens: [String] = []
+        var components: [String] = []
         tokenizer.enumerateTokens(in: self.startIndex..<self.endIndex) { (range, attributes) -> Bool in
-            tokens.append(String(self[range]))
+            components.append(String(self[range]))
             return true
         }
-        print(tokens)
-        return tokens
+//        print(components)
+        return components
     }
     
 }
