@@ -1,5 +1,5 @@
 //
-//  WordBankItemRow.swift
+//  RowStackItem.swift
 //  Polyglot
 //
 //  Created by Sola on 2023/2/15.
@@ -8,9 +8,9 @@
 
 import UIKit
 
-class WordBankItemRow: UIView {
+class RowStackItem: UIView {
 
-    var bottomLine: Separator = Separator(color: WordBankItemRow.bottomLineColor)
+    var bottomLine: Separator = Separator(color: RowStackItem.bottomLineColor)
     
     // MARK: - Init
     
@@ -39,13 +39,13 @@ class WordBankItemRow: UIView {
     private func updateLayouts() {
         bottomLine.snp.makeConstraints { (make) in
             make.width.equalToSuperview()
-            make.height.equalTo(WordBankItemRow.bottomLineHeight)
+            make.height.equalTo(RowStackItem.bottomLineHeight)
             make.bottom.equalToSuperview()
         }
     }
 }
 
-extension WordBankItemRow {
+extension RowStackItem {
     
     // MARK: - Constants
     

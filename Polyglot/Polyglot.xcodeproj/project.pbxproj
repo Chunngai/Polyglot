@@ -13,7 +13,7 @@
 		FF23764E29528C840073AF96 /* ReadingPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF23764D29528C840073AF96 /* ReadingPracticeViewController.swift */; };
 		FF491E732959C2FD0088FD13 /* PracticeViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E722959C2FD0088FD13 /* PracticeViewDelegate.swift */; };
 		FF491E752959C4320088FD13 /* SelectionPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E742959C4320088FD13 /* SelectionPracticeView.swift */; };
-		FF491E772959CC960088FD13 /* MeaningFillingPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E762959CC960088FD13 /* MeaningFillingPracticeView.swift */; };
+		FF491E772959CC960088FD13 /* FillingPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E762959CC960088FD13 /* FillingPracticeView.swift */; };
 		FF491E802959ED730088FD13 /* Separator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E7F2959ED730088FD13 /* Separator.swift */; };
 		FF495E8E2958F38800EA7EA9 /* UITableViewExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF495E8D2958F38800EA7EA9 /* UITableViewExtensions.swift */; };
 		FF495E962958FFE600EA7EA9 /* WordsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF495E952958FFE600EA7EA9 /* WordsViewController.swift */; };
@@ -60,7 +60,7 @@
 		FF5AA00B2961F208009D5237 /* Alerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5AA00A2961F208009D5237 /* Alerts.swift */; };
 		FF5B182C2961E55F00C80DC3 /* IO.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5B182B2961E55F00C80DC3 /* IO.swift */; };
 		FF5D129129577AC4005DEEDE /* NavController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5D129029577AC4005DEEDE /* NavController.swift */; };
-		FF5D129529577CB3005DEEDE /* RoundShadowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5D129429577CB3005DEEDE /* RoundShadowView.swift */; };
+		FF5D129529577CB3005DEEDE /* RoundButtonWithShadow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5D129429577CB3005DEEDE /* RoundButtonWithShadow.swift */; };
 		FF5DB994295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5DB993295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift */; };
 		FF5FE946297431C30002691C /* ArrayExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5FE945297431C30002691C /* ArrayExtensions.swift */; };
 		FF62C9762951382500D41797 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9752951382500D41797 /* AppDelegate.swift */; };
@@ -90,7 +90,8 @@
 		FFCBB0DB296B1A6700E5B9D9 /* PracticeProducerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0DA296B1A6700E5B9D9 /* PracticeProducerDelegate.swift */; };
 		FFCBB0DD296B2E4000E5B9D9 /* ReadingPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0DC296B2E4000E5B9D9 /* ReadingPracticeView.swift */; };
 		FFCBB0E0296B45F300E5B9D9 /* TranslationPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0DF296B45F300E5B9D9 /* TranslationPracticeView.swift */; };
-		FFD7DF6D299D376000019D51 /* WordBankItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD7DF6C299D376000019D51 /* WordBankItemRow.swift */; };
+		FFD7DF6D299D376000019D51 /* RowStackItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD7DF6C299D376000019D51 /* RowStackItem.swift */; };
+		FFD7DF72299D509B00019D51 /* CGRectExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD7DF71299D509B00019D51 /* CGRectExtensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -151,7 +152,7 @@
 		FF23764D29528C840073AF96 /* ReadingPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPracticeViewController.swift; sourceTree = "<group>"; };
 		FF491E722959C2FD0088FD13 /* PracticeViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeViewDelegate.swift; sourceTree = "<group>"; };
 		FF491E742959C4320088FD13 /* SelectionPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionPracticeView.swift; sourceTree = "<group>"; };
-		FF491E762959CC960088FD13 /* MeaningFillingPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeaningFillingPracticeView.swift; sourceTree = "<group>"; };
+		FF491E762959CC960088FD13 /* FillingPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FillingPracticeView.swift; sourceTree = "<group>"; };
 		FF491E7F2959ED730088FD13 /* Separator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Separator.swift; sourceTree = "<group>"; };
 		FF495E8D2958F38800EA7EA9 /* UITableViewExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITableViewExtensions.swift; sourceTree = "<group>"; };
 		FF495E952958FFE600EA7EA9 /* WordsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordsViewController.swift; sourceTree = "<group>"; };
@@ -198,7 +199,7 @@
 		FF5AA00A2961F208009D5237 /* Alerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alerts.swift; sourceTree = "<group>"; };
 		FF5B182B2961E55F00C80DC3 /* IO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IO.swift; sourceTree = "<group>"; };
 		FF5D129029577AC4005DEEDE /* NavController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavController.swift; sourceTree = "<group>"; };
-		FF5D129429577CB3005DEEDE /* RoundShadowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundShadowView.swift; sourceTree = "<group>"; };
+		FF5D129429577CB3005DEEDE /* RoundButtonWithShadow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundButtonWithShadow.swift; sourceTree = "<group>"; };
 		FF5DB993295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoResizingTextViewWithPrompt.swift; sourceTree = "<group>"; };
 		FF5FE945297431C30002691C /* ArrayExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayExtensions.swift; sourceTree = "<group>"; };
 		FF62C9722951382500D41797 /* Polyglot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Polyglot.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -233,7 +234,8 @@
 		FFCBB0DA296B1A6700E5B9D9 /* PracticeProducerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeProducerDelegate.swift; sourceTree = "<group>"; };
 		FFCBB0DC296B2E4000E5B9D9 /* ReadingPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPracticeView.swift; sourceTree = "<group>"; };
 		FFCBB0DF296B45F300E5B9D9 /* TranslationPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeView.swift; sourceTree = "<group>"; };
-		FFD7DF6C299D376000019D51 /* WordBankItemRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordBankItemRow.swift; sourceTree = "<group>"; };
+		FFD7DF6C299D376000019D51 /* RowStackItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RowStackItem.swift; sourceTree = "<group>"; };
+		FFD7DF71299D509B00019D51 /* CGRectExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGRectExtensions.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -306,6 +308,7 @@
 				FF495E8D2958F38800EA7EA9 /* UITableViewExtensions.swift */,
 				FF4D7CC52953952C009F6894 /* NSMutableAttributedStringExtensions.swift */,
 				FF793A472968A7D60026B8C7 /* UIApplication.swift */,
+				FFD7DF71299D509B00019D51 /* CGRectExtensions.swift */,
 			);
 			path = UIExtensions;
 			sourceTree = "<group>";
@@ -347,7 +350,7 @@
 			children = (
 				FF495E9B295903DF00EA7EA9 /* WordsTableCell.swift */,
 				FF491E742959C4320088FD13 /* SelectionPracticeView.swift */,
-				FF491E762959CC960088FD13 /* MeaningFillingPracticeView.swift */,
+				FF491E762959CC960088FD13 /* FillingPracticeView.swift */,
 			);
 			path = Words;
 			sourceTree = "<group>";
@@ -412,18 +415,14 @@
 		FF52920B2952013900858B55 /* CustomViews */ = {
 			isa = PBXGroup;
 			children = (
+				FFD7DF77299D8D4C00019D51 /* DragAndDrop */,
+				FFD7DF76299D8D3000019D51 /* NewWordAdding */,
+				FFD7DF75299D8D2300019D51 /* RoundButton */,
 				FF4EFE07295D310A00E30D6A /* BackgroundView.swift */,
 				FF5292092952012E00858B55 /* ThreeButtonSelectionStack.swift */,
-				FF4964C82958B05300414AC5 /* RoundButton.swift */,
-				FF5D129429577CB3005DEEDE /* RoundShadowView.swift */,
 				FF491E7F2959ED730088FD13 /* Separator.swift */,
-				FF8CDE802952995F00B36CA3 /* NewWordAddingBottomView.swift */,
-				FF5882BD29604E0300FC33CF /* NewWordAddingTextView.swift */,
 				FF4964CA2958BAFD00414AC5 /* TimingBar.swift */,
 				FF5DB993295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift */,
-				FF63DDFB299AC17C0088C10B /* WordBank.swift */,
-				FF63DDFF299AD2F90088C10B /* WordBankItem.swift */,
-				FFD7DF6C299D376000019D51 /* WordBankItemRow.swift */,
 			);
 			path = CustomViews;
 			sourceTree = "<group>";
@@ -613,6 +612,34 @@
 				FFCBB0DF296B45F300E5B9D9 /* TranslationPracticeView.swift */,
 			);
 			path = Translation;
+			sourceTree = "<group>";
+		};
+		FFD7DF75299D8D2300019D51 /* RoundButton */ = {
+			isa = PBXGroup;
+			children = (
+				FF4964C82958B05300414AC5 /* RoundButton.swift */,
+				FF5D129429577CB3005DEEDE /* RoundButtonWithShadow.swift */,
+			);
+			path = RoundButton;
+			sourceTree = "<group>";
+		};
+		FFD7DF76299D8D3000019D51 /* NewWordAdding */ = {
+			isa = PBXGroup;
+			children = (
+				FF8CDE802952995F00B36CA3 /* NewWordAddingBottomView.swift */,
+				FF5882BD29604E0300FC33CF /* NewWordAddingTextView.swift */,
+			);
+			path = NewWordAdding;
+			sourceTree = "<group>";
+		};
+		FFD7DF77299D8D4C00019D51 /* DragAndDrop */ = {
+			isa = PBXGroup;
+			children = (
+				FF63DDFB299AC17C0088C10B /* WordBank.swift */,
+				FF63DDFF299AD2F90088C10B /* WordBankItem.swift */,
+				FFD7DF6C299D376000019D51 /* RowStackItem.swift */,
+			);
+			path = DragAndDrop;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -884,7 +911,7 @@
 				FF495E962958FFE600EA7EA9 /* WordsViewController.swift in Sources */,
 				FF502512295248D10097C2CB /* Article.swift in Sources */,
 				FFBD60432969D721004165FC /* ReadingPracticeExtensions.swift in Sources */,
-				FF491E772959CC960088FD13 /* MeaningFillingPracticeView.swift in Sources */,
+				FF491E772959CC960088FD13 /* FillingPracticeView.swift in Sources */,
 				FF491E752959C4320088FD13 /* SelectionPracticeView.swift in Sources */,
 				FF6D5A882997F7850048470B /* TmpViewController2.swift in Sources */,
 				FFCBB0E0296B45F300E5B9D9 /* TranslationPracticeView.swift in Sources */,
@@ -892,7 +919,7 @@
 				FF4964BA29579C5A00414AC5 /* UISearchBarExtensions.swift in Sources */,
 				FF5844312967217700137E00 /* ListViewController.swift in Sources */,
 				FF62C97A2951382500D41797 /* HomeViewController.swift in Sources */,
-				FF5D129529577CB3005DEEDE /* RoundShadowView.swift in Sources */,
+				FF5D129529577CB3005DEEDE /* RoundButtonWithShadow.swift in Sources */,
 				FF4A21542959A5D600AD3AF8 /* Practice.swift in Sources */,
 				FF4964C029579DA100414AC5 /* ArticleExtensions.swift in Sources */,
 				FF23764E29528C840073AF96 /* ReadingPracticeViewController.swift in Sources */,
@@ -924,6 +951,7 @@
 				FF52921229520D1200858B55 /* UINavigationBarExtensions.swift in Sources */,
 				FF5882BE29604E0300FC33CF /* NewWordAddingTextView.swift in Sources */,
 				FF495EA029591DEC00EA7EA9 /* TableHeaderView.swift in Sources */,
+				FFD7DF72299D509B00019D51 /* CGRectExtensions.swift in Sources */,
 				FF62C9A929513A5000D41797 /* Theme.swift in Sources */,
 				FFBD60452969D733004165FC /* TranslationPracticeExtensions.swift in Sources */,
 				FF706DF1295142AF00DBCF8E /* Strings.swift in Sources */,
@@ -951,7 +979,7 @@
 				FF591ED8296796160004CB80 /* ReadingPractice.swift in Sources */,
 				FF5DB994295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift in Sources */,
 				FF495EA22959244C00EA7EA9 /* WordsPracticeViewController.swift in Sources */,
-				FFD7DF6D299D376000019D51 /* WordBankItemRow.swift in Sources */,
+				FFD7DF6D299D376000019D51 /* RowStackItem.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,5 +1,5 @@
 //
-//  RoundShadowView.swift
+//  RoundButtonWithShadow.swift
 //  Polyglot
 //
 //  Created by Sola on 2022/12/25.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class RoundShadowView: UIView {
+class RoundButtonWithShadow: UIView {
     
     // MARK: - Views
     
@@ -33,10 +33,10 @@ class RoundShadowView: UIView {
     }
     
     private func updateViews() {
-        layer.shadowColor = RoundShadowView.shadowColor
-        layer.shadowOpacity = RoundShadowView.shadowOpacity
-        layer.shadowRadius = RoundShadowView.shadowRadius
-        layer.shadowOffset = RoundShadowView.shadowOffset
+        layer.shadowColor = RoundButtonWithShadow.shadowColor
+        layer.shadowOpacity = RoundButtonWithShadow.shadowOpacity
+        layer.shadowRadius = RoundButtonWithShadow.shadowRadius
+        layer.shadowOffset = RoundButtonWithShadow.shadowOffset
         
         addSubview(button)
     }
@@ -51,7 +51,7 @@ class RoundShadowView: UIView {
 
 }
 
-extension RoundShadowView {
+extension RoundButtonWithShadow {
     
     private static let shadowColor: CGColor = UIColor.gray.cgColor
     private static let shadowOpacity: Float = 0.3

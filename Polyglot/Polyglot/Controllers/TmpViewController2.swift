@@ -11,12 +11,17 @@ import NaturalLanguage
 
 class TmpViewController2: UIViewController {
 
-    private var wordCentersInPool: [CGPoint] = []
-    private var wordButtonsInRowStack: [UIView] = []
-    private var wordCentersInRowStack: [CGPoint] = []
+    // Original centers of the word bank items.
+    private var centersInWordBank: [CGPoint] = []
+    
+    private var itemsInRowStack: [UIView] = []
+    private var centersInRowStack: [CGPoint] = []
     
     private var wordBankWidth: CGFloat!
     private var rowStackWidth: CGFloat!
+    
+    private lazy var initialCenterXInRowStack: CGFloat = rowStack.frame.minX
+    private lazy var initialCenterYInRowStack: CGFloat = rowStack.frame.minY + TmpViewController2.rowHeight / 2
     
     // MARK: - Models
     
@@ -25,36 +30,9 @@ class TmpViewController2: UIViewController {
     // MARK: - Views
     
     private lazy var rowStack: UIStackView = {
-    
-        func calculateRowNumber() -> Int {
-            
-            var rowNumber: Int = 1
-            var summedWidth: CGFloat = 0
-            for word in self.words {
-                
-                let itemWidth = (
-                    WordBank.itemHorizontalPadding
-                        + word.textSize(withFont: WordBankItem.labelFont).width
-                        + WordBank.itemHorizontalPadding
-                )
-                
-                summedWidth += itemWidth
-                if summedWidth > self.rowStackWidth {
-                    rowNumber += 1
-                    summedWidth = 0
-                }
-            }
-            // Handle the last row.
-            if summedWidth != 0 {
-                rowNumber += 1
-            }
-            
-            return rowNumber
-        }
-        
         let rowNumber: Int = calculateRowNumber()
-        let rows: [WordBankItemRow] = (0..<rowNumber).map { (_) -> WordBankItemRow in
-            return WordBankItemRow()
+        let rows: [RowStackItem] = (0..<rowNumber).map { (_) -> RowStackItem in
+            return RowStackItem()
         }
         
         let stackView = UIStackView(arrangedSubviews: rows)
@@ -62,7 +40,6 @@ class TmpViewController2: UIViewController {
         stackView.axis = .vertical
         stackView.alignment = .center
         stackView.distribution = .equalSpacing
-        stackView.spacing = Sizes.defaultStackSpacing
         stackView.spacing = TmpViewController2.rowStackVerticalSpacing
         return stackView
     }()
@@ -83,13 +60,25 @@ class TmpViewController2: UIViewController {
         super.viewDidLayoutSubviews()
         
         wordBank.snp.updateConstraints { (make) in
-                        
             make.width.equalTo(wordBankWidth)
             // https://stackoverflow.com/questions/42437966/how-to-adjust-height-of-uicollectionview-to-be-the-height-of-the-content-size-of
             make.height.equalTo(wordBank.collectionViewLayout.collectionViewContentSize.height)
             make.centerX.equalToSuperview()
             make.bottom.equalToSuperview().inset(200)
         }
+        
+        rowStack.snp.makeConstraints { (make) in
+            make.bottom.equalTo(wordBank.snp.top).offset(-50)
+            make.width.equalTo(rowStackWidth)
+            make.centerX.equalToSuperview()
+        }
+        for row in rowStack.arrangedSubviews {
+            row.snp.makeConstraints { (make) in
+                make.width.equalToSuperview()
+                make.height.equalTo(TmpViewController2.rowHeight)
+            }
+        }
+        
         self.view.layoutIfNeeded()
     }
     
@@ -100,8 +89,8 @@ class TmpViewController2: UIViewController {
     }
     
     private func updateSetups() {
-        wordBankWidth = view.frame.width
-        rowStackWidth = view.frame.width
+        wordBankWidth = view.frame.width * 0.85
+        rowStackWidth = view.frame.width * 0.85
     }
     
     private func updateViews() {
@@ -111,17 +100,7 @@ class TmpViewController2: UIViewController {
     }
     
     private func updateLayouts() {
-        rowStack.snp.makeConstraints { (make) in
-            make.top.equalToSuperview().inset(300)
-            make.width.equalTo(rowStackWidth)
-            make.centerX.equalToSuperview()
-        }
-        for row in rowStack.arrangedSubviews {
-            row.snp.makeConstraints { (make) in
-                make.width.equalToSuperview()
-                make.height.equalTo(TmpViewController2.rowHeight)
-            }
-        }
+        
     }
     
     func updateValues(words: [String]) {
@@ -165,309 +144,336 @@ extension TmpViewController2 {
             
             view.addSubview(labelSnapShot)
             
-            wordCentersInPool.append(labelSnapShot.center)
+            centersInWordBank.append(labelSnapShot.center)
             
             // Hide the original label.
             cell.label.backgroundColor = Colors.lightGrayBackgroundColor
             cell.label.text = nil
         }
     }
+    
+    private func calculateRowNumber() -> Int {
+        
+        var rowNumber: Int = 1
+        var summedWidth: CGFloat = 0
+        for word in self.words {
+            
+            let itemWidth = (
+                WordBank.itemHorizontalPadding
+                    + word.textSize(withFont: WordBankItem.labelFont).width
+                    + WordBank.itemHorizontalPadding
+            )
+            
+            summedWidth += itemWidth
+            if summedWidth > self.rowStackWidth {
+                rowNumber += 1
+                summedWidth = 0
+            }
+        }
+        
+        return rowNumber
+    }
 }
 
 extension TmpViewController2 {
     
-    private func updateCenterOf(view: UIView, to newCenter: CGPoint) {
-        UIView.animate(withDuration: 0.3) {
-            view.center = newCenter
+    private func move(_ item: UIView, to newCenter: CGPoint, animated: Bool = true) {
+        // https://stackoverflow.com/questions/46436856/how-to-check-to-see-if-one-view-is-on-top-of-another-view
+
+        func _move() {
+            item.center = newCenter
+        }
+        
+        if animated {
+            UIView.animate(withDuration: 0.3) {
+                _move()
+            }
+        } else {
+            _move()
         }
     }
     
-    private func isInRowStack(_ view: UIView) -> Bool {
-        return rowStack.frame.intersects(view.frame)
+    private func isInAnswerArea(_ item: UIView) -> Bool {
+        return item.frame.maxY >= rowStack.frame.minY
+            && item.frame.maxY < wordBank.frame.minY
     }
     
-    private func updateRowStack(_ view: UIView, translation: CGPoint) {
+    private func updateCentersInRowStack() {
+        
+        if itemsInRowStack.isEmpty {
+            return
+        }
+        
+        centersInRowStack = []
+        var centerX: CGFloat = initialCenterXInRowStack
+        var centerY: CGFloat = initialCenterYInRowStack
+        for i in 0..<itemsInRowStack.count {
+            let item = itemsInRowStack[i]
+            
+            if i - 1 >= 0 {
+                centerX += itemsInRowStack[i - 1].frame.halfWidth
+                    + TmpViewController2.rowStackHorizontalSpacing
+            }
+            centerX += item.frame.halfWidth
+
+            if centerX + item.frame.halfWidth > rowStack.frame.maxX {
+                centerX = initialCenterXInRowStack + item.frame.halfWidth
+                centerY += TmpViewController2.rowStackVerticalSpacing
+                    + TmpViewController2.rowHeight
+            }
+            
+            centersInRowStack.append(CGPoint(
+                x: centerX,
+                y: centerY
+            ))
+        }
+    }
+    
+    private func updateRowStackLayouts(exceptItem excludedItem: UIView? = nil) {
+        for (item, center) in zip(itemsInRowStack, centersInRowStack) {
+            if excludedItem != nil, item == excludedItem! {
+                continue
+            }
+            move(item, to: center)
+        }
+    }
+    
+    private func addToRowStack(_ item: UIView) {
+        
+        // Determine the center.
+        var centerX: CGFloat!
+        var centerY: CGFloat!
+        if let lastItem = itemsInRowStack.last {
+            centerX = lastItem.frame.maxX
+                + TmpViewController2.rowStackHorizontalSpacing
+                + item.frame.halfWidth
+            centerY = lastItem.center.y
+            
+            if centerX + item.frame.halfWidth > rowStack.frame.maxX {
+                centerX = initialCenterXInRowStack + item.frame.halfWidth
+                centerY += TmpViewController2.rowStackVerticalSpacing
+                    + TmpViewController2.rowHeight
+            }
+        } else {
+            centerX = initialCenterXInRowStack + item.frame.halfWidth
+            centerY = initialCenterYInRowStack
+        }
+        
+        itemsInRowStack.append(item)
+        centersInRowStack.append(CGPoint(
+            x: centerX,
+            y: centerY
+        ))
+    }
+    
+    private func removeFromRowStack(_ item: UIView) {
+
+        if let itemIndex = itemsInRowStack.firstIndex(of: item) {
+            
+            centersInRowStack.remove(at: itemIndex)
+            itemsInRowStack.remove(at: itemIndex)
+            
+            if itemIndex != itemsInRowStack.count {
+                updateCentersInRowStack()
+            }
+        }
+    }
+    
+    private func moveWithinRowStack(_ item: UIView, translation: CGPoint) {
         
         print("###")
         print("translation.x:", translation.x)
         print("translation.y:", translation.y)
         
-        var indexOfDraggingButton = wordButtonsInRowStack.firstIndex(of: view)!
-        print("index of current button:", indexOfDraggingButton)
+        var itemIndex = itemsInRowStack.firstIndex(of: item)!
+        print("index of current item:", itemIndex)
         
-        if translation.x < 0 {  // <-.
+        func updateHorizontalMoving() {
+            if translation.x < 0 {  // To left.
+                
+                var indexOfPreviousItem = itemIndex - 1
+                if indexOfPreviousItem < 0 {
+                    return
+                }
+                print("index of previous item:", indexOfPreviousItem)
+                
+                let previousItem = itemsInRowStack[indexOfPreviousItem]
+                if !previousItem.frame.intersects(item.frame) {
+                    return
+                }
+                
+                // Obtain the maxX of the previous item.
+                let maxXOfPreviousItem = previousItem.frame.maxX
+                print("maxX of previous item:", maxXOfPreviousItem)
+                
+                // Obtain the minX of the dragging item.
+                let minXOfDraggingItem = item.frame.minX
+                print("minX of dragging item:", minXOfDraggingItem)
             
-            // Obtain the maxX of the previous button.
-            var indexOfPreviousButton = indexOfDraggingButton - 1
-            if indexOfPreviousButton < 0 {
-                return
-            }
-            print("index of previous button:", indexOfPreviousButton)
-            let previousButton = wordButtonsInRowStack[indexOfPreviousButton]
-            let maxXOfPreviousButton = previousButton.frame.maxX
-            print("maxX of previous button:", maxXOfPreviousButton)
-            if !previousButton.frame.intersects(view.frame) {
-                return
-            }
-            
-            // Obtain the minX of the dragging button.
-            let minXOfDraggingButton = view.frame.minX
-            print("minX of dragging button:", minXOfDraggingButton)
-        
-            if maxXOfPreviousButton > minXOfDraggingButton {
-                print("intersected with the previous button")
+                if maxXOfPreviousItem > minXOfDraggingItem {
+                    print("intersected with the previous item")
+                    
+                    // Swap the two items.
+                    itemsInRowStack.swapAt(indexOfPreviousItem, itemIndex)
+                    centersInRowStack.swapAt(indexOfPreviousItem, itemIndex)
+                    // Update the indices.
+                    (indexOfPreviousItem, itemIndex) = (itemIndex, indexOfPreviousItem)
+                    
+                    // Recalculate the centers.
+                    centersInRowStack[indexOfPreviousItem].x += (TmpViewController2.rowStackHorizontalSpacing + item.frame.width)
+                    centersInRowStack[itemIndex].x -= (TmpViewController2.rowStackHorizontalSpacing + previousItem.frame.width)
+                }
+            } else if translation.x > 0 {  // To right.
                 
-                // Swap the two buttons.
-                wordButtonsInRowStack.swapAt(indexOfPreviousButton, indexOfDraggingButton)
-                wordCentersInRowStack.swapAt(indexOfPreviousButton, indexOfDraggingButton)
-                // Update the indices.
-                (indexOfPreviousButton, indexOfDraggingButton) = (indexOfDraggingButton, indexOfPreviousButton)
+                var indexOfNextItem = itemIndex + 1
+                if indexOfNextItem > itemsInRowStack.count - 1 {
+                    return
+                }
+                print("index of next item:", indexOfNextItem)
                 
-                // Recalculate the centers.
-                wordCentersInRowStack[indexOfPreviousButton].x += (TmpViewController2.rowStackHorizontalSpacing + view.frame.width)
-                wordCentersInRowStack[indexOfDraggingButton].x -= (TmpViewController2.rowStackHorizontalSpacing + previousButton.frame.width)
+                let nextItem = itemsInRowStack[indexOfNextItem]
+                if !item.frame.intersects(nextItem.frame) {
+                    return
+                }
                 
-                // Perform moving.
-                updateCenterOf(view: previousButton, to: wordCentersInRowStack[indexOfPreviousButton])
-            }
-        } else if translation.x > 0 {
-            
-            // Obtain the minX of the next button.
-            var indexOfNextButton = indexOfDraggingButton + 1
-            if indexOfNextButton > wordButtonsInRowStack.count - 1 {
-                return
-            }
-            print("index of next button:", indexOfNextButton)
-            let nextButton = wordButtonsInRowStack[indexOfNextButton]
-            let maxXOfNextButton = nextButton.frame.maxX
-            print("maxX of next button:", maxXOfNextButton)
-            if !view.frame.intersects(nextButton.frame) {
-                return
-            }
-            
-            // Obtain the maxX of the dragging button.
-            let maxXOfDraggingButton = view.frame.maxX
-            print("maxX of dragging button:", maxXOfDraggingButton)
-            
-            if maxXOfDraggingButton > maxXOfNextButton {
-                print("intersected with the next button")
+                // Obtain the minX of the next item.
+                let maxXOfNextItem = nextItem.frame.maxX
+                print("maxX of next item:", maxXOfNextItem)
                 
-                // Swap the two buttons.
-                wordButtonsInRowStack.swapAt(indexOfDraggingButton, indexOfNextButton)
-                wordCentersInRowStack.swapAt(indexOfDraggingButton, indexOfNextButton)
-                // Update the indices.
-                (indexOfDraggingButton, indexOfNextButton) = (indexOfNextButton, indexOfDraggingButton)
+                // Obtain the maxX of the dragging item.
+                let maxXOfDraggingItem = item.frame.maxX
+                print("maxX of dragging item:", maxXOfDraggingItem)
                 
-                // Recalculate the centers.
-                wordCentersInRowStack[indexOfDraggingButton].x += (TmpViewController2.rowStackHorizontalSpacing + nextButton.frame.width)
-                wordCentersInRowStack[indexOfNextButton].x -= (TmpViewController2.rowStackHorizontalSpacing + view.frame.width)
-                
-                // Perform moving.
-                updateCenterOf(view: nextButton, to: wordCentersInRowStack[indexOfNextButton])
+                if maxXOfDraggingItem > maxXOfNextItem {
+                    print("intersected with the next item")
+                    
+                    // Swap the two items.
+                    itemsInRowStack.swapAt(itemIndex, indexOfNextItem)
+                    centersInRowStack.swapAt(itemIndex, indexOfNextItem)
+                    // Update the indices.
+                    (itemIndex, indexOfNextItem) = (indexOfNextItem, itemIndex)
+                    
+                    // Recalculate the centers.
+                    centersInRowStack[itemIndex].x += (TmpViewController2.rowStackHorizontalSpacing + nextItem.frame.width)
+                    centersInRowStack[indexOfNextItem].x -= (TmpViewController2.rowStackHorizontalSpacing + item.frame.width)
+                }
             }
         }
         
-        if translation.y < 0 {
-            
-            // Calculate the vertical offset.
-            let currentMinY = view.frame.minY
-            print("current minY:", currentMinY)
-            let originalMinY = wordCentersInRowStack[indexOfDraggingButton].y - TmpViewController2.rowHeight / 2
-            print("original minY:", originalMinY)
-            let verticalOffset = -(currentMinY - originalMinY)
-            print("vertical offset:", verticalOffset)
-            
-            if verticalOffset > TmpViewController2.rowStackVerticalSpacing {
-                print("intersected with the upper row.")
+        func updateVerticalMoving() {
+            if translation.y < 0 {  // Up.
                 
-                // Calculate the new center y.
-                let newCenterY: CGFloat = wordCentersInRowStack[indexOfDraggingButton].y - TmpViewController2.rowHeight - TmpViewController2.rowStackVerticalSpacing
-                print("new center y:", newCenterY)
+                // Calculate the vertical offset.
+                let currentMinY = item.frame.minY
+                print("current minY:", currentMinY)
+                let originalMinY = centersInRowStack[itemIndex].y - TmpViewController2.rowHeight / 2
+                print("original minY:", originalMinY)
+                let verticalOffset = -(currentMinY - originalMinY)
+                print("vertical offset:", verticalOffset)
                 
-                // Obtain first button in the same row.
-                var indexOfFirstButtonInSameRow: Int = 0
-                for i in 0..<indexOfDraggingButton {
-                    let wordCenterY = wordCentersInRowStack[i].y
-                    if wordCenterY != newCenterY {
-                        indexOfFirstButtonInSameRow += 1
-                    } else {
-                        break
+                if verticalOffset > TmpViewController2.rowStackVerticalSpacing {
+                    print("intersected with the upper row.")
+                    
+                    // Calculate the new center y.
+                    let newCenterY: CGFloat = centersInRowStack[itemIndex].y
+                        - TmpViewController2.rowHeight / 2
+                        - TmpViewController2.rowStackVerticalSpacing
+                        - TmpViewController2.rowHeight / 2
+                    print("new center y:", newCenterY)
+                    
+                    // Obtain the first item in the same row.
+                    var indexOfFirstItemInSameRow: Int = 0
+                    for i in 0..<itemIndex {
+                        let wordCenterY = centersInRowStack[i].y
+                        if wordCenterY != newCenterY {
+                            indexOfFirstItemInSameRow += 1
+                        } else {
+                            break
+                        }
                     }
-                }
-                print("index of first button in same row:", indexOfFirstButtonInSameRow)
-                
-                // Calculate the new index.
-                var newIndex = indexOfFirstButtonInSameRow
-                for i in indexOfFirstButtonInSameRow..<wordButtonsInRowStack.count {
-                    // The y of the current button is in the same row as the new center y.
-                    let wordButton = wordButtonsInRowStack[i]
-                    if wordButton.frame.maxX < view.frame.minX {
-                        newIndex = i + 1
-                    } else {
-                        break
+                    print("index of first item in same row:", indexOfFirstItemInSameRow)
+                    
+                    // Calculate the new index.
+                    var newIndex = indexOfFirstItemInSameRow
+                    for i in indexOfFirstItemInSameRow..<itemsInRowStack.count {
+                        // The y of the current item is in the same row as the new center y.
+                        let wordItem = itemsInRowStack[i]
+                        if wordItem.frame.maxX < item.frame.minX {
+                            newIndex = i + 1
+                        } else {
+                            break
+                        }
                     }
+                    print("new index:", newIndex)
+                    
+                    // Update the word items.
+                    let item = itemsInRowStack.remove(at: itemIndex)
+                    itemsInRowStack.insert(item, at: newIndex)
+                    
+                    // Update the centers.
+                    updateCentersInRowStack()
                 }
-                print("new index:", newIndex)
                 
-                // Update the word buttons.
-                let button = wordButtonsInRowStack.remove(at: indexOfDraggingButton)
-                wordButtonsInRowStack.insert(button, at: newIndex)
+            } else if translation.y > 0 {  // Down.
+                                
+                // Calculate the vertical offset.
+                let currentMinY = item.frame.minY
+                print("current minY:", currentMinY)
+                let originalMinY = centersInRowStack[itemIndex].y - TmpViewController2.rowHeight / 2
+                print("original minY:", originalMinY)
+                let verticalOffset = currentMinY - originalMinY
+                print("vertical offset:", verticalOffset)
                 
-                // Update the centers.
-                // TODO: - Not needed to update all.
-                updateCenters()
-                
-                // Perform moving.
-                for i in 0..<wordCentersInRowStack.count {
-                    if i != newIndex {
-                        updateCenterOf(view: wordButtonsInRowStack[i], to: wordCentersInRowStack[i])
+                if verticalOffset > TmpViewController2.rowHeight {
+                    print("intersected with the lower row.")
+                    
+                    // Calculate the new center y.
+                    let newCenterY: CGFloat = centersInRowStack[itemIndex].y
+                        + TmpViewController2.rowHeight / 2
+                        + TmpViewController2.rowStackVerticalSpacing
+                        + TmpViewController2.rowHeight / 2
+                    print("new center y:", newCenterY)
+                    
+                    // Obtain the first item in the same row.
+                    var indexOfFirstItemInSameRow: Int = itemIndex
+                    for i in itemIndex..<itemsInRowStack.count {
+                        let wordCenterY = centersInRowStack[i].y
+                        if wordCenterY != newCenterY {
+                            indexOfFirstItemInSameRow += 1
+                        } else {
+                            break
+                        }
                     }
+                    print("index of first item in same row:", indexOfFirstItemInSameRow)
+                    
+                    // Calculate the new index.
+                    var newIndex = indexOfFirstItemInSameRow
+                    for i in indexOfFirstItemInSameRow..<itemsInRowStack.count {
+                        // The y of the current item is in the same row as the new center y.
+                        let wordItem = itemsInRowStack[i]
+                        if wordItem.frame.maxX < item.frame.minX {
+                            newIndex = i + 1
+                        } else {
+                            break
+                        }
+                    }
+                    if newIndex > itemsInRowStack.count - 1 {  // When moved to an empty row.
+                        newIndex = itemsInRowStack.count - 1
+                    }
+                    print("new index:", newIndex)
+                    
+                    // Update the item items.
+                    let item = itemsInRowStack.remove(at: itemIndex)
+                    itemsInRowStack.insert(item, at: newIndex)
+                    
+                    // Update the centers.
+                    updateCentersInRowStack()
                 }
             }
-            
-        } else if translation.y > 0 {
-            // Calculate the vertical offset.
-            let currentMinY = view.frame.minY
-            print("current minY:", currentMinY)
-            let originalMinY = wordCentersInRowStack[indexOfDraggingButton].y - TmpViewController2.rowHeight / 2
-            print("original minY:", originalMinY)
-            let verticalOffset = currentMinY - originalMinY
-            print("vertical offset:", verticalOffset)
-            
-            if verticalOffset > TmpViewController2.rowStackHorizontalSpacing + TmpViewController2.rowHeight {
-                print("intersected with the lower row.")
-                
-                // Calculate the new center y.
-                let newCenterY: CGFloat = wordCentersInRowStack[indexOfDraggingButton].y + TmpViewController2.rowHeight + TmpViewController2.rowStackVerticalSpacing
-                print("new center y:", newCenterY)
-                
-                // Obtain the first button in the same row.
-                var indexOfFirstButtonInSameRow: Int = indexOfDraggingButton
-                for i in indexOfDraggingButton..<wordButtonsInRowStack.count {
-                    let wordCenterY = wordCentersInRowStack[i].y
-                    if wordCenterY != newCenterY {
-                        indexOfFirstButtonInSameRow += 1
-                    } else {
-                        break
-                    }
-                }
-                print("index of first button in same row:", indexOfFirstButtonInSameRow)
-                
-                // Calculate the new index.
-                var newIndex = indexOfFirstButtonInSameRow
-                for i in indexOfFirstButtonInSameRow..<wordButtonsInRowStack.count {
-                    // The y of the current button is in the same row as the new center y.
-                    let wordButton = wordButtonsInRowStack[i]
-                    if wordButton.frame.maxX < view.frame.minX {
-                        newIndex = i + 1
-                    } else {
-                        break
-                    }
-                }
-                if newIndex > wordButtonsInRowStack.count - 1 {  // When moved to an empty row.
-                    newIndex = wordButtonsInRowStack.count - 1
-                }
-                print("new index:", newIndex)
-                
-                // Update the word buttons.
-                let button = wordButtonsInRowStack.remove(at: indexOfDraggingButton)
-                wordButtonsInRowStack.insert(button, at: newIndex)
-                
-                // Update the centers.
-                // TODO: - Not needed to update all.
-                updateCenters()
-                
-                // Perform moving.
-                for i in 0..<wordCentersInRowStack.count {
-                    if i != newIndex {
-                        updateCenterOf(view: wordButtonsInRowStack[i], to: wordCentersInRowStack[i])
-                    }
-                }
-            }
-        }
-    }
-    
-    private func updateCenters() {
-        
-        if wordButtonsInRowStack.isEmpty {
-            return
         }
         
-        var newCenters: [CGPoint] = []
-        var centerX: CGFloat = rowStack.frame.minX
-        var centerY: CGFloat = rowStack.frame.minY + TmpViewController2.rowHeight / 2
-        for i in 0..<wordButtonsInRowStack.count {
-            
-            let wordButton = wordButtonsInRowStack[i]
-            centerX += wordButton.frame.width / 2
-            if i - 1 >= 0 {
-                centerX += TmpViewController2.rowStackHorizontalSpacing + wordButtonsInRowStack[i - 1].frame.width / 2
-            }
-            if centerX + wordButton.frame.width / 2 > rowStack.frame.maxX {
-                centerX = rowStack.frame.minX + wordButton.frame.width / 2
-                centerY += TmpViewController2.rowHeight + TmpViewController2.rowStackVerticalSpacing
-            }
-            
-            newCenters.append(CGPoint(
-                x: centerX,
-                y: centerY
-            ))
-        }
-        wordCentersInRowStack = newCenters
-    }
-    
-    private func addToRowStack(_ view: UIView) {
-        
-        if !wordButtonsInRowStack.contains(view) {
-            
-            // Determine the center.
-            var centerX: CGFloat = rowStack.frame.minX + view.frame.width / 2
-            var centerY: CGFloat = rowStack.frame.minY + TmpViewController2.rowHeight / 2
-            if let lastButton = wordButtonsInRowStack.last {
-                
-                centerX = TmpViewController2.rowStackHorizontalSpacing + lastButton.frame.maxX + view.frame.width / 2
-                centerY = lastButton.center.y
-                if centerX + view.frame.width / 2 > rowStack.frame.maxX {
-                    centerX = rowStack.frame.minX + view.frame.width / 2
-                    centerY += TmpViewController2.rowHeight + TmpViewController2.rowStackVerticalSpacing
-                }
-            }
-            
-            // Add the button.
-            wordCentersInRowStack.append(CGPoint(
-                x: centerX,
-                y: centerY
-            ))
-            wordButtonsInRowStack.append(view)
-        }
-    }
-    
-    private func moveToRowStack(_ view: UIView) {
-        if let indexOfButtonToMove = wordButtonsInRowStack.firstIndex(of: view) {
-            updateCenterOf(view: view, to: wordCentersInRowStack[indexOfButtonToMove])
-        }
-    }
-    
-    private func removeFromRowStack(_ view: UIView) {
-
-        if let buttonIndex = wordButtonsInRowStack.firstIndex(of: view) {
-            
-            // Remove the button.
-            wordCentersInRowStack.remove(at: buttonIndex)
-            wordButtonsInRowStack.remove(at: buttonIndex)
-            
-            // TODO: - Not needed to update if the remove button was the last.
-            
-            updateCenters()
-        }
-    }
-    
-    private func moveOutOfRowStack(_ view: UIView) {
-        
-        updateCenterOf(view: view, to: wordCentersInPool[view.tag])
-        for (wordButton, wordCenter) in zip(wordButtonsInRowStack, wordCentersInRowStack) {
-            updateCenterOf(view: wordButton, to: wordCenter)
-        }
+        updateHorizontalMoving()
+        updateVerticalMoving()
     }
     
     // MARK: - Selectors
@@ -476,90 +482,80 @@ extension TmpViewController2 {
         
         // https://stackoverflow.com/questions/25503537/swift-uigesturerecogniser-follow-finger
         
-        guard let draggingButton = gestureRecognizer.view else {
+        guard let item = gestureRecognizer.view else {
             return
         }
         
         func drag() {
             
             let translation = gestureRecognizer.translation(in: self.view)
-            draggingButton.center = CGPoint(
-                x: draggingButton.center.x + translation.x,
-                y: draggingButton.center.y + translation.y
+            let newCenter = CGPoint(
+                x: item.center.x + translation.x,
+                y: item.center.y + translation.y
             )
+            move(item, to: newCenter, animated: false)
             
-            if isInRowStack(draggingButton) {
-                if !wordButtonsInRowStack.contains(draggingButton) {
-                    addToRowStack(draggingButton)
+            if isInAnswerArea(item) {
+                if !itemsInRowStack.contains(item) {
+                    addToRowStack(item)
+                } else {
+                    moveWithinRowStack(item, translation: translation)
                 }
             } else {
-                if wordButtonsInRowStack.contains(draggingButton) {
-                removeFromRowStack(draggingButton)
-                }
+                removeFromRowStack(item)
             }
-            
-            if isInRowStack(draggingButton) {
-                updateRowStack(draggingButton, translation: translation)
-            } else {
-                updateCenters()
-                for (wordButton, wordCenter) in zip(wordButtonsInRowStack, wordCentersInRowStack) {
-                    updateCenterOf(view: wordButton, to: wordCenter)
-                }
-            }
+            updateRowStackLayouts(exceptItem: item)
         }
         
         func drop() {
-            
-            // https://stackoverflow.com/questions/46436856/how-to-check-to-see-if-one-view-is-on-top-of-another-view
-            
-            if isInRowStack(draggingButton) {
-                // Place into the rowstack.
-                moveToRowStack(draggingButton)
+            if isInAnswerArea(item) {
+                updateRowStackLayouts()
             } else {
-                // Place back.
-                moveOutOfRowStack(draggingButton)
+                move(item, to: centersInWordBank[item.tag])
             }
         }
         
         switch gestureRecognizer.state {
         case .began:
-            self.view.bringSubviewToFront(draggingButton)
+            self.view.bringSubviewToFront(item)
             drag()
         case .changed:
             drag()
         case .ended:
             drop()
         default:
-            print("default")
+            break
         }
         
         gestureRecognizer.setTranslation(CGPoint.zero, in: self.view)
     }
     
-    @objc private func cellTapped(_ gestureRecognizer: UIPanGestureRecognizer) {
+    @objc private func cellTapped(_ gestureRecognizer: UITapGestureRecognizer) {
         
-        guard let draggingButton = gestureRecognizer.view else {
+        guard let item = gestureRecognizer.view else {
             return
         }
         
-        if isInRowStack(draggingButton) {  // Place back to the pool.
-            removeFromRowStack(draggingButton)
-            moveOutOfRowStack(draggingButton)
-        } else {  // Place to the rows.
-            addToRowStack(draggingButton)
-            moveToRowStack(draggingButton)
+        if !isInAnswerArea(item) {
+            addToRowStack(item)
+        } else {
+            removeFromRowStack(item)
+            move(item, to: centersInWordBank[item.tag])
         }
-        
+        updateRowStackLayouts()
     }
+    
 }
 
 extension TmpViewController2 {
     
     // MARK: - Constants
     
-    static let rowHeight: CGFloat = TmpViewController2.rowStackVerticalSpacing
-        + " ".textSize(withFont: WordBankItem.labelFont).height
-        + TmpViewController2.rowStackVerticalSpacing
+    static let rowHeight: CGFloat = (
+        WordBank.itemVerticalPadding
+            + " ".textSize(withFont: WordBankItem.labelFont).height
+            + WordBank.itemVerticalPadding
+    )
     static let rowStackHorizontalSpacing: CGFloat = 3
     static let rowStackVerticalSpacing: CGFloat = 6
 }
