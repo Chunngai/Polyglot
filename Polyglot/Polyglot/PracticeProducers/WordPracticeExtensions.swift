@@ -147,7 +147,7 @@ class WordPracticeProducer: PracticeProducerDelegate {
             // TODO: - selection practices may suffer from selection insufficiency problems.
             
             practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .textToMeaning))
-            practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .meaningToText))
+//            practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .meaningToText))
             practiceList.append(makeMeaningFillingPractice(for: randomWord, in: .meaningToText))
             
             if let contextSelectionPractice = makeContextSelectionPractice(for: randomWord) {
@@ -442,7 +442,7 @@ extension WordPracticeProducer {
             wordInPrompt: wordToPractice.text,  // TODO: - Remove this line.
             prompt: makePrompt(for: .reordering, withWord: wordToPractice.text),
             wordsToReorder: words,
-            key: targetSubSentence
+            key: words.joined(separator: Variables.wordSeparator)
         )
     }
 }
