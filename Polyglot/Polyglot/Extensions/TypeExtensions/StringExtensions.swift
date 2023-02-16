@@ -50,10 +50,12 @@ extension String {
 
 extension String {
     
+    static let normalizationOptions: String.CompareOptions = [.caseInsensitive, .diacriticInsensitive]
     var normalized: String {
-        return self.strip()
-            .lowercased()
-            .folding(options: .diacriticInsensitive, locale: nil)  // https://stackoverflow.com/questions/36727310/is-there-a-way-to-convert-special-characters-to-normal-characters-in-swift
+        return self
+            .strip()
+            // https://stackoverflow.com/questions/36727310/is-there-a-way-to-convert-special-characters-to-normal-characters-in-swift
+            .folding(options: String.normalizationOptions, locale: nil)
     }
     
     func components(from tokenizer: NLTokenizer) -> [String] {

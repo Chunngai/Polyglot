@@ -57,14 +57,17 @@ struct GoogleTranslator {
             
             do {
                 // TODO: - Are there better ways to handle the json data?
-                let jsonArray = try JSONSerialization.jsonObject(with: data, options: []) as! [Any]
-                let translationArrays = (
-                    (
-                        jsonArray[5] as! [Any]
-                    )[0] as! [Any]
-                )[2] as! [Any]
-                let translations = translationArrays.compactMap { (arr) -> String in
-                    (arr as! [Any])[0] as! String
+                guard let jsonArray = try JSONSerialization.jsonObject(with: data, options: []) as? [Any] else {
+                    return
+                }
+                guard let translationArrays = ((
+                        jsonArray[5] as? [Any]
+                    )?[0] as? [Any]
+                )?[2] as? [Any] else {
+                        return
+                }
+                let translations = translationArrays.compactMap { (arr) -> String? in
+                    (arr as? [Any])?[0] as? String
                 }
                 
                 completion(translations)

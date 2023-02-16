@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import NaturalLanguage
 
 class WordPracticeProducer: PracticeProducerDelegate {
@@ -229,11 +230,23 @@ extension WordPracticeProducer {
         return selectionWords
     }
     
-    func makeParaCandidates(for word: Word) -> [(articleId: String, paraId: String, text: String)] {
+    func makeParaCandidates(for word: Word, shouldNormalize: Bool) -> [(articleId: String, paraId: String, text: String)] {
+        
+        var wordText: String = word.text
+        if shouldNormalize {
+            wordText = wordText.normalized
+        }
+        
         var candidates: [(articleId: String, paraId: String, text: String)] = []
         for article in Article.load() {  // TODO: - Is it proper to load articles here?
             for para in article.paras {
-                if para.text.normalized.contains(word.text.normalized) {
+                
+                var paraText: String = para.text
+                if shouldNormalize {
+                    paraText = paraText.normalized
+                }
+                
+                if paraText.contains(wordText) {
                     candidates.append((articleId: article.id, paraId: para.id, text: para.text))
                 }
             }
@@ -288,7 +301,7 @@ extension WordPracticeProducer {
     
     private func makeContextSelectionPractice(for wordToPractice: Word) -> WordPracticeProducer.Item? {
         
-        var candidates = makeParaCandidates(for: wordToPractice)
+        var candidates = makeParaCandidates(for: wordToPractice, shouldNormalize: true)
         if candidates.isEmpty {
             return nil
         }
@@ -296,6 +309,15 @@ extension WordPracticeProducer {
         let candidate = candidates[0]
         
         let selectionWords = makeSelectionWords(for: wordToPractice)
+        
+        // Take care of the normalization.
+        let rangeOfWordToPractice = candidate.text.normalized.range(of: wordToPractice.text.normalized)
+        let context = candidate.text.replacingOccurrences(
+            of: wordToPractice.text,
+            with: Strings.underscoreToken,
+            options: String.normalizationOptions,
+            range: rangeOfWordToPractice
+        )
         
         return WordPracticeProducer.Item(
             practice: WordPractice(
@@ -309,7 +331,7 @@ extension WordPracticeProducer {
             wordInPrompt: wordToPractice.text,
             prompt: makePrompt(for: .contextSelection, withWord: wordToPractice.text),
             selectionTexts: selectionWords.compactMap( {$0.text} ),
-            context: candidate.text.replacingOccurrences(of: wordToPractice.text, with: Strings.underscoreToken),
+            context: context,
             key: wordToPractice.text
         )
     }
@@ -388,7 +410,7 @@ extension WordPracticeProducer {
     
     private func makeReorderingPractice(for wordToPractice: Word) -> WordPracticeProducer.Item? {
         
-        var candidates = makeParaCandidates(for: wordToPractice)
+        var candidates = makeParaCandidates(for: wordToPractice, shouldNormalize: true)
         if candidates.isEmpty {
             return nil
         }
@@ -412,6 +434,16 @@ extension WordPracticeProducer {
             return nil
         }
         
+        // Check line number.
+        // TODO: - Update here.
+        let wordBankWidth = UIScreen.main.bounds.width * 0.8
+        let targetSubsentenceLength = targetSubSentence.textSize(withFont: WordBankItem.labelFont).width
+        print(wordBankWidth * 2, targetSubsentenceLength)
+        if targetSubsentenceLength > wordBankWidth * 2 {
+            print("The subsentence is too long. Skipping.")
+            return nil
+        }
+        
         // Reduce the number of tokens.
         // TODO: - Improvement.
         let rawWords = targetSubSentence.components(from: Variables.tokenizerOfLang())
@@ -429,6 +461,11 @@ extension WordPracticeProducer {
             }
         } else {
             words = rawWords
+        }
+        
+        if words.isEmpty {
+            print("Empty words. Target subsentence: \(targetSubSentence). Skipping.")
+            return nil
         }
         
         return WordPracticeProducer.Item(

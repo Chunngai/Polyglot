@@ -59,7 +59,7 @@ class ReorderingPracticeView: UIView {
     var referenceLabel: UILabel = {
         let label = UILabel()
         label.textColor = Colors.normalTextColor
-        label.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
+        label.font = WordBankItem.labelFont
         label.isHidden = true
         label.numberOfLines = 0
         return label

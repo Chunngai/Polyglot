@@ -68,7 +68,9 @@ struct JapanesePAAnalyzer {
                     continue
                 }
                 
-                let divOfResult = try doc.getElementById(divId)!
+                guard let divOfResult = try doc.getElementById(divId) else {
+                    return []
+                }
                 
                 // Make the text.
                 var text: String = ""
@@ -114,7 +116,7 @@ struct JapanesePAAnalyzer {
                     // Count the loc.
                     let partialKanas = try pitchDiv.text()
                     locCounter += partialKanas.count
-                    print(partialKanas, partialKanas.count, locCounter)
+//                    print(partialKanas, partialKanas.count, locCounter)
                     
                     // The accent is on the last char.
                     let isRightContained = try pitchDiv.attr("style").contains("right")
