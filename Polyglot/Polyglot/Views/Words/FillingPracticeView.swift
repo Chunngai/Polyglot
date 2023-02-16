@@ -126,7 +126,7 @@ extension FillingPracticeView: WordPracticeViewDelegate {
         
         if correctness != .correct {
             referenceLabel.isHidden = false
-            referenceLabel.text = "\(Strings.meaningFillingPracticeReferenceLabelPrefix)\(key)"
+            referenceLabel.text = "\(Strings.referenceLabelPrefix)\(key)"
         }
     }
 }

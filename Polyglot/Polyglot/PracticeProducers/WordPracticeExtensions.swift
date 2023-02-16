@@ -402,8 +402,34 @@ extension WordPracticeProducer {
             return nil
         }
         
-        var words = targetSentence.components(from: Variables.tokenizerOfLang())
-        words.shuffle()
+        // Using the whole target sentence will
+        // result in too many words,
+        // so use the target subsentence instead.
+        let subSentences = targetSentence.split(with: Variables.subsentenceSeparator)
+        guard let targetSubSentence = subSentences.first(where: { (subSentence) -> Bool in
+            subSentence.contains(wordToPractice.text)
+        }) else {
+            return nil
+        }
+        
+        // Reduce the number of tokens.
+        // TODO: - Improvement.
+        let rawWords = targetSubSentence.components(from: Variables.tokenizerOfLang())
+        var words: [String] = []
+        if Variables.lang == LangCode.ja {
+            var indexOfLastWord: Int = -1
+            for i in 0..<rawWords.count {
+                let rawWord = rawWords[i]
+                if i > 0 && Tokens.japaneseParticles.contains(rawWord) {
+                    words[indexOfLastWord] = words[indexOfLastWord] + rawWord
+                } else {
+                    words.append(rawWord)
+                    indexOfLastWord += 1
+                }
+            }
+        } else {
+            words = rawWords
+        }
         
         return WordPracticeProducer.Item(
             practice: WordPractice(
@@ -416,7 +442,7 @@ extension WordPracticeProducer {
             wordInPrompt: wordToPractice.text,  // TODO: - Remove this line.
             prompt: makePrompt(for: .reordering, withWord: wordToPractice.text),
             wordsToReorder: words,
-            key: targetSentence
+            key: targetSubSentence
         )
     }
 }

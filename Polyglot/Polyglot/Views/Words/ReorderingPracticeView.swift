@@ -13,8 +13,7 @@ class ReorderingPracticeView: UIView {
     
     var words: [String]!
         
-    // Original centers of the word bank items.
-    private var centersInWordBank: [CGPoint] = []
+    private var items: [(view: UIView, originalCenter: CGPoint)] = []
     
     // TODO: - Merge the two arrs?
     private var itemsInRowStack: [UIView] = []
@@ -28,18 +27,10 @@ class ReorderingPracticeView: UIView {
         
     var answer: String {
         let wordsInRowStack = itemsInRowStack.map { (item) -> String in
-            // TODO: item.text?
-            return words[item.tag]
+            return (item as! UILabel).text!
         }
         
-        var answer: String
-        // TODO: - Do not use Variables.lang here.
-        if Variables.lang == LangCode.ja {
-            answer = wordsInRowStack.joined(separator: "")
-        } else {
-            answer = wordsInRowStack.joined(separator: " ")
-        }
-        
+        let answer = wordsInRowStack.joined(separator: Variables.wordSeparator)
         return answer
     }
     
@@ -56,7 +47,24 @@ class ReorderingPracticeView: UIView {
     // Should init the word bank after
     // textWords and randomWords are provided.
     var wordBank: WordBank!
-        
+    
+    var translationLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = Colors.weakTextColor
+        label.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
+        label.numberOfLines = 0
+        return label
+    }()
+    
+    var referenceLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = Colors.normalTextColor
+        label.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
+        label.isHidden = true
+        label.numberOfLines = 0
+        return label
+    }()
+    
     // MARK: - Init
     
     override init(frame: CGRect) {
@@ -98,7 +106,12 @@ class ReorderingPracticeView: UIView {
                 // https://stackoverflow.com/questions/42437966/how-to-adjust-height-of-uicollectionview-to-be-the-height-of-the-content-size-of
                 make.height.equalTo(wordBank.collectionViewLayout.collectionViewContentSize.height)
                 make.centerX.equalToSuperview()
-                make.bottom.equalToSuperview()
+                make.bottom.equalToSuperview().offset(-30)
+            }
+            referenceLabel.snp.makeConstraints { (make) in
+                make.top.equalTo(wordBank.snp.top)
+                make.left.equalTo(wordBank.snp.left)
+                make.width.equalTo(wordBank.snp.width)
             }
             
             rowStack.snp.makeConstraints { (make) in
@@ -120,19 +133,37 @@ class ReorderingPracticeView: UIView {
     }
     
     private func updateViews() {
-                    
+        addSubview(translationLabel)
     }
     
     private func updateLayouts() {
-        
+        translationLabel.snp.makeConstraints { (make) in
+            make.top.equalToSuperview()
+            make.leading.equalToSuperview()
+            make.width.equalToSuperview()
+        }
     }
     
     func updateValues(words: [String]) {
-
-        self.words = words
         
-        wordBank = WordBank(words: words)
+        GoogleTranslator(
+            srcLang: Variables.lang,
+            trgLang: Variables.pairedLang
+        ).translate(query: words.joined(separator: Variables.wordSeparator)) { (res) in
+            if let translation = res.first {
+                DispatchQueue.main.async {
+                    self.translationLabel.text = translation
+                }
+            }
+        }
+        
+        let shuffledWords = words.shuffled()
+        self.words = shuffledWords
+        
+        wordBank = WordBank(words: shuffledWords)
         addSubview(wordBank)
+        
+        addSubview(referenceLabel)
         
     }
 }
@@ -159,6 +190,22 @@ extension ReorderingPracticeView: WordPracticeViewDelegate {
 //                item.backgroundColor = Colors.lightInorrectColor
 //            }
 //        }
+        
+        if correctness == .correct {
+            for item in itemsInRowStack {
+                item.backgroundColor = Colors.lightCorrectColor
+            }
+        } else {
+            wordBank.isHidden = true
+            items.forEach { (item) in
+                if !itemsInRowStack.contains(item.view) {
+                    item.view.removeFromSuperview()
+                }
+            }
+            
+            referenceLabel.isHidden = false
+            referenceLabel.text = "\(Strings.referenceLabelPrefix)\(key)"
+        }
         
     }
 }
@@ -213,7 +260,7 @@ extension ReorderingPracticeView {
             
             addSubview(pseudoLabel)
             
-            centersInWordBank.append(pseudoLabel.center)
+            items.append((view: pseudoLabel, originalCenter: pseudoLabel.center))
             
             // Hide the original label.
             cell.label.backgroundColor = Colors.lightGrayBackgroundColor
@@ -582,7 +629,7 @@ extension ReorderingPracticeView {
             if isInAnswerArea(item) {
                 updateRowStackLayouts()
             } else {
-                move(item, to: centersInWordBank[item.tag])
+                move(item, to: items[item.tag].originalCenter)
             }
         }
         
@@ -612,7 +659,7 @@ extension ReorderingPracticeView {
             addToRowStack(item)
         } else {
             removeFromRowStack(item)
-            move(item, to: centersInWordBank[item.tag])
+            move(item, to: items[item.tag].originalCenter)
         }
         updateRowStackLayouts()
         

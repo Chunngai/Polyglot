@@ -365,14 +365,14 @@ extension Strings {
         return Strings._meaningSelectionAndFillingPracticePrompt[Variables.lang]!
     }
         
-    private static let _meaningFillingPracticeReferenceLabelPrefices: [String : String] = [
+    private static let _referenceLabelPrefices: [String : String] = [
         LangCode.en : "Reference: ",
         LangCode.ja : "参考：",
         LangCode.es : "Referencia: ",
         LangCode.ru : "Ссылка: "
     ]
-    static var meaningFillingPracticeReferenceLabelPrefix: String {
-        return Strings._meaningFillingPracticeReferenceLabelPrefices[Variables.lang]!
+    static var referenceLabelPrefix: String {
+        return Strings._referenceLabelPrefices[Variables.lang]!
     }
     
     private static let _contextSelectionPracticePrompts: [String : String] = [
@@ -485,5 +485,21 @@ struct Identifiers {
     
     static let tableHeaderViewIdentifier: String = "tableHeaderViewIdentifier"
     static let readingEditTableCellIdentifier: String = "readingEditTableCellIdentifier"
+    
+}
+
+struct Tokens {
+    
+    // https://japanese.awaisora.com/josi-itirannhyou/
+    // TODO: - Update.
+    private static let _japaneseParticles: String = "が・の・を・に・へ・と・から・より・で・"
+        + "の・に・と・や・し・やら・か・なり・だの・とか・も・"
+        + "ばかり・まで・だけ・さえ・ほど・くらい・ぐらい・など・なんか・なんて・なり・やら・か・ぞ・し・ばし・がてら・なぞ・なんぞ・ずつ・のみ・きり・や・だに・すら・"
+        + "は・も・こそ・しか・でも・ほか・だって・"
+        + "ば と ても でも けれど けれども が のに ので から し て で なり ながら たり だり つつ ところで まま ものの や とも ども に を・".replacingOccurrences(of: " ", with: "・")
+        + "か・かい・な・とも・の・ぞ・ぜ・や・よ・ね・さ・のに・やら・が・ものか・もんか・わ・かしら・って・ってば・"
+        + "さ・よ・ね・ねえ・な・なあ・を・や・ろ・い・ら・し・"
+        + "の から ぞ ほど ばかり だけ が".replacingOccurrences(of: " ", with: "・")
+    static let japaneseParticles: [String] = [String](Set(Tokens._japaneseParticles.split(with: "・")))
     
 }

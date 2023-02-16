@@ -34,6 +34,26 @@ struct Variables {
         tokenizer.setLanguage(LangCode.toNLLanguage(langCode: Variables.pairedLang))
         return tokenizer
     }
+    
+    private static let _wordSeparators: [String : String] = [
+        LangCode.en: " ",
+        LangCode.ja: "",
+        LangCode.es: " ",
+        LangCode.ru: " ",
+    ]
+    static var wordSeparator: String{
+        return Variables._wordSeparators[Variables.lang]!
+    }
+    
+    private static let _subsentenceSeparators: [String : String] = [
+        LangCode.en: ",",
+        LangCode.ja: "、",
+        LangCode.es: ",",
+        LangCode.ru: ",",
+    ]
+    static var subsentenceSeparator: String{
+        return Variables._subsentenceSeparators[Variables.lang]!
+    }
 }
 
 struct Constants {
