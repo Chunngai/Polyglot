@@ -12,16 +12,19 @@ class WordBankItem: UICollectionViewCell {
     
     // MARK: - Views
     
-    lazy var label: UILabel = {
+    // TODO: - Update here.
+    static func makeLabel() -> UILabel {
         let label = UILabel()
-        label.backgroundColor = Colors.strongLightBlue
+        label.backgroundColor = Colors.lightBlue
         label.layer.masksToBounds = true
         label.layer.cornerRadius = Sizes.smallCornerRadius
         label.textColor = Colors.normalTextColor
         label.font = WordBankItem.labelFont
         label.textAlignment = .center
         return label
-    }()
+    }
+    
+    lazy var label: UILabel = WordBankItem.makeLabel()
     
     // MARK: - Init
     

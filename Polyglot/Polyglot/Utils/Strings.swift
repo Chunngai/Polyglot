@@ -395,6 +395,16 @@ extension Strings {
         return Strings._accentSelectionPracticePrompts[Variables.lang]!
     }
     
+    private static let _reorderingPracticePrompts: [String : String] = [
+        LangCode.en : "Reorder the words.",
+        LangCode.ja : "単語を並べ替えてください。",
+        LangCode.es : "Reordene las palabras.",
+        LangCode.ru : "Измените порядок слов."
+    ]
+    static var reorderingPracticePrompt: String {
+        return Strings._reorderingPracticePrompts[Variables.lang]!
+    }
+    
     private static let _translationPracticePrompts: [String : String] = [
         LangCode.en : "Interpret the paragraph.",
         LangCode.ja : "この段落を通訳してください。",

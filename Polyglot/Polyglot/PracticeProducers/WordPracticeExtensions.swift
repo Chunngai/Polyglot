@@ -154,6 +154,10 @@ class WordPracticeProducer: PracticeProducerDelegate {
                 practiceList.append(contextSelectionPractice)
             }
             
+            if let reorderingPractice = makeReorderingPractice(for: randomWord) {
+                practiceList.append(reorderingPractice)
+            }
+            
             if let accentSelectionPractice = makeAccentSelectionPractice(for: randomWord) {
                 practiceList.append(accentSelectionPractice)
             } else {
@@ -195,6 +199,8 @@ extension WordPracticeProducer {
             return Strings.contextSelectionPracticePrompt
         case .accentSelection:
             return Strings.accentSelectionPracticePrompt
+        case .reordering:
+            return Strings.reorderingPracticePrompt
         }
         
     }
@@ -221,6 +227,18 @@ extension WordPracticeProducer {
         }
         selectionWords.shuffle()
         return selectionWords
+    }
+    
+    func makeParaCandidates(for word: Word) -> [(articleId: String, paraId: String, text: String)] {
+        var candidates: [(articleId: String, paraId: String, text: String)] = []
+        for article in Article.load() {  // TODO: - Is it proper to load articles here?
+            for para in article.paras {
+                if para.text.normalized.contains(word.text.normalized) {
+                    candidates.append((articleId: article.id, paraId: para.id, text: para.text))
+                }
+            }
+        }
+        return candidates
     }
     
     private func makeMeaningSelectionPractice(for wordToPractice: Word, in randomDirection: PracticeDirection) -> WordPracticeProducer.Item {
@@ -270,19 +288,7 @@ extension WordPracticeProducer {
     
     private func makeContextSelectionPractice(for wordToPractice: Word) -> WordPracticeProducer.Item? {
         
-        func makeCandidates() -> [(articleId: String, paraId: String, text: String)] {
-            var candidates: [(articleId: String, paraId: String, text: String)] = []
-            for article in Article.load() {  // TODO: - Is it proper to load articles here?
-                for para in article.paras {
-                    if para.text.contains(wordToPractice.text) {
-                        candidates.append((articleId: article.id, paraId: para.id, text: para.text))
-                    }
-                }
-            }
-            return candidates
-        }
-        
-        var candidates = makeCandidates()
+        var candidates = makeParaCandidates(for: wordToPractice)
         if candidates.isEmpty {
             return nil
         }
@@ -379,6 +385,40 @@ extension WordPracticeProducer {
         )
         
     }
+    
+    private func makeReorderingPractice(for wordToPractice: Word) -> WordPracticeProducer.Item? {
+        
+        var candidates = makeParaCandidates(for: wordToPractice)
+        if candidates.isEmpty {
+            return nil
+        }
+        candidates.shuffle()
+        let candidate = candidates[0]
+        
+        let sentences = candidate.text.components(from: Variables.tokenizerOfLang(of: .sentence))
+        guard let targetSentence = sentences.first(where: { (sentence) -> Bool in
+            sentence.contains(wordToPractice.text)
+        }) else {
+            return nil
+        }
+        
+        var words = targetSentence.components(from: Variables.tokenizerOfLang())
+        words.shuffle()
+        
+        return WordPracticeProducer.Item(
+            practice: WordPractice(
+                practiceType: .reordering,
+                wordId: wordToPractice.id,
+                articleId: candidate.articleId,
+                paragraphId: candidate.paraId,
+                direction: .text
+            ),
+            wordInPrompt: wordToPractice.text,  // TODO: - Remove this line.
+            prompt: makePrompt(for: .reordering, withWord: wordToPractice.text),
+            wordsToReorder: words,
+            key: targetSentence
+        )
+    }
 }
 
 extension WordPracticeProducer {
@@ -394,6 +434,7 @@ extension WordPracticeProducer {
         
         var selectionTexts: [String]?
         var context: String?
+        var wordsToReorder: [String]?
         
         var key: String
         
@@ -427,21 +468,19 @@ extension WordPracticeProducer {
                 answer = answer.normalized
             }
             
-            let keyComponents = key.components(from: tokenizer)
-            let answerComponents = answer.components(from: tokenizer)
-            
-            let correctness: WordPractice.Correctness!
-            if keyComponents == answerComponents {
-                correctness = .correct
+            if answer == key {
+                // Totally correct, including word order.
+                practice.correctness = .correct
             } else {
+                let keyComponents = key.components(from: tokenizer)
+                let answerComponents = answer.components(from: tokenizer)
+                
                 if !Set(keyComponents).intersection(Set(answerComponents)).isEmpty {
-                    correctness = .partiallyCorrect
+                    practice.correctness = .partiallyCorrect
                 } else {
-                    correctness = .incorrect
+                    practice.correctness = .incorrect
                 }
             }
-            
-            practice.correctness = correctness
         }
     }
 }

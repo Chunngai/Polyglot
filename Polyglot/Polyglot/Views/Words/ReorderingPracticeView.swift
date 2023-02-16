@@ -1,19 +1,22 @@
 //
-//  TmpViewController2.swift
+//  ReorderingPracticeView.swift
 //  Polyglot
 //
-//  Created by Sola on 2023/2/12.
+//  Created by Sola on 2023/2/16.
 //  Copyright © 2023 Sola. All rights reserved.
 //
 
 import UIKit
 import NaturalLanguage
 
-class TmpViewController2: UIViewController {
-
+class ReorderingPracticeView: UIView {
+    
+    var words: [String]!
+        
     // Original centers of the word bank items.
     private var centersInWordBank: [CGPoint] = []
     
+    // TODO: - Merge the two arrs?
     private var itemsInRowStack: [UIView] = []
     private var centersInRowStack: [CGPoint] = []
     
@@ -21,82 +24,103 @@ class TmpViewController2: UIViewController {
     private var rowStackWidth: CGFloat!
     
     private lazy var initialCenterXInRowStack: CGFloat = rowStack.frame.minX
-    private lazy var initialCenterYInRowStack: CGFloat = rowStack.frame.minY + TmpViewController2.rowHeight / 2
-    
-    // MARK: - Models
-    
-    private var words: [String]!
-    
-    // MARK: - Views
-    
-    private lazy var rowStack: UIStackView = {
-        let rowNumber: Int = calculateRowNumber()
-        let rows: [RowStackItem] = (0..<rowNumber).map { (_) -> RowStackItem in
-            return RowStackItem()
+    private lazy var initialCenterYInRowStack: CGFloat = rowStack.frame.minY + ReorderingPracticeView.rowHeight / 2
+        
+    var answer: String {
+        let wordsInRowStack = itemsInRowStack.map { (item) -> String in
+            // TODO: item.text?
+            return words[item.tag]
         }
         
-        let stackView = UIStackView(arrangedSubviews: rows)
-        stackView.backgroundColor = Colors.lightGrayBackgroundColor
-        stackView.axis = .vertical
-        stackView.alignment = .center
-        stackView.distribution = .equalSpacing
-        stackView.spacing = TmpViewController2.rowStackVerticalSpacing
-        return stackView
-    }()
+        var answer: String
+        // TODO: - Do not use Variables.lang here.
+        if Variables.lang == LangCode.ja {
+            answer = wordsInRowStack.joined(separator: "")
+        } else {
+            answer = wordsInRowStack.joined(separator: " ")
+        }
+        
+        return answer
+    }
     
-    private lazy var wordBank: WordBank = WordBank(words: words)
+    // MARK: - Controllers
     
+    var delegate: WordsPracticeViewController!
+    
+    // MARK: - Views
+        
+    // Should init the row stack after
+    // the frame width is determined.
+    var rowStack: UIStackView!
+    
+    // Should init the word bank after
+    // textWords and randomWords are provided.
+    var wordBank: WordBank!
+        
     // MARK: - Init
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    override init(frame: CGRect) {
+        super.init(frame: frame)
 
         updateSetups()
         updateViews()
         updateLayouts()
     }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+    override func layoutSubviews() {
+        super.layoutSubviews()
         
-        wordBank.snp.updateConstraints { (make) in
-            make.width.equalTo(wordBankWidth)
-            // https://stackoverflow.com/questions/42437966/how-to-adjust-height-of-uicollectionview-to-be-the-height-of-the-content-size-of
-            make.height.equalTo(wordBank.collectionViewLayout.collectionViewContentSize.height)
-            make.centerX.equalToSuperview()
-            make.bottom.equalToSuperview().inset(200)
-        }
-        
-        rowStack.snp.makeConstraints { (make) in
-            make.bottom.equalTo(wordBank.snp.top).offset(-50)
-            make.width.equalTo(rowStackWidth)
-            make.centerX.equalToSuperview()
-        }
-        for row in rowStack.arrangedSubviews {
-            row.snp.makeConstraints { (make) in
-                make.width.equalToSuperview()
-                make.height.equalTo(TmpViewController2.rowHeight)
+        if frame != .zero {
+            wordBankWidth = frame.width
+            rowStackWidth = frame.width
+            
+            rowStack = {
+                let rowNumber: Int = calculateRowNumber()
+                let rows: [RowStackItem] = (0..<rowNumber).map { _ in RowStackItem() }
+                
+                let stackView = UIStackView(arrangedSubviews: rows)
+                stackView.axis = .vertical
+                stackView.alignment = .center
+                stackView.distribution = .equalSpacing
+                stackView.spacing = ReorderingPracticeView.rowStackVerticalSpacing
+                return stackView
+            }()
+            addSubview(rowStack)
+            // Move to back, otherwise will obscure the items.
+            sendSubviewToBack(rowStack)
+            
+            wordBank.snp.updateConstraints { (make) in
+                make.width.equalTo(wordBankWidth)
+                // https://stackoverflow.com/questions/42437966/how-to-adjust-height-of-uicollectionview-to-be-the-height-of-the-content-size-of
+                make.height.equalTo(wordBank.collectionViewLayout.collectionViewContentSize.height)
+                make.centerX.equalToSuperview()
+                make.bottom.equalToSuperview()
+            }
+            
+            rowStack.snp.makeConstraints { (make) in
+                make.bottom.equalTo(wordBank.snp.top).offset(-50)
+                make.width.equalTo(rowStackWidth)
+                make.centerX.equalToSuperview()
+            }
+            for row in rowStack.arrangedSubviews {
+                row.snp.makeConstraints { (make) in
+                    make.width.equalToSuperview()
+                    make.height.equalTo(ReorderingPracticeView.rowHeight)
+                }
             }
         }
-        
-        self.view.layoutIfNeeded()
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-        makeDraggableWordBankItems()
     }
     
     private func updateSetups() {
-        wordBankWidth = view.frame.width * 0.85
-        rowStackWidth = view.frame.width * 0.85
+        
     }
     
     private func updateViews() {
-        view.backgroundColor = Colors.defaultBackgroundColor
-        view.addSubview(rowStack)
-        view.addSubview(wordBank)
+                    
     }
     
     private func updateLayouts() {
@@ -104,13 +128,58 @@ class TmpViewController2: UIViewController {
     }
     
     func updateValues(words: [String]) {
+
         self.words = words
+        
+        wordBank = WordBank(words: words)
+        addSubview(wordBank)
+        
     }
 }
 
-extension TmpViewController2 {
+extension ReorderingPracticeView: WordPracticeViewDelegate {
     
-    private func makeDraggableWordBankItems() {
+    // MARK: - WordPracticeView Delegate
+    
+    func submit() -> String {
+        isUserInteractionEnabled = false
+        return answer
+    }
+    
+    func updateViews(for correctness: WordPractice.Correctness, key: String, tokenizer: NLTokenizer) {
+        
+//        let keyComponents = key.components(from: tokenizer)
+//
+//        // TODO: - Update here.
+//        for item in itemsInRowStack {
+//            let text = words[item.tag]
+//            if keyComponents.contains(text) {
+//                item.backgroundColor = Colors.lightCorrectColor
+//            } else {
+//                item.backgroundColor = Colors.lightInorrectColor
+//            }
+//        }
+        
+    }
+}
+
+extension ReorderingPracticeView {
+    
+    private func afterDragAndDrop() {
+        if itemsInRowStack.isEmpty {
+            delegate.practiceStatus = .beforeAnswering
+        } else {
+            delegate.practiceStatus = .afterAnswering
+        }
+    }
+    
+}
+
+extension ReorderingPracticeView {
+    
+    // MARK: - DragAndDrop Views and Layouts
+    
+    func makeDraggableWordBankItems() {
         var panGestureRecognizer: UIPanGestureRecognizer {
             return UIPanGestureRecognizer(
                 target: self,
@@ -128,23 +197,23 @@ extension TmpViewController2 {
             guard let cell = wordBank.cellForItem(at: indexPath) as? WordBankItem else {
                 continue
             }
-            guard let labelSnapShot = cell.label.snapshotView(afterScreenUpdates: false) else {
-                continue
-            }
             
-            labelSnapShot.frame = CGRect(
+            let pseudoLabel = WordBankItem.makeLabel()
+            pseudoLabel.text = cell.label.text
+            pseudoLabel.frame = CGRect(
                 x: wordBank.frame.origin.x + cell.frame.minX,
                 y: wordBank.frame.origin.y + cell.frame.minY,
                 width: cell.frame.width,
                 height: cell.frame.height
             )
-            labelSnapShot.addGestureRecognizer(panGestureRecognizer)
-            labelSnapShot.addGestureRecognizer(tapGestureRecognizer)
-            labelSnapShot.tag = i
+            pseudoLabel.isUserInteractionEnabled = true
+            pseudoLabel.addGestureRecognizer(panGestureRecognizer)
+            pseudoLabel.addGestureRecognizer(tapGestureRecognizer)
+            pseudoLabel.tag = i
             
-            view.addSubview(labelSnapShot)
+            addSubview(pseudoLabel)
             
-            centersInWordBank.append(labelSnapShot.center)
+            centersInWordBank.append(pseudoLabel.center)
             
             // Hide the original label.
             cell.label.backgroundColor = Colors.lightGrayBackgroundColor
@@ -175,7 +244,9 @@ extension TmpViewController2 {
     }
 }
 
-extension TmpViewController2 {
+extension ReorderingPracticeView {
+    
+    // MARK: - DragAndDrop Logic
     
     private func move(_ item: UIView, to newCenter: CGPoint, animated: Bool = true) {
         // https://stackoverflow.com/questions/46436856/how-to-check-to-see-if-one-view-is-on-top-of-another-view
@@ -212,14 +283,14 @@ extension TmpViewController2 {
             
             if i - 1 >= 0 {
                 centerX += itemsInRowStack[i - 1].frame.halfWidth
-                    + TmpViewController2.rowStackHorizontalSpacing
+                    + ReorderingPracticeView.rowStackHorizontalSpacing
             }
             centerX += item.frame.halfWidth
 
             if centerX + item.frame.halfWidth > rowStack.frame.maxX {
                 centerX = initialCenterXInRowStack + item.frame.halfWidth
-                centerY += TmpViewController2.rowStackVerticalSpacing
-                    + TmpViewController2.rowHeight
+                centerY += ReorderingPracticeView.rowStackVerticalSpacing
+                    + ReorderingPracticeView.rowHeight
             }
             
             centersInRowStack.append(CGPoint(
@@ -245,14 +316,14 @@ extension TmpViewController2 {
         var centerY: CGFloat!
         if let lastItem = itemsInRowStack.last {
             centerX = lastItem.frame.maxX
-                + TmpViewController2.rowStackHorizontalSpacing
+                + ReorderingPracticeView.rowStackHorizontalSpacing
                 + item.frame.halfWidth
             centerY = lastItem.center.y
             
             if centerX + item.frame.halfWidth > rowStack.frame.maxX {
                 centerX = initialCenterXInRowStack + item.frame.halfWidth
-                centerY += TmpViewController2.rowStackVerticalSpacing
-                    + TmpViewController2.rowHeight
+                centerY += ReorderingPracticeView.rowStackVerticalSpacing
+                    + ReorderingPracticeView.rowHeight
             }
         } else {
             centerX = initialCenterXInRowStack + item.frame.halfWidth
@@ -320,8 +391,8 @@ extension TmpViewController2 {
                     (indexOfPreviousItem, itemIndex) = (itemIndex, indexOfPreviousItem)
                     
                     // Recalculate the centers.
-                    centersInRowStack[indexOfPreviousItem].x += (TmpViewController2.rowStackHorizontalSpacing + item.frame.width)
-                    centersInRowStack[itemIndex].x -= (TmpViewController2.rowStackHorizontalSpacing + previousItem.frame.width)
+                    centersInRowStack[indexOfPreviousItem].x += (ReorderingPracticeView.rowStackHorizontalSpacing + item.frame.width)
+                    centersInRowStack[itemIndex].x -= (ReorderingPracticeView.rowStackHorizontalSpacing + previousItem.frame.width)
                 }
             } else if translation.x > 0 {  // To right.
                 
@@ -354,8 +425,8 @@ extension TmpViewController2 {
                     (itemIndex, indexOfNextItem) = (indexOfNextItem, itemIndex)
                     
                     // Recalculate the centers.
-                    centersInRowStack[itemIndex].x += (TmpViewController2.rowStackHorizontalSpacing + nextItem.frame.width)
-                    centersInRowStack[indexOfNextItem].x -= (TmpViewController2.rowStackHorizontalSpacing + item.frame.width)
+                    centersInRowStack[itemIndex].x += (ReorderingPracticeView.rowStackHorizontalSpacing + nextItem.frame.width)
+                    centersInRowStack[indexOfNextItem].x -= (ReorderingPracticeView.rowStackHorizontalSpacing + item.frame.width)
                 }
             }
         }
@@ -366,19 +437,19 @@ extension TmpViewController2 {
                 // Calculate the vertical offset.
                 let currentMinY = item.frame.minY
                 print("current minY:", currentMinY)
-                let originalMinY = centersInRowStack[itemIndex].y - TmpViewController2.rowHeight / 2
+                let originalMinY = centersInRowStack[itemIndex].y - ReorderingPracticeView.rowHeight / 2
                 print("original minY:", originalMinY)
                 let verticalOffset = -(currentMinY - originalMinY)
                 print("vertical offset:", verticalOffset)
                 
-                if verticalOffset > TmpViewController2.rowStackVerticalSpacing {
+                if verticalOffset > ReorderingPracticeView.rowStackVerticalSpacing {
                     print("intersected with the upper row.")
                     
                     // Calculate the new center y.
                     let newCenterY: CGFloat = centersInRowStack[itemIndex].y
-                        - TmpViewController2.rowHeight / 2
-                        - TmpViewController2.rowStackVerticalSpacing
-                        - TmpViewController2.rowHeight / 2
+                        - ReorderingPracticeView.rowHeight / 2
+                        - ReorderingPracticeView.rowStackVerticalSpacing
+                        - ReorderingPracticeView.rowHeight / 2
                     print("new center y:", newCenterY)
                     
                     // Obtain the first item in the same row.
@@ -419,19 +490,19 @@ extension TmpViewController2 {
                 // Calculate the vertical offset.
                 let currentMinY = item.frame.minY
                 print("current minY:", currentMinY)
-                let originalMinY = centersInRowStack[itemIndex].y - TmpViewController2.rowHeight / 2
+                let originalMinY = centersInRowStack[itemIndex].y - ReorderingPracticeView.rowHeight / 2
                 print("original minY:", originalMinY)
                 let verticalOffset = currentMinY - originalMinY
                 print("vertical offset:", verticalOffset)
                 
-                if verticalOffset > TmpViewController2.rowHeight {
+                if verticalOffset > ReorderingPracticeView.rowHeight {
                     print("intersected with the lower row.")
                     
                     // Calculate the new center y.
                     let newCenterY: CGFloat = centersInRowStack[itemIndex].y
-                        + TmpViewController2.rowHeight / 2
-                        + TmpViewController2.rowStackVerticalSpacing
-                        + TmpViewController2.rowHeight / 2
+                        + ReorderingPracticeView.rowHeight / 2
+                        + ReorderingPracticeView.rowStackVerticalSpacing
+                        + ReorderingPracticeView.rowHeight / 2
                     print("new center y:", newCenterY)
                     
                     // Obtain the first item in the same row.
@@ -488,7 +559,7 @@ extension TmpViewController2 {
         
         func drag() {
             
-            let translation = gestureRecognizer.translation(in: self.view)
+            let translation = gestureRecognizer.translation(in: self)
             let newCenter = CGPoint(
                 x: item.center.x + translation.x,
                 y: item.center.y + translation.y
@@ -517,17 +588,18 @@ extension TmpViewController2 {
         
         switch gestureRecognizer.state {
         case .began:
-            self.view.bringSubviewToFront(item)
+            bringSubviewToFront(item)
             drag()
         case .changed:
             drag()
         case .ended:
             drop()
+            afterDragAndDrop()
         default:
             break
         }
         
-        gestureRecognizer.setTranslation(CGPoint.zero, in: self.view)
+        gestureRecognizer.setTranslation(CGPoint.zero, in: self)
     }
     
     @objc private func cellTapped(_ gestureRecognizer: UITapGestureRecognizer) {
@@ -543,11 +615,13 @@ extension TmpViewController2 {
             move(item, to: centersInWordBank[item.tag])
         }
         updateRowStackLayouts()
+        
+        afterDragAndDrop()
     }
     
 }
 
-extension TmpViewController2 {
+extension ReorderingPracticeView {
     
     // MARK: - Constants
     

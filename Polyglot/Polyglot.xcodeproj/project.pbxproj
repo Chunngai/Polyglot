@@ -72,7 +72,7 @@
 		FF62C9A929513A5000D41797 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9A829513A5000D41797 /* Theme.swift */; };
 		FF63DDFC299AC17C0088C10B /* WordBank.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF63DDFB299AC17C0088C10B /* WordBank.swift */; };
 		FF63DE00299AD2F90088C10B /* WordBankItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF63DDFF299AD2F90088C10B /* WordBankItem.swift */; };
-		FF6D5A882997F7850048470B /* TmpViewController2.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6D5A872997F7850048470B /* TmpViewController2.swift */; };
+		FF6D5A882997F7850048470B /* _TmpViewController2.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6D5A872997F7850048470B /* _TmpViewController2.swift */; };
 		FF706DF1295142AF00DBCF8E /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706DF0295142AF00DBCF8E /* Strings.swift */; };
 		FF706DF5295144B000DBCF8E /* UIColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706DF4295144B000DBCF8E /* UIColorExtensions.swift */; };
 		FF706E032951549C00DBCF8E /* UIImageExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706E022951549C00DBCF8E /* UIImageExtensions.swift */; };
@@ -92,6 +92,7 @@
 		FFCBB0E0296B45F300E5B9D9 /* TranslationPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0DF296B45F300E5B9D9 /* TranslationPracticeView.swift */; };
 		FFD7DF6D299D376000019D51 /* RowStackItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD7DF6C299D376000019D51 /* RowStackItem.swift */; };
 		FFD7DF72299D509B00019D51 /* CGRectExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD7DF71299D509B00019D51 /* CGRectExtensions.swift */; };
+		FFD7DF7D299DA18000019D51 /* ReorderingPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD7DF7C299DA18000019D51 /* ReorderingPracticeView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -217,7 +218,7 @@
 		FF62C9A829513A5000D41797 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		FF63DDFB299AC17C0088C10B /* WordBank.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordBank.swift; sourceTree = "<group>"; };
 		FF63DDFF299AD2F90088C10B /* WordBankItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordBankItem.swift; sourceTree = "<group>"; };
-		FF6D5A872997F7850048470B /* TmpViewController2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TmpViewController2.swift; sourceTree = "<group>"; };
+		FF6D5A872997F7850048470B /* _TmpViewController2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _TmpViewController2.swift; sourceTree = "<group>"; };
 		FF706DF0295142AF00DBCF8E /* Strings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
 		FF706DF4295144B000DBCF8E /* UIColorExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorExtensions.swift; sourceTree = "<group>"; };
 		FF706E022951549C00DBCF8E /* UIImageExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtensions.swift; sourceTree = "<group>"; };
@@ -236,6 +237,7 @@
 		FFCBB0DF296B45F300E5B9D9 /* TranslationPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeView.swift; sourceTree = "<group>"; };
 		FFD7DF6C299D376000019D51 /* RowStackItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RowStackItem.swift; sourceTree = "<group>"; };
 		FFD7DF71299D509B00019D51 /* CGRectExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGRectExtensions.swift; sourceTree = "<group>"; };
+		FFD7DF7C299DA18000019D51 /* ReorderingPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReorderingPracticeView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -351,6 +353,7 @@
 				FF495E9B295903DF00EA7EA9 /* WordsTableCell.swift */,
 				FF491E742959C4320088FD13 /* SelectionPracticeView.swift */,
 				FF491E762959CC960088FD13 /* FillingPracticeView.swift */,
+				FFD7DF7C299DA18000019D51 /* ReorderingPracticeView.swift */,
 			);
 			path = Words;
 			sourceTree = "<group>";
@@ -523,7 +526,7 @@
 			children = (
 				FF62C9792951382500D41797 /* HomeViewController.swift */,
 				FF5292062951FC9700858B55 /* MenuViewController.swift */,
-				FF6D5A872997F7850048470B /* TmpViewController2.swift */,
+				FF6D5A872997F7850048470B /* _TmpViewController2.swift */,
 				FF58442F2967215700137E00 /* Common */,
 				FF4EFE0D295D34B700E30D6A /* History */,
 				FF495E942958FFCC00EA7EA9 /* Words */,
@@ -913,7 +916,7 @@
 				FFBD60432969D721004165FC /* ReadingPracticeExtensions.swift in Sources */,
 				FF491E772959CC960088FD13 /* FillingPracticeView.swift in Sources */,
 				FF491E752959C4320088FD13 /* SelectionPracticeView.swift in Sources */,
-				FF6D5A882997F7850048470B /* TmpViewController2.swift in Sources */,
+				FF6D5A882997F7850048470B /* _TmpViewController2.swift in Sources */,
 				FFCBB0E0296B45F300E5B9D9 /* TranslationPracticeView.swift in Sources */,
 				FF8E5BC3298DBD5D003B6FB1 /* JapanesePAAnalyzer.swift in Sources */,
 				FF4964BA29579C5A00414AC5 /* UISearchBarExtensions.swift in Sources */,
@@ -955,6 +958,7 @@
 				FF62C9A929513A5000D41797 /* Theme.swift in Sources */,
 				FFBD60452969D733004165FC /* TranslationPracticeExtensions.swift in Sources */,
 				FF706DF1295142AF00DBCF8E /* Strings.swift in Sources */,
+				FFD7DF7D299DA18000019D51 /* ReorderingPracticeView.swift in Sources */,
 				FF63DDFC299AC17C0088C10B /* WordBank.swift in Sources */,
 				FF62C9762951382500D41797 /* AppDelegate.swift in Sources */,
 				FF4CA730295E869900423946 /* TranslationPracticeViewController.swift in Sources */,

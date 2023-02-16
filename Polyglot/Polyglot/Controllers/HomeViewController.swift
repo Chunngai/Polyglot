@@ -304,23 +304,23 @@ extension HomeViewController {
         }
     }
     
-    private func dragAndDropDebug() {
-        let controller = TmpViewController2()
-        controller.updateValues(words: {
-            let tokenizer = NLTokenizer(unit: .word)
-            tokenizer.setLanguage(.japanese)
-            
-            let string = "中国のインターネットで人工知能（AI）を使って制作した絵画やイラストが次々と登場している。"
-            tokenizer.string = string
-            
-            var tokens: [String] = []
-            tokenizer.enumerateTokens(in: string.startIndex..<string.endIndex) { (range, attributes) -> Bool in
-                tokens.append(String(string[range]))
-                return true
-            }
-            
-            return tokens
-        }())  // May contain random words.
-        navigationController?.pushViewController(controller, animated: true)
-    }
+//    private func dragAndDropDebug() {
+//        let controller = TmpViewController2()
+//        controller.updateValues(words: {
+//            let tokenizer = NLTokenizer(unit: .word)
+//            tokenizer.setLanguage(.japanese)
+//            
+//            let string = "中国のインターネットで人工知能（AI）を使って制作した絵画やイラストが次々と登場している。"
+//            tokenizer.string = string
+//            
+//            var tokens: [String] = []
+//            tokenizer.enumerateTokens(in: string.startIndex..<string.endIndex) { (range, attributes) -> Bool in
+//                tokens.append(String(string[range]))
+//                return true
+//            }
+//            
+//            return tokens
+//        }())  // May contain random words.
+//        navigationController?.pushViewController(controller, animated: true)
+//    }
 }

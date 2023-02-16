@@ -92,6 +92,13 @@ class WordsPracticeViewController: PracticeViewController {
                     practiceView.delegate = self
                     return practiceView
                 }()
+            case .reordering:
+                return {
+                    let practiceView = ReorderingPracticeView()
+                    practiceView.updateValues(words: practiceProducer.currentPractice.wordsToReorder!)
+                    practiceView.delegate = self
+                    return practiceView
+                }()
             }
         }
         
@@ -108,6 +115,16 @@ class WordsPracticeViewController: PracticeViewController {
             make.centerX.equalToSuperview()
             make.width.equalToSuperview().multipliedBy(PracticeViewController.practiceViewWidthRatio)
             make.bottom.equalTo(nextButton.snp.top).offset(-20)
+        }
+        
+        // TODO: - Move elsewhere.
+        view.layoutIfNeeded()
+        if let practiceView = practiceView as? ReorderingPracticeView {
+            // https://stackoverflow.com/questions/14020027/how-do-i-know-that-the-uicollectionview-has-been-loaded-completely
+            practiceView.wordBank.reloadData()
+            practiceView.wordBank.performBatchUpdates(nil, completion: { (_) in
+                practiceView.makeDraggableWordBankItems()
+            })
         }
         
         // Update the prompt.

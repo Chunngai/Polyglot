@@ -57,6 +57,7 @@ extension WordPractice {
         case meaningFilling
         case contextSelection
         case accentSelection
+        case reordering
     }
     
     enum Correctness: UInt, Codable {
