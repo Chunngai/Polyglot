@@ -35,8 +35,8 @@ class ThreeButtonSelectionStack: UIStackView {
             for i in 0..<buttons.count {
                 // https://stackoverflow.com/questions/37870701/how-to-use-one-ibaction-for-multiple-buttons-in-swift
                 buttons[i].addTarget(
-                    delegate,
-                    action: #selector(delegate.buttonSelected(sender:)),
+                    self,
+                    action: #selector(buttonSelected(sender:)),
                     for: .touchUpInside
                 )
             }
@@ -102,6 +102,17 @@ class ThreeButtonSelectionStack: UIStackView {
             }
         }
     }
+}
+
+extension ThreeButtonSelectionStack {
+    
+    // MARK: - Selectors
+    
+    @objc private func buttonSelected(sender: UIButton) {
+        Feedbacks.defaultFeedbackGenerator.selectionChanged()
+        delegate.buttonSelected(sender: sender)
+    }
+    
 }
 
 extension ThreeButtonSelectionStack {

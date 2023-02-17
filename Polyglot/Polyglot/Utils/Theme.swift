@@ -183,3 +183,9 @@ struct Attributes {
         NSAttributedString.Key.foregroundColor : Colors.normalTextColor
     ]
 }	
+
+struct Feedbacks {
+    
+    static let defaultFeedbackGenerator = UISelectionFeedbackGenerator()
+    
+}

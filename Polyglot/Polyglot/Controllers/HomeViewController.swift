@@ -193,6 +193,8 @@ extension HomeViewController: UICollectionViewDelegate {
             return
         }
         
+        Feedbacks.defaultFeedbackGenerator.selectionChanged()
+        
         let menuViewController = MenuViewController(lang: cell.langCode)
         navigationController?.pushViewController(menuViewController, animated: true)
     }

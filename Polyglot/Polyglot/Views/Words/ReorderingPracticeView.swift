@@ -430,6 +430,7 @@ extension ReorderingPracticeView {
             
                 if maxXOfPreviousItem > minXOfDraggingItem {
                     print("intersected with the previous item")
+                    Feedbacks.defaultFeedbackGenerator.selectionChanged()
                     
                     // Swap the two items.
                     itemsInRowStack.swapAt(indexOfPreviousItem, itemIndex)
@@ -464,6 +465,7 @@ extension ReorderingPracticeView {
                 
                 if maxXOfDraggingItem > maxXOfNextItem {
                     print("intersected with the next item")
+                    Feedbacks.defaultFeedbackGenerator.selectionChanged()
                     
                     // Swap the two items.
                     itemsInRowStack.swapAt(itemIndex, indexOfNextItem)
@@ -491,6 +493,7 @@ extension ReorderingPracticeView {
                 
                 if verticalOffset > ReorderingPracticeView.rowStackVerticalSpacing {
                     print("intersected with the upper row.")
+                    Feedbacks.defaultFeedbackGenerator.selectionChanged()
                     
                     // Calculate the new center y.
                     let newCenterY: CGFloat = centersInRowStack[itemIndex].y
@@ -544,6 +547,7 @@ extension ReorderingPracticeView {
                 
                 if verticalOffset > ReorderingPracticeView.rowHeight {
                     print("intersected with the lower row.")
+                    Feedbacks.defaultFeedbackGenerator.selectionChanged()
                     
                     // Calculate the new center y.
                     let newCenterY: CGFloat = centersInRowStack[itemIndex].y
@@ -654,6 +658,8 @@ extension ReorderingPracticeView {
         guard let item = gestureRecognizer.view else {
             return
         }
+        
+        Feedbacks.defaultFeedbackGenerator.selectionChanged()
         
         if !isInAnswerArea(item) {
             addToRowStack(item)
