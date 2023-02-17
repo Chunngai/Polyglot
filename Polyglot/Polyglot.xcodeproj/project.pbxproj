@@ -35,7 +35,6 @@
 		FF4B382F29525BD400BB3FFD /* ReadingEditTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4B382E29525BD400BB3FFD /* ReadingEditTableCell.swift */; };
 		FF4CA730295E869900423946 /* TranslationPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4CA72F295E869900423946 /* TranslationPracticeViewController.swift */; };
 		FF4D7CC62953952C009F6894 /* NSMutableAttributedStringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4D7CC52953952C009F6894 /* NSMutableAttributedStringExtensions.swift */; };
-		FF4EFE08295D310A00E30D6A /* BackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4EFE07295D310A00E30D6A /* BackgroundView.swift */; };
 		FF4EFE0C295D34B200E30D6A /* _HistoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4EFE0B295D34B200E30D6A /* _HistoryViewController.swift */; };
 		FF4EFE0F295D358C00E30D6A /* _HistoryRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4EFE0E295D358C00E30D6A /* _HistoryRecord.swift */; };
 		FF4EFE12295D36D900E30D6A /* HistoryRecordTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4EFE11295D36D900E30D6A /* HistoryRecordTableCell.swift */; };
@@ -175,7 +174,6 @@
 		FF4B382E29525BD400BB3FFD /* ReadingEditTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingEditTableCell.swift; sourceTree = "<group>"; };
 		FF4CA72F295E869900423946 /* TranslationPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeViewController.swift; sourceTree = "<group>"; };
 		FF4D7CC52953952C009F6894 /* NSMutableAttributedStringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSMutableAttributedStringExtensions.swift; sourceTree = "<group>"; };
-		FF4EFE07295D310A00E30D6A /* BackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundView.swift; sourceTree = "<group>"; };
 		FF4EFE0B295D34B200E30D6A /* _HistoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _HistoryViewController.swift; sourceTree = "<group>"; };
 		FF4EFE0E295D358C00E30D6A /* _HistoryRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _HistoryRecord.swift; sourceTree = "<group>"; };
 		FF4EFE11295D36D900E30D6A /* HistoryRecordTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryRecordTableCell.swift; sourceTree = "<group>"; };
@@ -421,7 +419,6 @@
 				FFD7DF77299D8D4C00019D51 /* DragAndDrop */,
 				FFD7DF76299D8D3000019D51 /* NewWordAdding */,
 				FFD7DF75299D8D2300019D51 /* RoundButton */,
-				FF4EFE07295D310A00E30D6A /* BackgroundView.swift */,
 				FF5292092952012E00858B55 /* ThreeButtonSelectionStack.swift */,
 				FF491E7F2959ED730088FD13 /* Separator.swift */,
 				FF4964CA2958BAFD00414AC5 /* TimingBar.swift */,
@@ -909,7 +906,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				FF591ED62967960C0004CB80 /* WordPractice.swift in Sources */,
-				FF4EFE08295D310A00E30D6A /* BackgroundView.swift in Sources */,
 				FFBD60412969D713004165FC /* WordPracticeExtensions.swift in Sources */,
 				FF495E962958FFE600EA7EA9 /* WordsViewController.swift in Sources */,
 				FF502512295248D10097C2CB /* Article.swift in Sources */,

@@ -14,8 +14,6 @@ class MenuViewController: UIViewController {
     
     // MARK: - Views
     
-    private var backgroundView = BackgroundView()
-    
     private lazy var mainView: UIView = {
         let view = UIView()
         return view
@@ -30,14 +28,6 @@ class MenuViewController: UIViewController {
         label.attributedText = NSAttributedString(
             string: Strings.menuPrimaryPrompt,
             attributes: Attributes.primaryPromptAttributes
-        )
-        return label
-    }()
-    private lazy var secondaryPromptLabel: UILabel = {
-        let label = UILabel()
-        label.attributedText = NSAttributedString(
-            string: Strings.menuSecondaryPrompt,
-            attributes: Attributes.secondaryPromptAttributes
         )
         return label
     }()
@@ -115,25 +105,14 @@ class MenuViewController: UIViewController {
         updateViews()
         updateLayouts()
     }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        
-        // Reset the bg color from lightblue to nil.
-        navigationController?.navigationBar.backgroundColor = nil
-    }
     
     private func updateSetups() {
         menuButtonStackView.delegate = self
     }
     
     private func updateViews() {
+        
         view.backgroundColor = Colors.defaultBackgroundColor
-        view.addSubview(backgroundView)
         view.addSubview(mainView)
         
         mainView.addSubview(promptView)
@@ -141,23 +120,16 @@ class MenuViewController: UIViewController {
 
         promptView.addSubview(primaryPromptLabel)
         promptView.addSubview(langImageView)
-        promptView.addSubview(secondaryPromptLabel)
     }
     
     // TODO: - Update the insets and offsets here.
     // TODO: - Use relative insets and offsets instead.
     private func updateLayouts() {
-        backgroundView.snp.makeConstraints { (make) in
-            make.left.equalToSuperview()
-            make.top.equalToSuperview()
-            make.width.equalToSuperview()
-            make.height.equalTo(UIScreen.main.bounds.height / 1.8)
-        }
         
         mainView.snp.makeConstraints { (make) in
             make.centerX.equalToSuperview()
             make.width.equalToSuperview().multipliedBy(0.8)
-            make.top.equalToSuperview().inset(243)
+            make.top.equalToSuperview().inset(300)
             make.bottom.equalToSuperview()
         }
         
@@ -167,20 +139,16 @@ class MenuViewController: UIViewController {
             make.height.equalToSuperview().multipliedBy(0.4)
         }
         primaryPromptLabel.snp.makeConstraints { (make) in
-            make.top.equalToSuperview().offset(30)
+            make.top.equalToSuperview()
             make.left.equalToSuperview()
         }
         langImageView.snp.makeConstraints { (make) in
             make.top.equalTo(primaryPromptLabel.snp.top)
             make.left.equalTo(primaryPromptLabel.snp.right).offset(20)
         }
-        secondaryPromptLabel.snp.makeConstraints { (make) in
-            make.top.equalTo(primaryPromptLabel.snp.bottom).offset(10)
-            make.left.equalTo(primaryPromptLabel.snp.left)
-        }
         
         menuButtonStackView.snp.makeConstraints { (make) in
-            make.top.equalTo(backgroundView.snp.bottom).offset(30)
+            make.top.equalTo(promptView.snp.bottom).offset(20)
             make.centerX.equalToSuperview()
             make.width.equalToSuperview()
         }
