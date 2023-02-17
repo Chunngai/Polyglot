@@ -433,7 +433,7 @@ extension WordPracticeProducer {
         let wordBankWidth = UIScreen.main.bounds.width * 0.8
         let targetSubsentenceLength = targetSubSentence.textSize(withFont: WordBankItem.labelFont).width
         print(wordBankWidth * 2, targetSubsentenceLength)
-        if targetSubsentenceLength > wordBankWidth * 2 {
+        if targetSubsentenceLength > wordBankWidth * 3 {
             print("The subsentence is too long. Skipping.")
             return nil
         }
