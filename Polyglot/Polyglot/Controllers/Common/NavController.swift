@@ -20,7 +20,6 @@ class NavController: UINavigationController {
         // https://stackoverflow.com/questions/56435510/presenting-modal-in-ios-13-fullscreen
         modalPresentationStyle = .fullScreen
         
-        navigationBar.backgroundColor = Colors.defaultBackgroundColor
         navigationBar.hideBarSeparator()
     }
 

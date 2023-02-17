@@ -303,7 +303,7 @@ extension ReorderingPracticeView {
         }
         
         if animated {
-            UIView.animate(withDuration: 0.3) {
+            UIView.animate(withDuration: 0.2) {
                 _move()
             }
         } else {
