@@ -86,23 +86,16 @@ extension Array where Iterator.Element == Article {
         }
     }
     
-    func subset(containing keyWord: String, shouldNormalize: Bool = true) -> [Article] {
+    func subset(containing keyWord: String, shouldIgnoreCaseAndAccent: Bool = true) -> [Article] {
         if keyWord.isEmpty {
             return self
         }
         
-        var keyWord = keyWord
-        if shouldNormalize {
-            keyWord = keyWord.normalized
-        }
+        let keyWord = keyWord.normalized(shouldIgnoreCaseAndAccent: shouldIgnoreCaseAndAccent)
         
         var subset: [Article] = []
         for article in self {
-            var query = article.query
-            if shouldNormalize {
-                query = query.normalized
-            }
-            
+            let query = article.query.normalized(shouldIgnoreCaseAndAccent: shouldIgnoreCaseAndAccent)          
             if query.contains(keyWord) {
                 subset.append(article)
             }

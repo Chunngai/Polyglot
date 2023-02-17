@@ -230,21 +230,15 @@ extension WordPracticeProducer {
         return selectionWords
     }
     
-    func makeParaCandidates(for word: Word, shouldNormalize: Bool) -> [(articleId: String, paraId: String, text: String)] {
+    func makeParaCandidates(for word: Word, shouldIgnoreCaseAndAccent: Bool) -> [(articleId: String, paraId: String, text: String)] {
         
-        var wordText: String = word.text
-        if shouldNormalize {
-            wordText = wordText.normalized
-        }
+        let wordText: String = word.text.normalized(shouldIgnoreCaseAndAccent: shouldIgnoreCaseAndAccent)
         
         var candidates: [(articleId: String, paraId: String, text: String)] = []
         for article in Article.load() {  // TODO: - Is it proper to load articles here?
             for para in article.paras {
                 
-                var paraText: String = para.text
-                if shouldNormalize {
-                    paraText = paraText.normalized
-                }
+                let paraText: String = para.text.normalized(shouldIgnoreCaseAndAccent: shouldIgnoreCaseAndAccent)
                 
                 if paraText.contains(wordText) {
                     candidates.append((articleId: article.id, paraId: para.id, text: para.text))
@@ -301,7 +295,7 @@ extension WordPracticeProducer {
     
     private func makeContextSelectionPractice(for wordToPractice: Word) -> WordPracticeProducer.Item? {
         
-        var candidates = makeParaCandidates(for: wordToPractice, shouldNormalize: true)
+        var candidates = makeParaCandidates(for: wordToPractice, shouldIgnoreCaseAndAccent: true)
         if candidates.isEmpty {
             return nil
         }
@@ -311,7 +305,7 @@ extension WordPracticeProducer {
         let selectionWords = makeSelectionWords(for: wordToPractice)
         
         // Take care of the normalization.
-        let rangeOfWordToPractice = candidate.text.normalized.range(of: wordToPractice.text.normalized)
+        let rangeOfWordToPractice = candidate.text.normalized(shouldIgnoreCaseAndAccent: true).range(of: wordToPractice.text.normalized(shouldIgnoreCaseAndAccent: true))
         let context = candidate.text.replacingOccurrences(
             of: wordToPractice.text,
             with: Strings.underscoreToken,
@@ -410,7 +404,7 @@ extension WordPracticeProducer {
     
     private func makeReorderingPractice(for wordToPractice: Word) -> WordPracticeProducer.Item? {
         
-        var candidates = makeParaCandidates(for: wordToPractice, shouldNormalize: true)
+        var candidates = makeParaCandidates(for: wordToPractice, shouldIgnoreCaseAndAccent: true)
         if candidates.isEmpty {
             return nil
         }
@@ -520,17 +514,12 @@ extension WordPracticeProducer {
                 
         mutating func checkCorrectness(answer: String) {
             
-            var key = self.key
-            var answer = answer
-            if practice.practiceType == .meaningFilling {
-                
-                // Do not normalize for accent practices,
-                // or the accent mark will be removed.
-                
-                key = key.normalized
-                answer = answer.normalized
-            }
+            // Do not normalize for accent practices,
+            // or the accent mark will be removed.
+            let shouldIgnoreCaseAndAccent = practice.practiceType == .meaningFilling
             
+            let key = self.key.normalized(shouldIgnoreCaseAndAccent: shouldIgnoreCaseAndAccent)
+            let answer = answer.normalized(shouldIgnoreCaseAndAccent: shouldIgnoreCaseAndAccent)
             if answer == key {
                 // Totally correct, including word order.
                 practice.correctness = .correct

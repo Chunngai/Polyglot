@@ -51,11 +51,17 @@ extension String {
 extension String {
     
     static let normalizationOptions: String.CompareOptions = [.caseInsensitive, .diacriticInsensitive]
-    var normalized: String {
-        return self
+    func normalized(shouldIgnoreCaseAndAccent: Bool = false) -> String {
+        var normalizedString = self
             .strip()
+            .replaceMultipleSpacesWithSingleOne()
+        
+        if shouldIgnoreCaseAndAccent {
             // https://stackoverflow.com/questions/36727310/is-there-a-way-to-convert-special-characters-to-normal-characters-in-swift
-            .folding(options: String.normalizationOptions, locale: nil)
+            normalizedString = normalizedString.folding(options: String.normalizationOptions, locale: nil)
+        }
+        
+        return normalizedString
     }
     
     func components(from tokenizer: NLTokenizer) -> [String] {
