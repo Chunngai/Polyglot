@@ -106,7 +106,7 @@ class ReorderingPracticeView: UIView {
                 // https://stackoverflow.com/questions/42437966/how-to-adjust-height-of-uicollectionview-to-be-the-height-of-the-content-size-of
                 make.height.equalTo(wordBank.collectionViewLayout.collectionViewContentSize.height)
                 make.centerX.equalToSuperview()
-                make.bottom.equalToSuperview().offset(-30)
+                make.bottom.equalToSuperview().offset(-10)
             }
             referenceLabel.snp.makeConstraints { (make) in
                 make.top.equalTo(wordBank.snp.top)
@@ -115,7 +115,7 @@ class ReorderingPracticeView: UIView {
             }
             
             rowStack.snp.makeConstraints { (make) in
-                make.bottom.equalTo(wordBank.snp.top).offset(-50)
+                make.bottom.equalTo(wordBank.snp.top).offset(-20)
                 make.width.equalTo(rowStackWidth)
                 make.centerX.equalToSuperview()
             }

@@ -147,26 +147,26 @@ class WordPracticeProducer: PracticeProducerDelegate {
             
             // TODO: - selection practices may suffer from selection insufficiency problems.
             
-//            practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .textToMeaning))
-////            practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .meaningToText))
-//            practiceList.append(makeMeaningFillingPractice(for: randomWord, in: .meaningToText))
-//
-//            if let contextSelectionPractice = makeContextSelectionPractice(for: randomWord) {
-//                practiceList.append(contextSelectionPractice)
-//            }
+            practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .textToMeaning))
+//            practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .meaningToText))
+            practiceList.append(makeMeaningFillingPractice(for: randomWord, in: .meaningToText))
+
+            if let contextSelectionPractice = makeContextSelectionPractice(for: randomWord) {
+                practiceList.append(contextSelectionPractice)
+            }
             
             if let reorderingPractice = makeReorderingPractice(for: randomWord) {
                 practiceList.append(reorderingPractice)
             }
             
-//            if let accentSelectionPractice = makeAccentSelectionPractice(for: randomWord) {
-//                practiceList.append(accentSelectionPractice)
-//            } else {
-//                // TODO: - Temporary solution.
-//                if Variables.lang == LangCode.ja {
-//                    Word.makeTokensFor(jaWord: randomWord)
-//                }
-//            }
+            if let accentSelectionPractice = makeAccentSelectionPractice(for: randomWord) {
+                practiceList.append(accentSelectionPractice)
+            } else {
+                // TODO: - Temporary solution.
+                if Variables.lang == LangCode.ja {
+                    Word.makeTokensFor(jaWord: randomWord)
+                }
+            }
         }
         practiceList.shuffle()
         
