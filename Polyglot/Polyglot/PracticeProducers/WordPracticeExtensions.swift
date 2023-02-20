@@ -520,13 +520,14 @@ extension WordPracticeProducer {
             
             let key = self.key.normalized(shouldIgnoreCaseAndAccent: shouldIgnoreCaseAndAccent)
             let answer = answer.normalized(shouldIgnoreCaseAndAccent: shouldIgnoreCaseAndAccent)
-            if answer == key {
+            
+            let keyComponents = key.components(from: tokenizer)
+            let answerComponents = answer.components(from: tokenizer)
+            
+            if keyComponents == answerComponents {
                 // Totally correct, including word order.
                 practice.correctness = .correct
             } else {
-                let keyComponents = key.components(from: tokenizer)
-                let answerComponents = answer.components(from: tokenizer)
-                
                 if !Set(keyComponents).intersection(Set(answerComponents)).isEmpty {
                     practice.correctness = .partiallyCorrect
                 } else {
