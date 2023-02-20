@@ -312,6 +312,10 @@ extension WordPracticeProducer {
             options: String.normalizationOptions,
             range: rangeOfWordToPractice
         )
+        if context.strip() == Strings.underscoreToken.strip() {
+            // No context.
+            return nil
+        }
         
         return WordPracticeProducer.Item(
             practice: WordPractice(
