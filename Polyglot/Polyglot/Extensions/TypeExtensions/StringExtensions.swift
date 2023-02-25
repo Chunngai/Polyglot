@@ -66,11 +66,18 @@ extension String {
     
     func components(from tokenizer: NLTokenizer) -> [String] {
         
-        tokenizer.string = self
+        let stringToTokenize = self
+            // If the string starts with 「,
+            // the tokenization does not work properly (returns an empty list).
+            // Therefore, preprocess the string before the tokenization.
+            .replacingOccurrences(of: "「", with: "")
+            .replacingOccurrences(of: "」", with: "")
+        
+        tokenizer.string = stringToTokenize
         
         var components: [String] = []
-        tokenizer.enumerateTokens(in: self.startIndex..<self.endIndex) { (range, attributes) -> Bool in
-            components.append(String(self[range]))
+        tokenizer.enumerateTokens(in: stringToTokenize.startIndex..<stringToTokenize.endIndex) { (range, attributes) -> Bool in
+            components.append(String(stringToTokenize[range]))
             return true
         }
 //        print(components)
