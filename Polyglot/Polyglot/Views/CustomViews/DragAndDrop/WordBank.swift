@@ -84,7 +84,7 @@ extension WordBank: UICollectionViewDelegateFlowLayout {
         // https://stackoverflow.com/questions/23134986/dynamic-cell-width-of-uicollectionview-depending-on-label-width
         let text = words[indexPath.row]
         var textSize = text.textSize(withFont: WordBankItem.labelFont)
-        print(words[indexPath.row], textSize, textSize.width, WordBank.minimumTextSizeWidth)
+
         if textSize.width < WordBank.minimumTextSizeWidth {
             textSize.width = WordBank.minimumTextSizeWidth
         }
