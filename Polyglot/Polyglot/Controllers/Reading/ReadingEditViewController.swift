@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ReadingEditViewController: UITableViewController {
+class ReadingEditViewController: UIViewController {
     
     private lazy var cells: [ReadingEditTableCell] = [
         self.cell(for: ReadingEditViewController.titleIdentifier),
@@ -24,6 +24,20 @@ class ReadingEditViewController: UITableViewController {
     // MARK: - Controllers
     
     var delegate: ReadingViewController!
+    
+    // MARK: - Views
+    
+    // Do not use a table view controller.
+    // The scrolling is weired when the keyboard pops up.
+    var tableView: UITableView = {
+        let tableView = UITableView()
+        tableView.backgroundColor = Colors.defaultBackgroundColor
+        tableView.removeRedundantSeparators()
+        // https://stackoverflow.com/questions/4399357/hide-keyboard-when-scroll-uitableview
+        tableView.keyboardDismissMode = .onDrag
+        tableView.separatorStyle = .none
+        return tableView
+    }()
     
     // MARK: - Init
     
@@ -53,9 +67,8 @@ class ReadingEditViewController: UITableViewController {
     }
 
     private func updateSetups() {
+        tableView.dataSource = self
         tableView.register(ReadingEditTableCell.self, forCellReuseIdentifier: ReadingEditViewController.cellIdentifier)
-        // https://stackoverflow.com/questions/4399357/hide-keyboard-when-scroll-uitableview
-        tableView.keyboardDismissMode = .onDrag
     }
     
     private func updateViews() {
@@ -72,11 +85,13 @@ class ReadingEditViewController: UITableViewController {
             action: #selector(doneButtonTapped)
         )
         
-        tableView.separatorStyle = .none
+        view.addSubview(tableView)
     }
     
     private func updateLayouts() {
-        
+        tableView.snp.makeConstraints { (make) in
+            make.edges.equalToSuperview()
+        }
     }
     
     func updateValues(article: Article) {
@@ -84,19 +99,19 @@ class ReadingEditViewController: UITableViewController {
     }
 }
  
-extension ReadingEditViewController {
+extension ReadingEditViewController: UITableViewDataSource {
     
     // MARK: - UITableView Data Source
 
-    override func numberOfSections(in tableView: UITableView) -> Int {
+    func numberOfSections(in tableView: UITableView) -> Int {
         return 1
     }
 
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return cells.count
     }
 
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // TODO: - Increase the height of body text view.
         
         return cells[indexPath.row]
