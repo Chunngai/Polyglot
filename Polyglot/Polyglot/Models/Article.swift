@@ -61,20 +61,20 @@ struct Article {
         self.id = UUID().uuidString
         self.mDate = cDate
         
-        self.title = title
-        self.topic = topic
+        self.title = title.strip()
+        self.topic = topic?.strip()
         self.paras = Article.makeParas(from: body)
-        self.source = source
+        self.source = source?.strip()
     }
     
     mutating func update(newTitle: String? = nil, newTopic: String? = nil, newBody: String? = nil, newSource: String? = nil) {
         
         if let newTitle = newTitle {
-            self.title = newTitle
+            self.title = newTitle.strip()
         }
         
         if let newTopic = newTopic {
-            self.topic = newTopic
+            self.topic = newTopic.strip()
         }
         
         if let newBody = newBody {
@@ -82,7 +82,7 @@ struct Article {
         }
         
         if let newSource = newSource {
-            self.source = newSource
+            self.source = newSource.strip()
         }
         
         self.mDate = Date()

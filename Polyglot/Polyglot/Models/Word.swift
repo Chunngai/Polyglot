@@ -50,7 +50,7 @@ struct Word {
         
         self.meaning = meaning.lowercased().strip()
         
-        self.note = note
+        self.note = note?.strip()
         
         // TODO: - Temporary solution.
         if tokens == nil {
@@ -75,7 +75,7 @@ struct Word {
         }
         
         if let newNote = newNote {
-            self.note = newNote
+            self.note = newNote.strip()
         }
         
         self.mDate = Date()
