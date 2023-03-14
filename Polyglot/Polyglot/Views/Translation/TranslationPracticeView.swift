@@ -39,6 +39,8 @@ class TranslationPracticeView: UIView, PracticeViewDelegate {
         if let meaning = meaning {
             self.meaning = meaning
         }
+        self.textLang = textLang
+        self.meaningLang = meaningLang
         
         textView = NewWordAddingTextView(textLang: textLang, meaningLang: meaningLang)
         textView.attributedText = NSMutableAttributedString(
@@ -52,9 +54,10 @@ class TranslationPracticeView: UIView, PracticeViewDelegate {
             GoogleTranslator(
                 srcLang: meaningLang,
                 trgLang: textLang
-            ).translate(query: self.meaning) { (res) in
+            ).translate(query: self.meaning!) { (res) in
                 if let translatedText = res.first {
                     DispatchQueue.main.async {
+                        self.text = translatedText
                         self.textView.text = translatedText
                     }
                 }
@@ -97,25 +100,26 @@ extension TranslationPracticeView {
     
     func displayTranslation() {
         
+        // Ensure that self.text is not nil.
+        if self.text == nil {
+            self.text = "[No text]"
+        }
+        
         if self.meaning != nil {
-            textView.text = "\(self.text)\n\nTranslation:\n\(self.meaning)"
+            textView.text = "\(self.text!)\n\nTranslation:\n\(self.meaning!)"
         } else if self.text != nil {
             GoogleTranslator(
                 srcLang: textLang,
                 trgLang: meaningLang
-            ).translate(query: self.text) { (res) in
+            ).translate(query: self.text!) { (res) in
                 if let translatedMeaning = res.first {
                     DispatchQueue.main.async {
+                        self.meaning = translatedMeaning
                         self.textView.text = translatedMeaning
                     }
                 }
             }
         }
-        
-//        textView.attributedText = NSAttributedString(
-//            string: "\(self.text)\n\nTranslation:\n\(self.meaning)",  // TODO: - Update here.
-//            attributes: Attributes.defaultLongTextAttributes
-//        )
         
         // Restore the highlights.
         // TODO: - Simplify here.

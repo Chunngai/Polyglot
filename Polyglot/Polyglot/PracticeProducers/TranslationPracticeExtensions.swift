@@ -61,22 +61,32 @@ struct TranslationPracticeProducer: PracticeProducerDelegate {
             // Randomly choose a direction.
             let randomDirection = Array<PracticeDirection>(arrayLiteral: .textToMeaning, .meaningToText).randomElement(from: [0.2, 0.8])!  // 0.2 prob for text -> meaning and 0.8 prob for meaning -> text.
             
+            var text: String!
+            var meaning: String!
+            var textLang: String!
+            var meaningLang: String!
+            if randomDirection == .textToMeaning {
+                text = randomParagraph.text
+                meaning = randomParagraph.meaning
+                textLang = Variables.lang
+                meaningLang = Variables.pairedLang
+            } else if randomDirection == .meaningToText {
+                text = randomParagraph.meaning
+                meaning = randomParagraph.text
+                textLang = Variables.pairedLang
+                meaningLang = Variables.lang
+            }
+            
             practiceList.append(TranslationPracticeProducer.Item(
                 practice: TranslationPractice(
                     articleId: randomArticle.id,
                     paragraphId: randomParagraph.id,
                     direction: randomDirection
                 ),
-                text: randomDirection == .textToMeaning ?
-                    randomParagraph.text :
-                    randomParagraph.meaning,
-                meaning: randomDirection == .textToMeaning ?
-                    randomParagraph.meaning :
-                    randomParagraph.text,
-                // Note that the langs do not depend on the direction.
-                // TODO: - A better way?
-                textLang: Variables.lang,
-                meaningLang: Variables.pairedLang
+                text: text,
+                meaning: meaning,
+                textLang: textLang,
+                meaningLang: meaningLang
             ))
         }
         return practiceList
