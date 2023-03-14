@@ -58,9 +58,6 @@ struct TranslationPracticeProducer: PracticeProducerDelegate {
             }).randomElement()!
             // Randomly choose a paragraph.
             let randomParagraph = randomArticle.paras.randomElement()!
-            if !randomParagraph.isParallel {
-                return make()  // TODO: - Use a translation api instead?
-            }
             // Randomly choose a direction.
             let randomDirection = Array<PracticeDirection>(arrayLiteral: .textToMeaning, .meaningToText).randomElement(from: [0.2, 0.8])!  // 0.2 prob for text -> meaning and 0.8 prob for meaning -> text.
             
@@ -72,9 +69,9 @@ struct TranslationPracticeProducer: PracticeProducerDelegate {
                 ),
                 text: randomDirection == .textToMeaning ?
                     randomParagraph.text :
-                    randomParagraph.meaning!,
+                    randomParagraph.meaning,
                 meaning: randomDirection == .textToMeaning ?
-                    randomParagraph.meaning! :
+                    randomParagraph.meaning :
                     randomParagraph.text,
                 // Note that the langs do not depend on the direction.
                 // TODO: - A better way?
@@ -98,8 +95,8 @@ extension TranslationPracticeProducer {
         
         var practice: TranslationPractice
         
-        var text: String
-        var meaning: String
+        var text: String?
+        var meaning: String?
      
         var textLang: String
         var meaningLang: String

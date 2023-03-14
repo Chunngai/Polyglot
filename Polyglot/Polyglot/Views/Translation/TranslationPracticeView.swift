@@ -10,6 +10,12 @@ import UIKit
 
 class TranslationPracticeView: UIView, PracticeViewDelegate {
     
+    var text: String!
+    var meaning: String!
+    
+    var textLang: String!
+    var meaningLang: String!
+    
     // MARK: - Views
     
     var mainView: UIView = {
@@ -24,14 +30,36 @@ class TranslationPracticeView: UIView, PracticeViewDelegate {
     
     // MARK: - Init
     
-    init(frame: CGRect = .zero, text: String, textLang: String, meaningLang: String) {
+    init(frame: CGRect = .zero, text: String?, meaning: String?, textLang: String, meaningLang: String) {
         super.init(frame: frame)
+        
+        if let text = text {
+            self.text = text
+        }
+        if let meaning = meaning {
+            self.meaning = meaning
+        }
         
         textView = NewWordAddingTextView(textLang: textLang, meaningLang: meaningLang)
         textView.attributedText = NSMutableAttributedString(
-            string: text,
+            string: " ",
             attributes: Attributes.defaultLongTextAttributes
         )
+        
+        if self.text != nil {
+            textView.text = text
+        } else if self.meaning != nil {
+            GoogleTranslator(
+                srcLang: meaningLang,
+                trgLang: textLang
+            ).translate(query: self.meaning) { (res) in
+                if let translatedText = res.first {
+                    DispatchQueue.main.async {
+                        self.textView.text = translatedText
+                    }
+                }
+            }
+        }
                 
         updateSetups()
         updateViews()
@@ -63,4 +91,35 @@ class TranslationPracticeView: UIView, PracticeViewDelegate {
             make.height.equalToSuperview().multipliedBy(0.9)
         }
     }
+}
+
+extension TranslationPracticeView {
+    
+    func displayTranslation() {
+        
+        if self.meaning != nil {
+            textView.text = "\(self.text)\n\nTranslation:\n\(self.meaning)"
+        } else if self.text != nil {
+            GoogleTranslator(
+                srcLang: textLang,
+                trgLang: meaningLang
+            ).translate(query: self.text) { (res) in
+                if let translatedMeaning = res.first {
+                    DispatchQueue.main.async {
+                        self.textView.text = translatedMeaning
+                    }
+                }
+            }
+        }
+        
+//        textView.attributedText = NSAttributedString(
+//            string: "\(self.text)\n\nTranslation:\n\(self.meaning)",  // TODO: - Update here.
+//            attributes: Attributes.defaultLongTextAttributes
+//        )
+        
+        // Restore the highlights.
+        // TODO: - Simplify here.
+        textView.highlightAll()
+    }
+    
 }

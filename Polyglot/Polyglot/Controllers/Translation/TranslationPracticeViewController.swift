@@ -100,6 +100,7 @@ class TranslationPracticeViewController: PracticeViewController {
         practiceView = {
             return TranslationPracticeView(
                 text: practiceProducer.currentPractice.text,
+                meaning: practiceProducer.currentPractice.meaning,
                 textLang: practiceProducer.currentPractice.textLang,
                 meaningLang: practiceProducer.currentPractice.meaningLang
             )
@@ -131,22 +132,6 @@ class TranslationPracticeViewController: PracticeViewController {
 
 extension TranslationPracticeViewController {
     
-    // MARK: - Utils
-    
-    private func displayTranslation() {
-        textViewOfPracticeView.attributedText = NSAttributedString(
-            string: "\(practiceProducer.currentPractice.text)\n\nTranslation:\n\(practiceProducer.currentPractice.meaning)",  // TODO: - Update here.
-            attributes: Attributes.defaultLongTextAttributes
-        )
-        
-        // Restore the highlights.
-        // TODO: - Simplify here.
-        textViewOfPracticeView.highlightAll()
-    }
-}
-
-extension TranslationPracticeViewController {
-    
     // MARK: - Selectors
     
     @objc override func cancelButtonTapped() {
@@ -162,7 +147,7 @@ extension TranslationPracticeViewController {
         
         practiceStatus = .finished
                 
-        displayTranslation()
+        (practiceView as! TranslationPracticeView).displayTranslation()
     }
     
     @objc override func nextButtonTapped() {
