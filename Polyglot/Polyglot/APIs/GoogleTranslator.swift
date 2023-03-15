@@ -60,18 +60,42 @@ struct GoogleTranslator {
                 guard let jsonArray = try JSONSerialization.jsonObject(with: data, options: []) as? [Any] else {
                     return
                 }
-                guard let translationArrays = ((
-                        jsonArray[5] as? [Any]
-                    )?[0] as? [Any]
-                )?[2] as? [Any] else {
-                        return
-                }
-                let translations = translationArrays.compactMap { (arr) -> String? in
-                    (arr as? [Any])?[0] as? String
-                }
                 
-                completion(translations)
-                
+                guard let resArray = jsonArray[5] as? [Any] else {
+                    throw NSError()
+                }
+                if resArray.count == 1 {
+                    // Return multiple translation candidates.
+                    guard let res = resArray[0] as? [Any] else {
+                        throw NSError()
+                    }
+                    guard let translationArrays = res[2] as? [Any] else {
+                        throw NSError()
+                    }
+                    
+                    let translations = translationArrays.compactMap { (arr) -> String? in
+                        (arr as? [Any])?[0] as? String
+                    }
+                    
+                    completion(translations)
+                } else {
+                    // Return one translation.
+                    var translation: String = ""
+                    for res in resArray {
+                        guard let res = res as? [Any] else {
+                            throw NSError()
+                        }
+                        guard let translationArrays = res[2] as? [Any] else {
+                            throw NSError()
+                        }
+                        
+                        let sentenceTranslation = (translationArrays[0] as? [Any])?[0] as? String ?? ""
+                        translation += sentenceTranslation
+                    }
+                    
+                    print(translation)
+                    completion([translation])
+                }
             } catch {
                 print(error.localizedDescription)
                 completion([])
