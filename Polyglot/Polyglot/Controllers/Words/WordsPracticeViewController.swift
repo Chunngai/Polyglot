@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import IQKeyboardManagerSwift
 
 class WordsPracticeViewController: PracticeViewController {
     
@@ -45,8 +46,82 @@ class WordsPracticeViewController: PracticeViewController {
         // updatePracticeView()
     }
     
+    
+    
+    // Code for adjusting the height of the textfield
+    // when the keyboard is displayed.
+    // TODO: - Move the code elsewhere.
+    
+    private var oriFrameOfFillingPracticeView: CGRect?
+    private var marginBetweenTextFieldAndKeyboard: CGFloat = 30
+    
+    private func resetFillingPracticeViewMovingOffset() {
+
+        guard let fillingPracticeView = practiceView as? FillingPracticeView else {
+            return
+        }
+        guard let oriFrameOfFillingPracticeView = oriFrameOfFillingPracticeView else {
+            return
+        }
+        
+        UIView.animate(withDuration: 0.2) {
+            fillingPracticeView.frame = oriFrameOfFillingPracticeView
+        }
+    }
+    
+    @objc private func keyboardWillShow(notification: NSNotification) {
+                
+        guard let fillingPracticeView = practiceView as? FillingPracticeView else {
+            return
+        }
+        if oriFrameOfFillingPracticeView == nil {
+            oriFrameOfFillingPracticeView = fillingPracticeView.frame
+        }
+        if fillingPracticeView.frame != oriFrameOfFillingPracticeView {
+            resetFillingPracticeViewMovingOffset()
+        }
+        
+        // https://stackoverflow.com/questions/8082493/how-to-get-the-frame-of-a-view-inside-another-view
+        let textFieldRelatedFrame = fillingPracticeView.convert(fillingPracticeView.textField.frame, to: self.view)
+        guard let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
+            return
+        }
+        if textFieldRelatedFrame.maxY + marginBetweenTextFieldAndKeyboard >= keyboardSize.minY {
+            let movingOffset = textFieldRelatedFrame.maxY - keyboardSize.minY + marginBetweenTextFieldAndKeyboard
+            UIView.animate(withDuration: 0.2) {
+                fillingPracticeView.frame = CGRect(
+                    x: fillingPracticeView.frame.minX,
+                    y: fillingPracticeView.frame.minY - movingOffset,
+                    width: fillingPracticeView.frame.width,
+                    height: fillingPracticeView.frame.height
+                )
+            }
+        }
+    }
+    
+    @objc private func keyboardWillHide(notification: NSNotification) {
+        resetFillingPracticeViewMovingOffset()
+    }
+    
+    
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        IQKeyboardManager.shared.enable = false
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        IQKeyboardManager.shared.enable = true
+    }
+    
     override func updateSetups() {
         super.updateSetups()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         
         practiceStatus = .beforeAnswering
     }

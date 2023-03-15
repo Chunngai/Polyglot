@@ -21,7 +21,7 @@ class FillingPracticeView: UIView {
     
     // MARK: - Views
     
-    private var textField: UITextField = {
+    var textField: UITextField = {
         let textField = UITextField()
         textField.font = UIFont.systemFont(ofSize: Sizes.largeFontSize)
         textField.textColor = Colors.normalTextColor
@@ -31,12 +31,12 @@ class FillingPracticeView: UIView {
         return textField
     }()
     
-    private var bottomLine: Separator = {
+    var bottomLine: Separator = {
         let bottomLine = Separator()
         return bottomLine
     }()
     
-    private var referenceLabel: UILabel = {
+    var referenceLabel: UILabel = {
         let label = UILabel()
         label.textColor = Colors.normalTextColor
         label.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
