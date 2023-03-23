@@ -42,7 +42,7 @@ class TranslationPracticeView: UIView, PracticeViewDelegate {
         self.textLang = textLang
         self.meaningLang = meaningLang
         
-        textView = NewWordAddingTextView(textLang: textLang, meaningLang: meaningLang)
+        textView = NewWordAddingTextView(textLang: Variables.lang, meaningLang: Variables.pairedLang)  // TODO: - is it proper to directly pass langs here?
         textView.attributedText = NSMutableAttributedString(
             string: " ",
             attributes: Attributes.defaultLongTextAttributes
@@ -55,11 +55,15 @@ class TranslationPracticeView: UIView, PracticeViewDelegate {
                 srcLang: meaningLang,
                 trgLang: textLang
             ).translate(query: self.meaning!) { (res) in
-                if let translatedText = res.first {
-                    DispatchQueue.main.async {
-                        self.text = translatedText
-                        self.textView.text = translatedText
-                    }
+                var translatedText: String
+                if let translation = res.first {
+                    translatedText = "[machine-translated] \(translation)"
+                } else {
+                    translatedText = "[machine translation error]"
+                }
+                DispatchQueue.main.async {
+                    self.text = translatedText
+                    self.textView.text = translatedText
                 }
             }
         }
@@ -112,11 +116,15 @@ extension TranslationPracticeView {
                 srcLang: textLang,
                 trgLang: meaningLang
             ).translate(query: self.text!) { (res) in
-                if let translatedMeaning = res.first {
-                    DispatchQueue.main.async {
-                        self.meaning = translatedMeaning
-                        self.textView.text = translatedMeaning
-                    }
+                var translatedMeaning: String
+                if let translation = res.first {
+                    translatedMeaning = "[machine-translated] \(translation)"
+                } else {
+                    translatedMeaning = "[machine translation error]"
+                }
+                DispatchQueue.main.async {
+                    self.meaning = translatedMeaning
+                    self.textView.text = translatedMeaning
                 }
             }
         }
