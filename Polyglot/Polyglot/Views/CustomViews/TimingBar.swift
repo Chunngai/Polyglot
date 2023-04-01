@@ -121,6 +121,11 @@ extension TimingBar {
     // MARK: - Selectors
     
     @objc private func fireTimer() {
+        // TODO: - Note that the current timing will not be executed in background. So it is just a visual effect.
+        if !Variables.isTimingEnabled {
+            pause()
+        }
+        
         if self.secondCounter == self.duration {
             self.stop()
             self.delegate.timingBarTimeUp(timingBar: self)

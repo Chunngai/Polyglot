@@ -54,6 +54,8 @@ struct Variables {
     static var subsentenceSeparator: String{
         return Variables._subsentenceSeparators[Variables.lang]!
     }
+    
+    static var isTimingEnabled: Bool = true
 }
 
 struct Constants {
