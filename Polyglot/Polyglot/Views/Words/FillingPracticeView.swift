@@ -62,6 +62,11 @@ class FillingPracticeView: UIView {
     private func updateSetups() {
         textField.delegate = self
         textField.addTarget(self, action: #selector(textFieldEditingChanged), for: .editingChanged)
+        
+        addGestureRecognizer({
+            let recognizer = UITapGestureRecognizer(target: self, action: #selector(tapped))
+            return recognizer
+        }())
     }
     
     private func updateViews() {
@@ -149,6 +154,9 @@ extension FillingPracticeView {
         return
     }
     
+    @objc private func tapped() {
+        textField.resignFirstResponder()
+    }
 }
 
 extension FillingPracticeView: UITextFieldDelegate {
