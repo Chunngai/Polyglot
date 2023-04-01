@@ -33,25 +33,19 @@ class PracticeViewController: UIViewController {
         return view
     }()
     
-    var promptLabel: UITextView = {
-        let textView = UITextView()  // Use the text view for paddings.
-        textView.backgroundColor = Colors.lightBlue
-        textView.layer.masksToBounds = true
-        textView.layer.cornerRadius = Sizes.smallCornerRadius
-        textView.isEditable = false
-        textView.isSelectable = false
-        textView.contentInset = UIEdgeInsets(
-            top: 15,
-            left: 15 + Sizes.smallCornerRadius * 2,  // Hide the left rounding.
-            bottom: 15,
-            right: 15
-        )
-        // https://stackoverflow.com/questions/38714272/how-to-make-uitextview-height-dynamic-according-to-text-length
-        textView.translatesAutoresizingMaskIntoConstraints = true
-        textView.sizeToFit()
-        textView.isScrollEnabled = false
-        textView.attributedText = NSAttributedString(string: " ", attributes: Attributes.practicePromptAttributes)
-        return textView
+    var promptLabelBackgroundView: UIView = {
+        let view = UIView()
+        view.backgroundColor = Colors.lightBlue
+        view.layer.masksToBounds = true
+        view.layer.cornerRadius = Sizes.smallCornerRadius
+        return view
+    }()
+    var promptLabel: UILabel = {
+        let label = UILabel()
+        label.backgroundColor = Colors.lightBlue
+        label.numberOfLines = 0
+        label.attributedText = NSAttributedString(string: " ", attributes: Attributes.practicePromptAttributes)
+        return label
     }()
     
     var practiceView: PracticeViewDelegate!
@@ -123,9 +117,11 @@ class PracticeViewController: UIViewController {
         view.addSubview(mainView)
         view.addSubview(maskView)
         
-        mainView.addSubview(promptLabel)
+        mainView.addSubview(promptLabelBackgroundView)
         mainView.addSubview(doneButton)
         mainView.addSubview(nextButton)
+        
+        promptLabelBackgroundView.addSubview(promptLabel)
     }
     
     func updateLayouts() {
@@ -136,10 +132,15 @@ class PracticeViewController: UIViewController {
             make.bottom.equalToSuperview().inset(50)
         }
         
-        promptLabel.snp.makeConstraints { (make) in
+        promptLabelBackgroundView.snp.makeConstraints { (make) in
             make.top.equalToSuperview()
-            make.leading.equalToSuperview().offset(-promptLabel.layer.cornerRadius * 2)  // Hide the left rounding.
+            make.leading.equalToSuperview().offset(-promptLabelBackgroundView.layer.cornerRadius * 2)  // Hide the left rounding.
             make.width.equalToSuperview().multipliedBy(0.95)
+        }
+        promptLabel.snp.makeConstraints { (make) in
+            make.top.bottom.equalToSuperview().inset(Sizes.smallLineSpacing * 2)
+            make.leading.equalToSuperview().inset(promptLabelBackgroundView.layer.cornerRadius * 2 + 15)
+            make.trailing.equalToSuperview().inset(15)
         }
         
         doneButton.snp.makeConstraints { (make) in

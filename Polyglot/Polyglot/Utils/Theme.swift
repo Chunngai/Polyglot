@@ -99,6 +99,7 @@ struct Sizes {
     
     static let defaultStackSpacing: CGFloat = 15
     static let defaultLineSpacing: CGFloat = 10
+    static let smallLineSpacing: CGFloat = 5
     static let defaultCollectionLayoutMinimumLineSpacing: CGFloat = 0
     static let defaultCollectionLayoutMinimumInteritemSpacing: CGFloat = 0
     
@@ -126,6 +127,11 @@ struct Attributes {
         paraStyle.alignment = .left
         return paraStyle
     }
+    static var practicePromptParaStyle: NSMutableParagraphStyle {
+        let paraStyle = Attributes.leftAlignedParaStyle
+        paraStyle.lineSpacing = Sizes.smallLineSpacing
+        return paraStyle
+    }
     
     static let defaultLongTextAttributes = [
         NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.smallFontSize),
@@ -149,7 +155,7 @@ struct Attributes {
     
     static let practicePromptAttributes = [
         NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.mediumFontSize),
-        NSAttributedString.Key.paragraphStyle : Attributes.leftAlignedParaStyle,
+        NSAttributedString.Key.paragraphStyle : Attributes.practicePromptParaStyle,
         NSAttributedString.Key.foregroundColor : Colors.weakTextColor
     ]
     static let practiceWordAttributes = [
