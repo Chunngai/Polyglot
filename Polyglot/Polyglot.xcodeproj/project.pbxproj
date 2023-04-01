@@ -31,6 +31,8 @@
 		FF4964CD2958BE8900414AC5 /* TimeIntervalExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4964CC2958BE8900414AC5 /* TimeIntervalExtensions.swift */; };
 		FF4964CF2958CE4400414AC5 /* Word.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4964CE2958CE4400414AC5 /* Word.swift */; };
 		FF4A21542959A5D600AD3AF8 /* Practice.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4A21532959A5D600AD3AF8 /* Practice.swift */; };
+		FF4B2F5529CE5FFB00FFC444 /* Unit 1.info.json in Resources */ = {isa = PBXBuildFile; fileRef = FF4B2F5229CE5FFB00FFC444 /* Unit 1.info.json */; };
+		FF4B2F5729CE600100FFC444 /* Unit 2.info.json in Resources */ = {isa = PBXBuildFile; fileRef = FF4B2F5629CE600100FFC444 /* Unit 2.info.json */; };
 		FF4B382B29525A4300BB3FFD /* ReadingEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4B382A29525A4300BB3FFD /* ReadingEditViewController.swift */; };
 		FF4B382F29525BD400BB3FFD /* ReadingEditTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4B382E29525BD400BB3FFD /* ReadingEditTableCell.swift */; };
 		FF4CA730295E869900423946 /* TranslationPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4CA72F295E869900423946 /* TranslationPracticeViewController.swift */; };
@@ -71,6 +73,7 @@
 		FF62C9A929513A5000D41797 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9A829513A5000D41797 /* Theme.swift */; };
 		FF63DDFC299AC17C0088C10B /* WordBank.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF63DDFB299AC17C0088C10B /* WordBank.swift */; };
 		FF63DE00299AD2F90088C10B /* WordBankItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF63DDFF299AD2F90088C10B /* WordBankItem.swift */; };
+		FF64C32D29D8E09600CCF495 /* Unit 1.info.fixed.json in Resources */ = {isa = PBXBuildFile; fileRef = FF64C32A29D8E09600CCF495 /* Unit 1.info.fixed.json */; };
 		FF6D5A882997F7850048470B /* _TmpViewController2.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6D5A872997F7850048470B /* _TmpViewController2.swift */; };
 		FF706DF1295142AF00DBCF8E /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706DF0295142AF00DBCF8E /* Strings.swift */; };
 		FF706DF5295144B000DBCF8E /* UIColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706DF4295144B000DBCF8E /* UIColorExtensions.swift */; };
@@ -170,6 +173,8 @@
 		FF4964CC2958BE8900414AC5 /* TimeIntervalExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeIntervalExtensions.swift; sourceTree = "<group>"; };
 		FF4964CE2958CE4400414AC5 /* Word.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Word.swift; sourceTree = "<group>"; };
 		FF4A21532959A5D600AD3AF8 /* Practice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Practice.swift; sourceTree = "<group>"; };
+		FF4B2F5229CE5FFB00FFC444 /* Unit 1.info.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "Unit 1.info.json"; path = "../../../../../../Volumes/Windows/Users/Neko/OneDrive/Repos/duolingo-words-extracter-server/duolingo_words_extracter/scripts/ru/Unit 1.info.json"; sourceTree = "<group>"; };
+		FF4B2F5629CE600100FFC444 /* Unit 2.info.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "Unit 2.info.json"; path = "../../../../../../Volumes/Windows/Users/Neko/OneDrive/Repos/duolingo-words-extracter-server/duolingo_words_extracter/scripts/ru/Unit 2.info.json"; sourceTree = "<group>"; };
 		FF4B382A29525A4300BB3FFD /* ReadingEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingEditViewController.swift; sourceTree = "<group>"; };
 		FF4B382E29525BD400BB3FFD /* ReadingEditTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingEditTableCell.swift; sourceTree = "<group>"; };
 		FF4CA72F295E869900423946 /* TranslationPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeViewController.swift; sourceTree = "<group>"; };
@@ -216,6 +221,7 @@
 		FF62C9A829513A5000D41797 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		FF63DDFB299AC17C0088C10B /* WordBank.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordBank.swift; sourceTree = "<group>"; };
 		FF63DDFF299AD2F90088C10B /* WordBankItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordBankItem.swift; sourceTree = "<group>"; };
+		FF64C32A29D8E09600CCF495 /* Unit 1.info.fixed.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "Unit 1.info.fixed.json"; path = "../../../../../../Volumes/Windows/Users/Neko/OneDrive/Repos/duolingo-words-extracter-server/duolingo_words_extracter/scripts/ru/Unit 1.info.fixed.json"; sourceTree = "<group>"; };
 		FF6D5A872997F7850048470B /* _TmpViewController2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _TmpViewController2.swift; sourceTree = "<group>"; };
 		FF706DF0295142AF00DBCF8E /* Strings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
 		FF706DF4295144B000DBCF8E /* UIColorExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorExtensions.swift; sourceTree = "<group>"; };
@@ -483,6 +489,9 @@
 			children = (
 				FFC26AE9298D82CB004D9656 /* duome_es_sentences */,
 				FFC26AED298D82D7004D9656 /* duome_ru_sentences */,
+				FF4B2F5229CE5FFB00FFC444 /* Unit 1.info.json */,
+				FF64C32A29D8E09600CCF495 /* Unit 1.info.fixed.json */,
+				FF4B2F5629CE600100FFC444 /* Unit 2.info.json */,
 				FF502510295248BF0097C2CB /* Models */,
 				FF4EFE0E295D358C00E30D6A /* _HistoryRecord.swift */,
 				FF62C9A629513A2800D41797 /* Controllers */,
@@ -775,7 +784,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FF4B2F5729CE600100FFC444 /* Unit 2.info.json in Resources */,
+				FF4B2F5529CE5FFB00FFC444 /* Unit 1.info.json in Resources */,
 				FFC26AEC298D82CB004D9656 /* duome_es_sentences in Resources */,
+				FF64C32D29D8E09600CCF495 /* Unit 1.info.fixed.json in Resources */,
 				FF62C97F2951382600D41797 /* Assets.xcassets in Resources */,
 				FFC26AEE298D82D7004D9656 /* duome_ru_sentences in Resources */,
 			);
