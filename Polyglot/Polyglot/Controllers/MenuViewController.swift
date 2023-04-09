@@ -101,90 +101,6 @@ class MenuViewController: UIViewController {
 //
 //        }
         
-        
-        func addRussianWords(fp: String) {
-            
-            func removeAccentMark(string: String) -> String {
-                return string
-                    .replacingOccurrences(of: "[", with: "")
-                    .replacingOccurrences(of: "]", with: "")
-            }
-            
-            do {
-                do {
-                    let path = NSString.path(withComponents: [Bundle.main.resourcePath!, fp])
-                    let data = try Data(contentsOf: URL(fileURLWithPath: path))
-                    let jsonData = try JSONDecoder().decode([String:[[String:String]]].self, from: data)
-                    
-                    var existingWords = Word.load()
-                    for row in jsonData["data"]! {
-                        let labels = row["labels"]!
-                        if labels.contains("[error]") {
-                            print("[error label] Skipping to add: \(row).")
-                            continue
-                        }
-                        if labels.contains("a-invld?") {
-                            print("[a-invld? label] Skipping to add: \(row).")
-                            continue
-                        }
-                        
-                        var baseForm = row["base_form"]!
-                        // Remove accent marks.
-                        baseForm = removeAccentMark(string: baseForm)
-                        
-                        var text = row["text"]!
-                        let accentLoc: Int? = Array(text).firstIndex(of: "[")
-                        // Remove accent marks.
-                        text = removeAccentMark(string: text)
-                        
-                        let textSplits = text.split(with: " ")
-                        var tokens: [Token] = []
-                        if textSplits.count == 1 {
-                            tokens = [Token(
-                                text: text,
-                                baseForm: baseForm,
-                                pronunciation: text,
-                                accentLoc: accentLoc
-                            )]
-                        } else {
-                            print("[multiple text splits] Skipping to add: \(row).")
-                            continue
-                        }
-                        
-                        let meaning = row["meaning"]!
-                        let note = "Duolingo - \(row["lesson"]!)"
-                        
-                        if let indexOfExistingWord = existingWords.add(newWord: Word(
-                            text: text,
-                            tokens: tokens,
-                            meaning: meaning,
-                            note: note
-                        )) {
-                            existingWords[indexOfExistingWord].update(
-                                newText: text,
-                                newTokens: tokens,
-                                newMeaning: meaning,
-                                newNote: note
-                            )
-                        }
-                    }
-                    
-//                    for existingWord in existingWords {
-//                        print(existingWord.text, existingWord.meaning)
-//                    }
-                    
-                    Word.save(&existingWords)
-                } catch let error as CocoaError {
-                    print(error)
-                    throw error
-                } catch let error as DecodingError {
-                    print(error)
-                    throw error
-                }
-            } catch {
-                
-            }
-        }
         if Variables.lang == LangCode.ru {
             addRussianWords(fp: "Unit 1.info.fixed.json")
         }
@@ -267,4 +183,91 @@ extension MenuViewController: ThreeItemSelectionStackDelegate {
         }
     }
     
+}
+
+extension MenuViewController {
+    
+    private func addRussianWords(fp: String) {
+        
+        func removeAccentMark(string: String) -> String {
+            return string
+                .replacingOccurrences(of: "[", with: "")
+                .replacingOccurrences(of: "]", with: "")
+        }
+        
+        do {
+            do {
+                let path = NSString.path(withComponents: [Bundle.main.resourcePath!, fp])
+                let data = try Data(contentsOf: URL(fileURLWithPath: path))
+                let jsonData = try JSONDecoder().decode([String:[[String:String]]].self, from: data)
+                
+                var existingWords = Word.load()
+                for row in jsonData["data"]! {
+                    let labels = row["labels"]!
+                    if labels.contains("[error]") {
+                        print("[error label] Skipping to add: \(row).")
+                        continue
+                    }
+                    if labels.contains("a-invld?") {
+                        print("[a-invld? label] Skipping to add: \(row).")
+                        continue
+                    }
+                    
+                    var baseForm = row["base_form"]!
+                    // Remove accent marks.
+                    baseForm = removeAccentMark(string: baseForm)
+                    
+                    var text = row["text"]!
+                    let accentLoc: Int? = Array(text).firstIndex(of: "[")
+                    // Remove accent marks.
+                    text = removeAccentMark(string: text)
+                    
+                    let textSplits = text.split(with: " ")
+                    var tokens: [Token] = []
+                    if textSplits.count == 1 {
+                        tokens = [Token(
+                            text: text,
+                            baseForm: baseForm,
+                            pronunciation: text,
+                            accentLoc: accentLoc
+                            )]
+                    } else {
+                        print("[multiple text splits] Skipping to add: \(row).")
+                        continue
+                    }
+                    
+                    let meaning = row["meaning"]!
+                    let note = "Duolingo - \(row["lesson"]!)"
+                    
+                    if let indexOfExistingWord = existingWords.add(newWord: Word(
+                        text: text,
+                        tokens: tokens,
+                        meaning: meaning,
+                        note: note
+                    )) {
+                        existingWords[indexOfExistingWord].update(
+                            newText: text,
+                            newTokens: tokens,
+                            newMeaning: meaning,
+                            newNote: note
+                        )
+                    }
+                }
+                
+                //                    for existingWord in existingWords {
+                //                        print(existingWord.text, existingWord.meaning)
+                //                    }
+                
+                Word.save(&existingWords)
+            } catch let error as CocoaError {
+                print(error)
+                throw error
+            } catch let error as DecodingError {
+                print(error)
+                throw error
+            }
+        } catch {
+            
+        }
+    }
 }
