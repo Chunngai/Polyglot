@@ -316,6 +316,10 @@ extension WordPracticeProducer {
             // No context.
             return nil
         }
+        if !context.contains(Strings.underscoreToken) {
+            // TODO: - tmp solution. sometimes the context does not have the underscore.
+            return nil
+        }
         
         return WordPracticeProducer.Item(
             practice: WordPractice(

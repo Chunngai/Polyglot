@@ -72,6 +72,8 @@ extension String {
             // Therefore, preprocess the string before the tokenization.
             .replacingOccurrences(of: "「", with: "")
             .replacingOccurrences(of: "」", with: "")
+            // Single quote mismatch.
+            .replacingOccurrences(of: "‘", with: "'")
         
         tokenizer.string = stringToTokenize
         
