@@ -195,10 +195,6 @@ class WordsPracticeViewController: PracticeViewController {
         // TODO: - Move elsewhere.
         if let practiceView = practiceView as? ReorderingPracticeView {
             view.layoutIfNeeded()
-            // Sometimes the draggable word bank items by makeDraggableWordBankItems()
-            // are not in their correct positions.
-            // Trying to fix it with this line of code.
-            practiceView.layoutIfNeeded()
             // https://stackoverflow.com/questions/14020027/how-do-i-know-that-the-uicollectionview-has-been-loaded-completely
             practiceView.wordBank.reloadData()
             practiceView.wordBank.performBatchUpdates(nil, completion: { (_) in
