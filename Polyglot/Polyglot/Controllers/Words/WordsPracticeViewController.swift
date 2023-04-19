@@ -177,6 +177,20 @@ class WordsPracticeViewController: PracticeViewController {
             }
         }
         
+        // Update the prompt.
+        // IMPORTANT: SHOULD ABOVE THE SNP SETTING OF THE PRACTICE VIEW,
+        // WHOSE TOP DEPENDS ON THE BOTTOM OF THE PROMPT VIEW.
+        // OTHERWISE, THE LOCATIONS OF THE DRAGGABLE LABELS MAY BE WEIRD.
+        let promptAttributes = NSMutableAttributedString(
+            string: practiceProducer.currentPractice.prompt,
+            attributes: Attributes.practicePromptAttributes
+        )
+        promptAttributes.add(
+            attributes: Attributes.practiceWordAttributes,
+            for: practiceProducer.currentPractice.wordInPrompt
+        )
+        promptLabel.attributedText = promptAttributes
+        
         // Remove the old practice view.
         if practiceView != nil {
             practiceView.removeFromSuperview()
@@ -201,17 +215,6 @@ class WordsPracticeViewController: PracticeViewController {
                 practiceView.makeDraggableWordBankItems()
             })
         }
-        
-        // Update the prompt.
-        let promptAttributes = NSMutableAttributedString(
-            string: practiceProducer.currentPractice.prompt,
-            attributes: Attributes.practicePromptAttributes
-        )
-        promptAttributes.add(
-            attributes: Attributes.practiceWordAttributes,
-            for: practiceProducer.currentPractice.wordInPrompt
-        )
-        promptLabel.attributedText = promptAttributes
     }
     
     func updateValues(words: [Word]) {
