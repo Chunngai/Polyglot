@@ -16,6 +16,7 @@ class ReadingTableCell: UITableViewCell {
         didSet {
             titleLabel.text = article.title
             bodyLabel.text = article.body
+                .replacingOccurrences(of: "\n\n", with: "\n")  // Avoid empty lines.
         }
     }
     

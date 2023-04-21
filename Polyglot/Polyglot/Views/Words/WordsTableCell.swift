@@ -9,7 +9,7 @@
 import UIKit
 
 class WordsTableCell: UITableViewCell {
-
+    
     // MARK: - Models
     
     var word: Word! {
@@ -34,8 +34,9 @@ class WordsTableCell: UITableViewCell {
     
     // MARK: - Views
     
-    private var mainView: UIView = UIView()
-    
+    private var padding: CGFloat {
+        wordLabel.font?.pointSize ?? 20
+    }
     private var wordLabel: UILabel = {
         let label = UILabel()
         label.backgroundColor = Colors.defaultBackgroundColor
@@ -81,50 +82,73 @@ class WordsTableCell: UITableViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()  // Don't forget it, or the separator will not be displayed.
         
-        let padding = wordLabel.font?.pointSize ?? 20
+        wordLabel.frame = CGRect(
+            x: wordLabel.frame.minX,
+            y: wordLabel.frame.minY,
+            width: wordLabel.intrinsicContentSize.width,  // Fix the width.
+            height: wordLabel.intrinsicContentSize.height
+        )
+        tokensLabel.frame = CGRect(
+            x: wordLabel.frame.maxX + padding / 2,
+            y: tokensLabel.frame.minY,
+            width: frame.maxX - (wordLabel.frame.maxX + padding / 2) - padding,  // Update the width.
+            height: tokensLabel.frame.height
+        )
         
-        // Use updateConstraints instead of makeConstraints,
-        // else the text will be truncated after scrolling.
-        wordLabel.snp.updateConstraints { (make) in
-            make.leading.equalToSuperview()
-            make.centerY.equalToSuperview()
-            make.width.equalTo(wordLabel.intrinsicContentSize.width)
-        }
-        
-        tokensLabel.snp.updateConstraints { (make) in
-            make.leading.equalTo(wordLabel.snp.trailing).offset(5)
-            make.centerY.equalToSuperview()
-            make.width.lessThanOrEqualTo(tokensLabel.intrinsicContentSize.width)
-        }
-        
-        // Before layoutSubview(), the width of the word label is not clear,
-        // resulting in a wrong layout of the meaning label.
-        meaningLabel.snp.makeConstraints { (make) in
-            make.leading.equalTo(tokensLabel.snp.trailing).offset(padding)
-            make.trailing.equalToSuperview()
-            make.centerY.equalToSuperview()
-        }
+        //        let padding = wordLabel.font?.pointSize ?? 20
+        //
+        //        // Use updateConstraints instead of makeConstraints,
+        //        // else the text will be truncated after scrolling.
+        //        wordLabel.snp.updateConstraints { (make) in
+        //            make.leading.equalToSuperview()
+        //            make.centerY.equalToSuperview()
+        //            make.width.equalTo(wordLabel.intrinsicContentSize.width)
+        //        }
+        //
+        //        tokensLabel.snp.updateConstraints { (make) in
+        //            make.leading.equalTo(wordLabel.snp.trailing).offset(5)
+        //            make.centerY.equalToSuperview()
+        //            make.width.lessThanOrEqualTo(tokensLabel.intrinsicContentSize.width)
+        //        }
+        //
+        //        // Before layoutSubview(), the width of the word label is not clear,
+        //        // resulting in a wrong layout of the meaning label.
+        //        meaningLabel.snp.makeConstraints { (make) in
+        //            make.leading.equalTo(tokensLabel.snp.trailing).offset(padding)
+        //            make.trailing.equalToSuperview()
+        //            make.centerY.equalToSuperview()
+        //        }
     }
     
     private func updateSetups() {
-      
+        
     }
     
     private func updateViews() {
         selectionStyle = .none
         
-        addSubview(mainView)
-        
-        mainView.addSubview(wordLabel)
-        mainView.addSubview(tokensLabel)
-        mainView.addSubview(meaningLabel)
+        addSubview(wordLabel)
+        addSubview(tokensLabel)
+        addSubview(meaningLabel)
     }
     
     private func updateLayouts() {
-        mainView.snp.makeConstraints { (make) in
-            make.height.equalToSuperview()
-            make.width.equalToSuperview().multipliedBy(0.9)
-            make.centerX.centerY.equalToSuperview()
+        wordLabel.snp.makeConstraints { (make) in
+            make.top.equalToSuperview().inset(padding)
+            make.leading.equalToSuperview().inset(padding)
+        }
+        
+        tokensLabel.snp.updateConstraints { (make) in
+            make.top.equalTo(wordLabel.snp.top)
+            make.leading.equalTo(wordLabel.snp.trailing).offset(5)
+            make.trailing.equalToSuperview().inset(padding)
+        }
+        
+        meaningLabel.snp.updateConstraints { (make) in
+            make.top.equalTo(wordLabel.snp.bottom).offset(padding / 2)
+            make.leading.equalTo(wordLabel.snp.leading)
+            make.trailing.equalTo(tokensLabel.snp.trailing)
+            make.bottom.equalToSuperview().inset(padding)
         }
     }
     
