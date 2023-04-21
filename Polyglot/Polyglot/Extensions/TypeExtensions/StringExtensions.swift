@@ -73,8 +73,7 @@ extension String {
             .replacingOccurrences(of: "「", with: "")
             .replacingOccurrences(of: "」", with: "")
             // Single quote mismatch.
-            .replacingOccurrences(of: "‘", with: "'")
-        
+            .replacingOccurrences(of: "’", with: "'")
         tokenizer.string = stringToTokenize
         
         var components: [String] = []
