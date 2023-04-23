@@ -232,13 +232,13 @@ extension WordPracticeProducer {
     
     func makeParaCandidates(for word: Word, shouldIgnoreCaseAndAccent: Bool) -> [(articleId: String, paraId: String, text: String)] {
         
-        let wordText: String = word.text.normalized(shouldIgnoreCaseAndAccent: shouldIgnoreCaseAndAccent)
+        let wordText: String = word.text.normalized(caseInsensitive: shouldIgnoreCaseAndAccent, diacriticInsensitive: shouldIgnoreCaseAndAccent)
         
         var candidates: [(articleId: String, paraId: String, text: String)] = []
         for article in Article.load() {  // TODO: - Is it proper to load articles here?
             for para in article.paras {
                 
-                let paraText: String = para.text.normalized(shouldIgnoreCaseAndAccent: shouldIgnoreCaseAndAccent)
+                let paraText: String = para.text.normalized(caseInsensitive: shouldIgnoreCaseAndAccent, diacriticInsensitive: shouldIgnoreCaseAndAccent)
                 
                 if paraText.contains(wordText) {
                     candidates.append((articleId: article.id, paraId: para.id, text: para.text))
@@ -305,11 +305,11 @@ extension WordPracticeProducer {
         let selectionWords = makeSelectionWords(for: wordToPractice)
         
         // Take care of the normalization.
-        let rangeOfWordToPractice = candidate.text.normalized(shouldIgnoreCaseAndAccent: true).range(of: wordToPractice.text.normalized(shouldIgnoreCaseAndAccent: true))
+        let rangeOfWordToPractice = candidate.text.normalized(caseInsensitive: true, diacriticInsensitive: true).range(of: wordToPractice.text.normalized(caseInsensitive: true, diacriticInsensitive: true))
         let context = candidate.text.replacingOccurrences(
             of: wordToPractice.text,
             with: Strings.underscoreToken,
-            options: String.normalizationOptions,
+            options: [.caseInsensitive, .diacriticInsensitive],
             range: rangeOfWordToPractice
         )
         if context.strip() == Strings.underscoreToken.strip() {
@@ -525,8 +525,8 @@ extension WordPracticeProducer {
             // or the accent mark will be removed.
             let shouldIgnoreCaseAndAccent = practice.practiceType == .meaningFilling
             
-            let key = self.key.normalized(shouldIgnoreCaseAndAccent: shouldIgnoreCaseAndAccent)
-            let answer = answer.normalized(shouldIgnoreCaseAndAccent: shouldIgnoreCaseAndAccent)
+            let key = self.key.normalized(caseInsensitive: shouldIgnoreCaseAndAccent, diacriticInsensitive: shouldIgnoreCaseAndAccent)
+            let answer = answer.normalized(caseInsensitive: shouldIgnoreCaseAndAccent, diacriticInsensitive: shouldIgnoreCaseAndAccent)
             
             let keyComponents = key.components(from: tokenizer)
             let answerComponents = answer.components(from: tokenizer)

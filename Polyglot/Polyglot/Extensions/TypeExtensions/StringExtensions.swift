@@ -50,15 +50,19 @@ extension String {
 
 extension String {
     
-    static let normalizationOptions: String.CompareOptions = [.caseInsensitive, .diacriticInsensitive]
-    func normalized(shouldIgnoreCaseAndAccent: Bool = false) -> String {
+    func normalized(caseInsensitive: Bool = false, diacriticInsensitive: Bool = false) -> String {
         var normalizedString = self
             .strip()
             .replaceMultipleSpacesWithSingleOne()
+            // Single quote mismatch.
+            .replacingOccurrences(of: "'", with: "’")
         
-        if shouldIgnoreCaseAndAccent {
-            // https://stackoverflow.com/questions/36727310/is-there-a-way-to-convert-special-characters-to-normal-characters-in-swift
-            normalizedString = normalizedString.folding(options: String.normalizationOptions, locale: nil)
+        // https://stackoverflow.com/questions/36727310/is-there-a-way-to-convert-special-characters-to-normal-characters-in-swift
+        if caseInsensitive {
+            normalizedString = normalizedString.folding(options: [.caseInsensitive], locale: nil)
+        }
+        if diacriticInsensitive {
+            normalizedString = normalizedString.folding(options: [.diacriticInsensitive], locale: nil)
         }
         
         return normalizedString
@@ -72,8 +76,6 @@ extension String {
             // Therefore, preprocess the string before the tokenization.
             .replacingOccurrences(of: "「", with: "")
             .replacingOccurrences(of: "」", with: "")
-            // Single quote mismatch.
-            .replacingOccurrences(of: "’", with: "'")
         tokenizer.string = stringToTokenize
         
         var components: [String] = []

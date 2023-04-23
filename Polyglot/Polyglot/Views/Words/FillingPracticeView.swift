@@ -113,8 +113,8 @@ extension FillingPracticeView: WordPracticeViewDelegate {
         
         let attributedAnswer = NSMutableAttributedString(string: answer)
         
-        let keyComponents = key.normalized(shouldIgnoreCaseAndAccent: true).components(from: tokenizer)
-        let answerComponents = answer.normalized(shouldIgnoreCaseAndAccent: true).components(from: tokenizer)
+        let keyComponents = key.normalized(caseInsensitive: true, diacriticInsensitive: true).components(from: tokenizer)
+        let answerComponents = answer.normalized(caseInsensitive: true, diacriticInsensitive: true).components(from: tokenizer)
         // Highlight overlap chars.
         for keyComponent in keyComponents {
             if answerComponents.contains(keyComponent) {

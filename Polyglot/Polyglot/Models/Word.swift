@@ -45,7 +45,7 @@ struct Word {
         self.cDate = cDate
         self.mDate = cDate
         
-        self.text = text.lowercased().strip()
+        self.text = text.normalized(caseInsensitive: true, diacriticInsensitive: false)
         self.tokens = tokens
         
         self.meaning = meaning.lowercased().strip()
@@ -63,7 +63,7 @@ struct Word {
     mutating func update(newText: String? = nil, newTokens: [Token]? = nil, newMeaning: String? = nil, newNote: String? = nil) {
         
         if let newText = newText {
-            self.text = newText.lowercased().strip()
+            self.text = newText.normalized(caseInsensitive: true, diacriticInsensitive: false)
         }
         
         if let newTokens = newTokens {

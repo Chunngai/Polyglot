@@ -18,7 +18,7 @@ class WordsTableCell: UITableViewCell {
             tokensLabel.text = {
                 if let tokens = word.tokens {
                     let textOfTokensLabel = tokens.pronunciationWithAccentList.joined(separator: Strings.tokenSeparator)
-                    if textOfTokensLabel.normalized(shouldIgnoreCaseAndAccent: true) == word.text.normalized(shouldIgnoreCaseAndAccent: true) {  // E.g., russian words, japanese words with katakana only.
+                    if textOfTokensLabel.normalized(caseInsensitive: true, diacriticInsensitive: true) == word.text.normalized(caseInsensitive: true, diacriticInsensitive: true) {  // E.g., russian words, japanese words with katakana only.
                         wordLabel.text = textOfTokensLabel
                         return nil
                     } else {

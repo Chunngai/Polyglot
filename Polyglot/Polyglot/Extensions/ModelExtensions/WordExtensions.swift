@@ -125,11 +125,11 @@ extension Array where Iterator.Element == Word {
             return self
         }
         
-        let keyWord = keyWord.normalized(shouldIgnoreCaseAndAccent: shouldIgnoreCaseAndAccent)
+        let keyWord = keyWord.normalized(caseInsensitive: shouldIgnoreCaseAndAccent, diacriticInsensitive: shouldIgnoreCaseAndAccent)
         
         var subset: [Word] = []
         for word in self {
-            let query = word.query.normalized(shouldIgnoreCaseAndAccent: shouldIgnoreCaseAndAccent)
+            let query = word.query.normalized(caseInsensitive: shouldIgnoreCaseAndAccent, diacriticInsensitive: shouldIgnoreCaseAndAccent)
             if query.contains(keyWord) {
                 subset.append(word)
             }
