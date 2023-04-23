@@ -83,9 +83,9 @@
 		FF8E5BBE298DB9BF003B6FB1 /* SnapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF8E5BBB298DB9A6003B6FB1 /* SnapKit.framework */; };
 		FF8E5BBF298DB9BF003B6FB1 /* SnapKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FF8E5BBB298DB9A6003B6FB1 /* SnapKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FF8E5BC3298DBD5D003B6FB1 /* JapanesePAAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8E5BC2298DBD5D003B6FB1 /* JapanesePAAnalyzer.swift */; };
-		FFBD60412969D713004165FC /* WordPracticeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60402969D713004165FC /* WordPracticeExtensions.swift */; };
-		FFBD60432969D721004165FC /* ReadingPracticeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60422969D721004165FC /* ReadingPracticeExtensions.swift */; };
-		FFBD60452969D733004165FC /* TranslationPracticeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60442969D733004165FC /* TranslationPracticeExtensions.swift */; };
+		FFBD60412969D713004165FC /* WordPracticeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60402969D713004165FC /* WordPracticeProducer.swift */; };
+		FFBD60432969D721004165FC /* ReadingPracticeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60422969D721004165FC /* ReadingPracticeProducer.swift */; };
+		FFBD60452969D733004165FC /* TranslationPracticeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60442969D733004165FC /* TranslationPracticeProducer.swift */; };
 		FFC26AEC298D82CB004D9656 /* duome_es_sentences in Resources */ = {isa = PBXBuildFile; fileRef = FFC26AE9298D82CB004D9656 /* duome_es_sentences */; };
 		FFC26AEE298D82D7004D9656 /* duome_ru_sentences in Resources */ = {isa = PBXBuildFile; fileRef = FFC26AED298D82D7004D9656 /* duome_ru_sentences */; };
 		FFCBB0D7296B0AA200E5B9D9 /* PracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0D6296B0AA200E5B9D9 /* PracticeViewController.swift */; };
@@ -230,9 +230,9 @@
 		FF8CDE802952995F00B36CA3 /* NewWordAddingBottomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWordAddingBottomView.swift; sourceTree = "<group>"; };
 		FF8E5BB5298DB9A6003B6FB1 /* SnapKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SnapKit.xcodeproj; path = "../../../Downloads/SnapKit-develop/SnapKit.xcodeproj"; sourceTree = "<group>"; };
 		FF8E5BC2298DBD5D003B6FB1 /* JapanesePAAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JapanesePAAnalyzer.swift; sourceTree = "<group>"; };
-		FFBD60402969D713004165FC /* WordPracticeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPracticeExtensions.swift; sourceTree = "<group>"; };
-		FFBD60422969D721004165FC /* ReadingPracticeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPracticeExtensions.swift; sourceTree = "<group>"; };
-		FFBD60442969D733004165FC /* TranslationPracticeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeExtensions.swift; sourceTree = "<group>"; };
+		FFBD60402969D713004165FC /* WordPracticeProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPracticeProducer.swift; sourceTree = "<group>"; };
+		FFBD60422969D721004165FC /* ReadingPracticeProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPracticeProducer.swift; sourceTree = "<group>"; };
+		FFBD60442969D733004165FC /* TranslationPracticeProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeProducer.swift; sourceTree = "<group>"; };
 		FFC26AE9298D82CB004D9656 /* duome_es_sentences */ = {isa = PBXFileReference; lastKnownFileType = folder; name = duome_es_sentences; path = ../../../../../../Volumes/Windows/Users/Neko/Desktop/polyglot/duome_sentences/duome_es_sentences; sourceTree = "<group>"; };
 		FFC26AED298D82D7004D9656 /* duome_ru_sentences */ = {isa = PBXFileReference; lastKnownFileType = folder; name = duome_ru_sentences; path = ../../../../../../Volumes/Windows/Users/Neko/Desktop/polyglot/duome_sentences/duome_ru_sentences; sourceTree = "<group>"; };
 		FFCBB0D6296B0AA200E5B9D9 /* PracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeViewController.swift; sourceTree = "<group>"; };
@@ -570,9 +570,9 @@
 		FF69103229956F65003A925A /* PracticeProducers */ = {
 			isa = PBXGroup;
 			children = (
-				FFBD60402969D713004165FC /* WordPracticeExtensions.swift */,
-				FFBD60422969D721004165FC /* ReadingPracticeExtensions.swift */,
-				FFBD60442969D733004165FC /* TranslationPracticeExtensions.swift */,
+				FFBD60402969D713004165FC /* WordPracticeProducer.swift */,
+				FFBD60422969D721004165FC /* ReadingPracticeProducer.swift */,
+				FFBD60442969D733004165FC /* TranslationPracticeProducer.swift */,
 			);
 			path = PracticeProducers;
 			sourceTree = "<group>";
@@ -918,10 +918,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				FF591ED62967960C0004CB80 /* WordPractice.swift in Sources */,
-				FFBD60412969D713004165FC /* WordPracticeExtensions.swift in Sources */,
+				FFBD60412969D713004165FC /* WordPracticeProducer.swift in Sources */,
 				FF495E962958FFE600EA7EA9 /* WordsViewController.swift in Sources */,
 				FF502512295248D10097C2CB /* Article.swift in Sources */,
-				FFBD60432969D721004165FC /* ReadingPracticeExtensions.swift in Sources */,
+				FFBD60432969D721004165FC /* ReadingPracticeProducer.swift in Sources */,
 				FF491E772959CC960088FD13 /* FillingPracticeView.swift in Sources */,
 				FF491E752959C4320088FD13 /* SelectionPracticeView.swift in Sources */,
 				FF6D5A882997F7850048470B /* _TmpViewController2.swift in Sources */,
@@ -964,7 +964,7 @@
 				FF495EA029591DEC00EA7EA9 /* TableHeaderView.swift in Sources */,
 				FFD7DF72299D509B00019D51 /* CGRectExtensions.swift in Sources */,
 				FF62C9A929513A5000D41797 /* Theme.swift in Sources */,
-				FFBD60452969D733004165FC /* TranslationPracticeExtensions.swift in Sources */,
+				FFBD60452969D733004165FC /* TranslationPracticeProducer.swift in Sources */,
 				FF706DF1295142AF00DBCF8E /* Strings.swift in Sources */,
 				FFD7DF7D299DA18000019D51 /* ReorderingPracticeView.swift in Sources */,
 				FF63DDFC299AC17C0088C10B /* WordBank.swift in Sources */,
