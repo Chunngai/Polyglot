@@ -415,6 +415,16 @@ extension Strings {
         return Strings._translationPracticePrompts[Variables.lang]!
     }
     
+    private static let _translationTokens: [String : String] = [
+        LangCode.en : "Translation",
+        LangCode.ja : "訳文",
+        LangCode.es : "Traducción",
+        LangCode.ru : "Перевод"
+    ]
+    static var translationToken: String {
+        return Strings._translationTokens[Variables.lang]!
+    }
+        
     private static let _textsForPausedPractice: [String : String] = [
         LangCode.en : "Practice paused.",
         LangCode.ja : "練習を一時停止しました。",

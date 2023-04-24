@@ -16,6 +16,10 @@ class TranslationPracticeView: UIView, PracticeViewDelegate {
     var textLang: String!
     var meaningLang: String!
     
+    var translationToken: String {
+        return "\n\n\(Strings.translationToken):\n"
+    }
+    
     // MARK: - Views
     
     var mainView: UIView = {
@@ -110,7 +114,7 @@ extension TranslationPracticeView {
         }
         
         if self.meaning != nil {
-            textView.text = "\(self.text!)\n\nTranslation:\n\(self.meaning!)"
+            textView.text = "\(self.text!)\(translationToken)\(self.meaning!)"
         } else if self.text != nil {
             GoogleTranslator(
                 srcLang: textLang,
@@ -124,7 +128,7 @@ extension TranslationPracticeView {
                 }
                 DispatchQueue.main.async {
                     self.meaning = translatedMeaning
-                    self.textView.text = translatedMeaning
+                    self.textView.text = "\(self.text!)\(self.translationToken)\(self.meaning!)"
                 }
             }
         }
