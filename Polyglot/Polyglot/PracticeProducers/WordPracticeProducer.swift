@@ -230,7 +230,7 @@ extension WordPracticeProducer {
         return selectionWords
     }
     
-    func makeParaCandidates(for word: Word, shouldIgnoreCaseAndAccent: Bool) -> [(articleId: String, paraId: String, text: String)] {
+    private func makeParaCandidates(for word: Word, shouldIgnoreCaseAndAccent: Bool) -> [(articleId: String, paraId: String, text: String)] {
         
         let wordText: String = word.text.normalized(caseInsensitive: shouldIgnoreCaseAndAccent, diacriticInsensitive: shouldIgnoreCaseAndAccent)
         
@@ -295,6 +295,23 @@ extension WordPracticeProducer {
     
     private func makeContextSelectionPractice(for wordToPractice: Word) -> WordPracticeProducer.Item? {
         
+        func isValid(context: String) -> Bool {
+            // Remove punctuations.
+            // Otherwise, ______. is valid.
+            let context = context.components(from: Variables.tokenizerOfLang()).joined(separator: " ").strip()
+            
+            if context.strip() == Strings.underscoreToken.strip() {
+                // No context.
+                return false
+            }
+            if !context.contains(Strings.underscoreToken) {
+                // TODO: - tmp solution. sometimes the context does not have the underscore.
+                return false
+            }
+            
+            return true
+        }
+        
         var candidates = makeParaCandidates(for: wordToPractice, shouldIgnoreCaseAndAccent: true)
         if candidates.isEmpty {
             return nil
@@ -312,12 +329,7 @@ extension WordPracticeProducer {
             options: [.caseInsensitive, .diacriticInsensitive],
             range: rangeOfWordToPractice
         )
-        if context.strip() == Strings.underscoreToken.strip() {
-            // No context.
-            return nil
-        }
-        if !context.contains(Strings.underscoreToken) {
-            // TODO: - tmp solution. sometimes the context does not have the underscore.
+        if !isValid(context: context) {
             return nil
         }
         
