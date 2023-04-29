@@ -111,10 +111,13 @@ extension AutoResizingTextViewWithPrompt  {
         // https://stackoverflow.com/questions/34914948/how-to-stop-cursor-changing-position-when-i-setattributedtext-in-uitextview-dele
         let currentSelectedRange: NSRange = selectedRange
         
-        let newAttributedText: NSMutableAttributedString = NSMutableAttributedString(string: text)
+        // DO NOT USE THE ".ADD" METHOD OF THE EXTENSION OF NSMUTABLEATTRIBUTEDSTRING.
+        // THIS METHOD USES STRING RANGES, WHICH CANNOT BE PROPERLY HANDLED
+        // WHEN TEXT CONTAINS SPECIAL SYMBOLS, SUCH AS IPA SYMBOLS.
+        var newAttributedText: NSMutableAttributedString!
         // Set attrs for the content.
         if let textAttributes = textAttributes {
-            newAttributedText.add(attributes: textAttributes)
+            newAttributedText = NSMutableAttributedString(string: text, attributes: textAttributes)
         }
         // Set attrs for the prompt.
         // The text content may contain the prompt (though rare),
@@ -123,6 +126,7 @@ extension AutoResizingTextViewWithPrompt  {
             let promptRange = NSRange(location: 0, length: prompt.count)
             newAttributedText.addAttributes(promptAttributes, range: promptRange)
         }
+        
         attributedText = newAttributedText
         
         // Recover the selected range.
