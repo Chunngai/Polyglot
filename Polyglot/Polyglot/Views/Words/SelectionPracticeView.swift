@@ -61,6 +61,30 @@ class SelectionPracticeView: UIView {
         super.init(coder: coder)
     }
     
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        textViewBackgroundView.layoutSubviews()
+        // THE SCROLLING WORKS PROPERLY
+        // ONLY AFTER THE FRAME OF THE TEXTVIEW IS DETERMINED.
+        // SINCE THE TEXTVIEW IS A SUBVIEW OF TEXTVIEWBACKGROUNDVIEW,
+        // `textViewBackgroundView.layoutSubviews()` IS REQUIRED
+        // BEFORE THE SCROLLING IS PERFORMED.
+        if let text = textView.text {
+            // Scroll to the underscore.
+            if let range = text.range(of: Strings.underscoreToken) {
+                let nsRange = text.nsrange(from: range)
+                let textRect = textView.layoutManager.boundingRect(forGlyphRange: nsRange, in: textView.textContainer)
+                let centerOffsetY = (textView.bounds.height - textRect.height) / 2 - textRect.minY
+                let contentOffsetY = textView.contentOffset.y - centerOffsetY
+                if contentOffsetY > 0 {
+                    let contentOffset = CGPoint(x: 0, y: contentOffsetY)
+                    textView.setContentOffset(contentOffset, animated: false)
+                }
+            }
+        }
+    }
+    
     private func updateSetups() {
         selectionStack.delegate = self
     }
@@ -101,11 +125,6 @@ class SelectionPracticeView: UIView {
             textViewBackgroundView.isHidden = false
             textView.isHidden = false
             textView.text = textViewText
-            
-            // Scroll to the underscore.
-            if let range = textViewText.range(of: Strings.underscoreToken) {
-                textView.scrollRangeToVisible(textViewText.nsrange(from: range))
-            }
         } else {
             textViewBackgroundView.isHidden = true
             textView.isHidden = true
