@@ -295,23 +295,6 @@ extension WordPracticeProducer {
     
     private func makeContextSelectionPractice(for wordToPractice: Word) -> WordPracticeProducer.Item? {
         
-        func isValid(context: String) -> Bool {
-            // Remove punctuations.
-            // Otherwise, ______. is valid.
-            let context = context.components(from: Variables.tokenizerOfLang()).joined(separator: " ").strip()
-            
-            if context.strip() == Strings.underscoreToken.strip() {
-                // No context.
-                return false
-            }
-            if !context.contains(Strings.underscoreToken) {
-                // TODO: - tmp solution. sometimes the context does not have the underscore.
-                return false
-            }
-            
-            return true
-        }
-        
         var candidates = makeParaCandidates(for: wordToPractice, shouldIgnoreCaseAndAccent: true)
         if candidates.isEmpty {
             return nil
@@ -321,17 +304,14 @@ extension WordPracticeProducer {
         
         let selectionWords = makeSelectionWords(for: wordToPractice)
         
-        // Take care of the normalization.
-        let rangeOfWordToPractice = candidate.text.normalized(caseInsensitive: true, diacriticInsensitive: true).range(of: wordToPractice.text.normalized(caseInsensitive: true, diacriticInsensitive: true))
+//         Take care of the normalization.
+//        let rangeOfWordToPractice = candidate.text.normalized(caseInsensitive: true, diacriticInsensitive: true).range(of: wordToPractice.text.normalized(caseInsensitive: true, diacriticInsensitive: true))
         let context = candidate.text.replacingOccurrences(
             of: wordToPractice.text,
             with: Strings.underscoreToken,
-            options: [.caseInsensitive, .diacriticInsensitive],
-            range: rangeOfWordToPractice
+            options: [.caseInsensitive, .diacriticInsensitive]
+//            range: rangeOfWordToPractice
         )
-        if !isValid(context: context) {
-            return nil
-        }
         
         return WordPracticeProducer.Item(
             practice: WordPractice(
