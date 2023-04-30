@@ -18,6 +18,7 @@ struct Variables {
         LangCode.ja: LangCode.zh,
         LangCode.es: LangCode.en,
         LangCode.ru: LangCode.en,
+        LangCode.ko: LangCode.zh,
     ]
     static var pairedLang: String{
         return Variables._pairedLangs[Variables.lang]!
@@ -40,6 +41,7 @@ struct Variables {
         LangCode.ja: "",
         LangCode.es: " ",
         LangCode.ru: " ",
+        LangCode.ko: " ",
     ]
     static var wordSeparator: String{
         return Variables._wordSeparators[Variables.lang]!
@@ -50,6 +52,7 @@ struct Variables {
         LangCode.ja: "、",
         LangCode.es: ",",
         LangCode.ru: ",",
+        LangCode.ko: ",",
     ]
     static var subsentenceSeparator: String{
         return Variables._subsentenceSeparators[Variables.lang]!
