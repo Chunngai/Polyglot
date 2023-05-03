@@ -438,9 +438,13 @@ extension ReorderingPracticeView {
                     // Update the indices.
                     (indexOfPreviousItem, itemIndex) = (itemIndex, indexOfPreviousItem)
                     
-                    // Recalculate the centers.
-                    centersInRowStack[indexOfPreviousItem].x += (ReorderingPracticeView.rowStackHorizontalSpacing + item.frame.width)
-                    centersInRowStack[itemIndex].x -= (ReorderingPracticeView.rowStackHorizontalSpacing + previousItem.frame.width)
+                    // Update the centers.
+                    // DO NOT ONLY UPDATE THE CENTERS OF
+                    // THE CURRENT ITEM AND THE PREVIOUS ITEM.
+                    // OTHERWISE THE NEW CENTERS MAY BE INCORRECT
+                    // WHEN THE DRAGGING ITEM IS BOTH VERTICALLY AND HORIZONTALLY
+                    // DRAGGING.
+                    updateCentersInRowStack()
                 }
             } else if translation.x > 0 {  // To right.
                 
@@ -473,9 +477,13 @@ extension ReorderingPracticeView {
                     // Update the indices.
                     (itemIndex, indexOfNextItem) = (indexOfNextItem, itemIndex)
                     
-                    // Recalculate the centers.
-                    centersInRowStack[itemIndex].x += (ReorderingPracticeView.rowStackHorizontalSpacing + nextItem.frame.width)
-                    centersInRowStack[indexOfNextItem].x -= (ReorderingPracticeView.rowStackHorizontalSpacing + item.frame.width)
+                    // Update the centers.
+                    // DO NOT ONLY UPDATE THE CENTERS OF
+                    // THE CURRENT ITEM AND THE NEXT ITEM.
+                    // OTHERWISE THE NEW CENTERS MAY BE INCORRECT
+                    // WHEN THE DRAGGING ITEM IS BOTH VERTICALLY AND HORIZONTALLY
+                    // DRAGGING.
+                    updateCentersInRowStack()
                 }
             }
         }
@@ -506,7 +514,7 @@ extension ReorderingPracticeView {
                     var indexOfFirstItemInSameRow: Int = 0
                     for i in 0..<itemIndex {
                         let wordCenterY = centersInRowStack[i].y
-                        if wordCenterY != newCenterY {
+                        if Int(wordCenterY) != Int(newCenterY) {  // TAKE CARE OF FLOATING POINT ERRORS.
                             indexOfFirstItemInSameRow += 1
                         } else {
                             break
