@@ -428,15 +428,6 @@ extension WordPracticeProducer {
             return nil
         }
         
-        // Check line number.
-        // TODO: - Update here.
-        let wordBankWidth = UIScreen.main.bounds.width * 0.8
-        let targetSubsentenceLength = targetSubSentence.textSize(withFont: WordBankItem.labelFont).width
-        if targetSubsentenceLength > wordBankWidth * 3 {
-            print("The subsentence is too long. Skipping.")
-            return nil
-        }
-        
         // Reduce the number of tokens.
         // TODO: - Improvement.
         let rawWords = targetSubSentence.components(from: Variables.tokenizerOfLang())
@@ -458,6 +449,13 @@ extension WordPracticeProducer {
         
         if words.isEmpty {
             print("Empty words. Target subsentence: \(targetSubSentence). Skipping.")
+            return nil
+        }
+        
+        // Check line number.
+        // TODO: - Update here. It's not proper to call calculateRowNumber() here.
+        if ReorderingPracticeView.calculateRowNumber(words: words) > 4 {
+            print("The subsentence is too long. Skipping.")
             return nil
         }
         

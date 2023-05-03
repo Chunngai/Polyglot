@@ -12,15 +12,13 @@ import NaturalLanguage
 class ReorderingPracticeView: UIView {
     
     var words: [String]!
+    var shuffledWords: [String]!
         
     private var items: [(view: UIView, originalCenter: CGPoint)] = []
     
     // TODO: - Merge the two arrs?
     private var itemsInRowStack: [UIView] = []
     private var centersInRowStack: [CGPoint] = []
-    
-    private var wordBankWidth: CGFloat!
-    private var rowStackWidth: CGFloat!
     
     private lazy var initialCenterXInRowStack: CGFloat = rowStack.frame.minX
     private lazy var initialCenterYInRowStack: CGFloat = rowStack.frame.minY + ReorderingPracticeView.rowHeight / 2
@@ -83,11 +81,8 @@ class ReorderingPracticeView: UIView {
         super.layoutSubviews()
         
         if frame != .zero {
-            wordBankWidth = frame.width
-            rowStackWidth = frame.width
-            
             rowStack = {
-                let rowNumber: Int = calculateRowNumber()
+                let rowNumber: Int = ReorderingPracticeView.calculateRowNumber(words: self.words)
                 let rows: [RowStackItem] = (0..<rowNumber).map { _ in RowStackItem() }
                 
                 let stackView = UIStackView(arrangedSubviews: rows)
@@ -102,7 +97,7 @@ class ReorderingPracticeView: UIView {
             sendSubviewToBack(rowStack)
             
             wordBank.snp.updateConstraints { (make) in
-                make.width.equalTo(wordBankWidth)
+                make.width.equalTo(Constants.reorderingWordBankWidth)
                 // https://stackoverflow.com/questions/42437966/how-to-adjust-height-of-uicollectionview-to-be-the-height-of-the-content-size-of
                 make.height.equalTo(wordBank.collectionViewLayout.collectionViewContentSize.height)
                 make.centerX.equalToSuperview()
@@ -115,8 +110,11 @@ class ReorderingPracticeView: UIView {
             }
             
             rowStack.snp.makeConstraints { (make) in
-                make.bottom.equalTo(wordBank.snp.top).offset(-20)
-                make.width.equalTo(rowStackWidth)
+                make.bottom.equalTo(wordBank.snp.top).offset(-(
+                    ReorderingPracticeView.rowHeight
+                        + ReorderingPracticeView.rowStackVerticalSpacing * 2
+                ))
+                make.width.equalTo(Constants.reorderingRowStackWidth)
                 make.centerX.equalToSuperview()
             }
             for row in rowStack.arrangedSubviews {
@@ -157,9 +155,9 @@ class ReorderingPracticeView: UIView {
             }
         }
         
-        let shuffledWords = words.shuffled()
-        self.words = shuffledWords
-        
+        self.words = words
+        self.shuffledWords = words.shuffled()
+                
         wordBank = WordBank(words: shuffledWords)
         addSubview(wordBank)
         
@@ -239,7 +237,7 @@ extension ReorderingPracticeView {
                 action: #selector(cellTapped(_:))
             )
         }
-        for i in 0..<words.count {
+        for i in 0..<self.shuffledWords.count {
             let indexPath = IndexPath(row: i, section: 0)
             guard let cell = wordBank.cellForItem(at: indexPath) as? WordBankItem else {
                 continue
@@ -268,11 +266,11 @@ extension ReorderingPracticeView {
         }
     }
     
-    private func calculateRowNumber() -> Int {
+    static func calculateRowNumber(words: [String]) -> Int {
         
         var rowNumber: Int = 1
         var summedWidth: CGFloat = 0
-        for word in self.words {
+        for word in words {
             
             let itemWidth = (
                 WordBank.itemHorizontalPadding
@@ -281,7 +279,7 @@ extension ReorderingPracticeView {
             )
             
             summedWidth += itemWidth + ReorderingPracticeView.rowStackHorizontalSpacing
-            if summedWidth > self.rowStackWidth {
+            if summedWidth - ReorderingPracticeView.rowStackHorizontalSpacing > Constants.reorderingRowStackWidth {
                 rowNumber += 1
                 summedWidth = itemWidth + ReorderingPracticeView.rowStackHorizontalSpacing
             }
