@@ -18,7 +18,7 @@ struct Variables {
         LangCode.ja: LangCode.zh,
         LangCode.es: LangCode.en,
         LangCode.ru: LangCode.en,
-        LangCode.ko: LangCode.zh,
+        LangCode.ko: LangCode.ja,
     ]
     static var pairedLang: String{
         return Variables._pairedLangs[Variables.lang]!
