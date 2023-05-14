@@ -454,7 +454,7 @@ extension WordPracticeProducer {
         
         // Check line number.
         // TODO: - Update here. It's not proper to call calculateRowNumber() here.
-        if ReorderingPracticeView.calculateRowNumber(words: words) > 4 {
+        if ReorderingPracticeView.calculateRowNumber(words: words) > 3 {
             print("The subsentence is too long. Skipping.")
             return nil
         }
