@@ -278,11 +278,12 @@ extension ReorderingPracticeView {
                     + WordBank.itemHorizontalPadding
             )
             
-            summedWidth += itemWidth + ReorderingPracticeView.rowStackHorizontalSpacing
-            if summedWidth - ReorderingPracticeView.rowStackHorizontalSpacing > Constants.reorderingRowStackWidth {
+            summedWidth += itemWidth
+            if summedWidth > Constants.reorderingRowStackWidth {
                 rowNumber += 1
-                summedWidth = itemWidth + ReorderingPracticeView.rowStackHorizontalSpacing
+                summedWidth = itemWidth
             }
+            summedWidth += ReorderingPracticeView.rowStackHorizontalSpacing
         }
         
         return rowNumber
