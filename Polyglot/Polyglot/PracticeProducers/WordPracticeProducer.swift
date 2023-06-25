@@ -186,6 +186,39 @@ extension WordPracticeProducer {
     
     func submit(answer: String) {
         currentPractice.checkCorrectness(answer: answer)
+        
+        if currentPractice.practice.correctness != .correct {
+            // Re-add the practice for reinforcement.
+            DispatchQueue.global(qos: .userInitiated).async {
+                
+                // Re-create the practice.
+                // TODO: - Copy it in a more elegant way.
+                let practiceForReinforcement = WordPracticeProducer.Item(
+                    practice: WordPractice(
+                        practiceType: self.currentPractice.practice.practiceType,
+                        wordId: self.currentPractice.practice.wordId,
+                        selectionWordsIds: self.currentPractice.practice.selectionWordsIds,
+                        selectionAccentsList: self.currentPractice.practice.selectionAccentsList,
+                        articleId: self.currentPractice.practice.articleId,
+                        paragraphId: self.currentPractice.practice.paragraphId,
+                        direction: self.currentPractice.practice.direction,
+                        correctness: nil  // Reset the correctness.
+                    ),
+                    wordInPrompt: self.currentPractice.wordInPrompt,
+                    prompt: self.currentPractice.prompt,
+                    selectionTexts: self.currentPractice.selectionTexts,
+                    context: self.currentPractice.context,
+                    wordsToReorder: self.currentPractice.wordsToReorder,
+                    key: self.currentPractice.key,
+                    isForReinforcement: true  // Specify that it is for reinforcement.
+                )
+                
+                DispatchQueue.main.async {
+                    self.practiceList.append(practiceForReinforcement)
+                }
+                
+            }
+        }
     }
     
 }
@@ -492,6 +525,8 @@ extension WordPracticeProducer {
         
         var key: String
         
+        var isForReinforcement: Bool = false  // True for re-added practices (with wrong answers).
+        
         var tokenizer: NLTokenizer {
             let lang: String = {
                 switch practice.direction {
@@ -542,10 +577,15 @@ extension WordPracticeProducer {
     func save() {
         var practicesToSave: [WordPractice] = []
         for practiceIndex in 0..<currentPracticeIndex {
-            practicesToSave.append(practiceList[practiceIndex].practice)
+            let item = practiceList[practiceIndex]
+            if !item.isForReinforcement {
+                practicesToSave.append(item.practice)
+            }
         }
         if currentPractice.practice.correctness != nil {
-            practicesToSave.append(currentPractice.practice)
+            if !currentPractice.isForReinforcement {
+                practicesToSave.append(currentPractice.practice)
+            }
         }
         
         practices.append(contentsOf: practicesToSave)
