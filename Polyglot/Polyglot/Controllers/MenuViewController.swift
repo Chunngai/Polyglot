@@ -101,9 +101,9 @@ class MenuViewController: UIViewController {
 //
 //        }
         
-        if Variables.lang == LangCode.ru {
-            addRussianWords(fp: "Unit 1.info.fixed.json")
-        }
+//        if Variables.lang == LangCode.ru {
+//            addRussianWords(fp: "Unit 1.info.fixed.json")
+//        }
         
         updateSetups()
         updateViews()
