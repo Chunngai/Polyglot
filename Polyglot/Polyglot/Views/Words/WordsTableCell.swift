@@ -41,6 +41,7 @@ class WordsTableCell: UITableViewCell {
         let label = UILabel()
         label.backgroundColor = Colors.defaultBackgroundColor
         label.textColor = Colors.normalTextColor
+        label.lineBreakMode = .byTruncatingTail
         label.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
         label.textAlignment = .left
         return label
@@ -85,7 +86,7 @@ class WordsTableCell: UITableViewCell {
         wordLabel.frame = CGRect(
             x: wordLabel.frame.minX,
             y: wordLabel.frame.minY,
-            width: wordLabel.intrinsicContentSize.width,  // Fix the width.
+            width: min(wordLabel.intrinsicContentSize.width, contentView.frame.width - padding * 2),  // Fix the width.
             height: wordLabel.intrinsicContentSize.height
         )
         tokensLabel.frame = CGRect(

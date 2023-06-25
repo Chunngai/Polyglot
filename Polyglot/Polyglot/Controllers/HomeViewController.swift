@@ -51,7 +51,7 @@ class HomeViewController: UIViewController {
         
         let collectionLayout: UICollectionViewFlowLayout = {
             let layout = UICollectionViewFlowLayout()
-            layout.minimumLineSpacing = Sizes.defaultLineSpacing
+            layout.minimumLineSpacing = Sizes.defaultLineSpacing * 2
             layout.minimumInteritemSpacing = Sizes.defaultCollectionLayoutMinimumInteritemSpacing
             layout.itemSize = CGSize(
                 width: HomeViewController.cellSize,
