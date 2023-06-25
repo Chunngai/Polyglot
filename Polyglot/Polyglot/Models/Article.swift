@@ -61,7 +61,7 @@ struct Article {
         self.id = UUID().uuidString
         self.mDate = cDate
         
-        self.title = title.strip()
+        self.title = title.strip().normalizeQuotes()
         self.topic = topic?.strip()
         self.paras = Article.makeParas(from: body)
         self.source = source?.strip()
@@ -70,7 +70,7 @@ struct Article {
     mutating func update(newTitle: String? = nil, newTopic: String? = nil, newBody: String? = nil, newSource: String? = nil) {
         
         if let newTitle = newTitle {
-            self.title = newTitle.strip()
+            self.title = newTitle.strip().normalizeQuotes()
         }
         
         if let newTopic = newTopic {
@@ -105,6 +105,7 @@ extension Article {
         // ...
         let paraStrings = body
             .strip()
+            .normalizeQuotes()
             .normalizeBlankLines()
             .replaceMultipleBlankLinesWithSingleLine()
             .split(with: Article.paraSeparator)
@@ -121,6 +122,7 @@ extension Article {
         
         let paraStringsInNewBody = newBody
             .strip()
+            .normalizeQuotes()
             .replaceMultipleBlankLinesWithSingleLine()
             .split(with: Article.paraSeparator)
         

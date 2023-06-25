@@ -39,6 +39,14 @@ extension String {
         // https://www.jianshu.com/p/beb4e463e6da
         return NSRange(range, in: self)
     }
+    
+    func normalizeQuotes() -> String {
+        return self
+            .replacingOccurrences(of: "‘", with: "'")
+            .replacingOccurrences(of: "’", with: "'")
+            .replacingOccurrences(of: "“", with: "\"")
+            .replacingOccurrences(of: "”", with: "\"")
+    }
 }
 
 extension String {
@@ -54,8 +62,7 @@ extension String {
         var normalizedString = self
             .strip()
             .replaceMultipleSpacesWithSingleOne()
-            // Single quote mismatch.
-            .replacingOccurrences(of: "'", with: "’")
+            .normalizeQuotes()
         
         // https://stackoverflow.com/questions/36727310/is-there-a-way-to-convert-special-characters-to-normal-characters-in-swift
         if caseInsensitive {
