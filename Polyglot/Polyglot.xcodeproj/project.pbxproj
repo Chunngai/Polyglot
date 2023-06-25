@@ -74,7 +74,6 @@
 		FF63DDFC299AC17C0088C10B /* WordBank.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF63DDFB299AC17C0088C10B /* WordBank.swift */; };
 		FF63DE00299AD2F90088C10B /* WordBankItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF63DDFF299AD2F90088C10B /* WordBankItem.swift */; };
 		FF64C32D29D8E09600CCF495 /* Unit 1.info.fixed.json in Resources */ = {isa = PBXBuildFile; fileRef = FF64C32A29D8E09600CCF495 /* Unit 1.info.fixed.json */; };
-		FF6D5A882997F7850048470B /* _TmpViewController2.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF6D5A872997F7850048470B /* _TmpViewController2.swift */; };
 		FF706DF1295142AF00DBCF8E /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706DF0295142AF00DBCF8E /* Strings.swift */; };
 		FF706DF5295144B000DBCF8E /* UIColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706DF4295144B000DBCF8E /* UIColorExtensions.swift */; };
 		FF706E032951549C00DBCF8E /* UIImageExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706E022951549C00DBCF8E /* UIImageExtensions.swift */; };
@@ -222,7 +221,6 @@
 		FF63DDFB299AC17C0088C10B /* WordBank.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordBank.swift; sourceTree = "<group>"; };
 		FF63DDFF299AD2F90088C10B /* WordBankItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordBankItem.swift; sourceTree = "<group>"; };
 		FF64C32A29D8E09600CCF495 /* Unit 1.info.fixed.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "Unit 1.info.fixed.json"; path = "../../../../../../Volumes/Windows/Users/Neko/OneDrive/Repos/duolingo-words-extracter-server/duolingo_words_extracter/scripts/ru/Unit 1.info.fixed.json"; sourceTree = "<group>"; };
-		FF6D5A872997F7850048470B /* _TmpViewController2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = _TmpViewController2.swift; sourceTree = "<group>"; };
 		FF706DF0295142AF00DBCF8E /* Strings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
 		FF706DF4295144B000DBCF8E /* UIColorExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorExtensions.swift; sourceTree = "<group>"; };
 		FF706E022951549C00DBCF8E /* UIImageExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtensions.swift; sourceTree = "<group>"; };
@@ -532,7 +530,6 @@
 			children = (
 				FF62C9792951382500D41797 /* HomeViewController.swift */,
 				FF5292062951FC9700858B55 /* MenuViewController.swift */,
-				FF6D5A872997F7850048470B /* _TmpViewController2.swift */,
 				FF58442F2967215700137E00 /* Common */,
 				FF4EFE0D295D34B700E30D6A /* History */,
 				FF495E942958FFCC00EA7EA9 /* Words */,
@@ -924,7 +921,6 @@
 				FFBD60432969D721004165FC /* ReadingPracticeProducer.swift in Sources */,
 				FF491E772959CC960088FD13 /* FillingPracticeView.swift in Sources */,
 				FF491E752959C4320088FD13 /* SelectionPracticeView.swift in Sources */,
-				FF6D5A882997F7850048470B /* _TmpViewController2.swift in Sources */,
 				FFCBB0E0296B45F300E5B9D9 /* TranslationPracticeView.swift in Sources */,
 				FF8E5BC3298DBD5D003B6FB1 /* JapanesePAAnalyzer.swift in Sources */,
 				FF4964BA29579C5A00414AC5 /* UISearchBarExtensions.swift in Sources */,
