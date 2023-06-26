@@ -58,14 +58,14 @@ func createWordCardContent(words: [Word], articles: [Article]) -> (word: String,
     
     let candidates = makeParaCandidates(for: randomWord, shouldIgnoreCaseAndAccent: true)
     guard let candidate = candidates.randomElement() else {
-        return (word: randomWord.text, content: "")
+        return (word: "", content: randomWord.text)
     }
     
     let sentences = candidate.text.components(from: Variables.tokenizerOfLang(of: .sentence))
     guard let targetSentence = sentences.first(where: { (sentence) -> Bool in
         sentence.contains(randomWord.text)
     }) else {
-        return (word: randomWord.text, content: "")
+        return (word: "", content: randomWord.text)
     }
     
     return (

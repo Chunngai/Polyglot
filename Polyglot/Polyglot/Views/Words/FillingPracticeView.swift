@@ -103,6 +103,7 @@ extension FillingPracticeView: WordPracticeViewDelegate {
     // MARK: - WordPracticeView Delegate
     
     func submit() -> String {
+        textField.text = textField.text?.normalizeQuotes()
         textField.resignFirstResponder()
         textField.isEnabled = false
    
