@@ -35,24 +35,6 @@ func removeAllNotifications() {
     notificationCenter.removeAllDeliveredNotifications()
 }
 
-func createWordCardContent(words: [Word], articles: [Article]) -> String {
-    let randomWord = words.randomElement()!
-//    let paraCandidates = makeParaCandidates(for: randomWord, shouldIgnoreCaseAndAccent: true)
-//
-//    if !paraCandidates.isEmpty {
-//        let randomPara = paraCandidates.randomElement()!
-//        // https://stackoverflow.com/questions/32305891/index-of-a-substring-in-a-string-with-swift
-//        if let range = randomPara.text.range(of: randomWord.text) {
-//            return String(randomPara.text[range.lowerBound..<range.upperBound])
-//        }
-//
-//        return randomWord.text
-//    } else {
-//        return randomWord.text
-//    }
-    return randomWord.text
-}
-
 func generateWordcardNotifications(for lang: String, words: [Word], articles: [Article]) {
     guard !words.isEmpty else {
         return
@@ -79,8 +61,10 @@ func generateWordcardNotifications(for lang: String, words: [Word], articles: [A
         // Create word cards for 10-22.
         for day in Date().nextNDays(n: 3) {
             for hour in 10...22 {
-                let title = LangCode.toFlagIcon(langCode: lang)
-                let body = createWordCardContent(words: words, articles: articles)
+                let worcCardContent = createWordCardContent(words: words, articles: articles)
+                
+                let title = "\(LangCode.toFlagIcon(langCode: lang)) \(worcCardContent.word)"
+                let body = worcCardContent.content
                 let triggerDateComponents = DateComponents(
                     year: day.get(.year),
                     month: day.get(.month),

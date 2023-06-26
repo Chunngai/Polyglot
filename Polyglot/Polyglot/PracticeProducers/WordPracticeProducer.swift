@@ -263,24 +263,6 @@ extension WordPracticeProducer {
         return selectionWords
     }
     
-    private func makeParaCandidates(for word: Word, shouldIgnoreCaseAndAccent: Bool) -> [(articleId: String, paraId: String, text: String)] {
-        
-        let wordText: String = word.text.normalized(caseInsensitive: shouldIgnoreCaseAndAccent, diacriticInsensitive: shouldIgnoreCaseAndAccent)
-        
-        var candidates: [(articleId: String, paraId: String, text: String)] = []
-        for article in Article.load() {  // TODO: - Is it proper to load articles here?
-            for para in article.paras {
-                
-                let paraText: String = para.text.normalized(caseInsensitive: shouldIgnoreCaseAndAccent, diacriticInsensitive: shouldIgnoreCaseAndAccent)
-                
-                if paraText.contains(wordText) {
-                    candidates.append((articleId: article.id, paraId: para.id, text: para.text))
-                }
-            }
-        }
-        return candidates
-    }
-    
     private func makeMeaningSelectionPractice(for wordToPractice: Word, in randomDirection: PracticeDirection) -> WordPracticeProducer.Item {
         let selectionWords = makeSelectionWords(for: wordToPractice)
         let wordInPrompt: String = randomDirection == .textToMeaning ?
