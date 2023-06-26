@@ -56,6 +56,15 @@ class MenuViewController: UIViewController {
         
         self.lang = lang
         self.langImageView.image = Images.langImage
+        
+        // TODO: - Move elsewhere.
+        DispatchQueue.global(qos: .userInitiated).async {
+            generateWordcardNotifications(
+                for: Variables.lang,
+                words: Word.load(),
+                articles: Article.load()
+            )
+        }
     }
 
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {

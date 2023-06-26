@@ -33,6 +33,18 @@ extension LangCode {
         default: return .english
         }
     }
+    
+    static func toFlagIcon(langCode: String) -> String {
+        switch langCode {
+        case LangCode.zh: return "🇨🇳"
+        case LangCode.en: return "🇬🇧"
+        case LangCode.ja: return "🇯🇵"
+        case LangCode.es: return "🇪🇸"
+        case LangCode.ru: return "🇷🇺"
+        case LangCode.ko: return "🇰🇷"
+        default: return ""
+        }
+    }
 }
 
 extension LangCode {
