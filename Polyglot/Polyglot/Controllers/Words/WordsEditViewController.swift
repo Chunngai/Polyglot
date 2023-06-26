@@ -116,7 +116,7 @@ extension WordsEditViewController {
             let year: Int = Int(String(dateStringSplits[0]))!
             let month: Int = Int(String(dateStringSplits[1]))!
             let day: Int = Int(String(dateStringSplits[2]))!
-            let date = Date.fromYearMonthDay(year: year, month: month, day: day)
+            let date = Date.fromYearMonthDay(year: year, month: month, day: day) ?? Date()
             
             let groupNote: String!
             if firstLineSplits.count == 2 {

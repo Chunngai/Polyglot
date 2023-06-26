@@ -51,16 +51,18 @@ extension Date {
 }
 
 extension Date {
-        
+    
+    static func fromComponents(components: DateComponents, calendar: Calendar = Calendar.current) -> Date? {
+        return calendar.date(from: components)
+    }
+    
     // https://stackoverflow.com/questions/5979462/problem-combining-a-date-and-a-time-into-a-single-nsdate
-    static func fromYearMonthDay(year: Int, month: Int, day: Int) -> Date {
-        let calendar = Calendar.current
-
+    static func fromYearMonthDay(year: Int, month: Int, day: Int, calendar: Calendar = Calendar.current) -> Date? {
         var components = DateComponents()
         components.year = year
         components.month = month
         components.day = day
-        return calendar.date(from: components)!
+        return calendar.date(from: components)
     }
     
     func nextNDays(n: Int, from calendar: Calendar = Calendar.current) -> [Date] {

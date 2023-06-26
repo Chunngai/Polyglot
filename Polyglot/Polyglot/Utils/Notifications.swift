@@ -74,6 +74,10 @@ func generateWordcardNotifications(for lang: String, words: [Word], articles: [A
                 let identifier = "\(lang)-" +
                     "\(triggerDateComponents.year!)\(triggerDateComponents.month!)\(triggerDateComponents.day!)\(triggerDateComponents.hour!)"
 
+                if let triggerDate = Date.fromComponents(components: triggerDateComponents), triggerDate < Date() {
+                    continue
+                }
+                
                 if pendingNotificationRequestsMapping[lang]!.contains(identifier) || pendingNotificationRequestsMapping[lang]!.count >= maxRequestPerLang {
                     continue
                 }
