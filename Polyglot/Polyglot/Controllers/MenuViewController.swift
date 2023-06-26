@@ -245,19 +245,25 @@ extension MenuViewController {
                         continue
                     }
                     
+                    let posInfo = row["pos_info"]!
                     let meaning = row["meaning"]!
                     let note = "Duolingo - \(row["lesson"]!)"
+                    
+                    var posInfoAndMeaning = meaning
+                    if !posInfo.isEmpty {
+                        posInfoAndMeaning = "(\(posInfo)) \(posInfoAndMeaning)"
+                    }
                     
                     if let indexOfExistingWord = existingWords.add(newWord: Word(
                         text: text,
                         tokens: tokens,
-                        meaning: meaning,
+                        meaning: posInfoAndMeaning,
                         note: note
                     )) {
                         existingWords[indexOfExistingWord].update(
                             newText: text,
                             newTokens: tokens,
-                            newMeaning: meaning,
+                            newMeaning: posInfoAndMeaning,
                             newNote: note
                         )
                     }
