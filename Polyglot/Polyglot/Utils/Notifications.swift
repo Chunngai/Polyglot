@@ -28,7 +28,7 @@ func makeNotificationRequest(title: String, body: String, triggerDateComponents:
     return request
 }
 
-func removeAllNotificationRequests() {
+func removeAllNotifications() {
     // https://stackoverflow.com/questions/40562912/how-to-cancel-usernotifications
     let notificationCenter = UNUserNotificationCenter.current()
     notificationCenter.removeAllPendingNotificationRequests()
@@ -57,20 +57,28 @@ func generateWordcardNotifications(for lang: String, words: [Word], articles: [A
     guard !words.isEmpty else {
         return
     }
-    removeAllNotificationRequests()
+//    removeAllNotifications()
     
     let notificationCenter = UNUserNotificationCenter.current()
     // https://stackoverflow.com/questions/40270598/ios-10-how-to-view-a-list-of-pending-notifications-using-unusernotificationcente
     notificationCenter.getPendingNotificationRequests(completionHandler: { requests in
-        var allPendingNotificationIds: [String] = []
-        for request in requests {
-            allPendingNotificationIds.append(request.identifier)
-        }
-        print(allPendingNotificationIds)
+        let learningLangs = LangCode.loadLearningLanguages()
+        let maxRequestPerLang = 64 / learningLangs.count  // 64: max pending request num.
         
-        // Create word cards for 10, 13, 16, 19, 21.
+        var pendingNotificationRequestsMapping: [String: [String]] = [:]  // {lang code: request ids}
+        for lang in learningLangs {  // Init with an empty arr.
+            pendingNotificationRequestsMapping[lang] = []
+        }
+        for request in requests {
+            let rid = request.identifier
+            let langCode = rid.split(with: "-")[0]
+            pendingNotificationRequestsMapping[langCode]!.append(rid)
+        }
+        print(pendingNotificationRequestsMapping)
+                
+        // Create word cards for 10-22.
         for day in Date().nextNDays(n: 3) {
-            for hour in [10, 13, 16, 19, 21] {
+            for hour in 10...22 {
                 let title = LangCode.toFlagIcon(langCode: lang)
                 let body = createWordCardContent(words: words, articles: articles)
                 let triggerDateComponents = DateComponents(
@@ -81,20 +89,23 @@ func generateWordcardNotifications(for lang: String, words: [Word], articles: [A
                 )
                 let identifier = "\(lang)-" +
                     "\(triggerDateComponents.year!)\(triggerDateComponents.month!)\(triggerDateComponents.day!)\(triggerDateComponents.hour!)"
-                
-                if !allPendingNotificationIds.contains(identifier) {
-                    print("Adding a word card.")
-                    print("  [title] \(title)")
-                    print("  [body] \(body)")
-                    print("  [trigger date components] \(triggerDateComponents)")
-                    print("  [identifier] \(identifier)")
-                    notificationCenter.add(makeNotificationRequest(
-                        title: title,
-                        body: body,
-                        triggerDateComponents: triggerDateComponents,
-                        identifier: identifier
-                    ))
+
+                if pendingNotificationRequestsMapping[lang]!.contains(identifier) || pendingNotificationRequestsMapping[lang]!.count >= maxRequestPerLang {
+                    continue
                 }
+                
+                print("Adding a word card.")
+                print("  [title] \(title)")
+                print("  [body] \(body)")
+                print("  [trigger date components] \(triggerDateComponents)")
+                print("  [identifier] \(identifier)")
+                notificationCenter.add(makeNotificationRequest(
+                    title: title,
+                    body: body,
+                    triggerDateComponents: triggerDateComponents,
+                    identifier: identifier
+                ))
+                pendingNotificationRequestsMapping[lang]!.append(identifier)
             }
         }
     })
