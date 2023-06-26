@@ -157,14 +157,30 @@ extension WordsViewController {
             } else {
                 textField.placeholder = Strings.addingNewWordAlertTextFieldPlaceHolderForMeaning
             }
+
+            // Add a translation button.
+            textField.rightView = {
+                let button = UIButton()
+                button.setImage(
+                    Icons.translateIcon.withTintColor(.lightGray),
+                    for: .normal
+                )
+                button.addTarget(
+                    self,
+                    action: #selector(self.textFieldTranslateButtonTapped),
+                    for: .touchUpInside
+                )
+                return button
+            }()
+            textField.rightViewMode = .always
         }
-        alert.addTextField { (textField) in
-            if let word = word, let note = word.note, !note.isEmpty {
-                textField.text = word.note
-            } else {
-                textField.placeholder = Strings.addingNewWordAlertTextFieldPlaceHolderForNote
-            }
-        }
+//        alert.addTextField { (textField) in
+//            if let word = word, let note = word.note, !note.isEmpty {
+//                textField.text = word.note
+//            } else {
+//                textField.placeholder = Strings.addingNewWordAlertTextFieldPlaceHolderForNote
+//            }
+//        }
 
         alert.addAction(UIAlertAction(title: Strings.done, style: .default, handler: { [weak alert] (_) in
             
@@ -177,9 +193,9 @@ extension WordsViewController {
             if let textField = alert?.textFields?[1], let textFieldInput = textField.text {
                 meaning = textFieldInput
             }
-            if let textField = alert?.textFields?[2] {
-                note = textField.text
-            }
+//            if let textField = alert?.textFields?[2] {
+//                note = textField.text
+//            }
             
             if let word = word {
                 self.words.updateWord(of: word.id, newText: text, newMeaning: meaning, newNote: note)
@@ -219,6 +235,31 @@ extension WordsViewController {
 
         let wordsPracticeNavController = NavController(rootViewController: wordsPracticeViewController)
         navigationController?.present(wordsPracticeNavController, animated: true, completion: nil)
+    }
+    
+    @objc func textFieldTranslateButtonTapped() -> Void {
+    
+        if let presentedViewController = self.presentedViewController {
+            if let alertController = presentedViewController as? UIAlertController {
+                guard let word = alertController.textFields?[0].text else {
+                    return
+                }
+                let completion: ([String]) -> Void = { translations in
+                    // https://github.com/xmartlabs/Eureka/issues/1351
+                    DispatchQueue.main.async {
+                        alertController.textFields?[1].text = translations.joined(separator: "; ")
+                    }
+                }
+                
+                GoogleTranslator(
+                    srcLang: Variables.lang,
+                    trgLang: Variables.pairedLang
+                ).translate(
+                    query: word,
+                    completion: completion
+                )
+            }
+        }
     }
 }
 
