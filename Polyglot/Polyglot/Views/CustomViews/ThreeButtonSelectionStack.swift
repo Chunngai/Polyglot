@@ -51,7 +51,7 @@ class ThreeButtonSelectionStack: UIStackView {
             buttons.append({
                 let button = UIButton()
                 button.titleLabel?.textColor = Colors.weakTextColor
-//                button.titleLabel?.lineBreakMode = .byTruncatingTail
+                button.titleLabel?.lineBreakMode = .byTruncatingTail
                 // https://stackoverflow.com/questions/4865458/dynamically-changing-font-size-of-uilabel
                 button.titleLabel?.adjustsFontSizeToFitWidth = true
                 button.titleLabel?.minimumScaleFactor = Sizes.minimumScaleFactorForText
