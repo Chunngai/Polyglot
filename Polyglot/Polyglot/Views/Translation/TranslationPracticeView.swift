@@ -61,13 +61,13 @@ class TranslationPracticeView: UIView, PracticeViewDelegate {
             ).translate(query: self.meaning!) { (res) in
                 var translatedText: String
                 if let translation = res.first {
-                    translatedText = "[machine-translated] \(translation)"
+                    translatedText = translation
                 } else {
-                    translatedText = "[machine translation error]"
+                    translatedText = Strings.machineTranslationErrorToken
                 }
                 DispatchQueue.main.async {
-                    self.text = translatedText
-                    self.textView.text = translatedText
+                    self.text = "(\(Strings.machineTranslationToken)) \(translatedText)"
+                    self.textView.text = "(\(Strings.machineTranslationToken)) \(translatedText)"
                 }
             }
         }
@@ -122,13 +122,13 @@ extension TranslationPracticeView {
             ).translate(query: self.text!) { (res) in
                 var translatedMeaning: String
                 if let translation = res.first {
-                    translatedMeaning = "[machine-translated] \(translation)"
+                    translatedMeaning = translation
                 } else {
-                    translatedMeaning = "[machine translation error]"
+                    translatedMeaning = Strings.machineTranslationErrorToken
                 }
                 DispatchQueue.main.async {
                     self.meaning = translatedMeaning
-                    self.textView.text = "\(self.text!)\(self.translationToken)\(self.meaning!)"
+                    self.textView.text = "\(self.text!)\n\n\(Strings.machineTranslationToken):\n\(translatedMeaning)\(self.meaning!)"
                 }
             }
         }

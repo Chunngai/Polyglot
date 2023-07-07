@@ -88,6 +88,7 @@ class ReadingPracticeViewController: PracticeViewController {
             return ReadingPracticeView(
                 text: practiceProducer.currentPractice.text,
                 textLang: practiceProducer.currentPractice.textLang,
+                meaning: practiceProducer.currentPractice.meaning,
                 meaningLang: practiceProducer.currentPractice.meaningLang
             )
         }()

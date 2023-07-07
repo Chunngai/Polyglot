@@ -10,6 +10,11 @@ import UIKit
 
 class ReadingPracticeView: UIView, PracticeViewDelegate {
     
+    var text: String!
+    var meaning: String?
+    
+    var isMeaningDisplayed: Bool = false  // Prevent displaying the meaning multiple times.
+    
     // MARK: - Views
     
     var mainView: UIView = {
@@ -30,8 +35,11 @@ class ReadingPracticeView: UIView, PracticeViewDelegate {
     
     // MARK: - Init
     
-    init(frame: CGRect = .zero, text: String, textLang: String, meaningLang: String) {
+    init(frame: CGRect = .zero, text: String, textLang: String, meaning: String?, meaningLang: String) {
         super.init(frame: frame)
+        
+        self.text = text
+        self.meaning = meaning
         
         textView = NewWordAddingTextView(textLang: textLang, meaningLang: meaningLang)
         textView.attributedText = NSMutableAttributedString(
@@ -87,7 +95,48 @@ extension ReadingPracticeView {
     // MARK: - Selectors
     
     @objc private func translateButtonTapped() {
+        guard !isMeaningDisplayed else {
+            return
+        }
         
+        if let meaning = self.meaning {
+            textView.text += "\n\n"
+            textView.text += "\(Strings.translationToken):\n"
+            textView.text += meaning
+            
+            isMeaningDisplayed = true
+        } else {
+            let completion: ([String]) -> Void = { translations in
+                // https://github.com/xmartlabs/Eureka/issues/1351
+                DispatchQueue.main.async {
+                    let translatedMeaning = translations[0]
+                    
+                    guard !self.textView.text.contains(translatedMeaning) else {
+                        // When the translation button is tapped multiple times
+                        // before obtaining the machine translation,
+                        // the translation will be displayed multiple times,
+                        // since `isMeaningDisplayed` is not set to true
+                        // at this moment.
+                        // This guard statement is for preventing such situation.
+                        return
+                    }
+                    
+                    self.textView.text += "\n\n"
+                    self.textView.text += "\(Strings.machineTranslationToken):\n"
+                    self.textView.text += translatedMeaning
+                    
+                    self.isMeaningDisplayed = true
+                }
+            }
+            
+            GoogleTranslator(
+                srcLang: Variables.lang,
+                trgLang: Variables.pairedLang
+            ).translate(
+                query: self.text,
+                completion: completion
+            )
+        }
     }
     
 }

@@ -471,6 +471,28 @@ extension Strings {
     static var translationToken: String {
         return Strings._translationTokens[Variables.lang]!
     }
+    
+    private static let _machineTranslationTokens: [String : String] = [
+        LangCode.en : "Machine translation",
+        LangCode.ja : "機械翻訳",
+        LangCode.es : "Traducción automática",
+        LangCode.ru : "Машинный перевод",
+        LangCode.ko : "기계 번역",
+    ]
+    static var machineTranslationToken: String {
+        return Strings._machineTranslationTokens[Variables.lang]!
+    }
+    
+    private static let _machineTranslationErrorTokens: [String : String] = [
+        LangCode.en : "Machine translation error",
+        LangCode.ja : "機械翻訳エラー",
+        LangCode.es : "Error de traducción automática",
+        LangCode.ru : "Ошибка машинного перевода",
+        LangCode.ko : "기계 번역 오류",
+    ]
+    static var machineTranslationErrorToken: String {
+        return Strings._machineTranslationErrorTokens[Variables.lang]!
+    }
         
     private static let _textsForPausedPractice: [String : String] = [
         LangCode.en : "Practice paused.",

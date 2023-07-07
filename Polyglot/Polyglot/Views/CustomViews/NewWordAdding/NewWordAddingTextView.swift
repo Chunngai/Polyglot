@@ -66,6 +66,7 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
     
     private func updateViews() {
         backgroundColor = nil
+        showsVerticalScrollIndicator = false
     }
     
     private func updateLayouts() {
