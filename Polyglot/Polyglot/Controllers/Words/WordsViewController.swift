@@ -244,6 +244,11 @@ extension WordsViewController {
                 guard let word = alertController.textFields?[0].text else {
                     return
                 }
+                // The word to translate should not be empty.
+                guard !word.strip().isEmpty else {
+                    return
+                }
+                
                 let completion: ([String]) -> Void = { translations in
                     // https://github.com/xmartlabs/Eureka/issues/1351
                     DispatchQueue.main.async {
