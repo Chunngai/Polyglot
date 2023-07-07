@@ -178,7 +178,7 @@ class WordsPracticeViewController: PracticeViewController {
         }
         
         // Update the prompt.
-        // IMPORTANT: SHOULD ABOVE THE SNP SETTING OF THE PRACTICE VIEW,
+        // IMPORTANT: SHOULD BE ABOVE THE SNP SETTING OF THE PRACTICE VIEW,
         // WHOSE TOP DEPENDS ON THE BOTTOM OF THE PROMPT VIEW.
         // OTHERWISE, THE LOCATIONS OF THE DRAGGABLE LABELS MAY BE WEIRD.
         let promptAttributes = NSMutableAttributedString(
