@@ -94,6 +94,20 @@ class PracticeViewController: UIViewController {
         updatePracticeView()
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        // Hide the nav bar separator but do not make the nav bar bg transparent.
+        // https://stackoverflow.com/questions/61297266/hide-navigation-bar-separator-line-on-ios-13
+        navigationController?.navigationBar.isTranslucent = false
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        navigationController?.navigationBar.isTranslucent = true
+    }
+    
     func updateSetups() {        
         timingBar.delegate = self
         timingBar.start()
@@ -128,7 +142,8 @@ class PracticeViewController: UIViewController {
         mainView.snp.makeConstraints { (make) in
             make.centerX.equalToSuperview()
             make.width.equalToSuperview()
-            make.top.equalToSuperview().inset(navigationController!.navigationBar.frame.maxY + 100)
+//            make.top.equalToSuperview().inset(navigationController!.navigationBar.frame.maxY + 100)
+            make.top.equalToSuperview().inset(navigationController!.navigationBar.frame.maxY)
             make.bottom.equalToSuperview().inset(50)
         }
         
