@@ -24,7 +24,7 @@ class TableHeaderView: UITableViewHeaderFooterView {
         let label = UILabel()
         label.backgroundColor = Colors.lightGrayBackgroundColor
         label.textColor = Colors.weakTextColor
-        label.lineBreakMode = .byTruncatingTail
+        label.numberOfLines = 0
         label.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
         return label
     }()
