@@ -142,7 +142,9 @@ class PracticeViewController: UIViewController {
         mainView.snp.makeConstraints { (make) in
             make.centerX.equalToSuperview()
             make.width.equalToSuperview()
+            // If the nav bar is translucent:
 //            make.top.equalToSuperview().inset(navigationController!.navigationBar.frame.maxY + 100)
+            // If the nav bar is not translucent.
             make.top.equalToSuperview().inset(navigationController!.navigationBar.frame.maxY)
             make.bottom.equalToSuperview().inset(50)
         }
