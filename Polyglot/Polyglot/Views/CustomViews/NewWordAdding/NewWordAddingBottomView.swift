@@ -145,6 +145,9 @@ class NewWordAddingBottomView: UIView {
     private func updateViews() {
         backgroundColor = Colors.lightBlue
         
+        layer.masksToBounds = true
+        layer.cornerRadius = Sizes.defaultCornerRadius
+        
         addSubview(wordLabel)
         addSubview(meaningTextField)
         

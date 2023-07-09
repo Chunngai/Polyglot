@@ -104,10 +104,16 @@ class ReadingPracticeViewController: PracticeViewController {
         // TODO: - Can the code wrapped into NewWordAddingTextView?
         view.addSubview(textViewOfPracticeView.newWordBottomView)
         textViewOfPracticeView.newWordBottomView.frame = CGRect(
-            x: view.frame.minX,
+            x: view.frame.minX
+                // For aligning with the text view.
+                + (UIScreen.main.bounds.width * (1 - PracticeViewController.practiceViewWidthRatio) / 2),
             y: view.frame.maxY,
-            width: view.frame.width,
-            height: view.frame.height
+            width: view.frame.width
+                // For aligning with the text view.
+                - (UIScreen.main.bounds.width * (1 - PracticeViewController.practiceViewWidthRatio)),
+            // Height: top padding + word label height + word-meaning padding + meaning label height + bottom padding.
+            // TODO: Update the calculation.
+            height: 20 + "word".textSize(withFont: UIFont.systemFont(ofSize: Sizes.mediumFontSize)).height + 15 + "meaning".textSize(withFont: UIFont.systemFont(ofSize: Sizes.smallFontSize)).height + 20
         )
         textViewOfPracticeView.newWordBottomView.offset = bottomViewOffset
 
