@@ -116,6 +116,11 @@ class WordsEditViewController: UIViewController {
         )
         
         wordListTextView.delegate = self
+        
+        view.addGestureRecognizer({
+            let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(viewTapped))
+            return gestureRecognizer
+        }())
     }
     
     private func updateViews() {
@@ -171,6 +176,9 @@ class WordsEditViewController: UIViewController {
 }
 
 extension WordsEditViewController: UITextViewDelegate {
+    
+    // MARK: - UITextView delegate.
+    
     func textViewDidChange(_ textView: UITextView) {
         if machineTranslations.count < words.count {
             machineTranslations.append(contentsOf: Array<String>(
@@ -231,6 +239,11 @@ extension WordsEditViewController {
         }
         delegate.add(words: newWords)
         navigationController?.dismiss(animated: true, completion: nil)
+    }
+    
+    @objc private func viewTapped() {
+        wordListTextView.resignFirstResponder()
+        machineTranslationTextView.resignFirstResponder()
     }
 }
 
