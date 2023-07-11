@@ -41,6 +41,11 @@ struct GoogleTranslator {
 
     func translate(query: String, completion: @escaping ([String]) -> Void) {
         
+        guard !query.strip().isEmpty else {
+            completion([query])
+            return
+        }
+        
         guard let url = constructUrl(from: query) else {
             return
         }

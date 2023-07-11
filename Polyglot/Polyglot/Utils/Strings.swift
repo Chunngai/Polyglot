@@ -337,6 +337,30 @@ extension Strings {
 
 extension Strings {
     
+    // MARK: - Word Adding
+    
+    private static let _wordListPrompts: [String : String] = [
+        LangCode.en : "Word List",
+        LangCode.ja : "ワードリスト：",
+        LangCode.es : "Lista de palabras",
+        LangCode.ru : "Список слов",
+        LangCode.ko : "워드 리스트",
+    ]
+    static var wordListPrompt: String {
+        return Strings._wordListPrompts[Variables.lang]!
+    }
+    
+    private static let _machineTranslationPrompts: [String : String] = [
+        LangCode.en : "Machine translation",
+        LangCode.ja : "機械翻訳",
+        LangCode.es : "Traducción automática",
+        LangCode.ru : "Машинный перевод",
+        LangCode.ko : "기계 번역",
+    ]
+    static var machineTranslationPrompt: String {
+        return Strings._machineTranslationPrompts[Variables.lang]!
+    }
+    
     // MARK: - Article Adding
     
     private static let _articleTitlePrompts: [String : String] = [
