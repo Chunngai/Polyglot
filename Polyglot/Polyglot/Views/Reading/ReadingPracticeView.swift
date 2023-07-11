@@ -104,6 +104,8 @@ extension ReadingPracticeView {
             textView.text += "\(Strings.translationToken):\n"
             textView.text += meaning
             
+            textView.highlightAll()
+            
             isMeaningDisplayed = true
         } else {
             let completion: ([String]) -> Void = { translations in
@@ -124,6 +126,8 @@ extension ReadingPracticeView {
                     self.textView.text += "\n\n"
                     self.textView.text += "\(Strings.machineTranslationToken):\n"
                     self.textView.text += translatedMeaning
+                    
+                    self.textView.highlightAll()
                     
                     self.isMeaningDisplayed = true
                 }

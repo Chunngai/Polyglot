@@ -41,6 +41,14 @@ class ReadingEditViewController: UIViewController {
     
     // MARK: - Init
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        // Hide the nav bar separator but do not make the nav bar bg transparent.
+        // https://stackoverflow.com/questions/61297266/hide-navigation-bar-separator-line-on-ios-13
+        navigationController?.navigationBar.isTranslucent = false
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
@@ -56,6 +64,12 @@ class ReadingEditViewController: UIViewController {
         
         // Reset the bg color.
         UIApplication.shared.statusBarUIView?.backgroundColor = nil
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        navigationController?.navigationBar.isTranslucent = true
     }
     
     override func viewDidLoad() {
