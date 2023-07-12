@@ -304,6 +304,7 @@ extension PracticeViewController: TimingBarDelegate {
         
         maskView.isHidden = false
         mainView.isUserInteractionEnabled = false
+        view.bringSubviewToFront(maskView)  // The mask view should be in the front of all views.
     }
 }
 
