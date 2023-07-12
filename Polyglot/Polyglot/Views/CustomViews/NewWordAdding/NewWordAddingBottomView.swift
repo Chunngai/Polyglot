@@ -74,7 +74,7 @@ class NewWordAddingBottomView: UIView {
     
     // MARK: - Views
     
-    private lazy var wordLabel: UILabel = {  // TODO: - Support editing.
+    lazy var wordLabel: UILabel = {  // TODO: - Support editing.
         let label = UILabel()
         label.numberOfLines = NewWordAddingBottomView.wordLabelNumberOfLines
         label.lineBreakMode = .byTruncatingTail
@@ -83,7 +83,7 @@ class NewWordAddingBottomView: UIView {
         return label
     }()
     
-    private lazy var meaningTextField: UITextField = {
+    lazy var meaningTextField: UITextField = {
         let textField = UITextField()
         textField.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
         textField.textColor = Colors.weakTextColor
@@ -91,23 +91,23 @@ class NewWordAddingBottomView: UIView {
         return textField
     }()
     
-    private lazy var doneButton: UIButton = {
+    lazy var doneButton: UIButton = {
         let button = UIButton()
         button.setImage(Icons.doneIcon, for: .normal)
         return button
     }()
-    private lazy var deleteButton: UIButton = {
+    lazy var deleteButton: UIButton = {
        let button = UIButton()
         button.setImage(Icons.deleteIcon, for: .normal)
         return button
     }()
     
-    private lazy var translateButton: UIButton = {
+    lazy var translateButton: UIButton = {
         let button = UIButton()
         button.setImage(Icons.translateIcon, for: .normal)
         return button
     }()
-    private lazy var spinner: UIActivityIndicatorView = {
+    lazy var spinner: UIActivityIndicatorView = {
         let spinner = UIActivityIndicatorView(style: .medium)
         spinner.hidesWhenStopped = true
         return spinner

@@ -82,7 +82,10 @@ class TranslationPracticeView: UIView, PracticeViewDelegate {
     }
     
     private func updateSetups() {
-        
+        textView.addGestureRecognizer(UITapGestureRecognizer(
+            target: self,
+            action: #selector(viewTapped)
+        ))
     }
     
     private func updateViews() {
@@ -102,6 +105,16 @@ class TranslationPracticeView: UIView, PracticeViewDelegate {
             make.height.equalToSuperview().multipliedBy(0.9)
         }
     }
+}
+
+extension TranslationPracticeView {
+    
+    // MARK: - Selectors
+    
+    @objc func viewTapped() {
+        textView.newWordBottomView.meaningTextField.resignFirstResponder()
+    }
+    
 }
 
 extension TranslationPracticeView {

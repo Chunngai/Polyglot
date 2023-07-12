@@ -57,6 +57,10 @@ class ReadingPracticeView: UIView, PracticeViewDelegate {
     }
     
     private func updateSetups() {
+        textView.addGestureRecognizer(UITapGestureRecognizer(
+            target: self,
+            action: #selector(viewTapped)
+        ))
         translateButton.addTarget(
             self,
             action: #selector(translateButtonTapped),
@@ -93,6 +97,10 @@ class ReadingPracticeView: UIView, PracticeViewDelegate {
 extension ReadingPracticeView {
     
     // MARK: - Selectors
+    
+    @objc func viewTapped() {
+        textView.newWordBottomView.meaningTextField.resignFirstResponder()
+    }
     
     @objc private func translateButtonTapped() {
         guard !isMeaningDisplayed else {
