@@ -120,6 +120,8 @@ extension NewWordAddingTextView {
     
     @objc private func somewhereInTextViewTapped(recognizer: UITapGestureRecognizer) {
         
+        newWordBottomView.meaningTextField.resignFirstResponder()
+        
         // https://stackoverflow.com/questions/48474488/get-tapped-word-in-a-uitextview
         
         // For canceling selections
