@@ -221,12 +221,12 @@ extension WordsViewController {
     }
     
     @objc func addButtonLongPressed() {
-        let wordsEditViewController = WordsEditViewController()
-        wordsEditViewController.delegate = self
-        wordsEditViewController.updateValues()
-        
-        let navController = NavController(rootViewController: wordsEditViewController)
-        navigationController?.present(navController, animated: true, completion: nil)
+//        let wordsEditViewController = WordsEditViewController()
+//        wordsEditViewController.delegate = self
+//        wordsEditViewController.updateValues()
+//        
+//        let navController = NavController(rootViewController: wordsEditViewController)
+//        navigationController?.present(navController, animated: true, completion: nil)
     }
     
     @objc func tapped() {

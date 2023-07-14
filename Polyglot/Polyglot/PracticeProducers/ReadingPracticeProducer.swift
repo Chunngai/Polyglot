@@ -49,24 +49,29 @@ struct ReadingPracticeProducer: PracticeProducerDelegate {
     func make() -> [ReadingPracticeProducer.Item] {
         // Randomly choose a topic.
         let randomTopic = dataSource.topics.randomElement()!
+
+        // Randomly choose an article.
+        let randomArticle = dataSource.compactMap({ (article) -> Article? in
+            return article.topic == randomTopic ? article : nil
+        }).randomElement()!
+        
+        // Randomly choose a paragraph.
+        let randomParaStartIndex = (0..<randomArticle.paras.count).randomElement()!
+        var randomParaEndIndex = randomParaStartIndex + self.batchSize
+        if randomParaEndIndex >= randomArticle.paras.count {
+            randomParaEndIndex = randomArticle.paras.count - 1
+        }
         
         var practiceList: [ReadingPracticeProducer.Item] = []
-        for _ in 0..<batchSize {
-            
-            // Randomly choose an article.
-            let randomArticle = dataSource.compactMap({ (article) -> Article? in
-                return article.topic == randomTopic ? article : nil
-            }).randomElement()!
-            // Randomly choose a paragraph.
-            let randomParagraph = randomArticle.paras.randomElement()!
-            
+        for i in randomParaStartIndex..<randomParaEndIndex {
+            let para = randomArticle.paras[i]
             practiceList.append(ReadingPracticeProducer.Item(
                 practice: ReadingPractice(
                     articleId: randomArticle.id,
-                    paragraphId: randomParagraph.id
+                    paragraphId: para.id
                 ),
-                text: randomParagraph.text,
-                meaning: randomParagraph.meaning,
+                text: para.text,
+                meaning: para.meaning,
                 textLang: Variables.lang,
                 meaningLang: Variables.pairedLang
             ))

@@ -49,15 +49,23 @@ struct TranslationPracticeProducer: PracticeProducerDelegate {
         // Randomly choose a topic.
         let randomTopic = dataSource.topics.randomElement()!
         
+        // Randomly choose an article.
+        let randomArticle = dataSource.compactMap({ (article) -> Article? in
+            return article.topic == randomTopic ? article : nil
+        }).randomElement()!
+        
+        // Randomly choose a paragraph.
+        let randomParaStartIndex = (0..<randomArticle.paras.count).randomElement()!
+        var randomParaEndIndex = randomParaStartIndex + self.batchSize
+        if randomParaEndIndex >= randomArticle.paras.count {
+            randomParaEndIndex = randomArticle.paras.count - 1
+        }
+        
         var practiceList: [TranslationPracticeProducer.Item] = []
-        for _ in 0..<batchSize {
+        for i in randomParaStartIndex..<randomParaEndIndex {
             
-            // Randomly choose an article.
-            let randomArticle = dataSource.compactMap({ (article) -> Article? in
-                return article.topic == randomTopic ? article : nil
-            }).randomElement()!
-            // Randomly choose a paragraph.
-            let randomParagraph = randomArticle.paras.randomElement()!
+            let para = randomArticle.paras[i]
+            
             // Randomly choose a direction.
             let randomDirection = Array<PracticeDirection>(arrayLiteral: .textToMeaning, .meaningToText).randomElement(from: [0.2, 0.8])!  // 0.2 prob for text -> meaning and 0.8 prob for meaning -> text.
             
@@ -66,13 +74,13 @@ struct TranslationPracticeProducer: PracticeProducerDelegate {
             var textLang: String!
             var meaningLang: String!
             if randomDirection == .textToMeaning {
-                text = randomParagraph.text
-                meaning = randomParagraph.meaning
+                text = para.text
+                meaning = para.meaning
                 textLang = Variables.lang
                 meaningLang = Variables.pairedLang
             } else if randomDirection == .meaningToText {
-                text = randomParagraph.meaning
-                meaning = randomParagraph.text
+                text = para.meaning
+                meaning = para.text
                 textLang = Variables.pairedLang
                 meaningLang = Variables.lang
             }
@@ -80,7 +88,7 @@ struct TranslationPracticeProducer: PracticeProducerDelegate {
             practiceList.append(TranslationPracticeProducer.Item(
                 practice: TranslationPractice(
                     articleId: randomArticle.id,
-                    paragraphId: randomParagraph.id,
+                    paragraphId: para.id,
                     direction: randomDirection
                 ),
                 text: text,
