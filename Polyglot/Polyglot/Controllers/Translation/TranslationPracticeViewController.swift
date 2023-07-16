@@ -77,8 +77,7 @@ class TranslationPracticeViewController: PracticeViewController {
     override func updateViews() {
         super.updateViews()
         
-        // Update the prompt.
-        promptLabel.text = Strings.translationPracticePrompt
+        promptLabel.isHidden = true
     }
     
     override func updateLayouts() {
@@ -108,7 +107,7 @@ class TranslationPracticeViewController: PracticeViewController {
         // Add to the main view and update layouts.
         mainView.addSubview(practiceView)
         practiceView.snp.makeConstraints { (make) in
-            make.top.equalTo(promptLabel.snp.bottom).offset(20)
+            make.top.equalToSuperview()
             make.centerX.equalToSuperview()
             make.width.equalToSuperview().multipliedBy(PracticeViewController.practiceViewWidthRatio)
             make.bottom.equalTo(nextButton.snp.top).offset(-20)

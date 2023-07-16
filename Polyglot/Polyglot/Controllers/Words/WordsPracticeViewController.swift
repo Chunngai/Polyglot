@@ -200,7 +200,7 @@ class WordsPracticeViewController: PracticeViewController {
         // Add to the main view and update layouts.
         mainView.addSubview(practiceView)
         practiceView.snp.makeConstraints { (make) in
-            make.top.equalTo(promptLabel.snp.bottom).offset(50)
+            make.top.equalTo(promptLabel.snp.bottom).offset(20)
             make.centerX.equalToSuperview()
             make.width.equalToSuperview().multipliedBy(PracticeViewController.practiceViewWidthRatio)
             make.bottom.equalTo(nextButton.snp.top).offset(-20)

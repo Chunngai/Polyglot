@@ -62,7 +62,6 @@ class ReadingPracticeViewController: PracticeViewController {
         super.updateViews()
         
         promptLabel.isHidden = true  // No prompt label is needed.
-        promptLabelBackgroundView.isHidden = true
         doneButton.isHidden = true  // No done button is needed.
         nextButton.isHidden = false
     }

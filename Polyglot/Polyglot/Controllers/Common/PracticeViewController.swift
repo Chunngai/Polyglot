@@ -33,16 +33,8 @@ class PracticeViewController: UIViewController {
         return view
     }()
     
-    var promptLabelBackgroundView: UIView = {
-        let view = UIView()
-        view.backgroundColor = Colors.lightBlue
-        view.layer.masksToBounds = true
-        view.layer.cornerRadius = Sizes.smallCornerRadius
-        return view
-    }()
     var promptLabel: UILabel = {
         let label = UILabel()
-        label.backgroundColor = Colors.lightBlue
         label.numberOfLines = 0
         label.attributedText = NSAttributedString(string: " ", attributes: Attributes.practicePromptAttributes)
         return label
@@ -131,11 +123,9 @@ class PracticeViewController: UIViewController {
         view.addSubview(mainView)
         view.addSubview(maskView)
         
-        mainView.addSubview(promptLabelBackgroundView)
+        mainView.addSubview(promptLabel)
         mainView.addSubview(doneButton)
         mainView.addSubview(nextButton)
-        
-        promptLabelBackgroundView.addSubview(promptLabel)
     }
     
     func updateLayouts() {
@@ -149,15 +139,10 @@ class PracticeViewController: UIViewController {
             make.bottom.equalToSuperview().inset(50)
         }
         
-        promptLabelBackgroundView.snp.makeConstraints { (make) in
-            make.top.equalToSuperview()
-            make.leading.equalToSuperview().offset(-promptLabelBackgroundView.layer.cornerRadius * 2)  // Hide the left rounding.
-            make.width.equalToSuperview().multipliedBy(0.95)
-        }
         promptLabel.snp.makeConstraints { (make) in
-            make.top.bottom.equalToSuperview().inset(Sizes.smallLineSpacing * 2)
-            make.leading.equalToSuperview().inset(promptLabelBackgroundView.layer.cornerRadius * 2 + 15)
-            make.trailing.equalToSuperview().inset(15)
+            make.top.equalToSuperview()
+            make.width.equalToSuperview().multipliedBy(PracticeViewController.practiceViewWidthRatio)
+            make.centerX.equalToSuperview()
         }
         
         doneButton.snp.makeConstraints { (make) in
