@@ -56,13 +56,13 @@ struct TranslationPracticeProducer: PracticeProducerDelegate {
         
         // Randomly choose a paragraph.
         let randomParaStartIndex = (0..<randomArticle.paras.count).randomElement()!
-        var randomParaEndIndex = randomParaStartIndex + self.batchSize
+        var randomParaEndIndex = randomParaStartIndex + self.batchSize - 1
         if randomParaEndIndex >= randomArticle.paras.count {
             randomParaEndIndex = randomArticle.paras.count - 1
         }
         
         var practiceList: [TranslationPracticeProducer.Item] = []
-        for i in randomParaStartIndex..<randomParaEndIndex {
+        for i in randomParaStartIndex...randomParaEndIndex {
             
             let para = randomArticle.paras[i]
             
