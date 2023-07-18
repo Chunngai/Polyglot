@@ -18,7 +18,8 @@ struct Strings {
         LangCode.ja : "英語",
         LangCode.es : "inglés",
         LangCode.ru : "английский",
-        LangCode.ko: "영어",
+        LangCode.ko : "영어",
+        LangCode.de : "Englisch",
     ]
     static var enString: String {
         return Strings._enStrings[Variables.lang]!
@@ -30,6 +31,7 @@ struct Strings {
         LangCode.es : "japonés",
         LangCode.ru : "японский",
         LangCode.ko : "일본어",
+        LangCode.de : "Japanisch",
     ]
     static var jaString: String {
         return Strings._jaStrings[Variables.lang]!
@@ -41,6 +43,7 @@ struct Strings {
         LangCode.es : "español",
         LangCode.ru : "испанский",
         LangCode.ko : "스페인어",
+        LangCode.de : "Spanisch",
     ]
     static var esString: String {
         return Strings._esStrings[Variables.lang]!
@@ -52,6 +55,7 @@ struct Strings {
         LangCode.es : "ruso",
         LangCode.ru : "русский",
         LangCode.ko : "러시아어",
+        LangCode.de : "Russisch",
     ]
     static var ruString: String {
         return Strings._ruStrings[Variables.lang]!
@@ -63,9 +67,22 @@ struct Strings {
         LangCode.es : "coreano",
         LangCode.ru : "корейский",
         LangCode.ko : "한국어",
+        LangCode.de : "Koreanisch",
     ]
     static var koString: String {
         return Strings._koStrings[Variables.lang]!
+    }
+    
+    static let _deStrings: [String : String] = [
+        LangCode.en : "German",
+        LangCode.ja : "ドイツ語",
+        LangCode.es : "alemán",
+        LangCode.ru : "немецкий",
+        LangCode.ko : "독일어",
+        LangCode.de : "Deutsch",
+    ]
+    static var deString: String {
+        return Strings._deStrings[Variables.lang]!
     }
     
     static func langStrings(for langCode: String) -> [String: String] {
@@ -75,6 +92,7 @@ struct Strings {
         case LangCode.es: return Strings._esStrings
         case LangCode.ru: return Strings._ruStrings
         case LangCode.ko: return Strings._koStrings
+        case LangCode.de: return Strings._deStrings
         default: return [:]
         }
     }
@@ -90,6 +108,7 @@ extension Strings {
         LangCode.es : "Hola!",
         LangCode.ru : "Привет!",
         LangCode.ko : "안녕하세요",
+        LangCode.de : "Hallo!",
     ]
     static var mainPrimaryPrompt: String {
         return Strings._mainPrimaryPrompts[Variables.lang]!
@@ -106,6 +125,7 @@ extension Strings {
         LangCode.es : " ",
         LangCode.ru : " ",
         LangCode.ko : " ",
+        LangCode.de : " ",
     ]
     static var mainSecondaryPrompt: String {
         return Strings._mainSecondaryPrompts[Variables.lang]!
@@ -119,6 +139,7 @@ extension Strings {
         LangCode.es : "Español",
         LangCode.ru : "Русский",
         LangCode.ko : "한국어",
+        LangCode.de : "Deutsch",
     ]
     static var menuPrimaryPrompt: String {
         return Strings._menuPrimaryPrompts[Variables.lang]!
@@ -148,6 +169,7 @@ extension Strings {
         LangCode.es : "Palabras",
         LangCode.ru : "Слова",
         LangCode.ko : "단어",
+        LangCode.de : "Wörter",
     ]
     static var words: String {
         return Strings._words[Variables.lang]!
@@ -159,6 +181,7 @@ extension Strings {
         LangCode.es : "Leer",
         LangCode.ru : "Чтение",
         LangCode.ko : "독해",
+        LangCode.de : "Lektüre",
     ]
     static var reading: String {
         return Strings._reading[Variables.lang]!
@@ -170,6 +193,7 @@ extension Strings {
         LangCode.es : "Interpretación",
         LangCode.ru : "Интерпретация",
         LangCode.ko : "통역",
+        LangCode.de : "Deutung",
     ]
     static var interpretation: String {
         return Strings._interpretation[Variables.lang]!
@@ -186,6 +210,7 @@ extension Strings {
         LangCode.es : "Sí",
         LangCode.ru : "Да",
         LangCode.ko : "예",
+        LangCode.de : "Ja",
     ]
     static var ok: String {
         return Strings._ok[Variables.lang]!
@@ -197,6 +222,7 @@ extension Strings {
         LangCode.es : "Hecho",
         LangCode.ru : "Сделанный",
         LangCode.ko : "완료",
+        LangCode.de : "Erledigt",
     ]
     static var done: String {
         return Strings._done[Variables.lang]!
@@ -208,6 +234,7 @@ extension Strings {
         LangCode.es : "Cancelar",
         LangCode.ru : "Отмена",
         LangCode.ko : "취소",
+        LangCode.de : "Stornieren",
     ]
     static var cancel: String {
         return Strings._cancel[Variables.lang]!
@@ -221,6 +248,7 @@ extension Strings {
         LangCode.es : "Salir sin Guardar",
         LangCode.ru : "Выйти без сохранения",
         LangCode.ko : "저장하지 않고 종료",
+        LangCode.de : "Beenden ohne Speichern",
     ]
     static var exitWithoutSavingAlertTitle: String {
         return Strings._exitWithoutSavingAlertTitles[Variables.lang]!
@@ -232,6 +260,7 @@ extension Strings {
         LangCode.es : "Se han hecho modificaciones. ¿Sale sin guardarlas?",
         LangCode.ru : "Внесены модификации. Выход без сохранения?",
         LangCode.ko : "편집이 이루어졌습니다. 저장하지 않고 종료 하시겠습니까?",
+        LangCode.de : "Es wurde eine Bearbeitung vorgenommen. Beenden ohne Speichern?",
     ]
     static var exitWithoutSavingAlertBody: String {
         return Strings._exitWithoutSavingAlertBodies[Variables.lang]!
@@ -248,6 +277,7 @@ extension Strings {
         LangCode.es : "Agregar una Nueva Palabra",
         LangCode.ru : "Добавить новое слово",
         LangCode.ko : "새 단어 추가",
+        LangCode.de : "Neues Wort hinzufügen",
     ]
     static var addingNewWordAlertTitle: String {
         return Strings._addingNewWordAlertTitles[Variables.lang]!
@@ -259,6 +289,7 @@ extension Strings {
         LangCode.es : "Palabra",
         LangCode.ru : "Слово",
         LangCode.ko : "단어",
+        LangCode.de : "Wort",
     ]
     static var addingNewWordAlertTextFieldPlaceholderForText: String {
         return Strings._addingNewWordAlertTextFieldPlaceholderForTexts[Variables.lang]!
@@ -270,6 +301,7 @@ extension Strings {
         LangCode.es : "Significado",
         LangCode.ru : "Значение",
         LangCode.ko : "의미",
+        LangCode.de : "Bedeutung",
     ]
     static var addingNewWordAlertTextFieldPlaceHolderForMeaning: String {
         return Strings._addingNewWordAlertTextFieldPlaceHolderForMeanings[Variables.lang]!
@@ -281,6 +313,7 @@ extension Strings {
         LangCode.es : "Notas",
         LangCode.ru : "Ноты",
         LangCode.ko : "노트",
+        LangCode.de : "Notizen",
     ]
     static var addingNewWordAlertTextFieldPlaceHolderForNote: String {
         return Strings._addingNewWordAlertTextFieldPlaceHolderForNotes[Variables.lang]!
@@ -288,28 +321,28 @@ extension Strings {
     
     // MARK: - Batch Adding
     
-    private static let _wordEditTextViewPrompts: [String : String] = [
-        LangCode.en : "Format：\nDate - Notes\n1. Word １\n2. Word 2\n\nDate - Notes\n1. Word １\n2. Word 2\n\n",
-        LangCode.ja : "フォーマット：\n日付 - ノート\n1. 単語１\n2. 単語2\n\n日付 - ノート\n1. 単語１\n2. 単語2\n\n",
-        LangCode.es : "Formato：\nFecha - ノート\n1. Palabra １\n2. Palabra 2\n\nFecha - ノート\n1. Palabra １\n2. Palabra 2\n\n",
-        LangCode.ru : "Формат：\nДата - ノート\n1. Слово １\n2. Слово 2\n\nДата - ノート\n1. Слово １\n2. Слово 2\n\n",
-        LangCode.ko : "형식: \n날짜 - 노트\n1. 단어 1\n2. 단어 2\n\n날짜 - 노트\n1. 단어 1\n2. 단어 2\n\n",
-    ]
-    static var wordEditTextViewPrompt: String {
-        return Strings._wordEditTextViewPrompts[Variables.lang]!
-    }
-
-    private static let _wordMeaningSeparators: [String : Substring.Element] = [
-        LangCode.en : ":",
-        LangCode.ja : " ",
-        LangCode.es : ":",
-        LangCode.ru : ":",
-        LangCode.ko : ":",
-    ]
-    static var wordMeaningSeparator: Substring.Element {
-        return Strings._wordMeaningSeparators[Variables.lang]!
-    }
-        
+//    private static let _wordEditTextViewPrompts: [String : String] = [
+//        LangCode.en : "Format：\nDate - Notes\n1. Word １\n2. Word 2\n\nDate - Notes\n1. Word １\n2. Word 2\n\n",
+//        LangCode.ja : "フォーマット：\n日付 - ノート\n1. 単語１\n2. 単語2\n\n日付 - ノート\n1. 単語１\n2. 単語2\n\n",
+//        LangCode.es : "Formato：\nFecha - ノート\n1. Palabra １\n2. Palabra 2\n\nFecha - ノート\n1. Palabra １\n2. Palabra 2\n\n",
+//        LangCode.ru : "Формат：\nДата - ノート\n1. Слово １\n2. Слово 2\n\nДата - ノート\n1. Слово １\n2. Слово 2\n\n",
+//        LangCode.ko : "형식: \n날짜 - 노트\n1. 단어 1\n2. 단어 2\n\n날짜 - 노트\n1. 단어 1\n2. 단어 2\n\n",
+//    ]
+//    static var wordEditTextViewPrompt: String {
+//        return Strings._wordEditTextViewPrompts[Variables.lang]!
+//    }
+//
+//    private static let _wordMeaningSeparators: [String : Substring.Element] = [
+//        LangCode.en : ":",
+//        LangCode.ja : " ",
+//        LangCode.es : ":",
+//        LangCode.ru : ":",
+//        LangCode.ko : ":",
+//    ]
+//    static var wordMeaningSeparator: Substring.Element {
+//        return Strings._wordMeaningSeparators[Variables.lang]!
+//    }
+//
     // MARK: - Bottom View / Text View
     
     private static let _newWordMenuItemStrings: [String : String] = [
@@ -318,6 +351,7 @@ extension Strings {
         LangCode.es : "Palabra Nueva",
         LangCode.ru : "Новое слово",
         LangCode.ko : "새 단어",
+        LangCode.de : "Neues Wort",
     ]
     static var newWordMenuItemString: String {
         return Strings._newWordMenuItemStrings[Variables.lang]!
@@ -329,6 +363,7 @@ extension Strings {
         LangCode.es : "Seleccione/ingrese también el significado correspondiente",
         LangCode.ru : "Также выберите/введите соответствующее значение",
         LangCode.ko : "해당하는 의미도 선택/입력해 주세요",
+        LangCode.de : "Bitte wählen Sie auch die entsprechende Bedeutung aus/geben Sie sie ein",
     ]
     static var newWordBottomViewMeaningPrompt: String {
         return Strings._newWordBottomViewMeaningPrompts[Variables.lang]!
@@ -345,6 +380,7 @@ extension Strings {
         LangCode.es : "Lista de palabras",
         LangCode.ru : "Список слов",
         LangCode.ko : "워드 리스트",
+        LangCode.de : "Wortliste",
     ]
     static var wordListPrompt: String {
         return Strings._wordListPrompts[Variables.lang]!
@@ -356,6 +392,7 @@ extension Strings {
         LangCode.es : "Traducción automática",
         LangCode.ru : "Машинный перевод",
         LangCode.ko : "기계 번역",
+        LangCode.de : "Maschinenübersetzung",
     ]
     static var machineTranslationPrompt: String {
         return Strings._machineTranslationPrompts[Variables.lang]!
@@ -369,6 +406,7 @@ extension Strings {
         LangCode.es : "Título: ",
         LangCode.ru : "Заголовок: ",
         LangCode.ko : "제목: ",
+        LangCode.de : "Titel: ",
     ]
     static var articleTitlePrompt: String {
         return Strings._articleTitlePrompts[Variables.lang]!
@@ -380,6 +418,7 @@ extension Strings {
         LangCode.es : "Tema: ",
         LangCode.ru : "Тема: ",
         LangCode.ko : "주제: ",
+        LangCode.de : "Thema: ",
     ]
     static var articleTopicPrompt: String {
         return Strings._articleTopicPrompts[Variables.lang]!
@@ -391,6 +430,7 @@ extension Strings {
         LangCode.es : "Cuerpo: \n",
         LangCode.ru : "Тело: \n",
         LangCode.ko : "본문: \n",
+        LangCode.de : "Textkörper: \n",
     ]
     static var articleBodyPrompt: String {
         return Strings._articleBodyPrompts[Variables.lang]!
@@ -402,6 +442,7 @@ extension Strings {
         LangCode.es : "Fuente: ",
         LangCode.ru : "Источник: ",
         LangCode.ko : "출처: ",
+        LangCode.de : "Quelle: ",
     ]
     static var articleSourcePrompt: String {
         return Strings._articleSourcePrompts[Variables.lang]!
@@ -425,6 +466,7 @@ extension Strings {
         LangCode.es : "¿El significado de\n\(Strings.maskToken)?",
         LangCode.ru : "Что означает\n\(Strings.maskToken)?",
         LangCode.ko : "\(Strings.maskToken)\n의 의미는?",
+        LangCode.de : "Die Bedeutung von\n\(Strings.maskToken)?",
     ]
     static var meaningSelectionAndFillingPracticePrompt: String {
         return Strings._meaningSelectionAndFillingPracticePrompt[Variables.lang]!
@@ -436,6 +478,7 @@ extension Strings {
         LangCode.es : "Referencia: ",
         LangCode.ru : "Ссылка: ",
         LangCode.ko : "참고: ",
+        LangCode.de : "Referenz: ",
     ]
     static var referenceLabelPrefix: String {
         return Strings._referenceLabelPrefices[Variables.lang]!
@@ -447,6 +490,7 @@ extension Strings {
         LangCode.es : "Seleccione una palabra adecuada.",
         LangCode.ru : "Выберите подходящее слово.",
         LangCode.ko : "적절한 단어를 선택하십시오.",
+        LangCode.de : "Wählen Sie ein passendes Wort aus.",
     ]
     static var contextSelectionPracticePrompt: String {
         return Strings._contextSelectionPracticePrompts[Variables.lang]!
@@ -458,6 +502,7 @@ extension Strings {
         LangCode.es : "¿Los acentos para\n\(Strings.maskToken)?",
         LangCode.ru : "Какие акценты для\n\(Strings.maskToken)?",
         LangCode.ko : "\(Strings.maskToken)\n의 악센트는?",
+        LangCode.de : "Die Akzente für\n\(Strings.maskToken)?",
     ]
     static var accentSelectionPracticePrompt: String {
         return Strings._accentSelectionPracticePrompts[Variables.lang]!
@@ -469,6 +514,7 @@ extension Strings {
         LangCode.es : "Reordene las palabras.",
         LangCode.ru : "Измените порядок слов.",
         LangCode.ko : "단어를 재정렬하십시오.",
+        LangCode.de : "Ordnen Sie die Wörter neu.",
     ]
     static var reorderingPracticePrompt: String {
         return Strings._reorderingPracticePrompts[Variables.lang]!
@@ -480,6 +526,7 @@ extension Strings {
         LangCode.es : "Interprete el párrafo.",
         LangCode.ru : "интерпретировать пункт.",
         LangCode.ko : "이 단락을 통역하십시오.",
+        LangCode.de : "Interpretieren Sie den Absatz.",
     ]
     static var translationPracticePrompt: String {
         return Strings._translationPracticePrompts[Variables.lang]!
@@ -491,6 +538,7 @@ extension Strings {
         LangCode.es : "Traducción",
         LangCode.ru : "Перевод",
         LangCode.ko : "번역",
+        LangCode.de : "Übersetzung",
     ]
     static var translationToken: String {
         return Strings._translationTokens[Variables.lang]!
@@ -502,6 +550,7 @@ extension Strings {
         LangCode.es : "Traducción automática",
         LangCode.ru : "Машинный перевод",
         LangCode.ko : "기계 번역",
+        LangCode.de : "Maschinenübersetzung",
     ]
     static var machineTranslationToken: String {
         return Strings._machineTranslationTokens[Variables.lang]!
@@ -513,6 +562,7 @@ extension Strings {
         LangCode.es : "Error de traducción automática",
         LangCode.ru : "Ошибка машинного перевода",
         LangCode.ko : "기계 번역 오류",
+        LangCode.de : "Fehler bei der maschinellen Übersetzung",
     ]
     static var machineTranslationErrorToken: String {
         return Strings._machineTranslationErrorTokens[Variables.lang]!
@@ -524,6 +574,7 @@ extension Strings {
         LangCode.es : "Práctica en pausa.",
         LangCode.ru : "Практика приостановлена.",
         LangCode.ko : "연습을 일시중지했습니다.",
+        LangCode.de : "Das Training wurde unterbrochen.",
     ]
     static var textForPausedPractice: String {
         return Strings._textsForPausedPractice[Variables.lang]!
@@ -537,6 +588,7 @@ extension Strings {
         LangCode.es : "Se Acabó el Tiempo",
         LangCode.ru : "Время вышло",
         LangCode.ko : "타임업",
+        LangCode.de : "Zeit vorbei",
     ]
     static var timeUpAlertTitle: String {
         return Strings._timeUpAlertTitles[Variables.lang]!
@@ -548,6 +600,7 @@ extension Strings {
         LangCode.es : "¿Ha practicado por \(Strings.maskToken) minutos. Siga practicando?",
         LangCode.ru : "Вы тренировались в течение \(Strings.maskToken) минут(ы/a). Продолжай практиковаться?",
         LangCode.ko : "이제 \(Strings.maskToken)분간 연습했습니다. 연습을 계속하시겠습니까?",
+        LangCode.de : "Sie haben \(Strings.maskToken) Minuten lang geübt. Weiter üben?",
     ]
     static var timeUpAlertBody: String {
         return Strings._timeUpAlertBodies[Variables.lang]!
@@ -559,6 +612,7 @@ extension Strings {
         LangCode.es : "Ya ha practicado por \(Strings.maskToken) minutos. Tome un descanso.",
         LangCode.ru : "Вы уже тренировались \(Strings.maskToken) минут. Сделайте перерыв.",
         LangCode.ko : "이제 \(Strings.maskToken)분간 연습했습니다. 조금 쉬십시오.",
+        LangCode.de : "Sie haben \(Strings.maskToken) Minuten lang geübt. Machen Sie eine Pause.",
     ]
     static var maxTimeUpAlertBody: String {
         return Strings._maxTimeUpAlertBodies[Variables.lang]!

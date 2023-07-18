@@ -114,6 +114,10 @@ class MenuViewController: UIViewController {
 //            addRussianWords(fp: "Unit 1.info.fixed.json")
 //        }
         
+        if Variables.lang == LangCode.de {
+            addGermanWords(fp: "de.words.duome.u1.json")
+        }
+        
         updateSetups()
         updateViews()
         updateLayouts()
@@ -263,6 +267,61 @@ extension MenuViewController {
                         existingWords[indexOfExistingWord].update(
                             newText: text,
                             newTokens: tokens,
+                            newMeaning: posInfoAndMeaning,
+                            newNote: note
+                        )
+                    }
+                }
+                
+                //                    for existingWord in existingWords {
+                //                        print(existingWord.text, existingWord.meaning)
+                //                    }
+                
+                Word.save(&existingWords)
+            } catch let error as CocoaError {
+                print(error)
+                throw error
+            } catch let error as DecodingError {
+                print(error)
+                throw error
+            }
+        } catch {
+            
+        }
+    }
+    
+    private func addGermanWords(fp: String) {
+        
+        do {
+            do {
+                let path = NSString.path(withComponents: [Bundle.main.resourcePath!, fp])
+                let data = try Data(contentsOf: URL(fileURLWithPath: path))
+                let jsonData = try JSONDecoder().decode([String:[[String:String]]].self, from: data)
+                
+                var existingWords = Word.load()
+                for row in jsonData["data"]! {
+                    let text = row["text"]!
+                    let posInfo = row["info"]!
+                        .replacingOccurrences(of: "Masculine Noun", with: "der")
+                        .replacingOccurrences(of: "Feminine Noun", with: "die")
+                        .replacingOccurrences(of: "Neuter Noun", with: "das")
+                    let meaning = row["meanings"]!
+                    let note = "Duolingo - \(row["lesson"]!)"
+                    
+                    var posInfoAndMeaning = meaning
+                    if !posInfo.isEmpty {
+                        posInfoAndMeaning = "(\(posInfo)) \(posInfoAndMeaning)"
+                    }
+                    
+                    if let indexOfExistingWord = existingWords.add(newWord: Word(
+                        text: text,
+                        tokens: nil,
+                        meaning: posInfoAndMeaning,
+                        note: note
+                    )) {
+                        existingWords[indexOfExistingWord].update(
+                            newText: text,
+                            newTokens: nil,
                             newMeaning: posInfoAndMeaning,
                             newNote: note
                         )
