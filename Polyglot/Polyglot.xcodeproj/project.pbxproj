@@ -37,6 +37,7 @@
 		FF4B2F5729CE600100FFC444 /* Unit 2.info.json in Resources */ = {isa = PBXBuildFile; fileRef = FF4B2F5629CE600100FFC444 /* Unit 2.info.json */; };
 		FF4B382B29525A4300BB3FFD /* ReadingEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4B382A29525A4300BB3FFD /* ReadingEditViewController.swift */; };
 		FF4B382F29525BD400BB3FFD /* ReadingEditTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4B382E29525BD400BB3FFD /* ReadingEditTableCell.swift */; };
+		FF4BF68B2A69468C00D875E1 /* duome_de_sentences in Resources */ = {isa = PBXBuildFile; fileRef = FF4BF6882A69468C00D875E1 /* duome_de_sentences */; };
 		FF4CA730295E869900423946 /* TranslationPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4CA72F295E869900423946 /* TranslationPracticeViewController.swift */; };
 		FF4D7CC62953952C009F6894 /* NSMutableAttributedStringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4D7CC52953952C009F6894 /* NSMutableAttributedStringExtensions.swift */; };
 		FF4E47BE2A660CDF00280839 /* de.words.duome.u1.json in Resources */ = {isa = PBXBuildFile; fileRef = FF4E47BD2A660CDF00280839 /* de.words.duome.u1.json */; };
@@ -181,6 +182,7 @@
 		FF4B2F5629CE600100FFC444 /* Unit 2.info.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "Unit 2.info.json"; path = "../../../../../../Volumes/Windows/Users/Neko/OneDrive/Repos/duolingo-words-extracter-server/duolingo_words_extracter/scripts/ru/Unit 2.info.json"; sourceTree = "<group>"; };
 		FF4B382A29525A4300BB3FFD /* ReadingEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingEditViewController.swift; sourceTree = "<group>"; };
 		FF4B382E29525BD400BB3FFD /* ReadingEditTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingEditTableCell.swift; sourceTree = "<group>"; };
+		FF4BF6882A69468C00D875E1 /* duome_de_sentences */ = {isa = PBXFileReference; lastKnownFileType = folder; name = duome_de_sentences; path = ../../../../../../Volumes/Windows/Users/Neko/Desktop/polyglot/duome_sentences/duome_de_sentences; sourceTree = "<group>"; };
 		FF4CA72F295E869900423946 /* TranslationPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeViewController.swift; sourceTree = "<group>"; };
 		FF4D7CC52953952C009F6894 /* NSMutableAttributedStringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSMutableAttributedStringExtensions.swift; sourceTree = "<group>"; };
 		FF4E47BD2A660CDF00280839 /* de.words.duome.u1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = de.words.duome.u1.json; path = "../../../../../../Volumes/Windows/Users/Neko/OneDrive/Repos/duolingo-words-extracter-server/duolingo_words_extracter/scripts/de/de.words.duome.u1.json"; sourceTree = "<group>"; };
@@ -492,6 +494,7 @@
 		FF62C9742951382500D41797 /* Polyglot */ = {
 			isa = PBXGroup;
 			children = (
+				FF4BF6882A69468C00D875E1 /* duome_de_sentences */,
 				FFC26AE9298D82CB004D9656 /* duome_es_sentences */,
 				FFC26AED298D82D7004D9656 /* duome_ru_sentences */,
 				FF4B2F5229CE5FFB00FFC444 /* Unit 1.info.json */,
@@ -790,6 +793,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FF4BF68B2A69468C00D875E1 /* duome_de_sentences in Resources */,
 				FF4E47BE2A660CDF00280839 /* de.words.duome.u1.json in Resources */,
 				FF4B2F5729CE600100FFC444 /* Unit 2.info.json in Resources */,
 				FF4B2F5529CE5FFB00FFC444 /* Unit 1.info.json in Resources */,
