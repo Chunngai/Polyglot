@@ -53,26 +53,43 @@ func makeParaCandidates(for word: Word, shouldIgnoreCaseAndAccent: Bool) -> [(ar
     return candidates
 }
 
-func createWordCardContent(words: [Word], articles: [Article]) -> (word: String, content: String) {  // TODO: - Move elsewhere.
-    let randomWord = words.randomElement()!
+func createWordCardContent(for word: Word, articles: [Article]) -> (word: String, content: String) {  // TODO: - Move elsewhere.
+    let wordText: String = {
+        if let tokens = word.tokens {
+            let textOfTokensLabel = tokens.pronunciationWithAccentList.joined(separator: Strings.tokenSeparator)
+            if textOfTokensLabel.normalized(
+                caseInsensitive: true,
+                diacriticInsensitive: true
+            ) == word.text.normalized(
+                caseInsensitive: true,
+                diacriticInsensitive: true
+            ) {  // E.g., russian words, japanese words with katakana only.
+                return textOfTokensLabel
+            } else {
+                return "\(word.text) (\(textOfTokensLabel))"
+            }
+        } else {
+            return word.text
+        }
+    }()
     
-    let candidates = makeParaCandidates(for: randomWord, shouldIgnoreCaseAndAccent: true)
+    let candidates = makeParaCandidates(for: word, shouldIgnoreCaseAndAccent: true)
     guard let candidate = candidates.randomElement() else {
-        return (word: "", content: randomWord.text)
+        return (word: "", content: wordText)
     }
     
     let sentences = candidate.text.components(from: Variables.tokenizerOfLang(of: .sentence))
     guard let targetSentence = sentences.first(where: { (sentence) -> Bool in
-        sentence.contains(randomWord.text)
+        sentence.contains(word.text)
     }) else {
-        return (word: "", content: randomWord.text)
+        return (word: "", content: wordText)
     }
     
     return (
-        word: randomWord.text,
+        word: wordText,
         content: targetSentence.replacingOccurrences(
-            of: randomWord.text,
-            with: "#\(randomWord.text)#"
+            of: word.text,
+            with: "#\(word.text)#"
         )
     )
 }
