@@ -61,10 +61,10 @@ func generateWordcardNotifications(for lang: String, words: [Word], articles: [A
         // Create word cards for 10-22.
         for day in Date().nextNDays(n: 3) {
             for hour in 10...22 {
-                let worcCardContent = createWordCardContent(words: words, articles: articles)
+                let wordCardContent = createWordCardContent(words: words, articles: articles)
                 
-                let title = "\(LangCode.toFlagIcon(langCode: lang)) \(worcCardContent.word)"
-                let body = worcCardContent.content
+                let title = "\(LangCode.toFlagIcon(langCode: lang)) \(wordCardContent.word)"
+                let body = wordCardContent.content
                 let triggerDateComponents = DateComponents(
                     year: day.get(.year),
                     month: day.get(.month),
