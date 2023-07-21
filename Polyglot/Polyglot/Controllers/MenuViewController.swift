@@ -84,6 +84,10 @@ class MenuViewController: UIViewController {
 //            addRussianWords(fp: "Unit 1.info.fixed.json")
 //        }
         
+//        if Variables.lang == LangCode.ru {
+//            addAccents()
+//        }
+        
 //        if Variables.lang == LangCode.de {
 //            addGermanWords(fp: "de.words.duome.u1.json")
 //        }
@@ -174,13 +178,13 @@ extension MenuViewController: ThreeItemSelectionStackDelegate {
 
 extension MenuViewController {
     
+    private func removeAccentMark(string: String) -> String {
+        return string
+            .replacingOccurrences(of: "[", with: "")
+            .replacingOccurrences(of: "]", with: "")
+    }
+    
     private func addRussianWords(fp: String) {
-        
-        func removeAccentMark(string: String) -> String {
-            return string
-                .replacingOccurrences(of: "[", with: "")
-                .replacingOccurrences(of: "]", with: "")
-        }
         
         do {
             do {
@@ -264,6 +268,105 @@ extension MenuViewController {
         }
     }
     
+    private func addAccents() {
+        
+        var words = Word.load()
+        for (i, word) in words.enumerated() {
+            if word.tokens != nil {
+                continue
+            }
+            print(word.text)
+                        
+            let json: [String: Any] = [
+                "word": word.text
+            ]
+            guard let jsonData = try? JSONSerialization.data(withJSONObject: json) else {
+                return
+            }
+            
+            let url = URL(string: "http://172.16.248.55:5000/ru/word_accent/")!
+            var request = URLRequest(url: url, timeoutInterval: 60 * 2)
+            request.httpMethod = "POST"
+            request.setValue("\(String(describing: jsonData.count))", forHTTPHeaderField: "Content-Length")
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue("application/json", forHTTPHeaderField: "Accept")
+            request.httpBody = jsonData
+            
+            let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
+                if let data = data, error == nil {
+                    guard let responseJson = try? JSONSerialization.jsonObject(
+                        with: data,
+                        options: []
+                    ) as? [String: Any] else {
+                        return
+                    }
+                    
+                    guard let code = responseJson["code"] as? Int, code == 200 else {
+                        return
+                    }
+                    guard let accentedWords = responseJson["accented_words"] as? [String] else {
+                        return
+                    }
+                    guard let baseForms = responseJson["base_forms"] as? [String] else {
+                        return
+                    }
+                    
+                    if accentedWords.contains("[error]") {
+                        return
+                    }
+                    
+                    var tokens: [Token] = []
+                    for i in 0..<accentedWords.count {
+                        var accentedWord = accentedWords[i]
+                        var baseForm = baseForms[i]
+                        
+                        let accentLoc: Int? = Array(accentedWord).firstIndex(of: "[")
+                        
+                        // Remove accent marks.
+                        accentedWord = self.removeAccentMark(string: accentedWord)
+                        baseForm = self.removeAccentMark(string: baseForm)
+                        
+                        tokens.append(Token(
+                            text: accentedWord,
+                            baseForm: baseForm,
+                            pronunciation: accentedWord,
+                            accentLoc: accentLoc
+                        ))
+                    }
+                    
+                    // TODO: - Don't save in a loop.
+                    if Variables.lang == LangCode.ru {
+                        words[i].tokens = tokens
+                        Word.save(&words)
+                    }
+                }
+                
+                if error != nil {
+                    if let errDescription = error?.localizedDescription {
+                        print(errDescription)
+                    } else {
+                        print("error")
+                    }
+                }
+            }
+            task.resume()
+        }
+    }
+    
+    //            JapanesePAAnalyzer().analyze(query: word.text) { (tokens) in
+    //
+    //                // TODO: - Update here.
+    //
+    //                if !tokens.isEmpty {
+    //
+    //                    var _allWords = Word.load()
+    //                    _allWords.updateWord(of: word.id, newTokens: tokens)
+    //                    Word.save(&_allWords)
+    //
+    //                }
+    //            }
+    
+
     private func addSentences(dp: String) {
         let fm = FileManager.default
         var path = Bundle.main.resourcePath!
