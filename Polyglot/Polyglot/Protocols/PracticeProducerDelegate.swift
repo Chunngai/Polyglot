@@ -35,24 +35,6 @@ protocol PracticeProducerDelegate {
     
 }
 
-func makeParaCandidates(for word: Word, shouldIgnoreCaseAndAccent: Bool) -> [(articleId: String, paraId: String, text: String)] {  // TODO: - Move elsewhere.
-    
-    let wordText: String = word.text.normalized(caseInsensitive: shouldIgnoreCaseAndAccent, diacriticInsensitive: shouldIgnoreCaseAndAccent)
-    
-    var candidates: [(articleId: String, paraId: String, text: String)] = []
-    for article in Article.load() {  // TODO: - Is it proper to load articles here?
-        for para in article.paras {
-            
-            let paraText: String = para.text.normalized(caseInsensitive: shouldIgnoreCaseAndAccent, diacriticInsensitive: shouldIgnoreCaseAndAccent)
-            
-            if paraText.contains(wordText) {
-                candidates.append((articleId: article.id, paraId: para.id, text: para.text))
-            }
-        }
-    }
-    return candidates
-}
-
 func createWordCardContent(for word: Word, articles: [Article]) -> (word: String, content: String) {  // TODO: - Move elsewhere.
     let wordText: String = {
         if let tokens = word.tokens {
@@ -73,7 +55,7 @@ func createWordCardContent(for word: Word, articles: [Article]) -> (word: String
         }
     }()
     
-    let candidates = makeParaCandidates(for: word, shouldIgnoreCaseAndAccent: true)
+    let candidates = articles.paraCandidates(for: word, shouldIgnoreCaseAndAccent: true)
     guard let candidate = candidates.randomElement() else {
         return (word: "", content: wordText)
     }

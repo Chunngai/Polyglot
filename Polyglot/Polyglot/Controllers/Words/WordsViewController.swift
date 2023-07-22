@@ -231,7 +231,7 @@ extension WordsViewController {
     
     @objc func tapped() {
         let wordsPracticeViewController = WordsPracticeViewController()
-        wordsPracticeViewController.updateValues(words: words)
+        wordsPracticeViewController.updateValues(words: words, articles: Article.load())
 
         let wordsPracticeNavController = NavController(rootViewController: wordsPracticeViewController)
         navigationController?.present(wordsPracticeNavController, animated: true, completion: nil)

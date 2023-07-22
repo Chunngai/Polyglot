@@ -124,6 +124,48 @@ extension Array where Iterator.Element == Article {
     
 }
 
+extension Array where Iterator.Element == Article {
+    
+    func paraCandidates(for word: Word, shouldIgnoreCaseAndAccent: Bool, maxCandidateNumber: Int = 10) -> [(articleId: String, paraId: String, text: String)] {  // TODO: - Move elsewhere.
+        
+        let wordText: String = word.text.normalized(
+            caseInsensitive: shouldIgnoreCaseAndAccent,
+            diacriticInsensitive: shouldIgnoreCaseAndAccent
+        )
+        
+        var candidates: [(
+            articleId: String,
+            paraId: String,
+            text: String
+        )] = []
+        var candidateCounter: Int = 0
+        for article in self.shuffled() {
+            for para in article.paras.shuffled() {
+                
+                let paraText: String = para.text.normalized(
+                    caseInsensitive: shouldIgnoreCaseAndAccent,
+                    diacriticInsensitive: shouldIgnoreCaseAndAccent
+                )
+                
+                if paraText.contains(wordText) {
+                    candidates.append((
+                        articleId: article.id,
+                        paraId: para.id,
+                        text: para.text
+                    ))
+                    
+                    candidateCounter += 1
+                    if candidateCounter >= maxCandidateNumber {
+                        // Prevent memory overflow.
+                        return candidates
+                    }
+                }
+            }
+        }
+        return candidates
+    }
+}
+
 extension Article {
     
     var groupId: String {

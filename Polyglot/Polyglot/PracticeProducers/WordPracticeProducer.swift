@@ -44,7 +44,9 @@ class WordPracticeProducer: PracticeProducerDelegate {
         }
     }
     
-    init(words: [Word]) {
+    var articles: [Article]!
+    
+    init(words: [Word], articles: [Article]) {
         self.dataSource = words
         self.batchSize = dataSource.count >= WordPracticeProducer.defaultBatchSize ?
             WordPracticeProducer.defaultBatchSize :
@@ -52,6 +54,10 @@ class WordPracticeProducer: PracticeProducerDelegate {
         
         self.practiceList = []
         self.currentPracticeIndex = 0
+        
+        // The articles are for making context, reordering practices.
+        // SHOULD BE PLACED BEFORE CALLING make().
+        self.articles = articles
         
         self.practiceList.append(contentsOf: make())
     }
@@ -313,7 +319,7 @@ extension WordPracticeProducer {
     
     private func makeContextSelectionPractice(for wordToPractice: Word) -> WordPracticeProducer.Item? {
         
-        var candidates = makeParaCandidates(for: wordToPractice, shouldIgnoreCaseAndAccent: true)
+        var candidates = articles.paraCandidates(for: wordToPractice, shouldIgnoreCaseAndAccent: true)
         if candidates.isEmpty {
             return nil
         }
@@ -422,7 +428,7 @@ extension WordPracticeProducer {
     
     private func makeReorderingPractice(for wordToPractice: Word) -> WordPracticeProducer.Item? {
         
-        var candidates = makeParaCandidates(for: wordToPractice, shouldIgnoreCaseAndAccent: true)
+        var candidates = articles.paraCandidates(for: wordToPractice, shouldIgnoreCaseAndAccent: true)
         if candidates.isEmpty {
             return nil
         }

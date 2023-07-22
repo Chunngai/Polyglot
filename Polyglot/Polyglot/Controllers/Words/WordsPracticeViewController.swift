@@ -217,8 +217,8 @@ class WordsPracticeViewController: PracticeViewController {
         }
     }
     
-    func updateValues(words: [Word]) {
-        practiceProducer = WordPracticeProducer(words: words)
+    func updateValues(words: [Word], articles: [Article]) {
+        practiceProducer = WordPracticeProducer(words: words, articles: articles)
     }
 }
 
