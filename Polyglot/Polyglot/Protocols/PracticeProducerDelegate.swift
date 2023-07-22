@@ -55,7 +55,7 @@ func createWordCardContent(for word: Word, articles: [Article]) -> (word: String
         }
     }()
     
-    let candidates = articles.paraCandidates(for: word, shouldIgnoreCaseAndAccent: true)
+    let candidates = articles.paraCandidates(for: word, shouldIgnoreCase: true)
     guard let candidate = candidates.randomElement() else {
         return (word: "", content: wordText)
     }

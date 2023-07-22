@@ -319,7 +319,7 @@ extension WordPracticeProducer {
     
     private func makeContextSelectionPractice(for wordToPractice: Word) -> WordPracticeProducer.Item? {
         
-        var candidates = articles.paraCandidates(for: wordToPractice, shouldIgnoreCaseAndAccent: true)
+        var candidates = articles.paraCandidates(for: wordToPractice, shouldIgnoreCase: true)
         if candidates.isEmpty {
             return nil
         }
@@ -428,7 +428,7 @@ extension WordPracticeProducer {
     
     private func makeReorderingPractice(for wordToPractice: Word) -> WordPracticeProducer.Item? {
         
-        var candidates = articles.paraCandidates(for: wordToPractice, shouldIgnoreCaseAndAccent: true)
+        var candidates = articles.paraCandidates(for: wordToPractice, shouldIgnoreCase: true)
         if candidates.isEmpty {
             return nil
         }

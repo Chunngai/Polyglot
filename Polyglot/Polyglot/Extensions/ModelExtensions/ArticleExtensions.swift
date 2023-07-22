@@ -126,11 +126,11 @@ extension Array where Iterator.Element == Article {
 
 extension Array where Iterator.Element == Article {
     
-    func paraCandidates(for word: Word, shouldIgnoreCaseAndAccent: Bool, maxCandidateNumber: Int = 10) -> [(articleId: String, paraId: String, text: String)] {  // TODO: - Move elsewhere.
+    func paraCandidates(for word: Word, shouldIgnoreCase: Bool, maxCandidateNumber: Int = 10) -> [(articleId: String, paraId: String, text: String)] {  // TODO: - Move elsewhere.
         
         let wordText: String = word.text.normalized(
-            caseInsensitive: shouldIgnoreCaseAndAccent,
-            diacriticInsensitive: shouldIgnoreCaseAndAccent
+            caseInsensitive: shouldIgnoreCase,
+            diacriticInsensitive: false  // E.g., Apfel and Äpfel.
         )
         
         var candidates: [(
@@ -143,8 +143,8 @@ extension Array where Iterator.Element == Article {
             for para in article.paras.shuffled() {
                 
                 let paraText: String = para.text.normalized(
-                    caseInsensitive: shouldIgnoreCaseAndAccent,
-                    diacriticInsensitive: shouldIgnoreCaseAndAccent
+                    caseInsensitive: shouldIgnoreCase,
+                    diacriticInsensitive: false  // E.g., Apfel and Äpfel.
                 )
                 
                 if paraText.contains(wordText) {
