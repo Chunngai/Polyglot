@@ -56,7 +56,7 @@ func makeParaCandidates(for word: Word, shouldIgnoreCaseAndAccent: Bool) -> [(ar
 func createWordCardContent(for word: Word, articles: [Article]) -> (word: String, content: String) {  // TODO: - Move elsewhere.
     let wordText: String = {
         if let tokens = word.tokens {
-            let textOfTokensLabel = tokens.pronunciationWithAccentList.joined(separator: Strings.tokenSeparator)
+            let textOfTokensLabel = tokens.pronunciationWithAccentList.joined(separator: Strings.wordSeparator)
             if textOfTokensLabel.normalized(
                 caseInsensitive: true,
                 diacriticInsensitive: true

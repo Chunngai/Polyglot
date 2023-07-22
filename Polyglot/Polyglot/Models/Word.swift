@@ -55,7 +55,10 @@ struct Word {
         // TODO: - Temporary solution.
         if tokens == nil {
             if Variables.lang == LangCode.ja {
-                Word.makeTokensFor(jaWord: self)
+                Word.makeJaTokensFor(jaWord: self)
+            }
+            if Variables.lang == LangCode.ru {
+                Word.makeRuTokensFor(ruWord: self)
             }
         }
     }
@@ -83,7 +86,10 @@ struct Word {
         // TODO: - Temporary solution.
         if tokens == nil || newText != nil {
             if Variables.lang == LangCode.ja {
-                Word.makeTokensFor(jaWord: self)
+                Word.makeJaTokensFor(jaWord: self)
+            }
+            if Variables.lang == LangCode.ru {
+                Word.makeRuTokensFor(ruWord: self)
             }
         }
     }
@@ -222,32 +228,164 @@ extension Word {
 
 extension Word {
     
-    static func makeTokensFor(jaWord word: Word) {
+    // TODO: - Temporary solution.
+    var isOldJaAccents: Bool {
+        guard let tokens = self.tokens else {
+            return false
+        }
+        for token in tokens {
+            if token.text.count != 1 {
+                return true
+            }
+        }
+        return false
+    }
+    
+    static func makeJaTokensFor(jaWord word: Word) {
         
-        // https://stackoverflow.com/questions/24056205/how-to-use-background-thread-in-swift
+        let json: [String: Any] = [
+            "word": word.text
+        ]
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: json) else {
+            return
+        }
         
-        DispatchQueue.global(qos: .userInitiated).async {
-           
-            sleep(UInt32.random(in: 0..<3))
-            
-            JapanesePAAnalyzer().analyze(query: word.text) { (tokens) in
+        let url = URL(string: "http://4o51096o21.zicp.vip/ja/word_accent/")!
+        var request = URLRequest(url: url, timeoutInterval: 10)
+        request.httpMethod = "POST"
+        request.setValue("\(String(describing: jsonData.count))", forHTTPHeaderField: "Content-Length")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.httpBody = jsonData
+        
+        let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
+            if let data = data, error == nil {
+                guard let responseJson = try? JSONSerialization.jsonObject(
+                    with: data,
+                    options: []
+                    ) as? [String: Any] else {
+                        return
+                }
                 
-                // TODO: - Update here.
+                guard let code = responseJson["code"] as? Int, code == 200 else {
+                    return
+                }
+                guard let chars = responseJson["chars"] as? [String] else {
+                    return
+                }
+                guard let accentIndices = responseJson["accent_indices"] as? [Int] else {
+                    return
+                }
                 
-                if !tokens.isEmpty {
+                var tokens: [Token] = []
+                for i in 0..<chars.count {
+                    let char = chars[i]
+                    var accentLoc: Int? = nil
+                    if accentIndices.contains(i) {
+                        accentLoc = 0
+                    }
+                    
+                    tokens.append(Token(
+                        text: char,
+                        baseForm: char,
+                        pronunciation: char,
+                        accentLoc: accentLoc
+                    ))
+                }
                 
+                if Variables.lang == LangCode.ja {
                     var _allWords = Word.load()
                     _allWords.updateWord(of: word.id, newTokens: tokens)
                     Word.save(&_allWords)
-                    
                 }
             }
-
-            DispatchQueue.main.async {
-                print("This is run on the main queue, after the previous code in outer block")
+            
+            if error != nil {
+                if let errDescription = error?.localizedDescription {
+                    print(errDescription)
+                } else {
+                    print("error")
+                }
             }
         }
-        
+        task.resume()
     }
     
+    static func makeRuTokensFor(ruWord word: Word) {        
+        let json: [String: Any] = [
+            "word": word.text
+        ]
+        guard let jsonData = try? JSONSerialization.data(withJSONObject: json) else {
+            return
+        }
+        
+        let url = URL(string: "http://4o51096o21.zicp.vip/ru/word_accent/")!
+        var request = URLRequest(url: url, timeoutInterval: TimeInterval(2 * word.text.split(with: " ").count))  // TODO: - Update the timeout interval.
+        request.httpMethod = "POST"
+        request.setValue("\(String(describing: jsonData.count))", forHTTPHeaderField: "Content-Length")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("application/json", forHTTPHeaderField: "Accept")
+        request.httpBody = jsonData
+        
+        let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
+            if let data = data, error == nil {
+                guard let responseJson = try? JSONSerialization.jsonObject(
+                    with: data,
+                    options: []
+                    ) as? [String: Any] else {
+                        return
+                }
+                
+                guard let code = responseJson["code"] as? Int, code == 200 else {
+                    return
+                }
+                guard let accentedWords = responseJson["accented_words"] as? [String] else {
+                    return
+                }
+                guard let baseForms = responseJson["base_forms"] as? [String] else {
+                    return
+                }
+                
+                if accentedWords.contains("[error]") {
+                    return
+                }
+                
+                print(accentedWords)
+                var tokens: [Token] = []
+                for i in 0..<accentedWords.count {
+                    var accentedWord = accentedWords[i]
+                    var baseForm = baseForms[i]
+                    
+                    let accentLoc: Int? = Array(accentedWord).firstIndex(of: "[")
+                    
+                    // Remove accent marks.
+                    accentedWord = MenuViewController.removeAccentMark(string: accentedWord)
+                    baseForm = MenuViewController.removeAccentMark(string: baseForm)
+                    
+                    tokens.append(Token(
+                        text: accentedWord,
+                        baseForm: baseForm,
+                        pronunciation: accentedWord,
+                        accentLoc: accentLoc
+                    ))
+                }
+                
+                // TODO: - Don't save in a loop.
+                if Variables.lang == LangCode.ru {
+                    var _allWords = Word.load()
+                    _allWords.updateWord(of: word.id, newTokens: tokens)
+                    Word.save(&_allWords)
+                }
+            }
+            
+            if error != nil {
+                if let errDescription = error?.localizedDescription {
+                    print(errDescription)
+                } else {
+                    print("error")
+                }
+            }
+        }
+        task.resume()
+    }
 }

@@ -458,7 +458,6 @@ extension Strings {
     
     static let maskToken: String = "[MASK]"
     static let underscoreToken: String = String.init(repeating: "\u{FF3F}", count: 6)
-    static var tokenSeparator: String = "·"
     
     private static let _meaningSelectionAndFillingPracticePrompt: [String : String] = [
         LangCode.en : "The meaning of\n\(Strings.maskToken)?",
@@ -620,12 +619,29 @@ extension Strings {
 }
 
 extension Strings {
+    private static let _wordSeparators: [String : String] = [
+        LangCode.en: " ",
+        LangCode.ja: "",
+        LangCode.es: " ",
+        LangCode.ru: " ",
+        LangCode.ko: " ",
+        LangCode.de: " ",
+    ]
+    static var wordSeparator: String{
+        return Strings._wordSeparators[Variables.lang]!
+    }
     
-//    static let meaningSelectionPractice: String = "単語 翻訳 (選択)"
-//    static let meaningFillingPractice: String = "単語 翻訳 (入力)"
-//    static let contextSelectionPractice: String = "単語 コンテスト"
-//    static let readingPractice: String = "読解"
-//    static let translationPractice: String = "通訳"
+    private static let _subsentenceSeparators: [String : String] = [
+        LangCode.en: ",",
+        LangCode.ja: "、",
+        LangCode.es: ",",
+        LangCode.ru: ",",
+        LangCode.ko: ",",
+        LangCode.de: ",",
+    ]
+    static var subsentenceSeparator: String{
+        return Strings._subsentenceSeparators[Variables.lang]!
+    }
 }
 
 struct Identifiers {

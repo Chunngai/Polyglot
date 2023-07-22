@@ -17,7 +17,7 @@ class WordsTableCell: UITableViewCell {
             wordLabel.text = word.text
             tokensLabel.text = {
                 if let tokens = word.tokens {
-                    let textOfTokensLabel = tokens.pronunciationWithAccentList.joined(separator: Strings.tokenSeparator)
+                    let textOfTokensLabel = tokens.pronunciationWithAccentList.joined(separator: Strings.wordSeparator)
                     if textOfTokensLabel.normalized(
                         caseInsensitive: true,
                         diacriticInsensitive: true

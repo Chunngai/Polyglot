@@ -159,13 +159,16 @@ class WordPracticeProducer: PracticeProducerDelegate {
                 practiceList.append(reorderingPractice)
             }
             
-            if let accentSelectionPractice = makeAccentSelectionPractice(for: randomWord) {
+            let accentSelectionPractice = makeAccentSelectionPractice(for: randomWord)
+            if let accentSelectionPractice = accentSelectionPractice {
                 practiceList.append(accentSelectionPractice)
-            } else {
-                // TODO: - Temporary solution.
-                if Variables.lang == LangCode.ja {
-                    Word.makeTokensFor(jaWord: randomWord)
-                }
+            }
+            // TODO: - Temporary solution.
+            if Variables.lang == LangCode.ja && (randomWord.tokens == nil || randomWord.isOldJaAccents) {
+                Word.makeJaTokensFor(jaWord: randomWord)
+            }
+            if Variables.lang == LangCode.ru && randomWord.tokens == nil {
+                Word.makeRuTokensFor(ruWord: randomWord)
             }
         }
         practiceList.shuffle()
@@ -358,7 +361,7 @@ extension WordPracticeProducer {
             for (i, accent) in accents.enumerated() {
                 tokens[i].accentLoc = accent
             }
-            return tokens.pronunciationWithAccentList.joined(separator: Strings.tokenSeparator)
+            return tokens.pronunciationWithAccentList.joined(separator: Strings.wordSeparator)
         }
         
         func generateRandomAccentLocs(for tokens: [Token]) -> [Int?] {
@@ -380,7 +383,7 @@ extension WordPracticeProducer {
         }
         
         var selectionAccentsList = [tokens.accentLocList]
-        var selectionTexts = [tokens.pronunciationWithAccentList.joined(separator: Strings.tokenSeparator)]
+        var selectionTexts = [tokens.pronunciationWithAccentList.joined(separator: Strings.wordSeparator)]
         // Randomly generate two accent sequences.
         while true {
             // Generate a random accent sequence.
@@ -412,7 +415,7 @@ extension WordPracticeProducer {
             wordInPrompt: wordToPractice.text,
             prompt: makePrompt(for: .accentSelection, withWord: wordToPractice.text),
             selectionTexts: selectionTexts,
-            key: tokens.pronunciationWithAccentList.joined(separator: Strings.tokenSeparator)
+            key: tokens.pronunciationWithAccentList.joined(separator: Strings.wordSeparator)
         )
         
     }
@@ -436,7 +439,7 @@ extension WordPracticeProducer {
         // Using the whole target sentence will
         // result in too many words,
         // so use the target subsentence instead.
-        let subSentences = targetSentence.split(with: Variables.subsentenceSeparator)
+        let subSentences = targetSentence.split(with: Strings.subsentenceSeparator)
         guard let targetSubSentence = subSentences.first(where: { (subSentence) -> Bool in
             subSentence.contains(wordToPractice.text)
         }) else {
@@ -485,7 +488,7 @@ extension WordPracticeProducer {
             wordInPrompt: wordToPractice.text,  // TODO: - Remove this line.
             prompt: makePrompt(for: .reordering, withWord: wordToPractice.text),
             wordsToReorder: words,
-            key: words.joined(separator: Variables.wordSeparator)
+            key: words.joined(separator: Strings.wordSeparator)
         )
     }
 }

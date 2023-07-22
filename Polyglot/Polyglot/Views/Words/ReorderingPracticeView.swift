@@ -28,7 +28,7 @@ class ReorderingPracticeView: UIView {
             return (item as! UILabel).text!
         }
         
-        let answer = wordsInRowStack.joined(separator: Variables.wordSeparator)
+        let answer = wordsInRowStack.joined(separator: Strings.wordSeparator)
         return answer
     }
     
@@ -147,7 +147,7 @@ class ReorderingPracticeView: UIView {
         GoogleTranslator(
             srcLang: Variables.lang,
             trgLang: Variables.pairedLang
-        ).translate(query: words.joined(separator: Variables.wordSeparator)) { (res) in
+        ).translate(query: words.joined(separator: Strings.wordSeparator)) { (res) in
             if let translation = res.first {
                 DispatchQueue.main.async {
                     self.translationLabel.text = translation

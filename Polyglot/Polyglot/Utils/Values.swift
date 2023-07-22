@@ -22,7 +22,7 @@ struct Variables {
         LangCode.ko: LangCode.ja,
         LangCode.de: LangCode.ru,
     ]
-    static var pairedLang: String{
+    static var pairedLang: String {
         return Variables._pairedLangs[Variables.lang]!
     }
     
@@ -36,30 +36,6 @@ struct Variables {
         let tokenizer = NLTokenizer(unit: unit)
         tokenizer.setLanguage(LangCode.toNLLanguage(langCode: Variables.pairedLang))
         return tokenizer
-    }
-    
-    private static let _wordSeparators: [String : String] = [
-        LangCode.en: " ",
-        LangCode.ja: "",
-        LangCode.es: " ",
-        LangCode.ru: " ",
-        LangCode.ko: " ",
-        LangCode.de: " ",
-    ]
-    static var wordSeparator: String{
-        return Variables._wordSeparators[Variables.lang]!
-    }
-    
-    private static let _subsentenceSeparators: [String : String] = [
-        LangCode.en: ",",
-        LangCode.ja: "、",
-        LangCode.es: ",",
-        LangCode.ru: ",",
-        LangCode.ko: ",",
-        LangCode.de: ",",
-    ]
-    static var subsentenceSeparator: String{
-        return Variables._subsentenceSeparators[Variables.lang]!
     }
     
     static var isTimingEnabled: Bool = true
