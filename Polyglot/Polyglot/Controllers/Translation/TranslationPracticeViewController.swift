@@ -43,6 +43,14 @@ class TranslationPracticeViewController: PracticeViewController {
         }
     }
     
+    // MARK: - Controllers
+    
+    var delegate: MenuViewController! {
+        didSet {
+            self.practiceProducer = TranslationPracticeProducer(articles: delegate.articles)
+        }
+    }
+    
     // MARK: - Init
     
     override func viewDidLoad() {
@@ -129,10 +137,6 @@ class TranslationPracticeViewController: PracticeViewController {
         )
         textViewOfPracticeView.newWordBottomView.offset = bottomViewOffset
     }
-    
-    func updateValues(articles: [Article]) {
-        practiceProducer = TranslationPracticeProducer(articles: articles)
-    }
 }
 
 extension TranslationPracticeViewController {
@@ -196,9 +200,7 @@ extension TranslationPracticeViewController {
                 }
             }
             
-            var loadedWords = Word.load()  // TODO: - Update.
-            loadedWords.add(newWords: newWords)  // TODO: - Don't load every time.
-            Word.save(&loadedWords)
+            delegate.addWordsFromArticles(words: newWords)
         }
         
         saveNewWords()

@@ -51,16 +51,6 @@ struct Word {
         self.meaning = meaning.lowercased().strip()
         
         self.note = note?.strip()
-        
-        // TODO: - Temporary solution.
-        if tokens == nil {
-            if Variables.lang == LangCode.ja {
-                Word.makeJaTokensFor(jaWord: self)
-            }
-            if Variables.lang == LangCode.ru {
-                Word.makeRuTokensFor(ruWord: self)
-            }
-        }
     }
     
     mutating func update(newText: String? = nil, newTokens: [Token]? = nil, newMeaning: String? = nil, newNote: String? = nil) {
@@ -82,16 +72,6 @@ struct Word {
         }
         
         self.mDate = Date()
-        
-        // TODO: - Temporary solution.
-        if tokens == nil || newText != nil {
-            if Variables.lang == LangCode.ja {
-                Word.makeJaTokensFor(jaWord: self)
-            }
-            if Variables.lang == LangCode.ru {
-                Word.makeRuTokensFor(ruWord: self)
-            }
-        }
     }
 }
 
@@ -183,13 +163,13 @@ extension Word {
     
     // MARK: - IO
     
-    static var fileName: String {
-        return "words.\(Variables.lang).json"
+    static func fileName(for lang: String) -> String {
+        return "words.\(lang).json"
     }
     
-    static func load() -> [Word] {
+    static func load(for lang: String) -> [Word] {
         do {
-            let words = try readSequenceDataFromJson(fileName: Word.fileName, type: Word.self) as! [Word]
+            let words = try readSequenceDataFromJson(fileName: Word.fileName(for: lang), type: Word.self) as! [Word]
             return words
         } catch {
             print(error)
@@ -197,9 +177,9 @@ extension Word {
         }
     }
     
-    static func save(_ words: inout [Word]) {
+    static func save(_ words: inout [Word], for lang: String) {
         do {
-            try writeSequenceDataFromJson(fileName: Word.fileName, data: words)
+            try writeSequenceDataFromJson(fileName: Word.fileName(for: lang), data: words)
         } catch {
             print(error)
             exit(1)
@@ -241,7 +221,7 @@ extension Word {
         return false
     }
     
-    static func makeJaTokensFor(jaWord word: Word) {
+    static func makeJaTokensFor(jaWord word: Word, completion: @escaping ([Token]) -> Void) {
         
         let json: [String: Any] = [
             "word": word.text
@@ -293,11 +273,7 @@ extension Word {
                     ))
                 }
                 
-                if Variables.lang == LangCode.ja {
-                    var _allWords = Word.load()
-                    _allWords.updateWord(of: word.id, newTokens: tokens)
-                    Word.save(&_allWords)
-                }
+                completion(tokens)
             }
             
             if error != nil {
@@ -311,7 +287,7 @@ extension Word {
         task.resume()
     }
     
-    static func makeRuTokensFor(ruWord word: Word) {        
+    static func makeRuTokensFor(ruWord word: Word, completion: @escaping ([Token]) -> Void) {
         let json: [String: Any] = [
             "word": word.text
         ]
@@ -370,12 +346,7 @@ extension Word {
                     ))
                 }
                 
-                // TODO: - Don't save in a loop.
-                if Variables.lang == LangCode.ru {
-                    var _allWords = Word.load()
-                    _allWords.updateWord(of: word.id, newTokens: tokens)
-                    Word.save(&_allWords)
-                }
+                completion(tokens)
             }
             
             if error != nil {

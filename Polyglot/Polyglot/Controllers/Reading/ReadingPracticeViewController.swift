@@ -28,6 +28,14 @@ class ReadingPracticeViewController: PracticeViewController {
     }
     private var bottomViewOffset: CGFloat!
     
+    // MARK: - Controllers
+    
+    var delegate: MenuViewController! {
+        didSet {
+            practiceProducer = ReadingPracticeProducer(articles: delegate.articles)
+        }
+    }
+    
     // MARK: - Init
     
     override func viewDidLoad() {
@@ -123,10 +131,6 @@ class ReadingPracticeViewController: PracticeViewController {
             textViewOfPracticeView.highlightAll()  // TODO: - Wrap?
         }
     }
-    
-    func updateValues(articles: [Article]) {
-        practiceProducer = ReadingPracticeProducer(articles: articles)
-    }
 }
 
 extension ReadingPracticeViewController {
@@ -178,9 +182,7 @@ extension ReadingPracticeViewController {
                 }
             }
             
-            var loadedWords = Word.load()  // TODO: - Update.
-            loadedWords.add(newWords: newWords)  // TODO: - Don't load every time.
-            Word.save(&loadedWords)
+            delegate.addWordsFromArticles(words: newWords)
         }
         
         saveNewWords()

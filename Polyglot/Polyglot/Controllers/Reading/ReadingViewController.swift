@@ -18,9 +18,12 @@ class ReadingViewController: ListViewController {
     
     // MARK: - Models
     
-    private var articles: [Article] = Article.load() {
-        didSet {
-            Article.save(&articles)
+    var articles: [Article] {
+        get {
+            return delegate.articles
+        }
+        set {
+            delegate.articles = newValue
             
             // If the search controller is not active,
             // present all articles.
@@ -28,6 +31,10 @@ class ReadingViewController: ListViewController {
             updateSearchResults(for: searchController)
         }
     }
+    
+    // MARK: - Controllers
+    
+    var delegate: MenuViewController!
     
     // MARK: - Init
     
@@ -132,7 +139,7 @@ extension ReadingViewController {
     
     @objc func tapped() {
         let readingPracticeViewController = ReadingPracticeViewController()
-        readingPracticeViewController.updateValues(articles: articles)
+        readingPracticeViewController.delegate = delegate
         
         let readingPracticeNavController = NavController(rootViewController: readingPracticeViewController)
         navigationController?.present(readingPracticeNavController, animated: true, completion: nil)

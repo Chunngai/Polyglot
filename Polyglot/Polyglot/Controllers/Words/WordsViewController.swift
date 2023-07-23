@@ -18,16 +18,23 @@ class WordsViewController: ListViewController {
     
     // MARK: - Models
     
-    private var words: [Word] = Word.load() {
-        didSet {
-            Word.save(&words)
-
+    var words: [Word] {
+        get {
+            return delegate.words
+        }
+        set {
+            delegate.words = newValue
+            
             // If the search controller is not active,
             // present all words.
             // Otherwise, present the matched words.
             updateSearchResults(for: searchController)
         }
     }
+    
+    // MARK: - Controllers
+    
+    var delegate: MenuViewController!
     
     // MARK: - Init
     
@@ -197,10 +204,29 @@ extension WordsViewController {
 //                note = textField.text
 //            }
             
+            let updatedWord: Word!
             if let word = word {
                 self.words.updateWord(of: word.id, newText: text, newMeaning: meaning, newNote: note)
+                updatedWord = self.words.getWord(from: word.id)  // TODO: - Speed up.
             } else {
-                self.words.add(newWord: Word(text: text, meaning: meaning, note: note))
+                let newWord = Word(text: text, meaning: meaning, note: note)
+                self.words.add(newWord: newWord)
+                updatedWord = newWord
+            }
+            
+            if Variables.lang == LangCode.ja {
+                Word.makeJaTokensFor(jaWord: updatedWord) { tokens in
+                    DispatchQueue.main.async {
+                        self.words.updateWord(of: updatedWord.id, newTokens: tokens)
+                    }
+                }
+            }
+            if Variables.lang == LangCode.ru {
+                Word.makeRuTokensFor(ruWord: updatedWord) { tokens in
+                    DispatchQueue.main.async {
+                        self.words.updateWord(of: updatedWord.id, newTokens: tokens)
+                    }
+                }
             }
         }))
         alert.addAction(UIAlertAction(title: Strings.cancel, style: .cancel, handler: { (_) in
@@ -231,7 +257,7 @@ extension WordsViewController {
     
     @objc func tapped() {
         let wordsPracticeViewController = WordsPracticeViewController()
-        wordsPracticeViewController.updateValues(words: words, articles: Article.load())
+        wordsPracticeViewController.delegate = delegate
 
         let wordsPracticeNavController = NavController(rootViewController: wordsPracticeViewController)
         navigationController?.present(wordsPracticeNavController, animated: true, completion: nil)

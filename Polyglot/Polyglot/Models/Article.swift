@@ -229,13 +229,13 @@ extension Article {
     
     // MARK: - IO
     
-    static var fileName: String {
-        return "articles.\(Variables.lang).json"
+    static func fileName(for lang: String) -> String {
+        return "articles.\(lang).json"
     }
     
-    static func load() -> [Article] {
+    static func load(for lang: String) -> [Article] {
         do {
-            let articles = try readSequenceDataFromJson(fileName: Article.fileName, type: Article.self) as! [Article]
+            let articles = try readSequenceDataFromJson(fileName: Article.fileName(for: lang), type: Article.self) as! [Article]
             return articles
         } catch {
             print(error)
@@ -243,9 +243,9 @@ extension Article {
         }
     }
     
-    static func save(_ articles: inout [Article]) {
+    static func save(_ articles: inout [Article], for lang: String) {
         do {
-            try writeSequenceDataFromJson(fileName: Article.fileName, data: articles)
+            try writeSequenceDataFromJson(fileName: Article.fileName(for: lang), data: articles)
         } catch {
             print(error)
             exit(1)

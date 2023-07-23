@@ -32,6 +32,17 @@ class WordsPracticeViewController: PracticeViewController {
         }
     }
    
+    // MARK: Controllers.
+    
+    var delegate: MenuViewController! {
+        didSet {
+            practiceProducer = WordPracticeProducer(
+                words: delegate.words,
+                articles: delegate.articles
+            )
+        }
+    }
+    
     // MARK: - Init
    
     override func viewDidLoad() {
@@ -216,10 +227,6 @@ class WordsPracticeViewController: PracticeViewController {
             })
         }
     }
-    
-    func updateValues(words: [Word], articles: [Article]) {
-        practiceProducer = WordPracticeProducer(words: words, articles: articles)
-    }
 }
 
 extension WordsPracticeViewController {
@@ -267,6 +274,27 @@ extension WordsPracticeViewController {
     
     override func stopPracticing() {
         practiceProducer.save()
+        
+        for practiceItem in practiceProducer.practiceList {
+            guard let word = delegate.words.getWord(from: practiceItem.practice.wordId) else {
+                continue
+            }
+            guard word.tokens != nil else {
+                continue
+            }
+            
+            if Variables.lang == LangCode.ja && (word.tokens == nil || word.isOldJaAccents) {
+                Word.makeJaTokensFor(jaWord: word) { tokens in
+                    self.delegate.words.updateWord(of: word.id, newTokens: tokens)
+                }
+            }
+            if Variables.lang == LangCode.ru && word.tokens == nil {
+                Word.makeRuTokensFor(ruWord: word) { tokens in
+                    self.delegate.words.updateWord(of: word.id, newTokens: tokens)
+                }
+            }
+        }
+        
         navigationController?.dismiss(animated: true, completion: nil)
     }
     

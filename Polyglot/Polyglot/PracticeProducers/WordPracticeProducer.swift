@@ -44,6 +44,7 @@ class WordPracticeProducer: PracticeProducerDelegate {
         }
     }
     
+    // TODO: - Are these vars proper?
     var articles: [Article]!
     
     init(words: [Word], articles: [Article]) {
@@ -168,13 +169,6 @@ class WordPracticeProducer: PracticeProducerDelegate {
             let accentSelectionPractice = makeAccentSelectionPractice(for: randomWord)
             if let accentSelectionPractice = accentSelectionPractice {
                 practiceList.append(accentSelectionPractice)
-            }
-            // TODO: - Temporary solution.
-            if Variables.lang == LangCode.ja && (randomWord.tokens == nil || randomWord.isOldJaAccents) {
-                Word.makeJaTokensFor(jaWord: randomWord)
-            }
-            if Variables.lang == LangCode.ru && randomWord.tokens == nil {
-                Word.makeRuTokensFor(ruWord: randomWord)
             }
         }
         practiceList.shuffle()
