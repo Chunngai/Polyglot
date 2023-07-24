@@ -74,11 +74,7 @@ class MenuViewController: UIViewController {
         
         // TODO: - Move elsewhere.
         DispatchQueue.global(qos: .userInitiated).async {
-            generateWordcardNotifications(
-                for: lang,
-                words: self.words,
-                articles: self.articles
-            )
+            self.generateWordcardNotifications()
         }
     }
 
@@ -220,6 +216,119 @@ extension MenuViewController {
             }
         }
     }
+}
+
+extension MenuViewController {
+    func createWordCardContent() -> (word: String, content: String) {
+        let word = self.words.randomElement()!
+        
+        let wordText: String = {
+            if let tokens = word.tokens {
+                let textOfTokensLabel = tokens.pronunciationWithAccentList.joined(separator: Strings.wordSeparator)
+                if textOfTokensLabel.normalized(
+                    caseInsensitive: true,
+                    diacriticInsensitive: true
+                ) == word.text.normalized(
+                    caseInsensitive: true,
+                    diacriticInsensitive: true
+                ) {  // E.g., russian words, japanese words with katakana only.
+                    return textOfTokensLabel
+                } else {
+                    return "\(word.text) (\(textOfTokensLabel))"
+                }
+            } else {
+                return word.text
+            }
+        }()
+        
+        let candidates = articles.paraCandidates(for: word, shouldIgnoreCase: true)
+        guard let candidate = candidates.randomElement() else {
+            return (word: wordText, content: word.meaning)
+        }
+        
+        let sentences = candidate.text.components(from: Variables.tokenizerOfLang(of: .sentence))
+        guard let targetSentence = sentences.first(where: { (sentence) -> Bool in
+            sentence.contains(word.text)
+        }) else {
+            return (word: wordText, content: word.meaning)
+        }
+        
+        return (
+            word: wordText,
+            content: targetSentence.replacingOccurrences(
+                of: word.text,
+                with: "#\(word.text)#"
+            )
+        )
+    }
+
+    func generateWordcardNotifications() {
+        guard !words.isEmpty else {
+            return
+        }
+        guard let lang = self.lang else {
+            return
+        }
+//        removeAllNotifications()
+        
+        let notificationCenter = UNUserNotificationCenter.current()
+        // https://stackoverflow.com/questions/40270598/ios-10-how-to-view-a-list-of-pending-notifications-using-unusernotificationcente
+        notificationCenter.getPendingNotificationRequests(completionHandler: { requests in
+            let learningLangs = LangCode.loadLearningLanguages()
+            let maxRequestPerLang = 64 / learningLangs.count  // 64: max pending request num.
+            
+            var pendingNotificationRequestsMapping: [String: [String]] = [:]  // {lang code: request ids}
+            for lang in learningLangs {  // Init with an empty arr.
+                pendingNotificationRequestsMapping[lang] = []
+            }
+            
+            for request in requests {
+                let rid = request.identifier
+                let langCode = rid.split(with: "-")[0]
+                pendingNotificationRequestsMapping[langCode]!.append(rid)
+            }
+            print(pendingNotificationRequestsMapping)
+                    
+            // Create word cards for 10-22.
+            for day in Date().nextNDays(n: 3) {
+                for hour in 10...22 {
+                    let triggerDateComponents = DateComponents(
+                        year: day.get(.year),
+                        month: day.get(.month),
+                        day: day.get(.day),
+                        hour: hour
+                    )
+                    if let triggerDate = Date.fromComponents(components: triggerDateComponents), triggerDate < Date() {
+                        continue
+                    }
+                    
+                    let identifier = "\(lang)-" +
+                        "\(triggerDateComponents.year!)\(triggerDateComponents.month!)\(triggerDateComponents.day!)\(triggerDateComponents.hour!)"
+                    if pendingNotificationRequestsMapping[self.lang]!.contains(identifier) || pendingNotificationRequestsMapping[self.lang]!.count >= maxRequestPerLang {
+                        continue
+                    }
+                    
+                    let wordCardContent = self.createWordCardContent()
+                    let title = "\(LangCode.toFlagIcon(langCode: self.lang)) \(wordCardContent.word)"
+                    let body = wordCardContent.content
+                    
+                    print("Adding a word card.")
+                    print("  [title] \(title)")
+                    print("  [body] \(body)")
+                    print("  [trigger date components] \(triggerDateComponents)")
+                    print("  [identifier] \(identifier)")
+                    notificationCenter.add(makeNotificationRequest(
+                        title: title,
+                        body: body,
+                        triggerDateComponents: triggerDateComponents,
+                        identifier: identifier
+                    ))
+                    pendingNotificationRequestsMapping[self.lang]!.append(identifier)
+                }
+            }
+        })
+    }
+
 }
 
 extension MenuViewController {

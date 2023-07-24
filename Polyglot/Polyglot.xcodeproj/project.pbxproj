@@ -327,10 +327,10 @@
 			isa = PBXGroup;
 			children = (
 				FF4964BD29579C9700414AC5 /* StringExtensions.swift */,
-				FF4964CC2958BE8900414AC5 /* TimeIntervalExtensions.swift */,
 				FF495E9D2959084200EA7EA9 /* DateExtensions.swift */,
 				FF584433296732B400137E00 /* DictionaryExtensions.swift */,
 				FF5FE945297431C30002691C /* ArrayExtensions.swift */,
+				FF4964CC2958BE8900414AC5 /* TimeIntervalExtensions.swift */,
 			);
 			path = TypeExtensions;
 			sourceTree = "<group>";
