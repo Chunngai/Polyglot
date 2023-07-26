@@ -222,6 +222,17 @@ extension MenuViewController {
     func createWordCardContent() -> (word: String, content: String) {
         let word = self.words.randomElement()!
         
+        if self.lang == LangCode.ja && (word.tokens == nil || word.isOldJaAccents) {
+            Word.makeJaTokensFor(jaWord: word) { tokens in
+                self.words.updateWord(of: word.id, newTokens: tokens)
+            }
+        }
+        if self.lang == LangCode.ru && word.tokens == nil {
+            Word.makeRuTokensFor(ruWord: word) { tokens in
+                self.words.updateWord(of: word.id, newTokens: tokens)
+            }
+        }
+        
         let wordText: String = {
             if let tokens = word.tokens {
                 let textOfTokensLabel = tokens.pronunciationWithAccentList.joined(separator: Strings.wordSeparator)

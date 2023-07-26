@@ -296,7 +296,7 @@ extension Word {
         }
         
         let url = URL(string: "http://4o51096o21.zicp.vip/ru/word_accent/")!
-        var request = URLRequest(url: url, timeoutInterval: TimeInterval(2 * word.text.split(with: " ").count))  // TODO: - Update the timeout interval.
+        var request = URLRequest(url: url, timeoutInterval: TimeInterval(3 * word.text.split(with: " ").count))  // TODO: - Update the timeout interval.
         request.httpMethod = "POST"
         request.setValue("\(String(describing: jsonData.count))", forHTTPHeaderField: "Content-Length")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
