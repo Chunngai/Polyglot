@@ -315,6 +315,9 @@ extension Word {
                 guard let code = responseJson["code"] as? Int, code == 200 else {
                     return
                 }
+                guard let originalWords = responseJson["original_words"] as? [String] else {
+                    return
+                }
                 guard let accentedWords = responseJson["accented_words"] as? [String] else {
                     return
                 }
@@ -322,26 +325,28 @@ extension Word {
                     return
                 }
                 
-                if accentedWords.contains("[error]") {
-                    return
-                }
-                
+                print(originalWords)
                 print(accentedWords)
                 var tokens: [Token] = []
                 for i in 0..<accentedWords.count {
-                    var accentedWord = accentedWords[i]
-                    var baseForm = baseForms[i]
+                    let originalWord = originalWords[i]
+                    let accentedWord = accentedWords[i]
+                    let baseForm = MenuViewController.removeAccentMark(string: baseForms[i])
                     
-                    let accentLoc: Int? = Array(accentedWord).firstIndex(of: "[")
-                    
-                    // Remove accent marks.
-                    accentedWord = MenuViewController.removeAccentMark(string: accentedWord)
-                    baseForm = MenuViewController.removeAccentMark(string: baseForm)
+                    let accentLoc: Int?
+                    var pronunciation: String = ""
+                    if accentedWord != "[error]" {
+                        accentLoc = Array(accentedWord).firstIndex(of: "[")
+                        pronunciation = MenuViewController.removeAccentMark(string: accentedWord)
+                    } else {
+                        accentLoc = nil
+                        pronunciation = originalWord
+                    }
                     
                     tokens.append(Token(
-                        text: accentedWord,
+                        text: originalWord,
                         baseForm: baseForm,
-                        pronunciation: accentedWord,
+                        pronunciation: pronunciation,
                         accentLoc: accentLoc
                     ))
                 }
