@@ -231,7 +231,7 @@ extension Word {
         }
         
         let url = URL(string: "http://4o51096o21.zicp.vip/ja/word_accent/")!
-        var request = URLRequest(url: url, timeoutInterval: 10)
+        var request = URLRequest(url: url, timeoutInterval: 30)
         request.httpMethod = "POST"
         request.setValue("\(String(describing: jsonData.count))", forHTTPHeaderField: "Content-Length")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -257,6 +257,9 @@ extension Word {
                     return
                 }
                 
+                print(code)
+                print(chars)
+                print(accentIndices)
                 var tokens: [Token] = []
                 for i in 0..<chars.count {
                     let char = chars[i]
