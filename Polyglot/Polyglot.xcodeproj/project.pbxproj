@@ -32,6 +32,8 @@
 		FF4964CD2958BE8900414AC5 /* TimeIntervalExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4964CC2958BE8900414AC5 /* TimeIntervalExtensions.swift */; };
 		FF4964CF2958CE4400414AC5 /* Word.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4964CE2958CE4400414AC5 /* Word.swift */; };
 		FF4A21542959A5D600AD3AF8 /* Practice.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4A21532959A5D600AD3AF8 /* Practice.swift */; };
+		FF4AB0032A9B4C4400908062 /* ContentCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4AB0022A9B4C4400908062 /* ContentCreator.swift */; };
+		FF4AB0072A9B4DE600908062 /* APIKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4AB0062A9B4DE600908062 /* APIKeys.swift */; };
 		FF4B382B29525A4300BB3FFD /* ReadingEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4B382A29525A4300BB3FFD /* ReadingEditViewController.swift */; };
 		FF4B382F29525BD400BB3FFD /* ReadingEditTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4B382E29525BD400BB3FFD /* ReadingEditTableCell.swift */; };
 		FF4BF68B2A69468C00D875E1 /* duome_de_sentences in Resources */ = {isa = PBXBuildFile; fileRef = FF4BF6882A69468C00D875E1 /* duome_de_sentences */; };
@@ -176,6 +178,8 @@
 		FF4964CC2958BE8900414AC5 /* TimeIntervalExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeIntervalExtensions.swift; sourceTree = "<group>"; };
 		FF4964CE2958CE4400414AC5 /* Word.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Word.swift; sourceTree = "<group>"; };
 		FF4A21532959A5D600AD3AF8 /* Practice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Practice.swift; sourceTree = "<group>"; };
+		FF4AB0022A9B4C4400908062 /* ContentCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCreator.swift; sourceTree = "<group>"; };
+		FF4AB0062A9B4DE600908062 /* APIKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIKeys.swift; sourceTree = "<group>"; };
 		FF4B382A29525A4300BB3FFD /* ReadingEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingEditViewController.swift; sourceTree = "<group>"; };
 		FF4B382E29525BD400BB3FFD /* ReadingEditTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingEditTableCell.swift; sourceTree = "<group>"; };
 		FF4BF6882A69468C00D875E1 /* duome_de_sentences */ = {isa = PBXFileReference; lastKnownFileType = folder; name = duome_de_sentences; path = ../../../../../../Volumes/Windows/Users/Neko/Desktop/polyglot/duome_sentences/duome_de_sentences; sourceTree = "<group>"; };
@@ -608,6 +612,8 @@
 			children = (
 				FF58518E29819CF8004EB63C /* GoogleTranslator.swift */,
 				FF8E5BC2298DBD5D003B6FB1 /* JapanesePAAnalyzer.swift */,
+				FF4AB0022A9B4C4400908062 /* ContentCreator.swift */,
+				FF4AB0062A9B4DE600908062 /* APIKeys.swift */,
 			);
 			path = APIs;
 			sourceTree = "<group>";
@@ -947,6 +953,7 @@
 				FF5690142980367A00CA2C7B /* LangCode.swift in Sources */,
 				FF495E8E2958F38800EA7EA9 /* UITableViewExtensions.swift in Sources */,
 				FF5292072951FC9700858B55 /* MenuViewController.swift in Sources */,
+				FF4AB0032A9B4C4400908062 /* ContentCreator.swift in Sources */,
 				FF5AA00B2961F208009D5237 /* Alerts.swift in Sources */,
 				FF793A482968A7D60026B8C7 /* UIApplication.swift in Sources */,
 				FF4B382B29525A4300BB3FFD /* ReadingEditViewController.swift in Sources */,
@@ -968,6 +975,7 @@
 				FF56901829803D6C00CA2C7B /* LangCell.swift in Sources */,
 				FFCBB0DB296B1A6700E5B9D9 /* PracticeProducerDelegate.swift in Sources */,
 				FF52921229520D1200858B55 /* UINavigationBarExtensions.swift in Sources */,
+				FF4AB0072A9B4DE600908062 /* APIKeys.swift in Sources */,
 				FF5882BE29604E0300FC33CF /* NewWordAddingTextView.swift in Sources */,
 				FF495EA029591DEC00EA7EA9 /* TableHeaderView.swift in Sources */,
 				FFD7DF72299D509B00019D51 /* CGRectExtensions.swift in Sources */,

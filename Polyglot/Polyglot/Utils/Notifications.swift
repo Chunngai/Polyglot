@@ -28,6 +28,25 @@ func makeNotificationRequest(title: String, body: String, triggerDateComponents:
     return request
 }
 
+func updateNotificationRequest(
+    oldNotificationRequest: UNNotificationRequest,
+    newTitle: String? = nil, newBody: String? = nil, newTriggerDateComponents: DateComponents? = nil
+) {
+    let notificationCenter = UNUserNotificationCenter.current()
+    notificationCenter.add(makeNotificationRequest(
+        title: newTitle != nil ?
+            newTitle! :
+            oldNotificationRequest.content.title,
+        body: newBody != nil ?
+            newBody! :
+            oldNotificationRequest.content.body,
+        triggerDateComponents: newTriggerDateComponents != nil ?
+            newTriggerDateComponents! :
+            (oldNotificationRequest.trigger as! UNCalendarNotificationTrigger).dateComponents,
+        identifier: oldNotificationRequest.identifier
+    ))
+}
+
 func removeAllNotifications() {
     // https://stackoverflow.com/questions/40562912/how-to-cancel-usernotifications
     let notificationCenter = UNUserNotificationCenter.current()

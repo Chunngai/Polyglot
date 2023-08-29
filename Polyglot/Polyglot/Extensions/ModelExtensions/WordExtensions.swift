@@ -70,6 +70,27 @@ extension Word {
 
 }
 
+extension Word {
+    var accentedText: String {
+        if let tokens = self.tokens {
+            let textOfTokensLabel = tokens.pronunciationWithAccentList.joined(separator: Strings.wordSeparator)
+            if textOfTokensLabel.normalized(
+                caseInsensitive: true,
+                diacriticInsensitive: true
+            ) == self.text.normalized(
+                caseInsensitive: true,
+                diacriticInsensitive: true
+            ) {  // E.g., russian words, japanese words with katakana only.
+                return textOfTokensLabel
+            } else {
+                return "\(self.text) (\(textOfTokensLabel))"
+            }
+        } else {
+            return self.text
+        }
+    }
+}
+
 extension Array where Iterator.Element == Word {
     
     // TODO: - Simplify the for loops?

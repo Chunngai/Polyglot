@@ -219,57 +219,51 @@ extension MenuViewController {
 }
 
 extension MenuViewController {
-    func createWordCardContent() -> (word: String, content: String) {
+    func createWordCardContent() -> (
+        word: Word,
+        content: String,
+        shouldObtainAccent: Bool
+    ) {
         let word = self.words.randomElement()!
         
+        var shouldObtainAccent = false
         if self.lang == LangCode.ja && (word.tokens == nil || word.isOldJaAccents) {
-            Word.makeJaTokensFor(jaWord: word) { tokens in
-                self.words.updateWord(of: word.id, newTokens: tokens)
-            }
+            shouldObtainAccent = true
         }
         if self.lang == LangCode.ru && word.tokens == nil {
-            Word.makeRuTokensFor(ruWord: word) { tokens in
-                self.words.updateWord(of: word.id, newTokens: tokens)
-            }
+            shouldObtainAccent = true
         }
         
-        let wordText: String = {
-            if let tokens = word.tokens {
-                let textOfTokensLabel = tokens.pronunciationWithAccentList.joined(separator: Strings.wordSeparator)
-                if textOfTokensLabel.normalized(
-                    caseInsensitive: true,
-                    diacriticInsensitive: true
-                ) == word.text.normalized(
-                    caseInsensitive: true,
-                    diacriticInsensitive: true
-                ) {  // E.g., russian words, japanese words with katakana only.
-                    return textOfTokensLabel
-                } else {
-                    return "\(word.text) (\(textOfTokensLabel))"
-                }
-            } else {
-                return word.text
-            }
-        }()
-        
-        let candidates = articles.paraCandidates(for: word, shouldIgnoreCase: true)
+        let candidates = articles.paraCandidates(
+            for: word,
+            shouldIgnoreCase: true
+        )
         guard let candidate = candidates.randomElement() else {
-            return (word: wordText, content: word.meaning)
+            return (
+                word: word,
+                content: word.meaning,
+                shouldObtainAccent: shouldObtainAccent
+            )
         }
         
         let sentences = candidate.text.components(from: Variables.tokenizerOfLang(of: .sentence))
         guard let targetSentence = sentences.first(where: { (sentence) -> Bool in
             sentence.contains(word.text)
         }) else {
-            return (word: wordText, content: word.meaning)
+            return (
+                word: word,
+                content: word.meaning,
+                shouldObtainAccent: shouldObtainAccent
+            )
         }
         
         return (
-            word: wordText,
+            word: word,
             content: targetSentence.replacingOccurrences(
                 of: word.text,
                 with: "#\(word.text)#"
-            )
+            ),
+            shouldObtainAccent: shouldObtainAccent
         )
     }
 
@@ -282,27 +276,38 @@ extension MenuViewController {
         }
 //        removeAllNotifications()
         
-        let notificationCenter = UNUserNotificationCenter.current()
+        func makeTitle(accentedWordText: String) -> String {
+            return "\(LangCode.toFlagIcon(langCode: lang)) \(accentedWordText)"
+        }
+        
         // https://stackoverflow.com/questions/40270598/ios-10-how-to-view-a-list-of-pending-notifications-using-unusernotificationcente
+        let notificationCenter = UNUserNotificationCenter.current()
         notificationCenter.getPendingNotificationRequests(completionHandler: { requests in
             let learningLangs = LangCode.loadLearningLanguages()
             let maxRequestPerLang = 64 / learningLangs.count  // 64: max pending request num.
             
-            var pendingNotificationRequestsMapping: [String: [String]] = [:]  // {lang code: request ids}
-            for lang in learningLangs {  // Init with an empty arr.
-                pendingNotificationRequestsMapping[lang] = []
+            var lang2rid: [String: [String]] = [:]
+            for learningLang in learningLangs {
+                lang2rid[learningLang] = []
             }
-            
             for request in requests {
+                print("title:", request.content.title)
+                print("body:", request.content.body)
                 let rid = request.identifier
-                let langCode = rid.split(with: "-")[0]
-                pendingNotificationRequestsMapping[langCode]!.append(rid)
+                let langCode = rid.split(with: Constants.notificationRequestIdentifierSeparator)[0]
+                lang2rid[langCode]!.append(rid)
             }
-            print(pendingNotificationRequestsMapping)
+            print(lang2rid)
                     
             // Create word cards for 10-22.
             for day in Date().nextNDays(n: 3) {
                 for hour in 10...22 {
+                    if lang2rid[self.lang]!.count >= maxRequestPerLang {
+                        // Cannot be outside the loops
+                        // as new notifications will be added inside the loops.
+                        continue
+                    }
+                    
                     let triggerDateComponents = DateComponents(
                         year: day.get(.year),
                         month: day.get(.month),
@@ -313,33 +318,78 @@ extension MenuViewController {
                         continue
                     }
                     
-                    let identifier = "\(lang)-" +
+                    let identifier = "\(lang):" +
                         "\(triggerDateComponents.year!)\(triggerDateComponents.month!)\(triggerDateComponents.day!)\(triggerDateComponents.hour!)"
-                    if pendingNotificationRequestsMapping[self.lang]!.contains(identifier) || pendingNotificationRequestsMapping[self.lang]!.count >= maxRequestPerLang {
+                    if lang2rid[self.lang]!.contains(identifier) {
                         continue
                     }
                     
                     let wordCardContent = self.createWordCardContent()
-                    let title = "\(LangCode.toFlagIcon(langCode: self.lang)) \(wordCardContent.word)"
-                    let body = wordCardContent.content
+                    let title = makeTitle(accentedWordText: wordCardContent.word.accentedText)
+                    let body: String = wordCardContent.content
                     
                     print("Adding a word card.")
                     print("  [title] \(title)")
                     print("  [body] \(body)")
                     print("  [trigger date components] \(triggerDateComponents)")
                     print("  [identifier] \(identifier)")
-                    notificationCenter.add(makeNotificationRequest(
+                    let notificationRequest = makeNotificationRequest(
                         title: title,
                         body: body,
                         triggerDateComponents: triggerDateComponents,
                         identifier: identifier
-                    ))
-                    pendingNotificationRequestsMapping[self.lang]!.append(identifier)
+                    )
+                    notificationCenter.add(notificationRequest)
+                    lang2rid[self.lang]!.append(identifier)
+                    
+                    if body == wordCardContent.word.meaning {
+                        // Make content with ChatGPT.
+                        ContentCreator().createContent(
+                            for: wordCardContent.word.text,
+                            in: Variables.lang
+                        ) { (sentence: String?) in
+                            guard let sentence = sentence else {
+//                                print("Failed to create content with ChatGPT.")
+                                return
+                            }
+                            updateNotificationRequest(
+                                oldNotificationRequest: notificationRequest,
+                                newBody: "[ChatGPT] " + sentence.replacingOccurrences(
+                                    of: wordCardContent.word.text,
+                                    with: "#\(wordCardContent.word.text)#",
+                                    options: [.caseInsensitive]
+                                )
+                            )
+                        }
+                    }
+                    if wordCardContent.shouldObtainAccent {
+                        if Variables.lang == LangCode.ja {
+                            Word.makeJaTokensFor(jaWord: wordCardContent.word) { tokens in
+                                self.words.updateWord(of: wordCardContent.word.id, newTokens: tokens)
+                                if let updatedWord = self.words.getWord(from: wordCardContent.word.id) {
+                                    updateNotificationRequest(
+                                        oldNotificationRequest: notificationRequest,
+                                        newTitle: makeTitle(accentedWordText: updatedWord.accentedText)
+                                    )
+                                }
+                            }
+                        }
+                        if Variables.lang == LangCode.ru {
+                            Word.makeRuTokensFor(ruWord: wordCardContent.word) { tokens in
+                                self.words.updateWord(of: wordCardContent.word.id, newTokens: tokens)
+                                if let updatedWord = self.words.getWord(from: wordCardContent.word.id) {
+                                    updateNotificationRequest(
+                                        oldNotificationRequest: notificationRequest,
+                                        newTitle: makeTitle(accentedWordText: updatedWord.accentedText)
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         })
     }
-
 }
 
 extension MenuViewController {
