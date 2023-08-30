@@ -154,17 +154,17 @@ class WordPracticeProducer: PracticeProducerDelegate {
             
             // TODO: - selection practices may suffer from selection insufficiency problems.
             
-            practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .textToMeaning))
-//            practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .meaningToText))
-            practiceList.append(makeMeaningFillingPractice(for: randomWord, in: .meaningToText))
-
-            if let contextSelectionPractice = makeContextSelectionPractice(for: randomWord) {
-                practiceList.append(contextSelectionPractice)
-            }
-            
-            if let reorderingPractice = makeReorderingPractice(for: randomWord) {
-                practiceList.append(reorderingPractice)
-            }
+//            practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .textToMeaning))
+////            practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .meaningToText))
+//            practiceList.append(makeMeaningFillingPractice(for: randomWord, in: .meaningToText))
+//
+//            if let contextSelectionPractice = makeContextSelectionPractice(for: randomWord) {
+//                practiceList.append(contextSelectionPractice)
+//            }
+//
+//            if let reorderingPractice = makeReorderingPractice(for: randomWord) {
+//                practiceList.append(reorderingPractice)
+//            }
             
             let accentSelectionPractice = makeAccentSelectionPractice(for: randomWord)
             if let accentSelectionPractice = accentSelectionPractice {
@@ -366,13 +366,22 @@ extension WordPracticeProducer {
         
         func generateRandomAccentLocs(for tokens: [Token]) -> [Int?] {
             return tokens.pronunciationList.map({ (pronunciation) -> Int? in
-                // E.g., if the pronunciation has two chars,
-                // vals will be [0, 1].
-                var vals: [Int?] = Array<Int>(0..<pronunciation.count)
-                // Add a nil for other situations, e.g., no accent.
-                vals += [nil]
-                
-                return vals.randomElement()!
+                if pronunciation.count > 1 {  // Old jp accent interface.
+                    // E.g., if the pronunciation has two chars,
+                    // vals will be [0, 1].
+                    var vals: [Int?] = Array<Int>(0..<pronunciation.count)
+                    // Add a nil for other situations, e.g., no accent.
+                    vals += [nil]
+                    
+                    return vals.randomElement()!
+                } else {  // New jp accent interface.
+                    let rand: Float = Float.random(in: 0...1)
+                    if rand < 0.8 {  // No accent in most cases.
+                        return nil
+                    } else {
+                        return 0
+                    }
+                }
             })
         }
         
