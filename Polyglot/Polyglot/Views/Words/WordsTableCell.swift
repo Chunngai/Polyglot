@@ -15,14 +15,17 @@ class WordsTableCell: UITableViewCell {
     var word: Word! {
         didSet {
             let wordLabelText: NSMutableAttributedString = NSMutableAttributedString(string: word.accentedText(tokenSeparator: Strings.wordSeparator))
-            wordLabelText.setTextColor(for: word.text, with: Colors.normalTextColor)
             if wordLabelText.string.replacingOccurrences(of: String(Token.accentSymbol), with: "") == word.text {
                 wordLabel.textColor = Colors.normalTextColor
+            } else {
+                wordLabel.textColor = Colors.weakTextColor
+                wordLabelText.setTextColor(for: word.text, with: Colors.normalTextColor)
             }
             wordLabel.attributedText = wordLabelText
             wordLabel.setLineSpacing(lineSpacing: 3)  // Should be called after text assignment.
 
             meaningLabel.text = word.meaning
+            meaningLabel.setLineSpacing(lineSpacing: 3)
         }
     }
     
@@ -49,6 +52,7 @@ class WordsTableCell: UITableViewCell {
         label.lineBreakMode = .byTruncatingTail
         label.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
         label.textAlignment = .left
+        label.numberOfLines = 0
         return label
     }()
     
