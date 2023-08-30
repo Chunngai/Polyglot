@@ -325,7 +325,7 @@ extension MenuViewController {
                     }
                     
                     let wordCardContent = self.createWordCardContent()
-                    let title = makeTitle(accentedWordText: wordCardContent.word.accentedText)
+                    let title = makeTitle(accentedWordText: wordCardContent.word.accentedText(tokenSeparator: Strings.wordSeparator))
                     let body: String = wordCardContent.content
                     
                     print("Adding a word card.")
@@ -369,7 +369,7 @@ extension MenuViewController {
                                 if let updatedWord = self.words.getWord(from: wordCardContent.word.id) {
                                     updateNotificationRequest(
                                         oldNotificationRequest: notificationRequest,
-                                        newTitle: makeTitle(accentedWordText: updatedWord.accentedText)
+                                        newTitle: makeTitle(accentedWordText: updatedWord.accentedText(tokenSeparator: Strings._wordSeparators[self.lang]!))
                                     )
                                 }
                             }
@@ -380,7 +380,7 @@ extension MenuViewController {
                                 if let updatedWord = self.words.getWord(from: wordCardContent.word.id) {
                                     updateNotificationRequest(
                                         oldNotificationRequest: notificationRequest,
-                                        newTitle: makeTitle(accentedWordText: updatedWord.accentedText)
+                                        newTitle: makeTitle(accentedWordText: updatedWord.accentedText(tokenSeparator: Strings._wordSeparators[self.lang]!))
                                     )
                                 }
                             }

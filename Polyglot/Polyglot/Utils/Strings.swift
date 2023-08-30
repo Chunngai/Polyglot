@@ -619,7 +619,7 @@ extension Strings {
 }
 
 extension Strings {
-    private static let _wordSeparators: [String : String] = [
+    static let _wordSeparators: [String : String] = [
         LangCode.en: " ",
         LangCode.ja: "",
         LangCode.es: " ",
