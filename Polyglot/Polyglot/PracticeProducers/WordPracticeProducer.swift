@@ -154,17 +154,17 @@ class WordPracticeProducer: PracticeProducerDelegate {
             
             // TODO: - selection practices may suffer from selection insufficiency problems.
             
-//            practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .textToMeaning))
-////            practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .meaningToText))
-//            practiceList.append(makeMeaningFillingPractice(for: randomWord, in: .meaningToText))
-//
-//            if let contextSelectionPractice = makeContextSelectionPractice(for: randomWord) {
-//                practiceList.append(contextSelectionPractice)
-//            }
-//
-//            if let reorderingPractice = makeReorderingPractice(for: randomWord) {
-//                practiceList.append(reorderingPractice)
-//            }
+            practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .textToMeaning))
+//            practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .meaningToText))
+            practiceList.append(makeMeaningFillingPractice(for: randomWord, in: .meaningToText))
+
+            if let contextSelectionPractice = makeContextSelectionPractice(for: randomWord) {
+                practiceList.append(contextSelectionPractice)
+            }
+
+            if let reorderingPractice = makeReorderingPractice(for: randomWord) {
+                practiceList.append(reorderingPractice)
+            }
             
             let accentSelectionPractice = makeAccentSelectionPractice(for: randomWord)
             if let accentSelectionPractice = accentSelectionPractice {
