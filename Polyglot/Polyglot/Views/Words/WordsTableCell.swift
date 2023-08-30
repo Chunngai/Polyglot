@@ -16,6 +16,9 @@ class WordsTableCell: UITableViewCell {
         didSet {
             let wordLabelText: NSMutableAttributedString = NSMutableAttributedString(string: word.accentedText(tokenSeparator: Strings.wordSeparator))
             wordLabelText.setTextColor(for: word.text, with: Colors.normalTextColor)
+            if wordLabelText.string.replacingOccurrences(of: String(Token.accentSymbol), with: "") == word.text {
+                wordLabel.textColor = Colors.normalTextColor
+            }
             wordLabel.attributedText = wordLabelText
             wordLabel.setLineSpacing(lineSpacing: 3)  // Should be called after text assignment.
 

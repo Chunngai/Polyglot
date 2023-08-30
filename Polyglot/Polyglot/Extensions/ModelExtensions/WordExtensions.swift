@@ -11,7 +11,7 @@ import Foundation
 extension Token {
     
     // https://stackoverflow.com/questions/31272561/working-with-unicode-code-points-in-swift
-    static var accentSymbol: Character = "\u{031A}"
+    static let accentSymbol: Character = "\u{031A}"
     
     var pronunciationWithAccent: String {
         
