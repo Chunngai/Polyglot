@@ -57,17 +57,23 @@ class PracticeViewController: UIViewController {
         return button
     }()
     
-    private var maskView: UILabel = {
-        let label = UILabel()
-        label.backgroundColor = Colors.maskBackgroundColor
-        label.text = Strings.textForPausedPractice
-        label.textColor = Colors.lightTextColor
-        label.textAlignment = .center
-        label.layer.masksToBounds = true
-        label.layer.cornerRadius = Sizes.defaultCornerRadius
-        label.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
-        label.isHidden = true
-        return label
+    private var maskView: UIView = {  // TODO: - Merge with the timing bar.
+        let backgroundView = UIView()
+        backgroundView.backgroundColor = Colors.maskBackgroundColor
+        backgroundView.layer.masksToBounds = true
+        backgroundView.layer.cornerRadius = Sizes.defaultCornerRadius
+        backgroundView.isHidden = true
+        
+        let imageView = UIImageView(image: Icons.startIcon)
+        imageView.image = imageView.image?.withRenderingMode(.alwaysTemplate)
+        imageView.tintColor = .white
+        backgroundView.addSubview(imageView)
+        imageView.snp.makeConstraints { (make) in
+            make.width.height.equalTo(30)
+            make.centerX.centerY.equalToSuperview()
+        }
+        
+        return backgroundView
     }()
     
     // MARK: - Controllers
@@ -107,6 +113,7 @@ class PracticeViewController: UIViewController {
         doneButton.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         
+        maskView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(maskViewTapped)))
         NotificationCenter.default.addObserver(self, selector: #selector(appMovedToBackground), name: UIApplication.willResignActiveNotification, object: nil)
     }
     
@@ -198,6 +205,10 @@ extension PracticeViewController {
         // https://stackoverflow.com/questions/53555428/hide-the-keyboard-on-the-button-click
         IQKeyboardManager.shared.resignFirstResponder()
     }
+    
+    @objc func maskViewTapped() {
+        timingBar.start()
+    }
 }
 
 extension PracticeViewController: TimingBarDelegate {
@@ -287,6 +298,7 @@ extension PracticeViewController: TimingBarDelegate {
             return
         }
         
+        timingBar.hideIcon()
         maskView.isHidden = false
         mainView.isUserInteractionEnabled = false
         view.bringSubviewToFront(maskView)  // The mask view should be in the front of all views.

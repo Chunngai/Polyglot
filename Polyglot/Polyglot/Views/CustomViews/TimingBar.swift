@@ -118,6 +118,14 @@ extension TimingBar {
 
 extension TimingBar {
     
+    func hideIcon() {
+        toggleButton.image = nil
+    }
+    
+}
+
+extension TimingBar {
+    
     // MARK: - Selectors
     
     @objc private func fireTimer() {
@@ -140,7 +148,11 @@ extension TimingBar {
     }
     
     @objc private func toggleTimingState() {
-        isTiming.toggle()
+        if toggleButton.image == Icons.startIcon {
+            isTiming = true
+        } else if toggleButton.image == Icons.pauseIcon {
+            isTiming = false
+        }
     }
     
 }
