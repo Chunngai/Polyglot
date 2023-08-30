@@ -82,11 +82,12 @@
 		FF706DF1295142AF00DBCF8E /* Strings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706DF0295142AF00DBCF8E /* Strings.swift */; };
 		FF706DF5295144B000DBCF8E /* UIColorExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706DF4295144B000DBCF8E /* UIColorExtensions.swift */; };
 		FF706E032951549C00DBCF8E /* UIImageExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF706E022951549C00DBCF8E /* UIImageExtensions.swift */; };
-		FF793A482968A7D60026B8C7 /* UIApplication.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF793A472968A7D60026B8C7 /* UIApplication.swift */; };
+		FF793A482968A7D60026B8C7 /* UIApplicationExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF793A472968A7D60026B8C7 /* UIApplicationExtensions.swift */; };
 		FF8CDE812952995F00B36CA3 /* NewWordAddingBottomView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8CDE802952995F00B36CA3 /* NewWordAddingBottomView.swift */; };
 		FF8E5BBE298DB9BF003B6FB1 /* SnapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FF8E5BBB298DB9A6003B6FB1 /* SnapKit.framework */; };
 		FF8E5BBF298DB9BF003B6FB1 /* SnapKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = FF8E5BBB298DB9A6003B6FB1 /* SnapKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		FF8E5BC3298DBD5D003B6FB1 /* JapanesePAAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF8E5BC2298DBD5D003B6FB1 /* JapanesePAAnalyzer.swift */; };
+		FFBC8A842A9F2FDD001123EB /* UILabelExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBC8A832A9F2FDD001123EB /* UILabelExtensions.swift */; };
 		FFBD60412969D713004165FC /* WordPracticeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60402969D713004165FC /* WordPracticeProducer.swift */; };
 		FFBD60432969D721004165FC /* ReadingPracticeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60422969D721004165FC /* ReadingPracticeProducer.swift */; };
 		FFBD60452969D733004165FC /* TranslationPracticeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60442969D733004165FC /* TranslationPracticeProducer.swift */; };
@@ -234,10 +235,11 @@
 		FF706DF0295142AF00DBCF8E /* Strings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Strings.swift; sourceTree = "<group>"; };
 		FF706DF4295144B000DBCF8E /* UIColorExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorExtensions.swift; sourceTree = "<group>"; };
 		FF706E022951549C00DBCF8E /* UIImageExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIImageExtensions.swift; sourceTree = "<group>"; };
-		FF793A472968A7D60026B8C7 /* UIApplication.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIApplication.swift; sourceTree = "<group>"; };
+		FF793A472968A7D60026B8C7 /* UIApplicationExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIApplicationExtensions.swift; sourceTree = "<group>"; };
 		FF8CDE802952995F00B36CA3 /* NewWordAddingBottomView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewWordAddingBottomView.swift; sourceTree = "<group>"; };
 		FF8E5BB5298DB9A6003B6FB1 /* SnapKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SnapKit.xcodeproj; path = "../../../Downloads/SnapKit-develop/SnapKit.xcodeproj"; sourceTree = "<group>"; };
 		FF8E5BC2298DBD5D003B6FB1 /* JapanesePAAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JapanesePAAnalyzer.swift; sourceTree = "<group>"; };
+		FFBC8A832A9F2FDD001123EB /* UILabelExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UILabelExtensions.swift; sourceTree = "<group>"; };
 		FFBD60402969D713004165FC /* WordPracticeProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPracticeProducer.swift; sourceTree = "<group>"; };
 		FFBD60422969D721004165FC /* ReadingPracticeProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPracticeProducer.swift; sourceTree = "<group>"; };
 		FFBD60442969D733004165FC /* TranslationPracticeProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeProducer.swift; sourceTree = "<group>"; };
@@ -321,8 +323,9 @@
 				FF4964C12957B01100414AC5 /* UITextViewExtensions.swift */,
 				FF495E8D2958F38800EA7EA9 /* UITableViewExtensions.swift */,
 				FF4D7CC52953952C009F6894 /* NSMutableAttributedStringExtensions.swift */,
-				FF793A472968A7D60026B8C7 /* UIApplication.swift */,
+				FF793A472968A7D60026B8C7 /* UIApplicationExtensions.swift */,
 				FFD7DF71299D509B00019D51 /* CGRectExtensions.swift */,
+				FFBC8A832A9F2FDD001123EB /* UILabelExtensions.swift */,
 			);
 			path = UIExtensions;
 			sourceTree = "<group>";
@@ -955,7 +958,7 @@
 				FF5292072951FC9700858B55 /* MenuViewController.swift in Sources */,
 				FF4AB0032A9B4C4400908062 /* ContentCreator.swift in Sources */,
 				FF5AA00B2961F208009D5237 /* Alerts.swift in Sources */,
-				FF793A482968A7D60026B8C7 /* UIApplication.swift in Sources */,
+				FF793A482968A7D60026B8C7 /* UIApplicationExtensions.swift in Sources */,
 				FF4B382B29525A4300BB3FFD /* ReadingEditViewController.swift in Sources */,
 				FF4B382F29525BD400BB3FFD /* ReadingEditTableCell.swift in Sources */,
 				FF63DE00299AD2F90088C10B /* WordBankItem.swift in Sources */,
@@ -999,6 +1002,7 @@
 				FF495E9E2959084200EA7EA9 /* DateExtensions.swift in Sources */,
 				FF4964CB2958BAFD00414AC5 /* TimingBar.swift in Sources */,
 				FF50250E295244F10097C2CB /* ReadingViewController.swift in Sources */,
+				FFBC8A842A9F2FDD001123EB /* UILabelExtensions.swift in Sources */,
 				FF55D156296F3AEC0092FB6B /* Values.swift in Sources */,
 				FFCBB0DD296B2E4000E5B9D9 /* ReadingPracticeView.swift in Sources */,
 				FF4964CD2958BE8900414AC5 /* TimeIntervalExtensions.swift in Sources */,
