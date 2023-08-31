@@ -29,22 +29,28 @@ func makeNotificationRequest(title: String, body: String, triggerDateComponents:
 }
 
 func updateNotificationRequest(
-    oldNotificationRequest: UNNotificationRequest,
+    oldNotificationRequestID: String,
     newTitle: String? = nil, newBody: String? = nil, newTriggerDateComponents: DateComponents? = nil
 ) {
     let notificationCenter = UNUserNotificationCenter.current()
-    notificationCenter.add(makeNotificationRequest(
-        title: newTitle != nil ?
-            newTitle! :
-            oldNotificationRequest.content.title,
-        body: newBody != nil ?
-            newBody! :
-            oldNotificationRequest.content.body,
-        triggerDateComponents: newTriggerDateComponents != nil ?
-            newTriggerDateComponents! :
-            (oldNotificationRequest.trigger as! UNCalendarNotificationTrigger).dateComponents,
-        identifier: oldNotificationRequest.identifier
-    ))
+    notificationCenter.getPendingNotificationRequests { requests in
+        for request in requests {
+            if request.identifier == oldNotificationRequestID {
+                notificationCenter.add(makeNotificationRequest(
+                    title: newTitle != nil ?
+                        newTitle! :
+                        request.content.title,
+                    body: newBody != nil ?
+                        newBody! :
+                        request.content.body,
+                    triggerDateComponents: newTriggerDateComponents != nil ?
+                        newTriggerDateComponents! :
+                        (request.trigger as! UNCalendarNotificationTrigger).dateComponents,
+                    identifier: request.identifier
+                ))
+            }
+        }
+    }
 }
 
 func removeAllNotifications() {
