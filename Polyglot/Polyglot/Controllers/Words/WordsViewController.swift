@@ -10,6 +10,51 @@ import UIKit
 
 class WordsViewController: ListViewController {
     
+    private var translator: GoogleTranslator = GoogleTranslator(
+        srcLang: Variables.lang,
+        trgLang: Variables.pairedLang
+    )
+    private var translations: [String] = []
+    private var translationIndex: Int = 0 {
+        didSet {
+            guard !translations.isEmpty else {
+                return
+            }
+            translationIndex = translationIndex % translations.count
+        }
+    }
+    private var isTranslating: Bool = false {
+        didSet {
+            if isTranslating {
+                wordAddingMeaningTextField?.isEnabled = false  // Disable editing.
+                wordAddingMeaningTextField?.rightView = translationSpinner
+                translationSpinner.startAnimating()
+            } else {
+                wordAddingMeaningTextField?.isEnabled = true  // Enable editing.
+                translationSpinner.stopAnimating()
+                wordAddingMeaningTextField?.rightView = translationButton
+            }
+        }
+    }
+    private var wordAddingWordTextField: UITextField? {
+        if let presentedViewController = self.presentedViewController {
+            if let alertController = presentedViewController as? UIAlertController {
+                return alertController.textFields?[0]
+            }
+        }
+        return nil
+    }
+    
+    private var wordAddingMeaningTextField: UITextField? {
+        if let presentedViewController = self.presentedViewController {
+            if let alertController = presentedViewController as? UIAlertController {
+                return alertController.textFields?[1]
+            }
+        }
+        return nil
+    }
+    private var lastlyTypedWord: String = ""
+    
     private var dataSource: [GroupedWords]! {
         didSet {
             tableView.reloadData()
@@ -35,6 +80,27 @@ class WordsViewController: ListViewController {
     // MARK: - Controllers
     
     var delegate: MenuViewController!
+    
+    // MARK: - Views
+    
+    lazy var translationButton: UIButton = {
+        let button = UIButton()
+        button.setImage(
+            Icons.translateIcon.withTintColor(.lightGray),
+            for: .normal
+        )
+        button.addTarget(
+            self,
+            action: #selector(self.textFieldTranslateButtonTapped),
+            for: .touchUpInside
+        )
+        return button
+    }()
+    lazy var translationSpinner: UIActivityIndicatorView = {
+        let spinner = UIActivityIndicatorView(style: .medium)
+        spinner.hidesWhenStopped = true
+        return spinner
+    }()
     
     // MARK: - Init
     
@@ -166,19 +232,7 @@ extension WordsViewController {
             }
 
             // Add a translation button.
-            textField.rightView = {
-                let button = UIButton()
-                button.setImage(
-                    Icons.translateIcon.withTintColor(.lightGray),
-                    for: .normal
-                )
-                button.addTarget(
-                    self,
-                    action: #selector(self.textFieldTranslateButtonTapped),
-                    for: .touchUpInside
-                )
-                return button
-            }()
+            textField.rightView = self.translationButton
             textField.rightViewMode = .always
         }
 //        alert.addTextField { (textField) in
@@ -228,9 +282,11 @@ extension WordsViewController {
                     }
                 }
             }
+            
+            self.clearTranslations()
         }))
         alert.addAction(UIAlertAction(title: Strings.cancel, style: .cancel, handler: { (_) in
-            return
+            self.clearTranslations()
         }))
 
         self.present(alert, animated: true, completion: nil)
@@ -264,34 +320,52 @@ extension WordsViewController {
     }
     
     @objc func textFieldTranslateButtonTapped() -> Void {
-    
-        if let presentedViewController = self.presentedViewController {
-            if let alertController = presentedViewController as? UIAlertController {
-                guard let word = alertController.textFields?[0].text else {
-                    return
-                }
-                // The word to translate should not be empty.
-                guard !word.strip().isEmpty else {
-                    return
-                }
-                
-                let completion: ([String]) -> Void = { translations in
-                    // https://github.com/xmartlabs/Eureka/issues/1351
-                    DispatchQueue.main.async {
-                        alertController.textFields?[1].text = translations.joined(separator: "; ")
+        
+        guard let word = wordAddingWordTextField?.text else {
+            return
+        }
+        // The word to translate should not be empty.
+        guard !word.strip().isEmpty else {
+            return
+        }
+        
+        if self.translations.isEmpty || word != lastlyTypedWord {
+            
+            lastlyTypedWord = word
+            
+            isTranslating = true
+            self.translator.translate(query: word) { (translations) in
+                self.translations = translations
+                // Concat all translations as an additional translation.
+                self.translations.append(translations.joined(separator: "; "))
+                DispatchQueue.main.async {
+                    self.isTranslating = false
+                    if !translations.isEmpty {
+                        self.wordAddingMeaningTextField?.text = translations[self.translationIndex]
                     }
                 }
-                
-                GoogleTranslator(
-                    srcLang: Variables.lang,
-                    trgLang: Variables.pairedLang
-                ).translate(
-                    query: word,
-                    completion: completion
-                )
+            }
+        } else {
+            self.translationIndex += 1
+            if !translations.isEmpty {
+                self.wordAddingMeaningTextField?.text = self.translations[self.translationIndex]
             }
         }
+        
     }
+}
+
+extension WordsViewController {
+    
+    // MARK: - Utils
+    
+    private func clearTranslations() {
+        self.translations = []
+        self.translationIndex = 0
+        self.isTranslating = false
+        self.lastlyTypedWord = ""
+    }
+    
 }
 
 extension WordsViewController: UISearchResultsUpdating {
