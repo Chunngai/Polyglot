@@ -45,10 +45,10 @@ extension Word {
             let textOfTokensLabel = tokens.pronunciationWithAccentList.joined(separator: tokenSeparator)
             if textOfTokensLabel.normalized(
                 caseInsensitive: true,
-                diacriticInsensitive: true
-            ) == self.text.normalized(
+                diacriticInsensitive: false
+            ).replacingOccurrences(of: String(Token.accentSymbol), with: "") == self.text.normalized(
                 caseInsensitive: true,
-                diacriticInsensitive: true
+                diacriticInsensitive: false
             ) {  // E.g., russian words, japanese words with katakana only.
                 return textOfTokensLabel
             } else {
