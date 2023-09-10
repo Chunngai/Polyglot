@@ -25,6 +25,17 @@ class HomeViewController: UIViewController {
     
     private var isExecutingTextAnimation: Bool = true
     
+    // MARK: - Models
+    
+    var wordCardEntries: [String: [WordCardEntry]] = [:] {
+        didSet {
+            for (lang, entries) in wordCardEntries {
+                var entries = entries
+                WordCardEntry.save(&entries, for: lang)
+            }
+        }
+    }
+    
     // MARK: - Views
     
     private lazy var mainView: UIView = {
@@ -72,9 +83,7 @@ class HomeViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-                
-//        jaPaDebug()
-        
+                        
         updateSetups()
         updateViews()
         updateLayouts()
@@ -82,6 +91,14 @@ class HomeViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
+        for learningLanguage in learningLanguages {
+            wordCardEntries[learningLanguage] = WordCardEntry.load(for: learningLanguage)
+        }
+        DispatchQueue.global(qos: .userInitiated).async {
+            //            removeAllNotifications()
+            self.generateWordcardNotifications()
+        }
         
         // https://juejin.cn/post/6905235669758443533
         // https://stackoverflow.com/questions/27501732/stop-and-start-nsthread-in-swift
@@ -194,6 +211,7 @@ extension HomeViewController: UICollectionViewDelegate {
         Feedbacks.defaultFeedbackGenerator.selectionChanged()
         
         let menuViewController = MenuViewController(lang: cell.langCode)
+        menuViewController.delegate = self
         navigationController?.pushViewController(menuViewController, animated: true)
     }
     
@@ -241,35 +259,101 @@ extension HomeViewController {
 
 extension HomeViewController {
     
+    private func makeLang2rid(from requests: [UNNotificationRequest]) -> [String: [String]] {
+        var lang2rid: [String: [String]] = [:]
+        for learningLang in self.learningLanguages {
+            lang2rid[learningLang] = []
+        }
+        for request in requests {
+            print("title:", request.content.title)
+            print("body:", request.content.body)
+            
+            let rid = request.identifier
+            let langCode = rid.split(with: Constants.notificationRequestIdentifierSeparator)[0]
+            lang2rid[langCode]!.append(rid)
+        }
+        
+        return lang2rid
+    }
+    
+    private var maxRequestPerLang: Int {
+        64 / self.learningLanguages.count  // 64: max pending request num.
+    }
+    
+    private func makeWordCardIdentifier(lang: String, triggerDateComponents: DateComponents) -> String {
+        "\(lang):" + "\(triggerDateComponents.year!)\(triggerDateComponents.month!)\(triggerDateComponents.day!)\(triggerDateComponents.hour!)"
+    }
+    
+    private func generateWordcardNotifications() {
+                
+        for lang in self.wordCardEntries.keys {
+        
+            // https://stackoverflow.com/questions/40270598/ios-10-how-to-view-a-list-of-pending-notifications-using-unusernotificationcente
+            let notificationCenter = UNUserNotificationCenter.current()
+            notificationCenter.getPendingNotificationRequests { requests in
+                var lang2rid: [String: [String]] = self.makeLang2rid(from: requests)
+                print("Before:", lang2rid)
+                
+                // Create word cards for 10-22.
+                for day in Date().nextNDays(n: 3) {
+                    for hour in 10...22 {
+                        if lang2rid[lang]!.count >= self.maxRequestPerLang {
+                            // Cannot be outside the loops
+                            // as new notifications will be added inside the loops.
+                            continue
+                        }
+                        
+                        let triggerDateComponents = DateComponents(
+                            year: day.get(.year),
+                            month: day.get(.month),
+                            day: day.get(.day),
+                            hour: hour
+                        )
+                        if let triggerDate = Date.fromComponents(components: triggerDateComponents), triggerDate < Date() {
+                            continue
+                        }
+                        
+                        let identifier = self.makeWordCardIdentifier(lang: lang, triggerDateComponents: triggerDateComponents)
+                        if lang2rid[lang]!.contains(identifier) {
+                            continue
+                        }
+                        
+                        guard let wordCardEntry = self.wordCardEntries[lang]!.popLast() else {
+                            continue
+                        }
+                        
+                        let title: String = wordCardEntry.title
+                        let body: String = wordCardEntry.body
+                        
+                        print("Adding a word card.")
+                        print("  [title] \(title)")
+                        print("  [body] \(body)")
+                        print("  [trigger date components] \(triggerDateComponents)")
+                        print("  [identifier] \(identifier)")
+                        let notificationRequest = makeNotificationRequest(
+                            title: title,
+                            body: body,
+                            triggerDateComponents: triggerDateComponents,
+                            identifier: identifier
+                        )
+                        notificationCenter.add(notificationRequest)
+                        lang2rid[lang]!.append(identifier)
+                    }
+                }
+                
+                print("After:", lang2rid)
+            }
+        }
+    }
+    
+}
+
+extension HomeViewController {
+    
     // MARK: - Constants
     
     static let mainViewWidth: CGFloat = UIScreen.main.bounds.width * 0.8
     static let cellSize: CGFloat = HomeViewController.mainViewWidth / 3.0 * 0.9
     static let numberOfCellsInSection: Int = 3
     
-}
-
-extension HomeViewController {
-    
-    private func jaPaDebug() {
-//        let query = "今ご飯食べてる"  // 今 ご飯 食べる
-//        let query = "今ご飯食べてる人"  // 今 ご飯 食べる 人
-//        let query = "食べてる物"  // 食べる 物
-//        let query = "春"
-//        let query = "日本語では、花、鼻の発音が似てる。"  // 日本語 で は 花 鼻 の 発音 が 似る
-//        let query = "活発な"
-//        let query = "活発な反応"
-//        let query = "勉強する人"
-//        let query = "肌の美白や保湿をする"
-//        let query = "おいしい"
-//        let query = "中間試験"
-        let query = "出題範囲"
-//        let query = "「民は食をもって天となす」と言われるように、中国の大晦日は何と言ってもおいしい料理が主役。春節においしい料理を食べながら一家団欒を楽しむのが恒例行事だ。ただ、体調を崩すことがないよう、特に高血糖や消化器系の弱い人は食べ過ぎや飲み過ぎ、衛生管理などに注意しなければならない。太りすぎることがない程度に、おいしい料理をたくさん食べ、ポジティブな気分で新年を迎えよう！"
-        
-        JapanesePAAnalyzer().analyze(query: query) { (paInfo) in
-            for item in paInfo {
-                print(item)
-            }
-        }
-    }
 }

@@ -25,6 +25,10 @@ class MenuViewController: UIViewController {
         }
     }
     
+    // MARK: - Delegates
+    
+    var delegate: HomeViewController!
+    
     // MARK: - Views
     
     private lazy var mainView: UIView = {
@@ -72,9 +76,8 @@ class MenuViewController: UIViewController {
         self.lang = lang
         self.langImageView.image = Images.langImage
         
-        // TODO: - Move elsewhere.
         DispatchQueue.global(qos: .userInitiated).async {
-            self.generateWordcardNotifications()
+            self.generateWordcardEntries()
         }
     }
 
@@ -219,6 +222,7 @@ extension MenuViewController {
 }
 
 extension MenuViewController {
+    
     func createWordCardContent() -> (
         word: Word,
         content: String,
@@ -266,129 +270,73 @@ extension MenuViewController {
             shouldObtainAccent: shouldObtainAccent
         )
     }
+    
+    func makeWordCardTitle(word: Word) -> String {
+        return "\(LangCode.toFlagIcon(langCode: self.lang)) \(word.accentedText(tokenSeparator: Strings.wordSeparator))"
+    }
 
-    func generateWordcardNotifications() {
+    var wordCardEntries: [WordCardEntry] {
+        get {
+            return delegate.wordCardEntries[self.lang]!
+        }
+        set {
+            delegate.wordCardEntries[self.lang] = newValue
+        }
+    }
+    
+    func generateWordcardEntries() {
         guard !words.isEmpty else {
             return
         }
-        guard let lang = self.lang else {
-            return
-        }
-//        removeAllNotifications()
         
-        func makeTitle(accentedWordText: String) -> String {
-            return "\(LangCode.toFlagIcon(langCode: lang)) \(accentedWordText)"
-        }
-        
-        // https://stackoverflow.com/questions/40270598/ios-10-how-to-view-a-list-of-pending-notifications-using-unusernotificationcente
-        let notificationCenter = UNUserNotificationCenter.current()
-        notificationCenter.getPendingNotificationRequests(completionHandler: { requests in
-            let learningLangs = LangCode.loadLearningLanguages()
-            let maxRequestPerLang = 64 / learningLangs.count  // 64: max pending request num.
+        while wordCardEntries.count < WordCardEntry.maxEntryNumber {
+            let wordCardContent = self.createWordCardContent()
+            let title = makeWordCardTitle(word: wordCardContent.word)
+            let body: String = wordCardContent.content
             
-            var lang2rid: [String: [String]] = [:]
-            for learningLang in learningLangs {
-                lang2rid[learningLang] = []
-            }
-            for request in requests {
-                print("title:", request.content.title)
-                print("body:", request.content.body)
-                let rid = request.identifier
-                let langCode = rid.split(with: Constants.notificationRequestIdentifierSeparator)[0]
-                lang2rid[langCode]!.append(rid)
-            }
-            print(lang2rid)
-                    
-            // Create word cards for 10-22.
-            for day in Date().nextNDays(n: 3) {
-                for hour in 10...22 {
-                    if lang2rid[self.lang]!.count >= maxRequestPerLang {
-                        // Cannot be outside the loops
-                        // as new notifications will be added inside the loops.
-                        continue
+            wordCardEntries.append(WordCardEntry(
+                title: title,
+                body: body
+            ))
+            let index = wordCardEntries.count - 1
+                
+            if body == wordCardContent.word.meaning {
+                // Make content with ChatGPT.
+                ContentCreator().createContent(
+                    for: wordCardContent.word.text,
+                    in: lang
+                ) { (sentence: String?) in
+                    guard let sentence = sentence else {
+                        return
                     }
-                    
-                    let triggerDateComponents = DateComponents(
-                        year: day.get(.year),
-                        month: day.get(.month),
-                        day: day.get(.day),
-                        hour: hour
+                    let newBody = "[ChatGPT] " + sentence.replacingOccurrences(
+                        of: wordCardContent.word.text,
+                        with: "#\(wordCardContent.word.text)#",
+                        options: [.caseInsensitive]
                     )
-                    if let triggerDate = Date.fromComponents(components: triggerDateComponents), triggerDate < Date() {
-                        continue
-                    }
-                    
-                    let identifier = "\(lang):" +
-                        "\(triggerDateComponents.year!)\(triggerDateComponents.month!)\(triggerDateComponents.day!)\(triggerDateComponents.hour!)"
-                    if lang2rid[self.lang]!.contains(identifier) {
-                        continue
-                    }
-                    
-                    let wordCardContent = self.createWordCardContent()
-                    let title = makeTitle(accentedWordText: wordCardContent.word.accentedText(tokenSeparator: Strings.wordSeparator))
-                    let body: String = wordCardContent.content
-                    
-                    print("Adding a word card.")
-                    print("  [title] \(title)")
-                    print("  [body] \(body)")
-                    print("  [trigger date components] \(triggerDateComponents)")
-                    print("  [identifier] \(identifier)")
-                    let notificationRequest = makeNotificationRequest(
-                        title: title,
-                        body: body,
-                        triggerDateComponents: triggerDateComponents,
-                        identifier: identifier
-                    )
-                    notificationCenter.add(notificationRequest)
-                    lang2rid[self.lang]!.append(identifier)
-                    
-                    if body == wordCardContent.word.meaning {
-                        // Make content with ChatGPT.
-                        ContentCreator().createContent(
-                            for: wordCardContent.word.text,
-                            in: Variables.lang
-                        ) { (sentence: String?) in
-                            guard let sentence = sentence else {
-//                                print("Failed to create content with ChatGPT.")
-                                return
-                            }
-                            updateNotificationRequest(
-                                oldNotificationRequestID: notificationRequest.identifier,
-                                newBody: "[ChatGPT] " + sentence.replacingOccurrences(
-                                    of: wordCardContent.word.text,
-                                    with: "#\(wordCardContent.word.text)#",
-                                    options: [.caseInsensitive]
-                                )
-                            )
+                    self.wordCardEntries[index].body = newBody
+                }
+            }
+            
+            if wordCardContent.shouldObtainAccent {
+                if Variables.lang == LangCode.ja {
+                    Word.makeJaTokensFor(jaWord: wordCardContent.word) { tokens in
+                        if let updatedWord = self.words.updateWord(of: wordCardContent.word.id, newTokens: tokens) {
+                            let newTitle: String = self.makeWordCardTitle(word: updatedWord)
+                            self.wordCardEntries[index].title = newTitle
                         }
                     }
-                    if wordCardContent.shouldObtainAccent {
-                        if Variables.lang == LangCode.ja {
-                            Word.makeJaTokensFor(jaWord: wordCardContent.word) { tokens in
-                                self.words.updateWord(of: wordCardContent.word.id, newTokens: tokens)
-                                if let updatedWord = self.words.getWord(from: wordCardContent.word.id) {
-                                    updateNotificationRequest(
-                                        oldNotificationRequestID: notificationRequest.identifier,  // Do not pass the old request, else the content generated by chatgpt will be overwritten.
-                                        newTitle: makeTitle(accentedWordText: updatedWord.accentedText(tokenSeparator: Strings._wordSeparators[self.lang]!))
-                                    )
-                                }
-                            }
-                        }
-                        if Variables.lang == LangCode.ru {
-                            Word.makeRuTokensFor(ruWord: wordCardContent.word) { tokens in
-                                self.words.updateWord(of: wordCardContent.word.id, newTokens: tokens)
-                                if let updatedWord = self.words.getWord(from: wordCardContent.word.id) {
-                                    updateNotificationRequest(
-                                        oldNotificationRequestID: notificationRequest.identifier,  // Do not pass the old request, else the content generated by chatgpt will be overwritten.
-                                        newTitle: makeTitle(accentedWordText: updatedWord.accentedText(tokenSeparator: Strings._wordSeparators[self.lang]!))
-                                    )
-                                }
-                            }
+                }
+                if Variables.lang == LangCode.ru {
+                    Word.makeRuTokensFor(ruWord: wordCardContent.word) { tokens in
+                        if let updatedWord = self.words.updateWord(of: wordCardContent.word.id, newTokens: tokens) {
+                            let newTitle: String = self.makeWordCardTitle(word: updatedWord)
+                            self.wordCardEntries[index].title = newTitle
                         }
                     }
                 }
             }
-        })
+        }
     }
 }
 

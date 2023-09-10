@@ -40,6 +40,7 @@
 		FF4CA730295E869900423946 /* TranslationPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4CA72F295E869900423946 /* TranslationPracticeViewController.swift */; };
 		FF4D7CC62953952C009F6894 /* NSMutableAttributedStringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4D7CC52953952C009F6894 /* NSMutableAttributedStringExtensions.swift */; };
 		FF4EFE14295D392F00E30D6A /* HistoryRecordExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4EFE13295D392F00E30D6A /* HistoryRecordExtensions.swift */; };
+		FF4FA0C82AADDAA0001EA18C /* WordCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4FA0C72AADDAA0001EA18C /* WordCard.swift */; };
 		FF50250E295244F10097C2CB /* ReadingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF50250D295244F10097C2CB /* ReadingViewController.swift */; };
 		FF502512295248D10097C2CB /* Article.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF502511295248D10097C2CB /* Article.swift */; };
 		FF50251429524D100097C2CB /* ReadingTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF50251329524D100097C2CB /* ReadingTableCell.swift */; };
@@ -184,6 +185,7 @@
 		FF4CA72F295E869900423946 /* TranslationPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeViewController.swift; sourceTree = "<group>"; };
 		FF4D7CC52953952C009F6894 /* NSMutableAttributedStringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSMutableAttributedStringExtensions.swift; sourceTree = "<group>"; };
 		FF4EFE13295D392F00E30D6A /* HistoryRecordExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryRecordExtensions.swift; sourceTree = "<group>"; };
+		FF4FA0C72AADDAA0001EA18C /* WordCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordCard.swift; sourceTree = "<group>"; };
 		FF50250D295244F10097C2CB /* ReadingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingViewController.swift; sourceTree = "<group>"; };
 		FF502511295248D10097C2CB /* Article.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Article.swift; sourceTree = "<group>"; };
 		FF50251329524D100097C2CB /* ReadingTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingTableCell.swift; sourceTree = "<group>"; };
@@ -405,6 +407,7 @@
 				FF502511295248D10097C2CB /* Article.swift */,
 				FF591ED2296795E70004CB80 /* Practices */,
 				FF5690132980367A00CA2C7B /* LangCode.swift */,
+				FF4FA0C72AADDAA0001EA18C /* WordCard.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -984,6 +987,7 @@
 				FF5DB994295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift in Sources */,
 				FF495EA22959244C00EA7EA9 /* WordsPracticeViewController.swift in Sources */,
 				FFD7DF6D299D376000019D51 /* RowStackItem.swift in Sources */,
+				FF4FA0C82AADDAA0001EA18C /* WordCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

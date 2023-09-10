@@ -123,13 +123,14 @@ extension Array where Iterator.Element == Word {
         }
     }
     
-    mutating func updateWord(of id: String, newText: String? = nil, newTokens: [Token]? = nil, newMeaning: String? = nil, newNote: String? = nil) {
+    mutating func updateWord(of id: String, newText: String? = nil, newTokens: [Token]? = nil, newMeaning: String? = nil, newNote: String? = nil) -> Word? {
         for i in 0..<count {
             if self[i].id == id {
                 self[i].update(newText: newText, newTokens: newTokens, newMeaning: newMeaning, newNote: newNote)
-                return
+                return self[i]
             }
         }
+        return nil
     }
     
     mutating func removeWord(of id: String) {
