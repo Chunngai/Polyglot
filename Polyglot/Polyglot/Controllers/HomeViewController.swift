@@ -95,6 +95,7 @@ class HomeViewController: UIViewController {
         for learningLanguage in learningLanguages {
             wordCardEntries[learningLanguage] = WordCardEntry.load(for: learningLanguage)
         }
+        print(wordCardEntries)
         DispatchQueue.global(qos: .userInitiated).async {
             //            removeAllNotifications()
             self.generateWordcardNotifications()
@@ -284,16 +285,20 @@ extension HomeViewController {
         "\(lang):" + "\(triggerDateComponents.year!)\(triggerDateComponents.month!)\(triggerDateComponents.day!)\(triggerDateComponents.hour!)"
     }
     
+    private func addIcon(of langCode: String, to title: String) -> String {
+        return "\(LangCode.toFlagIcon(langCode: langCode)) \(title)"
+    }
+    
     private func generateWordcardNotifications() {
-                
-        for lang in self.wordCardEntries.keys {
         
-            // https://stackoverflow.com/questions/40270598/ios-10-how-to-view-a-list-of-pending-notifications-using-unusernotificationcente
-            let notificationCenter = UNUserNotificationCenter.current()
-            notificationCenter.getPendingNotificationRequests { requests in
-                var lang2rid: [String: [String]] = self.makeLang2rid(from: requests)
-                print("Before:", lang2rid)
-                
+        
+        // https://stackoverflow.com/questions/40270598/ios-10-how-to-view-a-list-of-pending-notifications-using-unusernotificationcente
+        let notificationCenter = UNUserNotificationCenter.current()
+        notificationCenter.getPendingNotificationRequests { requests in
+            var lang2rid: [String: [String]] = self.makeLang2rid(from: requests)
+            print("Before:", lang2rid)
+            
+            for lang in self.wordCardEntries.keys {
                 // Create word cards for 10-22.
                 for day in Date().nextNDays(n: 3) {
                     for hour in 10...22 {
@@ -322,7 +327,7 @@ extension HomeViewController {
                             continue
                         }
                         
-                        let title: String = wordCardEntry.title
+                        let title: String = self.addIcon(of: lang, to: wordCardEntry.title)
                         let body: String = wordCardEntry.body
                         
                         print("Adding a word card.")
@@ -340,9 +345,8 @@ extension HomeViewController {
                         lang2rid[lang]!.append(identifier)
                     }
                 }
-                
-                print("After:", lang2rid)
             }
+            print("After:", lang2rid)
         }
     }
     

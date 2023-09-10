@@ -47,6 +47,6 @@ extension WordCardEntry {
     
     // MARK: - Constants
     
-    static let maxEntryNumber: Int = 100
+    static let maxEntryNumber: Int = 30
     
 }

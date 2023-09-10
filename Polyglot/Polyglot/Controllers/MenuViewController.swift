@@ -272,7 +272,7 @@ extension MenuViewController {
     }
     
     func makeWordCardTitle(word: Word) -> String {
-        return "\(LangCode.toFlagIcon(langCode: self.lang)) \(word.accentedText(tokenSeparator: Strings.wordSeparator))"
+        return word.accentedText(tokenSeparator: Strings.wordSeparator)
     }
 
     var wordCardEntries: [WordCardEntry] {
