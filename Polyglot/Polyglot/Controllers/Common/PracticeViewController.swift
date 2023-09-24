@@ -135,11 +135,11 @@ class PracticeViewController: UIViewController {
     }
     
     func updateLayouts() {
+        let topOffset = UIApplication.shared.statusBarFrame.height  // https://stackoverflow.com/questions/25973733/status-bar-height-in-swift
+            + navigationController!.navigationBar.frame.maxY
+            + 20
+        
         mainView.snp.makeConstraints { (make) in
-            let topOffset = UIApplication.shared.statusBarFrame.height  // https://stackoverflow.com/questions/25973733/status-bar-height-in-swift
-                + navigationController!.navigationBar.frame.maxY
-                + 20
-            
             make.centerX.equalToSuperview()
             make.width.equalToSuperview()
             // If the nav bar is translucent:
@@ -170,7 +170,7 @@ class PracticeViewController: UIViewController {
             // If the nav bar is translucent:
 //            make.top.equalToSuperview().inset(navigationController!.navigationBar.frame.maxY + 60)
             // If the nav bar is not translucent.
-            make.top.equalToSuperview().inset(navigationController!.navigationBar.frame.maxY)
+            make.top.equalToSuperview().inset(topOffset)
             make.width.equalToSuperview().multipliedBy(0.9)
             make.centerX.equalToSuperview()
             make.bottom.equalToSuperview().inset(30)
