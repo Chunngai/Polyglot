@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import PaddingLabel
 import IQKeyboardManagerSwift
 
 enum PracticeStatus: UInt {

@@ -1,24 +1,20 @@
 PODS:
-  - IQKeyboardManagerSwift (6.5.10)
-  - PaddingLabel (1.2)
-  - SwiftSoup (2.5.3)
+  - IQKeyboardManagerSwift (6.5.12)
+  - SwiftSoup (2.6.1)
 
 DEPENDENCIES:
   - IQKeyboardManagerSwift
-  - PaddingLabel (= 1.2)
   - SwiftSoup
 
 SPEC REPOS:
   trunk:
     - IQKeyboardManagerSwift
-    - PaddingLabel
     - SwiftSoup
 
 SPEC CHECKSUMS:
-  IQKeyboardManagerSwift: 52962c76ab33532f15ad9f3ff4e5715eda5335bb
-  PaddingLabel: 21ab5282c780366018b04c30e3920c2f55a2fd14
-  SwiftSoup: 33e8d374021a6c332788f78fa29a93227d8a7699
+  IQKeyboardManagerSwift: 371b08cb39664fb56030f5345c815a4ffc74bbc0
+  SwiftSoup: 5dd2c1b06afc964f30d99894af6ede22ede627aa
 
-PODFILE CHECKSUM: 0172c9798442073cc96c171e0807a12032c0db2a
+PODFILE CHECKSUM: 958578971376d2cfddf130c479240637199a5450
 
-COCOAPODS: 1.10.2
+COCOAPODS: 1.12.1
