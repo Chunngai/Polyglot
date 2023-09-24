@@ -71,14 +71,13 @@ class ReadingTableCell: UITableViewCell {
         
         titleLabel.snp.makeConstraints { (make) in
             make.top.equalToSuperview().inset(padding)
-            make.centerX.equalToSuperview()
-            make.width.equalToSuperview().multipliedBy(0.95)
+            make.leading.trailing.equalToSuperview().inset(padding)
         }
         
         bodyLabel.snp.makeConstraints { (make) in
-            make.top.equalTo(titleLabel.snp.bottom).offset(padding)
-            make.centerX.equalToSuperview()
-            make.width.equalTo(titleLabel.snp.width)
+            make.top.equalTo(titleLabel.snp.bottom).offset(padding / 2)
+            make.leading.equalTo(titleLabel.snp.leading)
+            make.trailing.equalTo(titleLabel.snp.trailing)
             make.bottom.equalToSuperview().inset(padding)
         }
     }

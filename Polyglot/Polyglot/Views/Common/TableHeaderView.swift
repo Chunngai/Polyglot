@@ -61,12 +61,12 @@ class TableHeaderView: UITableViewHeaderFooterView {
         
         label.snp.makeConstraints { (make) in
             make.top.bottom.equalToSuperview().inset(padding / 2)
-            make.leading.equalToSuperview().inset(padding)
+            make.leading.equalToSuperview().inset(padding * 2)
             make.trailing.equalToSuperview().inset(padding)
         }
     }
     
     func updateValues(text: String) {
-        label.text = text
+        label.text = text.uppercased()
     }
 }
