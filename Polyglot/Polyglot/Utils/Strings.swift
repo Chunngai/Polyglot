@@ -198,6 +198,32 @@ extension Strings {
     static var interpretation: String {
         return Strings._interpretation[Variables.lang]!
     }
+    
+    // MARK: - List Titles.
+    
+    static let _wordListNavItemTitles: [String : String] = [
+        LangCode.en : "Words and Phrases",
+        LangCode.ja : "単語とフレーズ",
+        LangCode.es : "Palabras y Frases",
+        LangCode.ru : "Слова и Фразы",
+        LangCode.ko : "단어와 문구",
+        LangCode.de : "Wörter und Sätze",
+    ]
+    static var wordListNavItemTitle: String {
+        return Strings._wordListNavItemTitles[Variables.lang]!
+    }
+    
+    static let _articleListNavItemTitles: [String : String] = [
+        LangCode.en : "Articles",
+        LangCode.ja : "文章",
+        LangCode.es : "Artículos",
+        LangCode.ru : "Статьи",
+        LangCode.ko : "문장",
+        LangCode.de : "Artikel",
+    ]
+    static var articleListNavItemTitle: String {
+        return Strings._articleListNavItemTitles[Variables.lang]!
+    }
 }
 
 extension Strings {

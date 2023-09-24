@@ -21,8 +21,8 @@ class ListViewController: UIViewController {
     // MARK: - Views
     
     var tableView: UITableView = {
-        let tableView = UITableView()
-        tableView.backgroundColor = Colors.defaultBackgroundColor
+        let tableView = UITableView(frame: CGRect.zero, style: .insetGrouped)
+        tableView.backgroundColor = Colors.lightGrayBackgroundColor
         tableView.removeRedundantSeparators()
         return tableView
     }()
@@ -71,8 +71,7 @@ class ListViewController: UIViewController {
     
     func updateLayouts() {
         tableView.snp.makeConstraints { (make) in
-            let topOffset = (navigationController?.navigationBar.frame.height ?? 0) + searchController.searchBar.frame.height
-            make.top.equalToSuperview().inset(topOffset)
+            make.top.equalToSuperview()
             make.bottom.equalToSuperview()
             make.width.equalToSuperview()
             make.centerX.equalToSuperview()

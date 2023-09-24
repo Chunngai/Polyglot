@@ -59,6 +59,12 @@ class ReadingViewController: ListViewController {
         
         dataSource = articles.groups
     }
+    
+    override func updateViews() {
+        super.updateViews()
+        
+        navigationItem.title = Strings.articleListNavItemTitle
+    }
 }
 
 extension ReadingViewController: UITableViewDataSource {

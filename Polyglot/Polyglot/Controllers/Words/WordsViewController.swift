@@ -130,6 +130,8 @@ class WordsViewController: ListViewController {
     override func updateViews() {
         super.updateViews()
         
+        navigationItem.title = Strings.wordListNavItemTitle
+        
         // Reset a right button item being able to
         // handle tapping and long pressing.
         // https://stackoverflow.com/questions/60596312/how-to-detect-longpress-in-barbuttonitem
