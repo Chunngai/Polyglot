@@ -91,19 +91,19 @@ class PracticeViewController: UIViewController {
         updatePracticeView()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        // Hide the nav bar separator but do not make the nav bar bg transparent.
-        // https://stackoverflow.com/questions/61297266/hide-navigation-bar-separator-line-on-ios-13
-        navigationController?.navigationBar.isTranslucent = false
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        
-        navigationController?.navigationBar.isTranslucent = true
-    }
+//    override func viewWillAppear(_ animated: Bool) {
+//        super.viewWillAppear(animated)
+//        
+//        // Hide the nav bar separator but do not make the nav bar bg transparent.
+//        // https://stackoverflow.com/questions/61297266/hide-navigation-bar-separator-line-on-ios-13
+//        navigationController?.navigationBar.isTranslucent = false
+//    }
+//    
+//    override func viewDidDisappear(_ animated: Bool) {
+//        super.viewDidDisappear(animated)
+//        
+//        navigationController?.navigationBar.isTranslucent = true
+//    }
     
     func updateSetups() {        
         timingBar.delegate = self
@@ -136,12 +136,16 @@ class PracticeViewController: UIViewController {
     
     func updateLayouts() {
         mainView.snp.makeConstraints { (make) in
+            let topOffset = UIApplication.shared.statusBarFrame.height  // https://stackoverflow.com/questions/25973733/status-bar-height-in-swift
+                + navigationController!.navigationBar.frame.maxY
+                + 20
+            
             make.centerX.equalToSuperview()
             make.width.equalToSuperview()
             // If the nav bar is translucent:
 //            make.top.equalToSuperview().inset(navigationController!.navigationBar.frame.maxY + 100)
             // If the nav bar is not translucent.
-            make.top.equalToSuperview().inset(navigationController!.navigationBar.frame.maxY)
+            make.top.equalToSuperview().inset(topOffset)
             make.bottom.equalToSuperview().inset(50)
         }
         

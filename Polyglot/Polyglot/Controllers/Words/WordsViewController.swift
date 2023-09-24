@@ -131,24 +131,6 @@ class WordsViewController: ListViewController {
         super.updateViews()
         
         navigationItem.title = Strings.wordListNavItemTitle
-        
-        // Reset a right button item being able to
-        // handle tapping and long pressing.
-        // https://stackoverflow.com/questions/60596312/how-to-detect-longpress-in-barbuttonitem
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: {
-            let button = UIButton()
-            button.setImage(Icons.addIcon, for: .normal)
-            
-            button.addGestureRecognizer(UITapGestureRecognizer(
-                target: self,
-                action: #selector(addButtonTapped)
-            ))
-            button.addGestureRecognizer(UILongPressGestureRecognizer(
-                target: self,
-                action: #selector(addButtonLongPressed)
-            ))
-            return button
-        }())
     }
 }
 
@@ -304,15 +286,6 @@ extension WordsViewController {
         presentWordEditingAlert()
     }
     
-    @objc func addButtonLongPressed() {
-//        let wordsEditViewController = WordsEditViewController()
-//        wordsEditViewController.delegate = self
-//        wordsEditViewController.updateValues()
-//        
-//        let navController = NavController(rootViewController: wordsEditViewController)
-//        navigationController?.present(navController, animated: true, completion: nil)
-    }
-    
     @objc func tapped() {
         let wordsPracticeViewController = WordsPracticeViewController()
         wordsPracticeViewController.delegate = delegate
@@ -380,15 +353,6 @@ extension WordsViewController: UISearchResultsUpdating {
             return
         }
         dataSource = words.subset(containing: keyWord).grouped()
-    }
-}
-
-extension WordsViewController: WordsEditViewControllerDelegate {
-    
-    // MARK: - WordsEditViewController Delegate
-    
-    func add(words: [Word]) {
-        self.words.add(newWords: words)
     }
 }
 

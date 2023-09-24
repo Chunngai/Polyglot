@@ -71,6 +71,7 @@ class ListViewController: UIViewController {
     
     func updateLayouts() {
         tableView.snp.makeConstraints { (make) in
+//            let topOffset = (navigationController?.navigationBar.frame.maxY ?? 0)
             make.top.equalToSuperview()
             make.bottom.equalToSuperview()
             make.width.equalToSuperview()
