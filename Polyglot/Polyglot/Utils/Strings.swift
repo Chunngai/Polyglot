@@ -224,6 +224,18 @@ extension Strings {
     static var articleListNavItemTitle: String {
         return Strings._articleListNavItemTitles[Variables.lang]!
     }
+    
+    static let _newArticleNavItemTitles: [String : String] = [
+        LangCode.en : "New Article",
+        LangCode.ja : "新しい文章",
+        LangCode.es : "Articulo Nuevo",
+        LangCode.ru : "Новая Статья",
+        LangCode.ko : "새 문장",
+        LangCode.de : "Neuer Artikel",
+    ]
+    static var newArticleNavItemTitle: String {
+        return Strings._articleListNavItemTitles[Variables.lang]!
+    }
 }
 
 extension Strings {

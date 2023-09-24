@@ -48,7 +48,8 @@ class ReadingEditTableCell: UITableViewCell {
     private func updateViews() {
         selectionStyle = .none
         
-        addSubview(textView)
+//        addSubview(textView)  // Wrong. Results in not being able to edit the cell.
+        contentView.addSubview(textView)
     }
     
     private func updateLayouts() {
