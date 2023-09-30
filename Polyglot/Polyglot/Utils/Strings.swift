@@ -100,82 +100,105 @@ struct Strings {
 
 extension Strings {
     
-    // MARK: - Main Prompts
+    // MARK: - Home Texts
     
-    static let _mainPrimaryPrompts: [String : String] = [
-        LangCode.en : "Hello!",
-        LangCode.ja : "こんにちは！",
-        LangCode.es : "Hola!",
-        LangCode.ru : "Привет!",
-        LangCode.ko : "안녕하세요",
-        LangCode.de : "Hallo!",
+    static let _homeTitles: [String : String] = [
+        LangCode.en : "Home",
+        LangCode.ja : "ホーム",
+        LangCode.es : "Inicio",
+        LangCode.ru : "Главная",
+        LangCode.ko : "홈",
+        LangCode.de : "Startseite",
     ]
-    static var mainPrimaryPrompt: String {
-        return Strings._mainPrimaryPrompts[Variables.lang]!
+    static var homeTitle: String {
+        return Strings._homeTitles[Variables.lang]!
     }
     
-    static let _mainSecondaryPrompts: [String : String] = [
+//    static let _mainPrimaryPrompts: [String : String] = [
+//        LangCode.en : "Hello!",
+//        LangCode.ja : "こんにちは！",
+//        LangCode.es : "Hola!",
+//        LangCode.ru : "Привет!",
+//        LangCode.ko : "안녕하세요",
+//        LangCode.de : "Hallo!",
+//    ]
+//    static var mainPrimaryPrompt: String {
+//        return Strings._mainPrimaryPrompts[Variables.lang]!
+//    }
+            
+//    private static let _menuPrimaryPrompts: [String : String] = [
+//        LangCode.en : "English",
+//        LangCode.ja : "日本語",
+//        LangCode.es : "Español",
+//        LangCode.ru : "Русский",
+//        LangCode.ko : "한국어",
+//        LangCode.de : "Deutsch",
+//    ]
+//    static var menuPrimaryPrompt: String {
+//        return Strings._menuPrimaryPrompts[Variables.lang]!
+//    }
         
-//        LangCode.en : "Choose a language to practice",
-//        LangCode.ja : " 練習したい言語を選んでください",  // TODO: - The leading space is for aligning with the primary prompt.
-//        LangCode.es : "Elija un idioma para practicar",
-//        LangCode.ru : "Выберите язык для практики"
-        LangCode.en : " ",
-        LangCode.ja : " ",
-        LangCode.es : " ",
-        LangCode.ru : " ",
-        LangCode.ko : " ",
-        LangCode.de : " ",
+//    static let _wordListNavItemTitles: [String : String] = [
+//        LangCode.en : "Words and Phrases",
+//        LangCode.ja : "単語とフレーズ",
+//        LangCode.es : "Palabras y Frases",
+//        LangCode.ru : "Слова и Фразы",
+//        LangCode.ko : "단어와 문구",
+//        LangCode.de : "Wörter und Sätze",
+//    ]
+//    static var wordListNavItemTitle: String {
+//        return Strings._wordListNavItemTitles[Variables.lang]!
+//    }
+    
+    static let _phrases: [String : String] = [
+        LangCode.en : "Phrases",
+        LangCode.ja : "フレーズ",
+        LangCode.es : "Frases",
+        LangCode.ru : "Фразы",
+        LangCode.ko : "문구",
+        LangCode.de : "Sätze",
     ]
-    static var mainSecondaryPrompt: String {
-        return Strings._mainSecondaryPrompts[Variables.lang]!
+    static var phrases: String {
+        return Strings._phrases[Variables.lang]!
     }
     
-    // MARK: - Menu Prompts
-    
-    private static let _menuPrimaryPrompts: [String : String] = [
-        LangCode.en : "English",
-        LangCode.ja : "日本語",
-        LangCode.es : "Español",
-        LangCode.ru : "Русский",
-        LangCode.ko : "한국어",
-        LangCode.de : "Deutsch",
+    static let _articles: [String : String] = [
+        LangCode.en : "Articles",
+        LangCode.ja : "文章",
+        LangCode.es : "Artículos",
+        LangCode.ru : "Статьи",
+        LangCode.ko : "문장",
+        LangCode.de : "Artikel",
     ]
-    static var menuPrimaryPrompt: String {
-        return Strings._menuPrimaryPrompts[Variables.lang]!
+    static var articles: String {
+        return Strings._articles[Variables.lang]!
     }
     
-    private static let _menuSecondaryPrompts: [String : String] = [
-        
-//        LangCode.en : "What are you going to practice?",
-//        LangCode.ja : "  何を練習しますか？",  // TODO: - The leading space is for aligning with the primary prompt.
-//        LangCode.es : "¿Qué va a practicar?",
-//        LangCode.ru : "Что вы собираетесь практиковать?"
-        LangCode.en : " ",
-        LangCode.ja : " ",
-        LangCode.es : " ",
-        LangCode.ru : " ",
-        LangCode.ko : " ",
+    static let _newArticle: [String : String] = [
+        LangCode.en : "New Article",
+        LangCode.ja : "新しい文章",
+        LangCode.es : "Articulo Nuevo",
+        LangCode.ru : "Новая Статья",
+        LangCode.ko : "새 문장",
+        LangCode.de : "Neuer Artikel",
     ]
-    static var menuSecondaryPrompt: String {
-        return Strings._menuSecondaryPrompts[Variables.lang]!
+    static var newArticle: String {
+        return Strings._articles[Variables.lang]!
     }
     
-    // MARK: - Menu Items
-    
-    private static let _words: [String : String] = [
-        LangCode.en : "Words",
-        LangCode.ja : "単語",
-        LangCode.es : "Palabras",
-        LangCode.ru : "Слова",
-        LangCode.ko : "단어",
-        LangCode.de : "Wörter",
+    static let _phraseReview: [String : String] = [
+        LangCode.en : "Phrase Review",
+        LangCode.ja : "フレーズレビュー",
+        LangCode.es : "Revisión de frases",
+        LangCode.ru : "Обзор фраз",
+        LangCode.ko : "구문 복습",
+        LangCode.de : "Phrasenüberprüfung",
     ]
-    static var words: String {
-        return Strings._words[Variables.lang]!
+    static var phraseReview: String {
+        return Strings._phraseReview[Variables.lang]!
     }
     
-    private static let _reading: [String : String] = [
+    static let _reading: [String : String] = [
         LangCode.en : "Reading",
         LangCode.ja : "読解",
         LangCode.es : "Leer",
@@ -187,7 +210,7 @@ extension Strings {
         return Strings._reading[Variables.lang]!
     }
     
-    private static let _interpretation: [String : String] = [
+    static let _interpretation: [String : String] = [
         LangCode.en : "Interpretation",
         LangCode.ja : "通訳",
         LangCode.es : "Interpretación",
@@ -199,43 +222,6 @@ extension Strings {
         return Strings._interpretation[Variables.lang]!
     }
     
-    // MARK: - List Titles.
-    
-    static let _wordListNavItemTitles: [String : String] = [
-        LangCode.en : "Words and Phrases",
-        LangCode.ja : "単語とフレーズ",
-        LangCode.es : "Palabras y Frases",
-        LangCode.ru : "Слова и Фразы",
-        LangCode.ko : "단어와 문구",
-        LangCode.de : "Wörter und Sätze",
-    ]
-    static var wordListNavItemTitle: String {
-        return Strings._wordListNavItemTitles[Variables.lang]!
-    }
-    
-    static let _articleListNavItemTitles: [String : String] = [
-        LangCode.en : "Articles",
-        LangCode.ja : "文章",
-        LangCode.es : "Artículos",
-        LangCode.ru : "Статьи",
-        LangCode.ko : "문장",
-        LangCode.de : "Artikel",
-    ]
-    static var articleListNavItemTitle: String {
-        return Strings._articleListNavItemTitles[Variables.lang]!
-    }
-    
-    static let _newArticleNavItemTitles: [String : String] = [
-        LangCode.en : "New Article",
-        LangCode.ja : "新しい文章",
-        LangCode.es : "Articulo Nuevo",
-        LangCode.ru : "Новая Статья",
-        LangCode.ko : "새 문장",
-        LangCode.de : "Neuer Artikel",
-    ]
-    static var newArticleNavItemTitle: String {
-        return Strings._articleListNavItemTitles[Variables.lang]!
-    }
 }
 
 extension Strings {

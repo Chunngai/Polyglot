@@ -1,268 +1,596 @@
 //
-//  HomeViewController.swift
+//  NewHomeViewController.swift
 //  Polyglot
 //
-//  Created by Sola on 2022/12/20.
-//  Copyright © 2022 Sola. All rights reserved.
+//  Created by Ho on 9/28/23.
+//  Copyright © 2023 Sola. All rights reserved.
 //
 
 import UIKit
 import SnapKit
-import NaturalLanguage
 
 class HomeViewController: UIViewController {
-
-    private let learningLanguages = LangCode.loadLearningLanguages()
     
-    private var indexOfDisplayingLang: Int! {
+    // Langauges.
+    
+    var learningLangs = LangCode.loadLearningLanguages()
+    
+    var lang: String! {
         didSet {
-            indexOfDisplayingLang = (self.indexOfDisplayingLang) % learningLanguages.count
-        }
-    }
-    private var displayingLang: String {
-        return learningLanguages[self.indexOfDisplayingLang]
-    }
-    
-    private var isExecutingTextAnimation: Bool = true
-    
-    // MARK: - Models
-    
-    var wordCardEntries: [String: [WordCardEntry]] = [:] {
-        didSet {
-            for (lang, entries) in wordCardEntries {
-                var entries = entries
-                WordCardEntry.save(&entries, for: lang)
+            guard let lang = lang, Variables.lang != lang else {
+                return
+            }
+            print("Updating lang to \(lang)")
+            
+            Variables.lang = lang
+            
+            self.wordCardEntries = WordCardEntry.load(for: lang)
+            
+            self.updateTexts()
+            
+            DispatchQueue.global(qos: .userInitiated).async {
+                self.generateWordcardEntries()
+                
+                // removeAllNotifications()
+                self.generateWordcardNotifications()
             }
         }
     }
     
+    // Collection view stuff.
+    
+    enum Section: Int, CaseIterable {
+        
+        case languages
+        case lists
+        case practices
+        
+        var description: String {
+            switch self {
+            case .languages: return "Languages"
+            case .lists: return "Lists"
+            case .practices: return "Practices"
+            }
+        }
+    }
+    
+    struct Item: Hashable {
+        
+        private let identifier = UUID()
+
+        let image: UIImage?
+        let text: String?
+        
+        init(image: UIImage? = nil, text: String? = nil) {
+            self.image = image
+            self.text = text
+        }
+    }
+    
+    var dataSource: UICollectionViewDiffableDataSource<Section, Item>!
+    
+    let languageItems = LangCode.loadLearningLanguages().map { langCode in
+        return Item(
+            image: Images.langImages[langCode], 
+            text: LangCode.toFlagIcon(langCode: langCode)
+        )
+    }
+    
+    lazy var listItems = [
+        Item(
+            image: UIImage.init(systemName: "list.bullet"),
+            text: Strings._phrases[learningLangs[0]]
+        ),
+        Item(
+            image: UIImage.init(systemName: "books.vertical"),
+            text: Strings._articles[learningLangs[0]]
+        )
+    ]
+    
+    lazy var practiceItems = [
+        Item(
+            image: UIImage.init(systemName: "square.and.pencil"),
+            text: Strings._phraseReview[learningLangs[0]]
+        ),
+        Item(
+            image: UIImage.init(systemName: "doc"),
+            text: Strings._reading[learningLangs[0]]
+        ),
+        Item(
+            image: UIImage.init(systemName: "bubble"),
+            text: Strings._interpretation[learningLangs[0]]
+        )
+    ]
+        
+    // MARK: - Models
+    
+    var words: [Word]! {
+        get {
+            return Word.load(for: self.lang)
+        }
+        set {
+            guard var newValue = newValue else {
+                return
+            }
+            Word.save(&newValue, for: self.lang)
+        }
+    }
+    var articles: [Article]! {
+        get {
+            return Article.load(for: self.lang)
+        }
+        set {
+            guard var newValue = newValue else {
+                return
+            }
+            Article.save(&newValue, for: self.lang)
+        }
+    }
+    
+    var wordCardEntries: [WordCardEntry]! {
+        didSet {
+            WordCardEntry.save(&wordCardEntries, for: self.lang)
+        }
+    }
+    
+    // MARK: - Controllers
+    
     // MARK: - Views
     
-    private lazy var mainView: UIView = {
-        let view = UIView()
-        return view
-    }()
-    
-    private lazy var promptView: UIView = {
-        let view = UIView()
-        return view
-    }()
-    private lazy var primaryPromptLabel: UILabel = {
-        let label = UILabel()
-        label.attributedText = NSAttributedString(
-            string: Strings._mainPrimaryPrompts[self.displayingLang]!,
-            attributes: Attributes.primaryPromptAttributes
-        )
-        return label
-    }()
-        
-    private var langCollectionView: UICollectionView = {
-        
-        // https://itisjoe.gitbooks.io/swiftgo/content/uikit/uicollectionview.html
-        
-        let collectionLayout: UICollectionViewFlowLayout = {
-            let layout = UICollectionViewFlowLayout()
-            layout.minimumLineSpacing = Sizes.defaultLineSpacing * 2
-            layout.minimumInteritemSpacing = Sizes.defaultCollectionLayoutMinimumInteritemSpacing
-            layout.itemSize = CGSize(
-                width: HomeViewController.cellSize,
-                height: HomeViewController.cellSize
-            )
-            return layout
-        }()
-        
-        let collectionView = UICollectionView(
-            frame: .zero,
-            collectionViewLayout: collectionLayout
-        )
-        collectionView.backgroundColor = Colors.defaultBackgroundColor
-        return collectionView
-    }()
-    
+    var collectionView: UICollectionView!
+
     // MARK: - Init
     
     override func viewDidLoad() {
         super.viewDidLoad()
-                        
+    
         updateSetups()
         updateViews()
         updateLayouts()
     }
     
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        
-        for learningLanguage in learningLanguages {
-            wordCardEntries[learningLanguage] = WordCardEntry.load(for: learningLanguage)
-        }
-        print(wordCardEntries)
-        DispatchQueue.global(qos: .userInitiated).async {
-            //            removeAllNotifications()
-            self.generateWordcardNotifications()
-        }
-        
-        // https://juejin.cn/post/6905235669758443533
-        // https://stackoverflow.com/questions/27501732/stop-and-start-nsthread-in-swift
-        Thread.detachNewThreadSelector(#selector(textAnimation), toTarget: self, with: nil)
-        isExecutingTextAnimation = true
-    }
-    
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        
-        isExecutingTextAnimation = false
-    }
-    
     private func updateSetups() {
-        
-        langCollectionView.dataSource = self
-        langCollectionView.delegate = self
-        langCollectionView.register(LangCell.self, forCellWithReuseIdentifier: Identifiers.langCellIdentifier)
-        
-        indexOfDisplayingLang = (0..<learningLanguages.count).randomElement()!
+        // Set up the collection view.
+        configureHierarchy()
+        configureDataSource()
+        applyInitialSnapshots()
     }
     
     private func updateViews() {
+        navigationController?.navigationBar.prefersLargeTitles = true
         
-        view.backgroundColor = Colors.defaultBackgroundColor
-        view.addSubview(mainView)
-                
-        mainView.addSubview(promptView)
-        mainView.addSubview(langCollectionView)
-
-        promptView.addSubview(primaryPromptLabel)
+        navigationItem.title = "Home"  // TODO: - animation.
+        navigationItem.largeTitleDisplayMode = .always
     }
     
-    // TODO: - Update the insets and offsets here.
-    // TODO: - Use relative insets and offsets instead.
     private func updateLayouts() {
         
-        mainView.snp.makeConstraints { (make) in
-            make.centerX.equalToSuperview()
-            make.width.equalToSuperview().multipliedBy(0.8)
-            make.top.equalToSuperview().inset(300)
-            make.bottom.equalToSuperview()
-        }
+    }
+}
+
+extension HomeViewController {
     
-        promptView.snp.makeConstraints { (make) in
-            make.top.equalToSuperview()
-            make.width.equalToSuperview()
-            make.height.equalToSuperview().multipliedBy(0.4)
-        }
-        primaryPromptLabel.snp.makeConstraints { (make) in
-            make.top.equalToSuperview()
-            make.left.equalToSuperview()
-        }
-        
-        langCollectionView.snp.makeConstraints { (make) in
-            var rowNumber: Int = learningLanguages.count / HomeViewController.numberOfCellsInSection
-            if CGFloat(learningLanguages.count).truncatingRemainder(dividingBy: CGFloat(HomeViewController.numberOfCellsInSection)) != 0 {
-                rowNumber += 1
+    // MARK: - Utils
+    
+    private func updateCell(at indexPath: IndexPath, with text: String) {
+        if let cell = collectionView.cellForItem(at: indexPath) as? UICollectionViewListCell {
+            if var config = cell.contentConfiguration as? UIListContentConfiguration {
+                config.text = text
+                // Enable to display lists or practice.
+                config.textProperties.color = Colors.normalTextColor
+                cell.contentConfiguration = config
             }
-            
-            let rowHeight = HomeViewController.cellSize
-                + (langCollectionView.collectionViewLayout as! UICollectionViewFlowLayout).minimumLineSpacing
-            
-            make.top.equalTo(promptView.snp.bottom).offset(20)
-            make.centerX.equalToSuperview()
-            make.width.equalToSuperview()
-            make.height.equalTo(
-                (rowHeight) * CGFloat(rowNumber)
-            )
         }
     }
-}
-
-extension HomeViewController: UICollectionViewDataSource {
     
-    // MARK: - UICollectionView Data Source
-    
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return learningLanguages.count
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: Identifiers.langCellIdentifier,
-            for: indexPath
-        ) as? LangCell else {
-            return UICollectionViewCell()
-        }
-    
-        cell.langCode = learningLanguages[indexPath.row]
-        cell.langOfLangLabelText = learningLanguages[indexOfDisplayingLang]
+    private func updateTexts() {
+        navigationItem.title = Strings.homeTitle
         
-        return cell
-    }
-}
-
-extension HomeViewController: UICollectionViewDelegate {
-    
-    // MARK: - UICollectionView Delegate
-    
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let cell = collectionView.cellForItem(at: indexPath) as? LangCell else {
-            return
-        }
+        updateCell(at: IndexPath(row: 0, section: 1), with: Strings.phrases)
+        updateCell(at: IndexPath(row: 1, section: 1), with: Strings.articles)
         
-        Feedbacks.defaultFeedbackGenerator.selectionChanged()
-        
-        let menuViewController = MenuViewController(lang: cell.langCode)
-        menuViewController.delegate = self
-        navigationController?.pushViewController(menuViewController, animated: true)
+        updateCell(at: IndexPath(row: 0, section: 2), with: Strings.phraseReview)
+        updateCell(at: IndexPath(row: 1, section: 2), with: Strings.reading)
+        updateCell(at: IndexPath(row: 2, section: 2), with: Strings.interpretation)
     }
     
 }
 
 extension HomeViewController {
-
-    // MARK: - Selectors
     
-    @objc func textAnimation() {
-        while true {
-            // https://stackoverflow.com/questions/3073520/animate-text-change-in-uilabel
-            DispatchQueue.main.async {
-                
-                self.indexOfDisplayingLang += 1
-                let displayingLang = self.displayingLang
-
-                UIView.transition(
-                    with: self.view,
-                    duration: 3,
-                    // https://stackoverflow.com/questions/3237431/does-animatewithdurationanimations-block-main-thread
-                    // .allowUserInteraction is needed else the button becomes not interactive.
-                    options: [.transitionCrossDissolve, .allowUserInteraction],
-                    animations: { [weak self] in
-                        self?.primaryPromptLabel.text = Strings._mainPrimaryPrompts[displayingLang]
-                        
-                        if let cells = self?.langCollectionView.visibleCells {
-                            for cell in cells {
-                                (cell as! LangCell).langOfLangLabelText = displayingLang
-                            }
-                        }
-                    },
-                    completion: nil
-                )
-            }
-            Thread.sleep(forTimeInterval: 3)
+    // MARK: - Collection View Config
+    
+    func configureHierarchy() {
+        collectionView = UICollectionView(
+            frame: view.bounds,
+            collectionViewLayout: createLayout()
+        )
+        collectionView.autoresizingMask = [
+            .flexibleWidth,
+            .flexibleHeight
+        ]
+        collectionView.backgroundColor = .systemGroupedBackground
+        collectionView.delegate = self
+        view.addSubview(collectionView)
+    }
+    
+    func createLayout() -> UICollectionViewLayout {
+        
+        return UICollectionViewCompositionalLayout { (
+            sectionIndex: Int,
+            layoutEnvironment: NSCollectionLayoutEnvironment
+        ) -> NSCollectionLayoutSection? in
             
-            if !isExecutingTextAnimation {
-                Thread.exit()
+            guard let sectionKind = Section(rawValue: sectionIndex) else {
+                return nil
+            }
+            
+            let section: NSCollectionLayoutSection
+            
+            if sectionKind == .languages {
+                
+                let itemSize = NSCollectionLayoutSize(
+                    widthDimension: .fractionalWidth(1.0 / 3.0),
+                    heightDimension: .fractionalHeight(1.0)
+                )
+                let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                
+                let groupSize = NSCollectionLayoutSize(
+                    widthDimension: .fractionalWidth(1.0),
+                    heightDimension: .fractionalWidth(0.23)
+                )
+                let group = NSCollectionLayoutGroup.horizontal(
+                    layoutSize: groupSize,
+                    repeatingSubitem: item,
+                    count: 3
+                )
+                group.interItemSpacing = .flexible(10)
+                
+                section = NSCollectionLayoutSection(group: group)
+                section.interGroupSpacing = 10
+                section.contentInsets = NSDirectionalEdgeInsets(
+                    top: 20,
+                    leading: 20,
+                    bottom: 0,
+                    trailing: 20
+                )
+            } else if sectionKind == .lists || sectionKind == .practices {
+                let configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
+                
+                section = NSCollectionLayoutSection.list(
+                    using: configuration,
+                    layoutEnvironment: layoutEnvironment
+                )
+                section.contentInsets = NSDirectionalEdgeInsets(
+                    top: 30,
+                    leading: 20,
+                    bottom: 0,
+                    trailing: 20
+                )
+            } else {
+                fatalError("Unknown section!")
+            }
+            
+            return section
+        }
+    }
+    
+    func createGridCellRegistration() -> UICollectionView.CellRegistration<UICollectionViewCell, Item> {
+        return UICollectionView.CellRegistration<UICollectionViewCell, Item> { (
+            cell: UICollectionViewCell,
+            indexPath: IndexPath,
+            item: Item
+        ) in
+            
+            var content = UIListContentConfiguration.cell()
+            content.text = item.text
+            content.textProperties.font = .boldSystemFont(ofSize: 38)
+            content.textProperties.alignment = .center
+            content.directionalLayoutMargins = .zero
+            cell.contentConfiguration = content
+            
+            var background = UIBackgroundConfiguration.listPlainCell()
+            background.cornerRadius = 8
+            // https://www.appsloveworld.com/swift/100/44/how-change-the-selection-color-in-compositional-layouts-in-collectionview
+            background.backgroundColorTransformer = UIConfigurationColorTransformer { color in
+                // Set the selection color to white.
+                return .white
+            }
+            cell.backgroundConfiguration = background
+        }
+    }
+    
+    func createListCellRegistration() -> UICollectionView.CellRegistration<UICollectionViewListCell, Item> {
+        return UICollectionView.CellRegistration<UICollectionViewListCell, Item> { (
+            cell: UICollectionViewListCell,
+            indexPath: IndexPath,
+            item: Item
+        ) in
+            
+            var content = UIListContentConfiguration.cell()
+            content.image = item.image
+            content.text = item.text
+            content.textProperties.color = .lightGray
+            cell.contentConfiguration = content
+            
+            var background = UIBackgroundConfiguration.listPlainCell()
+            // https://www.appsloveworld.com/swift/100/44/how-change-the-selection-color-in-compositional-layouts-in-collectionview
+            background.backgroundColorTransformer = UIConfigurationColorTransformer { color in
+                // Set the selection color to white.
+                return .white
+            }
+            cell.backgroundConfiguration = background
+            
+            if indexPath.section == Section.lists.rawValue {
+                cell.accessories = [UICellAccessory.disclosureIndicator()]
             }
         }
     }
+    
+    func configureDataSource() {
+        let gridCellRegistration = createGridCellRegistration()
+        let listCellRegistration = createListCellRegistration()
+        
+        dataSource = UICollectionViewDiffableDataSource<Section, Item>(collectionView: collectionView) {
+            (collectionView, indexPath, item) -> UICollectionViewCell? in
+            
+            guard let section = Section(rawValue: indexPath.section) else {
+                fatalError("Unknown section")
+            }
+            
+            switch section {
+            case .languages:
+                return collectionView.dequeueConfiguredReusableCell(
+                    using: gridCellRegistration,
+                    for: indexPath,
+                    item: item
+                )
+            case .lists:
+                return collectionView.dequeueConfiguredReusableCell(
+                    using: listCellRegistration,
+                    for: indexPath,
+                    item: item
+                )
+            case .practices:
+                return collectionView.dequeueConfiguredReusableCell(
+                    using: listCellRegistration,
+                    for: indexPath,
+                    item: item
+                )
+            }
+        }
+    }
+    
+    func applyInitialSnapshots() {
 
+        let sections = Section.allCases
+        var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
+        snapshot.appendSections(sections)
+        dataSource.apply(snapshot, animatingDifferences: false)
+            
+        var languagesSnapShot = NSDiffableDataSourceSectionSnapshot<Item>()
+        languagesSnapShot.append(languageItems)
+        dataSource.apply(languagesSnapShot, to: .languages, animatingDifferences: false)
+        
+        var listsSnapshot = NSDiffableDataSourceSectionSnapshot<Item>()
+        listsSnapshot.append(listItems)
+        dataSource.apply(listsSnapshot, to: .lists, animatingDifferences: false)
+        
+        var practicesSnapShot = NSDiffableDataSourceSectionSnapshot<Item>()
+        practicesSnapShot.append(practiceItems)
+        dataSource.apply(practicesSnapShot, to: .practices, animatingDifferences: false)
+    }
+}
+
+extension HomeViewController: UICollectionViewDelegate {
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        
+        guard let section = Section(rawValue: indexPath.section) else {
+            return
+        }
+        let row = indexPath.row
+        
+        var cell = collectionView.cellForItem(at: indexPath)
+        if section == .lists || section == .practices {
+            cell = cell as? UICollectionViewListCell
+        }
+        guard let cell = cell else {
+            return
+        }
+        
+        Feedbacks.defaultFeedbackGenerator.selectionChanged()
+        
+        if section == .languages {
+            
+            cell.backgroundConfiguration?.strokeColor = .systemGray3
+            cell.backgroundConfiguration?.strokeWidth = 2
+            // Change the view of other language cells
+            // into the deselected status.
+            // Cannot do this in collectionView(didDeselectItemAt:)
+            // because doing so will deselect the selected
+            // language cell if a cell in other lists
+            // is selected, which is not expected.
+            for i in 0..<learningLangs.count {
+                if i == indexPath.row {
+                    continue
+                }
+                let indexPathToDeselect = IndexPath(row: i, section: 0)
+                if let cell = collectionView.cellForItem(at: indexPathToDeselect) {
+                    cell.backgroundConfiguration?.strokeColor = .clear
+                    cell.backgroundConfiguration?.strokeWidth = .zero
+                }
+            }
+            
+            // Update the current language.
+            self.lang = self.learningLangs[indexPath.row]
+            
+        } else if section == .lists {
+                    
+            guard self.lang != nil else {
+                return
+            }
+            
+            let vc: ListViewController
+            if row == 0 {
+                vc = WordsViewController()
+            } else if row == 1 {
+                vc = ReadingViewController()
+            } else {
+                fatalError("Not Implemented.")
+            }
+            vc.delegate = self
+            
+            navigationController?.pushViewController(
+                vc,
+                animated: true
+            )
+        } else if section == .practices {
+            
+            guard self.lang != nil else {
+                return
+            }
+            
+            let vc: PracticeViewController
+            if row == 0 {
+                vc = WordsPracticeViewController()
+            } else if row == 1 {
+                vc = ReadingPracticeViewController()
+            } else if row == 2 {
+                vc = TranslationPracticeViewController()
+            } else {
+                fatalError("Not Implemented.")
+            }
+            vc.delegate = self
+            
+            navigationController?.present(
+                NavController(rootViewController: vc),
+                animated: true,
+                completion: nil
+            )
+        }
+    }
+}
+
+extension HomeViewController {
+    
+    func createWordCardContent() -> (
+        word: Word,
+        content: String,
+        shouldObtainAccent: Bool
+    ) {
+        let word = self.words.randomElement()!
+        
+        var shouldObtainAccent = false
+        if self.lang == LangCode.ja && (word.tokens == nil || word.isOldJaAccents) {
+            shouldObtainAccent = true
+        }
+        if self.lang == LangCode.ru && word.tokens == nil {
+            shouldObtainAccent = true
+        }
+        
+        let candidates = articles.paraCandidates(
+            for: word,
+            shouldIgnoreCase: true
+        )
+        guard let candidate = candidates.randomElement() else {
+            return (
+                word: word,
+                content: word.meaning,
+                shouldObtainAccent: shouldObtainAccent
+            )
+        }
+        
+        let sentences = candidate.text.components(from: Variables.tokenizerOfLang(of: .sentence))
+        guard let targetSentence = sentences.first(where: { (sentence) -> Bool in
+            sentence.contains(word.text)
+        }) else {
+            return (
+                word: word,
+                content: word.meaning,
+                shouldObtainAccent: shouldObtainAccent
+            )
+        }
+        
+        return (
+            word: word,
+            content: targetSentence.replacingOccurrences(
+                of: word.text,
+                with: "#\(word.text)#"
+            ),
+            shouldObtainAccent: shouldObtainAccent
+        )
+    }
+    
+    func makeWordCardTitle(word: Word) -> String {
+        return word.accentedText(tokenSeparator: Strings.wordSeparator)
+    }
+    
+    func generateWordcardEntries() {
+        guard !words.isEmpty else {
+            return
+        }
+        
+        while wordCardEntries.count < WordCardEntry.maxEntryNumber {
+            let wordCardContent = self.createWordCardContent()
+            let title = makeWordCardTitle(word: wordCardContent.word)
+            let body: String = wordCardContent.content
+            
+            wordCardEntries.append(WordCardEntry(
+                title: title,
+                body: body
+            ))
+            let index = wordCardEntries.count - 1
+                
+            if body == wordCardContent.word.meaning {
+                // Make content with ChatGPT.
+                ContentCreator().createContent(
+                    for: wordCardContent.word.text,
+                    in: lang
+                ) { (sentence: String?) in
+                    guard let sentence = sentence else {
+                        return
+                    }
+                    let newBody = "[ChatGPT] " + sentence.replacingOccurrences(
+                        of: wordCardContent.word.text,
+                        with: "#\(wordCardContent.word.text)#",
+                        options: [.caseInsensitive]
+                    )
+                    if index >= self.wordCardEntries.count {
+                        // TODO: - will happen occasionally
+                        return
+                    }
+                    self.wordCardEntries[index].body = newBody
+                }
+            }
+            
+            if wordCardContent.shouldObtainAccent {
+                if Variables.lang == LangCode.ja {
+                    Word.makeJaTokensFor(jaWord: wordCardContent.word) { tokens in
+                        if let updatedWord = self.words.updateWord(of: wordCardContent.word.id, newTokens: tokens) {
+                            let newTitle: String = self.makeWordCardTitle(word: updatedWord)
+                            self.wordCardEntries[index].title = newTitle
+                        }
+                    }
+                }
+                if Variables.lang == LangCode.ru {
+                    Word.makeRuTokensFor(ruWord: wordCardContent.word) { tokens in
+                        if let updatedWord = self.words.updateWord(of: wordCardContent.word.id, newTokens: tokens) {
+                            let newTitle: String = self.makeWordCardTitle(word: updatedWord)
+                            self.wordCardEntries[index].title = newTitle
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 extension HomeViewController {
     
     private func makeLang2rid(from requests: [UNNotificationRequest]) -> [String: [String]] {
         var lang2rid: [String: [String]] = [:]
-        for learningLang in self.learningLanguages {
+        for learningLang in self.learningLangs {
             lang2rid[learningLang] = []
         }
         for request in requests {
@@ -278,7 +606,7 @@ extension HomeViewController {
     }
     
     private var maxRequestPerLang: Int {
-        64 / self.learningLanguages.count  // 64: max pending request num.
+        64 / self.learningLangs.count  // 64: max pending request num.
     }
     
     private func makeWordCardIdentifier(lang: String, triggerDateComponents: DateComponents) -> String {
@@ -291,73 +619,61 @@ extension HomeViewController {
     
     private func generateWordcardNotifications() {
         
-        
         // https://stackoverflow.com/questions/40270598/ios-10-how-to-view-a-list-of-pending-notifications-using-unusernotificationcente
         let notificationCenter = UNUserNotificationCenter.current()
         notificationCenter.getPendingNotificationRequests { requests in
             var lang2rid: [String: [String]] = self.makeLang2rid(from: requests)
             print("Before:", lang2rid)
             
-            for lang in self.wordCardEntries.keys {
-                // Create word cards for 10-22.
-                for day in Date().nextNDays(n: 3) {
-                    for hour in 10...22 {
-                        if lang2rid[lang]!.count >= self.maxRequestPerLang {
-                            // Cannot be outside the loops
-                            // as new notifications will be added inside the loops.
-                            continue
-                        }
-                        
-                        let triggerDateComponents = DateComponents(
-                            year: day.get(.year),
-                            month: day.get(.month),
-                            day: day.get(.day),
-                            hour: hour
-                        )
-                        if let triggerDate = Date.fromComponents(components: triggerDateComponents), triggerDate < Date() {
-                            continue
-                        }
-                        
-                        let identifier = self.makeWordCardIdentifier(lang: lang, triggerDateComponents: triggerDateComponents)
-                        if lang2rid[lang]!.contains(identifier) {
-                            continue
-                        }
-                        
-                        guard let wordCardEntry = self.wordCardEntries[lang]!.popLast() else {
-                            continue
-                        }
-                        
-                        let title: String = self.addIcon(of: lang, to: wordCardEntry.title)
-                        let body: String = wordCardEntry.body
-                        
-                        print("Adding a word card.")
-                        print("  [title] \(title)")
-                        print("  [body] \(body)")
-                        print("  [trigger date components] \(triggerDateComponents)")
-                        print("  [identifier] \(identifier)")
-                        let notificationRequest = makeNotificationRequest(
-                            title: title,
-                            body: body,
-                            triggerDateComponents: triggerDateComponents,
-                            identifier: identifier
-                        )
-                        notificationCenter.add(notificationRequest)
-                        lang2rid[lang]!.append(identifier)
+            // Create word cards for 10-22.
+            for day in Date().nextNDays(n: 3) {
+                for hour in 10...22 {
+                    if lang2rid[self.lang]!.count >= self.maxRequestPerLang {
+                        // Cannot be outside the loops
+                        // as new notifications will be added inside the loops.
+                        continue
                     }
+                    
+                    let triggerDateComponents = DateComponents(
+                        year: day.get(.year),
+                        month: day.get(.month),
+                        day: day.get(.day),
+                        hour: hour
+                    )
+                    if let triggerDate = Date.fromComponents(components: triggerDateComponents), triggerDate < Date() {
+                        continue
+                    }
+                    
+                    let identifier = self.makeWordCardIdentifier(lang: self.lang, triggerDateComponents: triggerDateComponents)
+                    if lang2rid[self.lang]!.contains(identifier) {
+                        continue
+                    }
+                    
+                    guard let wordCardEntry = self.wordCardEntries.popLast() else {
+                        continue
+                    }
+                    
+                    let title: String = self.addIcon(of: self.lang, to: wordCardEntry.title)
+                    let body: String = wordCardEntry.body
+                    
+                    print("Adding a word card.")
+                    print("  [title] \(title)")
+                    print("  [body] \(body)")
+                    print("  [trigger date components] \(triggerDateComponents)")
+                    print("  [identifier] \(identifier)")
+                    let notificationRequest = makeNotificationRequest(
+                        title: title,
+                        body: body,
+                        triggerDateComponents: triggerDateComponents,
+                        identifier: identifier
+                    )
+                    notificationCenter.add(notificationRequest)
+                    lang2rid[self.lang]!.append(identifier)
                 }
             }
+            
             print("After:", lang2rid)
         }
     }
-    
-}
-
-extension HomeViewController {
-    
-    // MARK: - Constants
-    
-    static let mainViewWidth: CGFloat = UIScreen.main.bounds.width * 0.8
-    static let cellSize: CGFloat = HomeViewController.mainViewWidth / 3.0 * 0.9
-    static let numberOfCellsInSection: Int = 3
     
 }

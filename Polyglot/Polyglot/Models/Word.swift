@@ -291,6 +291,13 @@ extension Word {
     }
     
     static func makeRuTokensFor(ruWord word: Word, completion: @escaping ([Token]) -> Void) {
+        
+        func removeAccentMark(string: String) -> String {
+            return string
+                .replacingOccurrences(of: "[", with: "")
+                .replacingOccurrences(of: "]", with: "")
+        }
+        
         let json: [String: Any] = [
             "word": word.text
         ]
@@ -334,13 +341,13 @@ extension Word {
                 for i in 0..<accentedWords.count {
                     let originalWord = originalWords[i]
                     let accentedWord = accentedWords[i]
-                    let baseForm = MenuViewController.removeAccentMark(string: baseForms[i])
+                    let baseForm = removeAccentMark(string: baseForms[i])
                     
                     let accentLoc: Int?
                     var pronunciation: String = ""
                     if accentedWord != "[error]" {
                         accentLoc = Array(accentedWord).firstIndex(of: "[")
-                        pronunciation = MenuViewController.removeAccentMark(string: accentedWord)
+                        pronunciation = removeAccentMark(string: accentedWord)
                     } else {
                         accentLoc = nil
                         pronunciation = originalWord

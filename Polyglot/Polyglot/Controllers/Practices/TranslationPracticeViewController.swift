@@ -1,59 +1,53 @@
 //
-//  ReadingPracticeViewController.swift
+//  TranslationPracticeViewController.swift
 //  Polyglot
 //
-//  Created by Sola on 2022/12/21.
+//  Created by Sola on 2022/12/30.
 //  Copyright © 2022 Sola. All rights reserved.
 //
 
 import UIKit
 
-class ReadingPracticeViewController: PracticeViewController {
+class TranslationPracticeViewController: PracticeViewController {
     
-    private var practiceProducer: ReadingPracticeProducer!
+    private lazy var practiceProducer: TranslationPracticeProducer = TranslationPracticeProducer(articles: articles)
 
     private var allNewWordsInfo: [Int : [NewWordInfo]] = [:]
-        
+    
     private var textViewOfPracticeView: NewWordAddingTextView {
         get {
             guard practiceView != nil else {
                 // Dummy text view.
                 return NewWordAddingTextView(textLang: LangCode.en, meaningLang: LangCode.en)
             }
-            return (practiceView as! ReadingPracticeView).textView
+            return (practiceView as! TranslationPracticeView).textView
         }
         set {
-            (practiceView as! ReadingPracticeView).textView = newValue
+            (practiceView as! TranslationPracticeView).textView = newValue
         }
     }
     private var bottomViewOffset: CGFloat!
     
-    // MARK: - Controllers
-    
-    var delegate: MenuViewController! {
+    var practiceStatus: PracticeStatus! {
         didSet {
-            practiceProducer = ReadingPracticeProducer(articles: delegate.articles)
+            switch practiceStatus {
+            case .beforeAnswering:
+                doneButton.isHidden = false
+                nextButton.isHidden = true
+            case .finished:
+                doneButton.isHidden = true
+                nextButton.isHidden = false
+            default:
+                return
+            }
         }
     }
     
     // MARK: - Init
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        // Do not call the functions below,
-        // as they will be called in viewDidLoad()
-        // of the superclass.
-        // updateSetups()
-        // updateViews()
-        // updateLayouts()
-        // updatePracticeView()
-    }
-    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
-        // https://stackoverflow.com/questions/55492684/how-to-get-the-frame-of-a-uiview-that-has-been-setup-through-snapkit
         bottomViewOffset = UIScreen.main.bounds.maxY - mainView.frame.maxY + doneButton.radius + 20  // TODO: - Simplify here.
         // The offset of the bottom view in the current text view
         // has been set in updatePracticeView() before this method
@@ -64,18 +58,14 @@ class ReadingPracticeViewController: PracticeViewController {
     
     override func updateSetups() {
         super.updateSetups()
+        
+        practiceStatus = .beforeAnswering
     }
     
     override func updateViews() {
         super.updateViews()
         
-        promptLabel.isHidden = true  // No prompt label is needed.
-        doneButton.isHidden = true  // No done button is needed.
-        nextButton.isHidden = false
-    }
-    
-    override func updateLayouts() {
-        super.updateLayouts()
+        promptLabel.isHidden = true
     }
     
     override func updatePracticeView() {
@@ -83,7 +73,6 @@ class ReadingPracticeViewController: PracticeViewController {
         // If it is not dismissed, the bottom view
         // of the next new word adding text view will have
         // invalid height.
-        // https://stackoverflow.com/questions/24126678/close-ios-keyboard-by-touching-anywhere-using-swift
         view.endEditing(true)
         
         // Remove the old practice view.
@@ -92,10 +81,10 @@ class ReadingPracticeViewController: PracticeViewController {
         }
         // Make a new one.
         practiceView = {
-            return ReadingPracticeView(
+            return TranslationPracticeView(
                 text: practiceProducer.currentPractice.text,
-                textLang: practiceProducer.currentPractice.textLang,
                 meaning: practiceProducer.currentPractice.meaning,
+                textLang: practiceProducer.currentPractice.textLang,
                 meaningLang: practiceProducer.currentPractice.meaningLang
             )
         }()
@@ -123,40 +112,43 @@ class ReadingPracticeViewController: PracticeViewController {
             height: 20 + "word".textSize(withFont: UIFont.systemFont(ofSize: Sizes.mediumFontSize)).height + 15 + "meaning".textSize(withFont: UIFont.systemFont(ofSize: Sizes.smallFontSize)).height + 20
         )
         textViewOfPracticeView.newWordBottomView.offset = bottomViewOffset
-
-        // Recover new words of the current text, if any.
-        // Will not be executed if there is not a previous button.
-        if allNewWordsInfo.keys.contains(practiceProducer.currentPracticeIndex) {
-            textViewOfPracticeView.newWordsInfo = allNewWordsInfo[practiceProducer.currentPracticeIndex]!
-            textViewOfPracticeView.highlightAll()  // TODO: - Wrap?
-        }
     }
 }
 
-extension ReadingPracticeViewController {
+extension TranslationPracticeViewController {
     
     // MARK: - Selectors
     
     @objc override func cancelButtonTapped() {
-        
-        // TODO: - Alert.
+    
+        // TODO: - Alert
         
         stopPracticing()
         navigationController?.dismiss(animated: true, completion: nil)
+
+    }
+    
+    @objc override func doneButtonTapped() {
+        
+        practiceStatus = .finished
+                
+        (practiceView as! TranslationPracticeView).displayTranslation()
     }
     
     @objc override func nextButtonTapped() {
         // Store new words of the previous text.
         allNewWordsInfo[practiceProducer.currentPracticeIndex] = textViewOfPracticeView.newWordsInfo
-        
+
         practiceProducer.next()
         updatePracticeView()
+        
+        practiceStatus = .beforeAnswering
     }
 }
 
-extension ReadingPracticeViewController {
+extension TranslationPracticeViewController {
     
-    // MARK: - TimeBar Delegate
+    // MARK: - TimingBar Delegate
     
     override func stopPracticing() {
         
@@ -165,10 +157,12 @@ extension ReadingPracticeViewController {
         // If the button is not pressed, the new words will not be saved.
         allNewWordsInfo[practiceProducer.currentPracticeIndex] = textViewOfPracticeView.newWordsInfo
         
-        // TODO: - Merge.
+        // TODO: - Merge with reading practice?
         func saveNewWords() {
             var newWords: [Word] = []
             for (practiceItemIndex, newWordsInfo) in allNewWordsInfo {
+                
+                // TODO: - Simplify this block.
                 let articleId = practiceProducer.practiceList[practiceItemIndex].practice.articleId
                 let article = practiceProducer.dataSource.getArticle(from: articleId)
                 let articleTitle = article?.title
@@ -177,17 +171,19 @@ extension ReadingPracticeViewController {
                     newWords.append(Word(
                         text: newWordInfo.word,
                         meaning: newWordInfo.meaning,
-                        note: articleTitle
+                        note: articleTitle ?? nil
                     ))
                 }
             }
             
-            delegate.addWordsFromArticles(words: newWords)
+            addWordsFromArticles(words: newWords)
         }
         
         saveNewWords()
         
+        doneButton.isHidden = true
         nextButton.isHidden = true
+        
     }
     
 }

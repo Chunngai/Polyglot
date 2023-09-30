@@ -77,8 +77,14 @@ class ReorderingPracticeView: UIView {
         super.init(coder: coder)
     }
 
+    var counter: Int = 0  // TODO: - a workaround for preventing recursions.
     override func layoutSubviews() {
         super.layoutSubviews()
+        
+        if counter == 2 {
+            return
+        }
+        counter += 1
         
         if frame != .zero {
             rowStack = {

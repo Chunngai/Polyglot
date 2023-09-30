@@ -10,6 +10,8 @@ import UIKit
 
 class WordsViewController: ListViewController {
     
+    // Translation stuff.
+    
     private var translator: GoogleTranslator = GoogleTranslator(
         srcLang: Variables.lang,
         trgLang: Variables.pairedLang
@@ -36,6 +38,7 @@ class WordsViewController: ListViewController {
             }
         }
     }
+    
     private var wordAddingWordTextField: UITextField? {
         if let presentedViewController = self.presentedViewController {
             if let alertController = presentedViewController as? UIAlertController {
@@ -44,7 +47,6 @@ class WordsViewController: ListViewController {
         }
         return nil
     }
-    
     private var wordAddingMeaningTextField: UITextField? {
         if let presentedViewController = self.presentedViewController {
             if let alertController = presentedViewController as? UIAlertController {
@@ -54,6 +56,8 @@ class WordsViewController: ListViewController {
         return nil
     }
     private var lastlyTypedWord: String = ""
+    
+    // Table view stuff.
     
     private var dataSource: [GroupedWords]! {
         didSet {
@@ -76,10 +80,6 @@ class WordsViewController: ListViewController {
             updateSearchResults(for: searchController)
         }
     }
-    
-    // MARK: - Controllers
-    
-    var delegate: MenuViewController!
     
     // MARK: - Views
     
@@ -122,15 +122,13 @@ class WordsViewController: ListViewController {
         
         searchController.searchResultsUpdater = self
         
-        practiceButtonShadowView.button.addTarget(self, action: #selector(tapped), for: .touchUpInside)
-        
         dataSource = words.grouped()
     }
     
     override func updateViews() {
         super.updateViews()
         
-        navigationItem.title = Strings.wordListNavItemTitle
+        navigationItem.title = Strings.phrases
     }
 }
 
@@ -284,14 +282,6 @@ extension WordsViewController {
     
     @objc override func addButtonTapped() {
         presentWordEditingAlert()
-    }
-    
-    @objc func tapped() {
-        let wordsPracticeViewController = WordsPracticeViewController()
-        wordsPracticeViewController.delegate = delegate
-
-        let wordsPracticeNavController = NavController(rootViewController: wordsPracticeViewController)
-        navigationController?.present(wordsPracticeNavController, animated: true, completion: nil)
     }
     
     @objc func textFieldTranslateButtonTapped() -> Void {

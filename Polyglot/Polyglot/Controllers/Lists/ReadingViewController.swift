@@ -32,10 +32,6 @@ class ReadingViewController: ListViewController {
         }
     }
     
-    // MARK: - Controllers
-    
-    var delegate: MenuViewController!
-    
     // MARK: - Init
     
     override func viewDidLoad() {
@@ -55,15 +51,13 @@ class ReadingViewController: ListViewController {
 
         searchController.searchResultsUpdater = self
         
-        practiceButtonShadowView.button.addTarget(self, action: #selector(tapped), for: .touchUpInside)
-        
         dataSource = articles.groups
     }
     
     override func updateViews() {
         super.updateViews()
         
-        navigationItem.title = Strings.articleListNavItemTitle
+        navigationItem.title = Strings.articles
     }
 }
 
@@ -141,14 +135,6 @@ extension ReadingViewController {
         let readingEditNavController = NavController(rootViewController: readingEditViewController)
         navigationController?.present(readingEditNavController, animated: true, completion: nil)
         
-    }
-    
-    @objc func tapped() {
-        let readingPracticeViewController = ReadingPracticeViewController()
-        readingPracticeViewController.delegate = delegate
-        
-        let readingPracticeNavController = NavController(rootViewController: readingPracticeViewController)
-        navigationController?.present(readingPracticeNavController, animated: true, completion: nil)
     }
 }
 

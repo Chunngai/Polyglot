@@ -11,7 +11,10 @@ import IQKeyboardManagerSwift
 
 class WordsPracticeViewController: PracticeViewController {
     
-    var practiceProducer: WordPracticeProducer!
+    private lazy var practiceProducer: WordPracticeProducer = WordPracticeProducer(
+        words: words,
+        articles: articles
+    )
     
     var practiceStatus: PracticeStatus! {
         didSet {
@@ -31,34 +34,7 @@ class WordsPracticeViewController: PracticeViewController {
             }
         }
     }
-   
-    // MARK: Controllers.
-    
-    var delegate: MenuViewController! {
-        didSet {
-            practiceProducer = WordPracticeProducer(
-                words: delegate.words,
-                articles: delegate.articles
-            )
-        }
-    }
-    
-    // MARK: - Init
-   
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        // Do not call the functions below,
-        // as they will be called in viewDidLoad()
-        // of the superclass.
-        // updateSetups()
-        // updateViews()
-        // updateLayouts()
-        // updatePracticeView()
-    }
-    
-    
-    
+       
     // Code for adjusting the height of the textfield
     // when the keyboard is displayed.
     // TODO: - Move the code elsewhere.
@@ -276,7 +252,7 @@ extension WordsPracticeViewController {
         practiceProducer.save()
         
         for practiceItem in practiceProducer.practiceList {
-            guard let word = delegate.words.getWord(from: practiceItem.practice.wordId) else {
+            guard let word = words.getWord(from: practiceItem.practice.wordId) else {
                 continue
             }
             guard word.tokens != nil else {
@@ -285,12 +261,12 @@ extension WordsPracticeViewController {
             
             if Variables.lang == LangCode.ja && (word.tokens == nil || word.isOldJaAccents) {
                 Word.makeJaTokensFor(jaWord: word) { tokens in
-                    self.delegate.words.updateWord(of: word.id, newTokens: tokens)
+                    self.words.updateWord(of: word.id, newTokens: tokens)
                 }
             }
             if Variables.lang == LangCode.ru && word.tokens == nil {
                 Word.makeRuTokensFor(ruWord: word) { tokens in
-                    self.delegate.words.updateWord(of: word.id, newTokens: tokens)
+                    self.words.updateWord(of: word.id, newTokens: tokens)
                 }
             }
         }

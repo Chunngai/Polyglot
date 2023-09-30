@@ -11,6 +11,8 @@ import UIKit
 class ListViewController: UIViewController {
     
     // MARK: - Controllers
+        
+    var delegate: HomeViewController!
     
     var searchController: UISearchController = {
         let searchController = UISearchController()
@@ -22,19 +24,8 @@ class ListViewController: UIViewController {
     
     var tableView: UITableView = {
         let tableView = UITableView(frame: CGRect.zero, style: .insetGrouped)
-        tableView.backgroundColor = Colors.lightGrayBackgroundColor
         tableView.removeRedundantSeparators()
         return tableView
-    }()
-    
-    var practiceButtonShadowView: RoundButtonWithShadow = {
-        let roundShadowView = RoundButtonWithShadow()
-        roundShadowView.button.setImage(
-            Icons.practiceIcon,
-            for: .normal
-        )
-        roundShadowView.button.backgroundColor = Colors.defaultBackgroundColor
-        return roundShadowView
     }()
     
     private lazy var navigationBarAddButton: UIBarButtonItem = {
@@ -63,7 +54,6 @@ class ListViewController: UIViewController {
     func updateViews() {
         view.backgroundColor = Colors.defaultBackgroundColor
         view.addSubview(tableView)
-        view.addSubview(practiceButtonShadowView)
         
         navigationItem.searchController = searchController
         navigationItem.rightBarButtonItem = navigationBarAddButton
@@ -71,16 +61,10 @@ class ListViewController: UIViewController {
     
     func updateLayouts() {
         tableView.snp.makeConstraints { (make) in
-//            let topOffset = (navigationController?.navigationBar.frame.maxY ?? 0)
             make.top.equalToSuperview()
             make.bottom.equalToSuperview()
             make.width.equalToSuperview()
             make.centerX.equalToSuperview()
-        }
-        
-        practiceButtonShadowView.snp.makeConstraints { (make) in
-            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(10)
-            make.trailing.equalTo(view.safeAreaLayoutGuide).inset(10)
         }
     }
 }

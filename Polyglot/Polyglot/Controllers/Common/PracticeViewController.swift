@@ -20,6 +20,29 @@ class PracticeViewController: UIViewController {
     // TODO: - Can it be overriden?
 //    var practiceProducer: Any!
     
+    // MARK: - Models
+    
+    var words: [Word] {
+        get {
+            return delegate.words
+        }
+        set {
+            delegate.words = newValue
+        }
+    }
+    var articles: [Article] {
+        get {
+            return delegate.articles
+        }
+        set {
+            delegate.articles = newValue
+        }
+    }
+    
+    // MARK: - Controllers
+    
+    var delegate: HomeViewController!
+    
     // MARK: - Views
     
     var timingBar: TimingBar = {
@@ -75,11 +98,6 @@ class PracticeViewController: UIViewController {
         return backgroundView
     }()
     
-    // MARK: - Controllers
-    
-    // TODO: - Can it be overriden?
-//    var delegate: UIViewController!
-    
     // MARK: - Init
     
     override func viewDidLoad() {
@@ -90,20 +108,6 @@ class PracticeViewController: UIViewController {
         updateLayouts()
         updatePracticeView()
     }
-    
-//    override func viewWillAppear(_ animated: Bool) {
-//        super.viewWillAppear(animated)
-//        
-//        // Hide the nav bar separator but do not make the nav bar bg transparent.
-//        // https://stackoverflow.com/questions/61297266/hide-navigation-bar-separator-line-on-ios-13
-//        navigationController?.navigationBar.isTranslucent = false
-//    }
-//    
-//    override func viewDidDisappear(_ animated: Bool) {
-//        super.viewDidDisappear(animated)
-//        
-//        navigationController?.navigationBar.isTranslucent = true
-//    }
     
     func updateSetups() {        
         timingBar.delegate = self
@@ -137,7 +141,7 @@ class PracticeViewController: UIViewController {
     func updateLayouts() {
         let topOffset = UIApplication.shared.statusBarFrame.height  // https://stackoverflow.com/questions/25973733/status-bar-height-in-swift
             + navigationController!.navigationBar.frame.maxY
-            + 20
+            + 30
         
         mainView.snp.makeConstraints { (make) in
             make.centerX.equalToSuperview()
@@ -307,6 +311,31 @@ extension PracticeViewController: TimingBarDelegate {
         view.bringSubviewToFront(maskView)  // The mask view should be in the front of all views.
     }
 }
+
+extension PracticeViewController {
+    
+    func addWordsFromArticles(words: [Word]) {
+        self.words.add(newWords: words)
+        for word in words {
+            if Variables.lang == LangCode.ja {
+                Word.makeJaTokensFor(jaWord: word) { tokens in
+                    DispatchQueue.main.async {
+                        self.words.updateWord(of: word.id, newTokens: tokens)
+                    }
+                }
+            }
+            if Variables.lang == LangCode.ru {
+                Word.makeRuTokensFor(ruWord: word) { tokens in
+                    DispatchQueue.main.async {
+                        self.words.updateWord(of: word.id, newTokens: tokens)
+                    }
+                }
+            }
+        }
+    }
+    
+}
+
 
 extension PracticeViewController {
     

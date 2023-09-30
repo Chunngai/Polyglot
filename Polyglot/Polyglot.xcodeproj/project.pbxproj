@@ -10,6 +10,7 @@
 		48430D635046D89103A12061 /* Pods_Polyglot_PolyglotUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 907D4F8E5EB18C9B62364FB2 /* Pods_Polyglot_PolyglotUITests.framework */; };
 		AC706291155790A1E33AAB8C /* Pods_PolyglotTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E379777C4FD33BCD824C64B5 /* Pods_PolyglotTests.framework */; };
 		C43026072813DBE394EFE8FB /* Pods_Polyglot.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F18AC45591099280DCFC633D /* Pods_Polyglot.framework */; };
+		C6E1E0312AC5C2F600E4AF72 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E1E0302AC5C2F600E4AF72 /* HomeViewController.swift */; };
 		FF1780CF2A48EDCD005F588B /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1780CE2A48EDCD005F588B /* Notifications.swift */; };
 		FF23764E29528C840073AF96 /* ReadingPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF23764D29528C840073AF96 /* ReadingPracticeViewController.swift */; };
 		FF491E732959C2FD0088FD13 /* PracticeViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E722959C2FD0088FD13 /* PracticeViewDelegate.swift */; };
@@ -39,7 +40,6 @@
 		FF4BF68B2A69468C00D875E1 /* duome_de_sentences in Resources */ = {isa = PBXBuildFile; fileRef = FF4BF6882A69468C00D875E1 /* duome_de_sentences */; };
 		FF4CA730295E869900423946 /* TranslationPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4CA72F295E869900423946 /* TranslationPracticeViewController.swift */; };
 		FF4D7CC62953952C009F6894 /* NSMutableAttributedStringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4D7CC52953952C009F6894 /* NSMutableAttributedStringExtensions.swift */; };
-		FF4EFE14295D392F00E30D6A /* HistoryRecordExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4EFE13295D392F00E30D6A /* HistoryRecordExtensions.swift */; };
 		FF4FA0C82AADDAA0001EA18C /* WordCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4FA0C72AADDAA0001EA18C /* WordCard.swift */; };
 		FF50250E295244F10097C2CB /* ReadingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF50250D295244F10097C2CB /* ReadingViewController.swift */; };
 		FF502512295248D10097C2CB /* Article.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF502511295248D10097C2CB /* Article.swift */; };
@@ -48,7 +48,6 @@
 		FF506ECB2A69A54700136C82 /* Unit 2.info.json in Resources */ = {isa = PBXBuildFile; fileRef = FF506ECA2A69A54700136C82 /* Unit 2.info.json */; };
 		FF506ECD2A69A54C00136C82 /* Unit 3.info.json in Resources */ = {isa = PBXBuildFile; fileRef = FF506ECC2A69A54C00136C82 /* Unit 3.info.json */; };
 		FF506ECF2A69A55800136C82 /* de.words.duome.u1.json in Resources */ = {isa = PBXBuildFile; fileRef = FF506ECE2A69A55800136C82 /* de.words.duome.u1.json */; };
-		FF5292072951FC9700858B55 /* MenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5292062951FC9700858B55 /* MenuViewController.swift */; };
 		FF52920A2952012E00858B55 /* ThreeButtonSelectionStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5292092952012E00858B55 /* ThreeButtonSelectionStack.swift */; };
 		FF52921229520D1200858B55 /* UINavigationBarExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF52921129520D1200858B55 /* UINavigationBarExtensions.swift */; };
 		FF55D156296F3AEC0092FB6B /* Values.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF55D155296F3AEC0092FB6B /* Values.swift */; };
@@ -69,7 +68,6 @@
 		FF5FE946297431C30002691C /* ArrayExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5FE945297431C30002691C /* ArrayExtensions.swift */; };
 		FF62C9762951382500D41797 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9752951382500D41797 /* AppDelegate.swift */; };
 		FF62C9782951382500D41797 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9772951382500D41797 /* SceneDelegate.swift */; };
-		FF62C97A2951382500D41797 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9792951382500D41797 /* HomeViewController.swift */; };
 		FF62C97F2951382600D41797 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FF62C97E2951382600D41797 /* Assets.xcassets */; };
 		FF62C98D2951382600D41797 /* PolyglotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C98C2951382600D41797 /* PolyglotTests.swift */; };
 		FF62C9982951382600D41797 /* PolyglotUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9972951382600D41797 /* PolyglotUITests.swift */; };
@@ -149,6 +147,7 @@
 		781C1DC2544908B8FF39175D /* Pods-PolyglotTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PolyglotTests.release.xcconfig"; path = "Target Support Files/Pods-PolyglotTests/Pods-PolyglotTests.release.xcconfig"; sourceTree = "<group>"; };
 		80A4DDEB0D1137F63C376D55 /* Pods-Polyglot-PolyglotUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Polyglot-PolyglotUITests.release.xcconfig"; path = "Target Support Files/Pods-Polyglot-PolyglotUITests/Pods-Polyglot-PolyglotUITests.release.xcconfig"; sourceTree = "<group>"; };
 		907D4F8E5EB18C9B62364FB2 /* Pods_Polyglot_PolyglotUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Polyglot_PolyglotUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C6E1E0302AC5C2F600E4AF72 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		C9324C7255807718BBF5D9EC /* Pods-Polyglot-PolyglotUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Polyglot-PolyglotUITests.debug.xcconfig"; path = "Target Support Files/Pods-Polyglot-PolyglotUITests/Pods-Polyglot-PolyglotUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		DEDB21A8073730D28A47A161 /* Pods-Polyglot.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Polyglot.release.xcconfig"; path = "Target Support Files/Pods-Polyglot/Pods-Polyglot.release.xcconfig"; sourceTree = "<group>"; };
 		E379777C4FD33BCD824C64B5 /* Pods_PolyglotTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PolyglotTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -183,7 +182,6 @@
 		FF4BF6882A69468C00D875E1 /* duome_de_sentences */ = {isa = PBXFileReference; lastKnownFileType = folder; name = duome_de_sentences; path = ../../../../../../Volumes/Windows/Users/Neko/Desktop/polyglot/duome_sentences/duome_de_sentences; sourceTree = "<group>"; };
 		FF4CA72F295E869900423946 /* TranslationPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeViewController.swift; sourceTree = "<group>"; };
 		FF4D7CC52953952C009F6894 /* NSMutableAttributedStringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSMutableAttributedStringExtensions.swift; sourceTree = "<group>"; };
-		FF4EFE13295D392F00E30D6A /* HistoryRecordExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryRecordExtensions.swift; sourceTree = "<group>"; };
 		FF4FA0C72AADDAA0001EA18C /* WordCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordCard.swift; sourceTree = "<group>"; };
 		FF50250D295244F10097C2CB /* ReadingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingViewController.swift; sourceTree = "<group>"; };
 		FF502511295248D10097C2CB /* Article.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Article.swift; sourceTree = "<group>"; };
@@ -192,7 +190,6 @@
 		FF506ECA2A69A54700136C82 /* Unit 2.info.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "Unit 2.info.json"; path = "../../../../../../Volumes/Windows/Users/Neko/OneDrive/Repos/polyglot-backend/scripts/ru/Unit 2.info.json"; sourceTree = "<group>"; };
 		FF506ECC2A69A54C00136C82 /* Unit 3.info.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "Unit 3.info.json"; path = "../../../../../../Volumes/Windows/Users/Neko/OneDrive/Repos/polyglot-backend/scripts/ru/Unit 3.info.json"; sourceTree = "<group>"; };
 		FF506ECE2A69A55800136C82 /* de.words.duome.u1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = de.words.duome.u1.json; path = "../../../../../../Volumes/Windows/Users/Neko/OneDrive/Repos/polyglot-backend/scripts/de/de.words.duome.u1.json"; sourceTree = "<group>"; };
-		FF5292062951FC9700858B55 /* MenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuViewController.swift; sourceTree = "<group>"; };
 		FF5292092952012E00858B55 /* ThreeButtonSelectionStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeButtonSelectionStack.swift; sourceTree = "<group>"; };
 		FF52921129520D1200858B55 /* UINavigationBarExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UINavigationBarExtensions.swift; sourceTree = "<group>"; };
 		FF55D155296F3AEC0092FB6B /* Values.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Values.swift; sourceTree = "<group>"; };
@@ -214,7 +211,6 @@
 		FF62C9722951382500D41797 /* Polyglot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Polyglot.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FF62C9752951382500D41797 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		FF62C9772951382500D41797 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		FF62C9792951382500D41797 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		FF62C97E2951382600D41797 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		FF62C9832951382600D41797 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FF62C9882951382600D41797 /* PolyglotTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PolyglotTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -290,6 +286,26 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		C69D97E02AC7FE5600AC2CD9 /* Lists */ = {
+			isa = PBXGroup;
+			children = (
+				FF495E952958FFE600EA7EA9 /* WordsViewController.swift */,
+				FF50250D295244F10097C2CB /* ReadingViewController.swift */,
+				FF4B382A29525A4300BB3FFD /* ReadingEditViewController.swift */,
+			);
+			path = Lists;
+			sourceTree = "<group>";
+		};
+		C69D97E12AC7FE6B00AC2CD9 /* Practices */ = {
+			isa = PBXGroup;
+			children = (
+				FF495EA12959244C00EA7EA9 /* WordsPracticeViewController.swift */,
+				FF23764D29528C840073AF96 /* ReadingPracticeViewController.swift */,
+				FF4CA72F295E869900423946 /* TranslationPracticeViewController.swift */,
+			);
+			path = Practices;
+			sourceTree = "<group>";
+		};
 		FF24AB75297073AA00129EEF /* Common */ = {
 			isa = PBXGroup;
 			children = (
@@ -341,18 +357,8 @@
 			children = (
 				FF495E982959039A00EA7EA9 /* WordExtensions.swift */,
 				FF4964BF29579DA100414AC5 /* ArticleExtensions.swift */,
-				FF4EFE13295D392F00E30D6A /* HistoryRecordExtensions.swift */,
 			);
 			path = ModelExtensions;
-			sourceTree = "<group>";
-		};
-		FF495E942958FFCC00EA7EA9 /* Words */ = {
-			isa = PBXGroup;
-			children = (
-				FF495E952958FFE600EA7EA9 /* WordsViewController.swift */,
-				FF495EA12959244C00EA7EA9 /* WordsPracticeViewController.swift */,
-			);
-			path = Words;
 			sourceTree = "<group>";
 		};
 		FF495E9A295903B700EA7EA9 /* Words */ = {
@@ -366,14 +372,6 @@
 			path = Words;
 			sourceTree = "<group>";
 		};
-		FF4CA72C295E868100423946 /* Translation */ = {
-			isa = PBXGroup;
-			children = (
-				FF4CA72F295E869900423946 /* TranslationPracticeViewController.swift */,
-			);
-			path = Translation;
-			sourceTree = "<group>";
-		};
 		FF4CA732295E888000423946 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
@@ -385,16 +383,6 @@
 				FF1780CE2A48EDCD005F588B /* Notifications.swift */,
 			);
 			path = Utils;
-			sourceTree = "<group>";
-		};
-		FF50250A295244D50097C2CB /* Reading */ = {
-			isa = PBXGroup;
-			children = (
-				FF50250D295244F10097C2CB /* ReadingViewController.swift */,
-				FF4B382A29525A4300BB3FFD /* ReadingEditViewController.swift */,
-				FF23764D29528C840073AF96 /* ReadingPracticeViewController.swift */,
-			);
-			path = Reading;
 			sourceTree = "<group>";
 		};
 		FF502510295248BF0097C2CB /* Models */ = {
@@ -521,12 +509,10 @@
 		FF62C9A629513A2800D41797 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
-				FF62C9792951382500D41797 /* HomeViewController.swift */,
-				FF5292062951FC9700858B55 /* MenuViewController.swift */,
+				C6E1E0302AC5C2F600E4AF72 /* HomeViewController.swift */,
 				FF58442F2967215700137E00 /* Common */,
-				FF495E942958FFCC00EA7EA9 /* Words */,
-				FF50250A295244D50097C2CB /* Reading */,
-				FF4CA72C295E868100423946 /* Translation */,
+				C69D97E02AC7FE5600AC2CD9 /* Lists */,
+				C69D97E12AC7FE6B00AC2CD9 /* Practices */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -920,7 +906,6 @@
 				FF8E5BC3298DBD5D003B6FB1 /* JapanesePAAnalyzer.swift in Sources */,
 				FF4964BA29579C5A00414AC5 /* UISearchBarExtensions.swift in Sources */,
 				FF5844312967217700137E00 /* ListViewController.swift in Sources */,
-				FF62C97A2951382500D41797 /* HomeViewController.swift in Sources */,
 				FF5D129529577CB3005DEEDE /* RoundButtonWithShadow.swift in Sources */,
 				FF4A21542959A5D600AD3AF8 /* Practice.swift in Sources */,
 				FF4964C029579DA100414AC5 /* ArticleExtensions.swift in Sources */,
@@ -930,17 +915,16 @@
 				FF491E732959C2FD0088FD13 /* PracticeViewDelegate.swift in Sources */,
 				FF5690142980367A00CA2C7B /* LangCode.swift in Sources */,
 				FF495E8E2958F38800EA7EA9 /* UITableViewExtensions.swift in Sources */,
-				FF5292072951FC9700858B55 /* MenuViewController.swift in Sources */,
 				FF4AB0032A9B4C4400908062 /* ContentCreator.swift in Sources */,
 				FF5AA00B2961F208009D5237 /* Alerts.swift in Sources */,
 				FF793A482968A7D60026B8C7 /* UIApplicationExtensions.swift in Sources */,
 				FF4B382B29525A4300BB3FFD /* ReadingEditViewController.swift in Sources */,
 				FF4B382F29525BD400BB3FFD /* ReadingEditTableCell.swift in Sources */,
 				FF63DE00299AD2F90088C10B /* WordBankItem.swift in Sources */,
+				C6E1E0312AC5C2F600E4AF72 /* HomeViewController.swift in Sources */,
 				FF50251429524D100097C2CB /* ReadingTableCell.swift in Sources */,
 				FF491E802959ED730088FD13 /* Separator.swift in Sources */,
 				FF8CDE812952995F00B36CA3 /* NewWordAddingBottomView.swift in Sources */,
-				FF4EFE14295D392F00E30D6A /* HistoryRecordExtensions.swift in Sources */,
 				FF5B182C2961E55F00C80DC3 /* IO.swift in Sources */,
 				FF591EDA296796200004CB80 /* TranslationPractice.swift in Sources */,
 				FF4964BE29579C9700414AC5 /* StringExtensions.swift in Sources */,
