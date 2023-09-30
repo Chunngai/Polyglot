@@ -2,71 +2,92 @@
 //  LangCell.swift
 //  Polyglot
 //
-//  Created by Sola on 2023/1/25.
+//  Created by Ho on 9/30/23.
 //  Copyright © 2023 Sola. All rights reserved.
 //
 
 import UIKit
 
-class LangCell: UICollectionViewCell {
+class LangCellContentConfiguration: UIContentConfiguration {
     
-    var langCode: String! {
-        didSet {
-            
-            langLabelTexts = Strings.langStrings(for: langCode)
-            
-            langImageView.image = Images.langImages[langCode]!
+    var langImage: UIImage?
+   
+    func makeContentView() -> UIView & UIContentView {
+        return LangCellContentView(configuration: self)
+    }
+    
+    func updated(for state: UIConfigurationState) -> Self {
+        // Same for all states.
+        return self
+    }
+}
+
+class LangCellContentView: UIView, UIContentView {
+    
+    let langImageView = UIImageView()
+    
+    private var currentConfiguration: LangCellContentConfiguration!
+    var configuration: UIContentConfiguration {
+        get {
+            return currentConfiguration
+        }
+        set {
+            guard let newConfiguration = newValue as? LangCellContentConfiguration else {
+                return
+            }
+            apply(configuration: newConfiguration)
         }
     }
     
-    private var langLabelTexts: [String: String]!  // Language name in different languages.
-    var langOfLangLabelText: String! {
-        didSet {
-            langLabel.attributedText = NSAttributedString(
-                string: langLabelTexts[langOfLangLabelText]!,
-                attributes: Attributes.langStringAttrs
-            )
-        }
-    }
-    
-    // MARK: - Views
-    
-    private lazy var langImageView: UIImageView = UIImageView()
-    
-    private lazy var langLabel: UILabel = UILabel()
-    
-    // MARK: - Init
-    
-    override init(frame: CGRect = .zero) {
-        super.init(frame: frame)
-                
-        updateSetups()
+    init(configuration: LangCellContentConfiguration) {
+        super.init(frame: .zero)
+        
         updateViews()
         updateLayouts()
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
         
-        fatalError("init(coder:) has not been implemented")
+        apply(configuration: configuration)
     }
     
-    private func updateSetups() {
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     private func updateViews() {
         addSubview(langImageView)
-        addSubview(langLabel)
     }
     
     private func updateLayouts() {
-        langImageView.snp.makeConstraints { (make) in
-            make.left.top.equalToSuperview()
-        }
-        
-        langLabel.snp.makeConstraints { (make) in
-            make.bottom.equalToSuperview()
-            make.centerX.equalTo(langImageView.snp.centerX)
+        langImageView.snp.makeConstraints { make in
+            make.width.height.equalToSuperview().multipliedBy(0.5)
+            make.centerX.centerY.equalToSuperview()
         }
     }
+    
+    private func apply(configuration: LangCellContentConfiguration) {
+
+        currentConfiguration = configuration
+        
+        langImageView.image = configuration.langImage
+    }
 }
+
+class LangCell: UICollectionViewCell {
+        
+    // https://swiftsenpai.com/development/uicollectionview-list-custom-cell/
+    
+    override func updateConfiguration(using state: UICellConfigurationState) {
+        let newConfiguration = LangCellContentConfiguration().updated(for: state)
+        newConfiguration.langImage = (contentConfiguration as? LangCellContentConfiguration)?.langImage
+        
+        contentConfiguration = newConfiguration
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+    }
+}
+

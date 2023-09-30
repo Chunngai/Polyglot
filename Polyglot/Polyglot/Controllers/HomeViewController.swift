@@ -9,6 +9,19 @@
 import UIKit
 import SnapKit
 
+struct HomeItem: Hashable {
+    
+    private let identifier = UUID()
+
+    let image: UIImage?
+    let text: String?
+    
+    init(image: UIImage? = nil, text: String? = nil) {
+        self.image = image
+        self.text = text
+    }
+}
+
 class HomeViewController: UIViewController {
     
     // Langauges.
@@ -54,49 +67,36 @@ class HomeViewController: UIViewController {
         }
     }
     
-    struct Item: Hashable {
-        
-        private let identifier = UUID()
-
-        let image: UIImage?
-        let text: String?
-        
-        init(image: UIImage? = nil, text: String? = nil) {
-            self.image = image
-            self.text = text
-        }
-    }
-    
-    var dataSource: UICollectionViewDiffableDataSource<Section, Item>!
+    var dataSource: UICollectionViewDiffableDataSource<Section, HomeItem>!
     
     let languageItems = LangCode.loadLearningLanguages().map { langCode in
-        return Item(
+        return HomeItem(
             image: Images.langImages[langCode], 
             text: LangCode.toFlagIcon(langCode: langCode)
         )
     }
     
     lazy var listItems = [
-        Item(
+        HomeItem(
             image: UIImage.init(systemName: "list.bullet"),
             text: Strings._phrases[learningLangs[0]]
         ),
-        Item(
+        HomeItem(
             image: UIImage.init(systemName: "books.vertical"),
             text: Strings._articles[learningLangs[0]]
         )
     ]
     
     lazy var practiceItems = [
-        Item(
+        HomeItem(
             image: UIImage.init(systemName: "square.and.pencil"),
             text: Strings._phraseReview[learningLangs[0]]
         ),
-        Item(
+        HomeItem(
             image: UIImage.init(systemName: "doc"),
             text: Strings._reading[learningLangs[0]]
         ),
-        Item(
+        HomeItem(
             image: UIImage.init(systemName: "bubble"),
             text: Strings._interpretation[learningLangs[0]]
         )
@@ -275,18 +275,19 @@ extension HomeViewController {
         }
     }
     
-    func createGridCellRegistration() -> UICollectionView.CellRegistration<UICollectionViewCell, Item> {
-        return UICollectionView.CellRegistration<UICollectionViewCell, Item> { (
-            cell: UICollectionViewCell,
+    func createGridCellRegistration() -> UICollectionView.CellRegistration<LangCell, HomeItem> {
+        return UICollectionView.CellRegistration<LangCell, HomeItem> { (
+            cell: LangCell,
             indexPath: IndexPath,
-            item: Item
+            item: HomeItem
         ) in
             
-            var content = UIListContentConfiguration.cell()
-            content.text = item.text
-            content.textProperties.font = .boldSystemFont(ofSize: 38)
-            content.textProperties.alignment = .center
-            content.directionalLayoutMargins = .zero
+            let content = LangCellContentConfiguration()
+            content.langImage = item.image
+//            content.text = item.text
+//            content.textProperties.font = .boldSystemFont(ofSize: 38)
+//            content.textProperties.alignment = .center
+//            content.directionalLayoutMargins = .zero
             cell.contentConfiguration = content
             
             var background = UIBackgroundConfiguration.listPlainCell()
@@ -300,11 +301,11 @@ extension HomeViewController {
         }
     }
     
-    func createListCellRegistration() -> UICollectionView.CellRegistration<UICollectionViewListCell, Item> {
-        return UICollectionView.CellRegistration<UICollectionViewListCell, Item> { (
+    func createListCellRegistration() -> UICollectionView.CellRegistration<UICollectionViewListCell, HomeItem> {
+        return UICollectionView.CellRegistration<UICollectionViewListCell, HomeItem> { (
             cell: UICollectionViewListCell,
             indexPath: IndexPath,
-            item: Item
+            item: HomeItem
         ) in
             
             var content = UIListContentConfiguration.cell()
@@ -331,7 +332,7 @@ extension HomeViewController {
         let gridCellRegistration = createGridCellRegistration()
         let listCellRegistration = createListCellRegistration()
         
-        dataSource = UICollectionViewDiffableDataSource<Section, Item>(collectionView: collectionView) {
+        dataSource = UICollectionViewDiffableDataSource<Section, HomeItem>(collectionView: collectionView) {
             (collectionView, indexPath, item) -> UICollectionViewCell? in
             
             guard let section = Section(rawValue: indexPath.section) else {
@@ -364,19 +365,19 @@ extension HomeViewController {
     func applyInitialSnapshots() {
 
         let sections = Section.allCases
-        var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
+        var snapshot = NSDiffableDataSourceSnapshot<Section, HomeItem>()
         snapshot.appendSections(sections)
         dataSource.apply(snapshot, animatingDifferences: false)
             
-        var languagesSnapShot = NSDiffableDataSourceSectionSnapshot<Item>()
+        var languagesSnapShot = NSDiffableDataSourceSectionSnapshot<HomeItem>()
         languagesSnapShot.append(languageItems)
         dataSource.apply(languagesSnapShot, to: .languages, animatingDifferences: false)
         
-        var listsSnapshot = NSDiffableDataSourceSectionSnapshot<Item>()
+        var listsSnapshot = NSDiffableDataSourceSectionSnapshot<HomeItem>()
         listsSnapshot.append(listItems)
         dataSource.apply(listsSnapshot, to: .lists, animatingDifferences: false)
         
-        var practicesSnapShot = NSDiffableDataSourceSectionSnapshot<Item>()
+        var practicesSnapShot = NSDiffableDataSourceSectionSnapshot<HomeItem>()
         practicesSnapShot.append(practiceItems)
         dataSource.apply(practicesSnapShot, to: .practices, animatingDifferences: false)
     }

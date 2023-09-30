@@ -10,6 +10,7 @@
 		48430D635046D89103A12061 /* Pods_Polyglot_PolyglotUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 907D4F8E5EB18C9B62364FB2 /* Pods_Polyglot_PolyglotUITests.framework */; };
 		AC706291155790A1E33AAB8C /* Pods_PolyglotTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E379777C4FD33BCD824C64B5 /* Pods_PolyglotTests.framework */; };
 		C43026072813DBE394EFE8FB /* Pods_Polyglot.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F18AC45591099280DCFC633D /* Pods_Polyglot.framework */; };
+		C619E68F2AC8154F00A30B27 /* LangCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C619E68E2AC8154F00A30B27 /* LangCell.swift */; };
 		C6E1E0312AC5C2F600E4AF72 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E1E0302AC5C2F600E4AF72 /* HomeViewController.swift */; };
 		FF1780CF2A48EDCD005F588B /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1780CE2A48EDCD005F588B /* Notifications.swift */; };
 		FF23764E29528C840073AF96 /* ReadingPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF23764D29528C840073AF96 /* ReadingPracticeViewController.swift */; };
@@ -52,7 +53,6 @@
 		FF52921229520D1200858B55 /* UINavigationBarExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF52921129520D1200858B55 /* UINavigationBarExtensions.swift */; };
 		FF55D156296F3AEC0092FB6B /* Values.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF55D155296F3AEC0092FB6B /* Values.swift */; };
 		FF5690142980367A00CA2C7B /* LangCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5690132980367A00CA2C7B /* LangCode.swift */; };
-		FF56901829803D6C00CA2C7B /* LangCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF56901729803D6C00CA2C7B /* LangCell.swift */; };
 		FF5844312967217700137E00 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5844302967217700137E00 /* ListViewController.swift */; };
 		FF584434296732B400137E00 /* DictionaryExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF584433296732B400137E00 /* DictionaryExtensions.swift */; };
 		FF58518F29819CF8004EB63C /* GoogleTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF58518E29819CF8004EB63C /* GoogleTranslator.swift */; };
@@ -147,6 +147,7 @@
 		781C1DC2544908B8FF39175D /* Pods-PolyglotTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PolyglotTests.release.xcconfig"; path = "Target Support Files/Pods-PolyglotTests/Pods-PolyglotTests.release.xcconfig"; sourceTree = "<group>"; };
 		80A4DDEB0D1137F63C376D55 /* Pods-Polyglot-PolyglotUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Polyglot-PolyglotUITests.release.xcconfig"; path = "Target Support Files/Pods-Polyglot-PolyglotUITests/Pods-Polyglot-PolyglotUITests.release.xcconfig"; sourceTree = "<group>"; };
 		907D4F8E5EB18C9B62364FB2 /* Pods_Polyglot_PolyglotUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Polyglot_PolyglotUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C619E68E2AC8154F00A30B27 /* LangCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCell.swift; sourceTree = "<group>"; };
 		C6E1E0302AC5C2F600E4AF72 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		C9324C7255807718BBF5D9EC /* Pods-Polyglot-PolyglotUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Polyglot-PolyglotUITests.debug.xcconfig"; path = "Target Support Files/Pods-Polyglot-PolyglotUITests/Pods-Polyglot-PolyglotUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		DEDB21A8073730D28A47A161 /* Pods-Polyglot.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Polyglot.release.xcconfig"; path = "Target Support Files/Pods-Polyglot/Pods-Polyglot.release.xcconfig"; sourceTree = "<group>"; };
@@ -194,7 +195,6 @@
 		FF52921129520D1200858B55 /* UINavigationBarExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UINavigationBarExtensions.swift; sourceTree = "<group>"; };
 		FF55D155296F3AEC0092FB6B /* Values.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Values.swift; sourceTree = "<group>"; };
 		FF5690132980367A00CA2C7B /* LangCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCode.swift; sourceTree = "<group>"; };
-		FF56901729803D6C00CA2C7B /* LangCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCell.swift; sourceTree = "<group>"; };
 		FF5844302967217700137E00 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 		FF584433296732B400137E00 /* DictionaryExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryExtensions.swift; sourceTree = "<group>"; };
 		FF58518E29819CF8004EB63C /* GoogleTranslator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleTranslator.swift; sourceTree = "<group>"; };
@@ -414,7 +414,7 @@
 		FF56901929803E9D00CA2C7B /* Home */ = {
 			isa = PBXGroup;
 			children = (
-				FF56901729803D6C00CA2C7B /* LangCell.swift */,
+				C619E68E2AC8154F00A30B27 /* LangCell.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -932,8 +932,8 @@
 				FF58518F29819CF8004EB63C /* GoogleTranslator.swift in Sources */,
 				FFCBB0D7296B0AA200E5B9D9 /* PracticeViewController.swift in Sources */,
 				FF495E9C295903DF00EA7EA9 /* WordsTableCell.swift in Sources */,
+				C619E68F2AC8154F00A30B27 /* LangCell.swift in Sources */,
 				FF584434296732B400137E00 /* DictionaryExtensions.swift in Sources */,
-				FF56901829803D6C00CA2C7B /* LangCell.swift in Sources */,
 				FFCBB0DB296B1A6700E5B9D9 /* PracticeProducerDelegate.swift in Sources */,
 				FF52921229520D1200858B55 /* UINavigationBarExtensions.swift in Sources */,
 				FF4AB0072A9B4DE600908062 /* APIKeys.swift in Sources */,
