@@ -15,10 +15,12 @@ struct HomeItem: Hashable {
 
     let image: UIImage?
     let text: String?
+    let secondaryText: String?
     
-    init(image: UIImage? = nil, text: String? = nil) {
+    init(image: UIImage? = nil, text: String? = nil, secondaryText: String? = nil) {
         self.image = image
         self.text = text
+        self.secondaryText = secondaryText
     }
 }
 
@@ -38,6 +40,8 @@ class HomeViewController: UIViewController {
             Variables.lang = lang
             
             self.wordCardEntries = WordCardEntry.load(for: lang)
+            self.wordMetaData = Word.loadMetaData(for: lang)
+            self.articleMetaData = Article.loadMetaData(for: lang)
             
             self.updateTexts()
             
@@ -113,6 +117,10 @@ class HomeViewController: UIViewController {
                 return
             }
             Word.save(&newValue, for: self.lang)
+            
+            let newWordNumber = newValue.count
+            wordMetaData["count"] = String(newWordNumber)
+            updateTexts()
         }
     }
     var articles: [Article]! {
@@ -124,12 +132,27 @@ class HomeViewController: UIViewController {
                 return
             }
             Article.save(&newValue, for: self.lang)
+            
+            let newArticleNumber = newValue.count
+            articleMetaData["count"] = String(newArticleNumber)
+            updateTexts()
         }
     }
     
     var wordCardEntries: [WordCardEntry]! {
         didSet {
             WordCardEntry.save(&wordCardEntries, for: self.lang)
+        }
+    }
+    
+    var wordMetaData: [String:String]! {
+        didSet {
+            Word.saveMetaData(&wordMetaData, for: self.lang)
+        }
+    }
+    var articleMetaData: [String:String]! {
+        didSet {
+            Article.saveMetaData(&articleMetaData, for: self.lang)
         }
     }
     
@@ -172,10 +195,11 @@ extension HomeViewController {
     
     // MARK: - Utils
     
-    private func updateCell(at indexPath: IndexPath, with text: String) {
+    private func updateCell(at indexPath: IndexPath, text: String, secondaryText: String? = nil) {
         if let cell = collectionView.cellForItem(at: indexPath) as? UICollectionViewListCell {
             if var config = cell.contentConfiguration as? UIListContentConfiguration {
                 config.text = text
+                config.secondaryText = secondaryText
                 // Enable to display lists or practice.
                 config.textProperties.color = Colors.normalTextColor
                 cell.contentConfiguration = config
@@ -186,12 +210,29 @@ extension HomeViewController {
     private func updateTexts() {
         navigationItem.title = Strings.homeTitle
         
-        updateCell(at: IndexPath(row: 0, section: 1), with: Strings.phrases)
-        updateCell(at: IndexPath(row: 1, section: 1), with: Strings.articles)
+        updateCell(
+            at: IndexPath(row: 0, section: 1),
+            text: Strings.phrases,
+            secondaryText: wordMetaData["count"]
+        )
+        updateCell(
+            at: IndexPath(row: 1, section: 1),
+            text: Strings.articles,
+            secondaryText: articleMetaData["count"]
+        )
         
-        updateCell(at: IndexPath(row: 0, section: 2), with: Strings.phraseReview)
-        updateCell(at: IndexPath(row: 1, section: 2), with: Strings.reading)
-        updateCell(at: IndexPath(row: 2, section: 2), with: Strings.interpretation)
+        updateCell(
+            at: IndexPath(row: 0, section: 2),
+            text: Strings.phraseReview
+        )
+        updateCell(
+            at: IndexPath(row: 1, section: 2),
+            text: Strings.reading
+        )
+        updateCell(
+            at: IndexPath(row: 2, section: 2),
+            text: Strings.interpretation
+        )
     }
     
 }
@@ -308,9 +349,10 @@ extension HomeViewController {
             item: HomeItem
         ) in
             
-            var content = UIListContentConfiguration.cell()
+            var content = UIListContentConfiguration.valueCell()
             content.image = item.image
             content.text = item.text
+            content.secondaryText = item.secondaryText
             content.textProperties.color = .lightGray
             cell.contentConfiguration = content
             

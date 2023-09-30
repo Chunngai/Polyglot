@@ -189,6 +189,39 @@ extension Word {
 
 extension Word {
     
+    static func metaDataFileName(for lang: String) -> String {
+        return "words.meta.\(lang).json"
+    }
+    
+    static func loadMetaData(for lang: String) -> [String: String] {
+        do {
+            let metaData = try readMappingDataFromJson(
+                fileName: Word.metaDataFileName(for: lang),
+                keyType: String.self,
+                valType: String.self
+            ) as! [String:String]
+            return metaData
+        } catch {
+            print(error)
+            exit(1)
+        }
+    }
+    
+    static func saveMetaData(_ metaData: inout [String:String], for lang: String) {
+        do {
+            try writeMappingDataFromJson(
+                fileName: Word.metaDataFileName(for: lang),
+                data: metaData
+            )
+        } catch {
+            print(error)
+            exit(1)
+        }
+    }
+}
+
+extension Word {
+    
     static var samples: [Word] = [
         Word(cDate: Date(), text: "中間試験", meaning: "期中考"),
         Word(cDate: Date(), text: "秘密兵器", meaning: "秘密兵器"),

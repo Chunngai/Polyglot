@@ -49,7 +49,39 @@ func readSequenceDataFromJson<T: Decodable>(fileName: String, type: T.Type) thro
     }
 }
 
+func readMappingDataFromJson<T: Decodable & Hashable, U: Decodable>(fileName: String, keyType: T.Type, valType: U.Type) throws -> Any? {
+    
+    do {
+        let fileURL = try constructFileUrl(from: fileName, create: false)
+        let data = try Data(contentsOf: fileURL)
+        let items = try JSONDecoder().decode(Dictionary<T, U>.self, from: data)
+        
+        return items
+    } catch let error as CocoaError {
+        if error.code.rawValue == 260 {
+            print(error)  // File not exists.
+            return [:]
+        }
+        throw error
+    } catch let error as DecodingError {
+        throw error
+    }
+}
+
 func writeSequenceDataFromJson<T: Encodable>(fileName: String, data: [T]) throws {
+    
+    do {
+        let fileURL = try constructFileUrl(from: fileName, create: true)
+        try JSONEncoder()
+            .encode(data)
+            .write(to: fileURL)
+    } catch let error as EncodingError {
+        throw error
+    }
+    
+}
+
+func writeMappingDataFromJson<T: Encodable, U: Encodable>(fileName: String, data: [T:U]) throws {
     
     do {
         let fileURL = try constructFileUrl(from: fileName, create: true)

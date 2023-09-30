@@ -256,6 +256,40 @@ extension Article {
 
 extension Article {
     
+    static func metaDataFileName(for lang: String) -> String {
+        return "articles.meta.\(lang).json"
+    }
+    
+    static func loadMetaData(for lang: String) -> [String:String] {
+        do {
+            let metaData = try readMappingDataFromJson(
+                fileName: Article.metaDataFileName(for: lang),
+                keyType: String.self,
+                valType: String.self
+            ) as! [String:String]
+            return metaData
+        } catch {
+            print(error)
+            exit(1)
+        }
+    }
+    
+    static func saveMetaData(_ metaData: inout [String:String], for lang: String) {
+        do {
+            try writeMappingDataFromJson(
+                fileName: Article.metaDataFileName(for: lang),
+                data: metaData
+            )
+        } catch {
+            print(error)
+            exit(1)
+        }
+    }
+    
+}
+
+extension Article {
+    
     static let samples: [Article] = [
         Article(title: "日媒报道中国AI自动生成画像受非议，著作权何在？", body: "中国のインターネットで人工知能（AI）を使って制作した絵画やイラストが次々と登場している。画像生成AIは新たな娯楽として盛り上がっている一方、「盗作行為ではないか」という批判や、「AIアートには著作権が発生するか」という議論が起きている。\n在中国的互联网上，使用人工智能（AI）制作的绘画、插图接连不断地发布出来，作为一种新型娱乐方式颇受追捧的同时，也有批判的声音发生，“这是不是一种剽窃行为？”“AI艺术是否会产生著作权问题？”等也导致网民议论纷纷。\n\n画像生成AIとは、キーワードを打ち込むだけでイメージに合った画像を自動生成するもので、誰でも一瞬に「神絵」を創作することができる。世界的に「ミッドジャーニー（Midjourney）」や「ステーブル・ディフュージョン（Stable Diffusion）」といったツールが広まっているほか、「中国のグーグル」と呼ばれるIT大手・百度（Baidu）が開発した「ERNIE-ViLG」が中国では人気だ。\n所谓画像生成AI，是一种仅需要输入关键词即可自动生成符合其印象画作的工具，任何人都能在一瞬间创作出“神画”。从世界范围来说，除了以Midjourney和Stable Diffusion等工具传播以外，被称为“中国版谷歌”的IT大型公司百度开发的“ERNIE-ViLG”在中国颇具人气。", source: "https://www.baidu.com"),
         Article(title: "不带甜味的无糖茶真的好喝吗？", body: "このほど、無糖飲料「元気森林」ブランドの「燃茶」シリーズが全面リニューアルされ、これまで入っていた砂糖代用品のエリスリトールが原材料から除去され、甘みのない無糖茶に生まれ変わった。\nbbb\n\nスーパーを取材したところでは、今の無糖茶ブランドには、ミネラルウォーターメーカーの農夫山泉傘下の「東方樹葉」シリーズをはじめ、サントリー、淳茶舎、茶里王などがあった。\n\nまたお茶ドリンクチェーンの奈雪の茶もこのほど、その直営店で、店内で作るお茶ドリンクとペットボトル入りフルーツティーを含む甘みのある商品に、糖質ゼロで天然の砂糖代用品である羅漢果を全面的に使用することを明らかにした。\n\n今では、糖質ゼロの茶飲料を選ぶ若者が増え続けている。ソーシャルコマースプラットフォーム「小紅書」で「カロリー・糖質ゼロのミルクティ」を検索すると、5千件を超えるノートがヒットする。様々なブランドの低糖・低カロリーのおすすめ飲料を紹介する人もいる。糖質ゼロの登場は、健康な食生活を志向する消費者のニーズを満たしている。\n\n業界関係者は、「新しいスタイルのお茶飲料は、商品競争において『茶葉の競争』、『トッピングするフルーツの競争』、『乳製品の競争』の段階を経てきており、今は『糖質の競争』に突入している」との見方を示す。\n\n中国のデータサービス機関の零点有数が発表した「2022年中国無糖茶飲料産業インサイト報告」によると、無糖茶飲料産業は成長段階に入っており、無糖茶飲料市場の規模は2014年の6億元（1元は約19.6円）から2020年の48億5千万元に増加し、複合年間成長率は40％を超えた。", source: "https://www.baidu.com"),
