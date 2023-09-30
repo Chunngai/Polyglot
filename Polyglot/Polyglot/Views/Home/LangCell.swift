@@ -10,7 +10,7 @@ import UIKit
 
 class LangCellContentConfiguration: UIContentConfiguration {
     
-    var langImage: UIImage?
+    var langImage: UIImage!
    
     func makeContentView() -> UIView & UIContentView {
         return LangCellContentView(configuration: self)
@@ -76,10 +76,7 @@ class LangCell: UICollectionViewCell {
     // https://swiftsenpai.com/development/uicollectionview-list-custom-cell/
     
     override func updateConfiguration(using state: UICellConfigurationState) {
-        let newConfiguration = LangCellContentConfiguration().updated(for: state)
-        newConfiguration.langImage = (contentConfiguration as? LangCellContentConfiguration)?.langImage
-        
-        contentConfiguration = newConfiguration
+        contentConfiguration = contentConfiguration?.updated(for: state)
     }
     
     required init?(coder: NSCoder) {

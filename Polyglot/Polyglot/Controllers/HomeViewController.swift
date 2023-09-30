@@ -14,13 +14,24 @@ struct HomeItem: Hashable {
     private let identifier = UUID()
 
     let image: UIImage?
+    
     let text: String?
     let secondaryText: String?
     
-    init(image: UIImage? = nil, text: String? = nil, secondaryText: String? = nil) {
+    let header: String?
+    let word: String?
+    let content: String?
+    
+    init(
+        image: UIImage? = nil, text: String? = nil, secondaryText: String? = nil,
+        header: String? = nil, word: String? = nil, content: String? = nil
+    ) {
         self.image = image
         self.text = text
         self.secondaryText = secondaryText
+        self.header = header
+        self.word = word
+        self.content = content
     }
 }
 
@@ -28,7 +39,14 @@ class HomeViewController: UIViewController {
     
     // Langauges.
     
-    var learningLangs = LangCode.loadLearningLanguages()
+    var learningLangs: [String] = {
+        var learningLanguages = LangCode.loadLearningLanguages()
+        if learningLanguages.count == 0 {
+            // Set a default val.
+            learningLanguages = [LangCode.en]
+        }
+        return learningLanguages
+    }()
     
     var lang: String! {
         didSet {
@@ -56,22 +74,7 @@ class HomeViewController: UIViewController {
     
     // Collection view stuff.
     
-    enum Section: Int, CaseIterable {
-        
-        case languages
-        case lists
-        case practices
-        
-        var description: String {
-            switch self {
-            case .languages: return "Languages"
-            case .lists: return "Lists"
-            case .practices: return "Practices"
-            }
-        }
-    }
-    
-    var dataSource: UICollectionViewDiffableDataSource<Section, HomeItem>!
+    var dataSource: UICollectionViewDiffableDataSource<Int, HomeItem>!
     
     let languageItems = LangCode.loadLearningLanguages().map { langCode in
         return HomeItem(
@@ -105,7 +108,7 @@ class HomeViewController: UIViewController {
             text: Strings._interpretation[learningLangs[0]]
         )
     ]
-        
+    
     // MARK: - Models
     
     var words: [Word]! {
@@ -120,7 +123,9 @@ class HomeViewController: UIViewController {
             
             let newWordNumber = newValue.count
             wordMetaData["count"] = String(newWordNumber)
-            updateTexts()
+            DispatchQueue.main.async {
+                self.updateTexts()  // May be called by the accent retrieving in a closure.
+            }
         }
     }
     var articles: [Article]! {
@@ -135,7 +140,9 @@ class HomeViewController: UIViewController {
             
             let newArticleNumber = newValue.count
             articleMetaData["count"] = String(newArticleNumber)
-            updateTexts()
+            DispatchQueue.main.async {
+                self.updateTexts()  // May be called by the accent retrieving in a closure.
+            }
         }
     }
     
@@ -164,6 +171,71 @@ class HomeViewController: UIViewController {
 
     // MARK: - Init
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
+            var entries: [(
+                dateString: String,
+                entry: WordCardEntry
+            )] = notifications.compactMap { notification in
+                
+                let notificationDateComponents = (notification.request.trigger as! UNCalendarNotificationTrigger).dateComponents
+                let notificationDate = Date.fromComponents(components: notificationDateComponents)
+                guard let notificationDate = notificationDate else {
+                    return nil
+                }
+                guard Calendar.current.isDate(notificationDate, inSameDayAs: Date()) else {
+                    return nil
+                }
+                
+                return (
+                    dateString: notificationDate.repr(ofFormat: "HH:mm"),
+                    entry: WordCardEntry(
+                        title: notification.request.content.title,
+                        body: notification.request.content.body
+                    )
+                )
+            }
+            
+            entries = entries.sorted(by: { a, b in
+                a.dateString > b.dateString
+            })
+            
+            var sections: [(
+                header: HomeItem,
+                items: [HomeItem]
+            )] = []
+            var currentHeaderText: String = ""
+            for entry in entries {
+                let headerText = entry.dateString
+                if currentHeaderText != headerText {
+                    currentHeaderText = headerText
+                    sections.append((
+                        header: HomeItem(header: currentHeaderText),
+                        items: []
+                    ))
+                }
+                sections[sections.count - 1].items.append(HomeItem(
+                    word: entry.entry.title,
+                    content: entry.entry.body
+                ))
+            }
+            
+            for (i, section) in sections.enumerated() {
+                var sectionSnapShot = NSDiffableDataSourceSectionSnapshot<HomeItem>()
+                
+                sectionSnapShot.append([section.header])
+                sectionSnapShot.append(section.items)
+//                sectionSnapShot.expand([headerItem])
+                
+                DispatchQueue.main.async {
+                    self.dataSource.apply(sectionSnapShot, to: i + 3)
+                }
+            }
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
     
@@ -182,7 +254,7 @@ class HomeViewController: UIViewController {
     private func updateViews() {
         navigationController?.navigationBar.prefersLargeTitles = true
         
-        navigationItem.title = "Home"  // TODO: - animation.
+        navigationItem.title = Strings._homeTitles[learningLangs[0]]
         navigationItem.largeTitleDisplayMode = .always
     }
     
@@ -262,13 +334,9 @@ extension HomeViewController {
             layoutEnvironment: NSCollectionLayoutEnvironment
         ) -> NSCollectionLayoutSection? in
             
-            guard let sectionKind = Section(rawValue: sectionIndex) else {
-                return nil
-            }
-            
             let section: NSCollectionLayoutSection
             
-            if sectionKind == .languages {
+            if sectionIndex == HomeViewController.languageSection {
                 
                 let itemSize = NSCollectionLayoutSize(
                     widthDimension: .fractionalWidth(1.0 / 3.0),
@@ -295,7 +363,7 @@ extension HomeViewController {
                     bottom: 0,
                     trailing: 20
                 )
-            } else if sectionKind == .lists || sectionKind == .practices {
+            } else if sectionIndex == HomeViewController.listSection || sectionIndex == HomeViewController.practiceSection {
                 let configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
                 
                 section = NSCollectionLayoutSection.list(
@@ -309,7 +377,21 @@ extension HomeViewController {
                     trailing: 20
                 )
             } else {
-                fatalError("Unknown section!")
+                // Cards.
+                
+                var configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
+                configuration.headerMode = .firstItemInSection
+                
+                section = NSCollectionLayoutSection.list(
+                    using: configuration,
+                    layoutEnvironment: layoutEnvironment
+                )
+                section.contentInsets = NSDirectionalEdgeInsets(
+                    top: 30,
+                    leading: 20,
+                    bottom: 0,
+                    trailing: 20
+                )
             }
             
             return section
@@ -325,10 +407,6 @@ extension HomeViewController {
             
             let content = LangCellContentConfiguration()
             content.langImage = item.image
-//            content.text = item.text
-//            content.textProperties.font = .boldSystemFont(ofSize: 38)
-//            content.textProperties.alignment = .center
-//            content.directionalLayoutMargins = .zero
             cell.contentConfiguration = content
             
             var background = UIBackgroundConfiguration.listPlainCell()
@@ -364,39 +442,99 @@ extension HomeViewController {
             }
             cell.backgroundConfiguration = background
             
-            if indexPath.section == Section.lists.rawValue {
+            if indexPath.section == HomeViewController.listSection {
                 cell.accessories = [UICellAccessory.disclosureIndicator()]
             }
+        }
+    }
+    
+    func createCardHeaderRegistration() -> UICollectionView.CellRegistration<CardCell, HomeItem> {
+        return UICollectionView.CellRegistration<CardCell, HomeItem> { (
+            cell: CardCell,
+            indexPath: IndexPath,
+            item: HomeItem
+        ) in
+            
+            let content = CardCellContentConfiguration()
+            content.header = item.header
+            cell.contentConfiguration = content
+            
+            let background = UIBackgroundConfiguration.listGroupedHeaderFooter()
+            cell.backgroundConfiguration = background
+        }
+    }
+    
+    func createCardCellRegistration() -> UICollectionView.CellRegistration<CardCell, HomeItem> {
+        return UICollectionView.CellRegistration<CardCell, HomeItem> { (
+            cell: CardCell,
+            indexPath: IndexPath,
+            item: HomeItem
+        ) in
+            
+            let content = CardCellContentConfiguration()
+            content.title = item.word
+            content.content = item.content
+            cell.contentConfiguration = content
+                 
+            var background = UIBackgroundConfiguration.listPlainCell()
+            // https://www.appsloveworld.com/swift/100/44/how-change-the-selection-color-in-compositional-layouts-in-collectionview
+            background.backgroundColorTransformer = UIConfigurationColorTransformer { color in
+                // Set the selection color to white.
+                return .white
+            }
+            cell.backgroundConfiguration = background
         }
     }
     
     func configureDataSource() {
         let gridCellRegistration = createGridCellRegistration()
         let listCellRegistration = createListCellRegistration()
+        let cardHeaderRegistration = createCardHeaderRegistration()
+        let cardCellRegistration = createCardCellRegistration()
         
-        dataSource = UICollectionViewDiffableDataSource<Section, HomeItem>(collectionView: collectionView) {
+        dataSource = UICollectionViewDiffableDataSource<Int, HomeItem>(collectionView: collectionView) {
             (collectionView, indexPath, item) -> UICollectionViewCell? in
             
-            guard let section = Section(rawValue: indexPath.section) else {
-                fatalError("Unknown section")
-            }
+            let section = indexPath.section
             
-            switch section {
-            case .languages:
+            if section == HomeViewController.languageSection {
+                if self.lang != nil {
+                    // Restore the selection background view of the cell.
+                    // TODO: - Use a smarter way.
+                    if let cell = collectionView.cellForItem(at: IndexPath(
+                        row: self.learningLangs.firstIndex(of: self.lang)!,
+                        section: HomeViewController.languageSection
+                    )) {
+                        cell.backgroundConfiguration?.strokeColor = .systemGray3
+                        cell.backgroundConfiguration?.strokeWidth = 2
+                    }
+                }
                 return collectionView.dequeueConfiguredReusableCell(
                     using: gridCellRegistration,
                     for: indexPath,
                     item: item
                 )
-            case .lists:
+            } else if section == HomeViewController.listSection {
                 return collectionView.dequeueConfiguredReusableCell(
                     using: listCellRegistration,
                     for: indexPath,
                     item: item
                 )
-            case .practices:
+            } else if section == HomeViewController.practiceSection {
                 return collectionView.dequeueConfiguredReusableCell(
                     using: listCellRegistration,
+                    for: indexPath,
+                    item: item
+                )
+            } else {
+                let registration: UICollectionView.CellRegistration<CardCell, HomeItem>
+                if indexPath.row == 0 {
+                    registration = cardHeaderRegistration
+                } else {
+                    registration = cardCellRegistration
+                }
+                return collectionView.dequeueConfiguredReusableCell(
+                    using: registration,
                     for: indexPath,
                     item: item
                 )
@@ -406,22 +544,38 @@ extension HomeViewController {
     
     func applyInitialSnapshots() {
 
-        let sections = Section.allCases
-        var snapshot = NSDiffableDataSourceSnapshot<Section, HomeItem>()
+        let sections: [Int] = [
+            HomeViewController.languageSection,
+            HomeViewController.listSection,
+            HomeViewController.practiceSection,
+        ]
+        var snapshot = NSDiffableDataSourceSnapshot<Int, HomeItem>()
         snapshot.appendSections(sections)
         dataSource.apply(snapshot, animatingDifferences: false)
             
         var languagesSnapShot = NSDiffableDataSourceSectionSnapshot<HomeItem>()
         languagesSnapShot.append(languageItems)
-        dataSource.apply(languagesSnapShot, to: .languages, animatingDifferences: false)
+        dataSource.apply(
+            languagesSnapShot,
+            to: HomeViewController.languageSection,
+            animatingDifferences: false
+        )
         
         var listsSnapshot = NSDiffableDataSourceSectionSnapshot<HomeItem>()
         listsSnapshot.append(listItems)
-        dataSource.apply(listsSnapshot, to: .lists, animatingDifferences: false)
+        dataSource.apply(
+            listsSnapshot,
+            to: HomeViewController.listSection,
+            animatingDifferences: false
+        )
         
         var practicesSnapShot = NSDiffableDataSourceSectionSnapshot<HomeItem>()
         practicesSnapShot.append(practiceItems)
-        dataSource.apply(practicesSnapShot, to: .practices, animatingDifferences: false)
+        dataSource.apply(
+            practicesSnapShot,
+            to: HomeViewController.practiceSection,
+            animatingDifferences: false
+        )
     }
 }
 
@@ -429,22 +583,16 @@ extension HomeViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
-        guard let section = Section(rawValue: indexPath.section) else {
+        guard let cell = collectionView.cellForItem(at: indexPath) else {
             return
         }
-        let row = indexPath.row
         
-        var cell = collectionView.cellForItem(at: indexPath)
-        if section == .lists || section == .practices {
-            cell = cell as? UICollectionViewListCell
-        }
-        guard let cell = cell else {
-            return
-        }
+        let section = indexPath.section
+        let row = indexPath.row
         
         Feedbacks.defaultFeedbackGenerator.selectionChanged()
         
-        if section == .languages {
+        if section == HomeViewController.languageSection {
             
             cell.backgroundConfiguration?.strokeColor = .systemGray3
             cell.backgroundConfiguration?.strokeWidth = 2
@@ -468,7 +616,7 @@ extension HomeViewController: UICollectionViewDelegate {
             // Update the current language.
             self.lang = self.learningLangs[indexPath.row]
             
-        } else if section == .lists {
+        } else if section == HomeViewController.listSection {
                     
             guard self.lang != nil else {
                 return
@@ -488,7 +636,7 @@ extension HomeViewController: UICollectionViewDelegate {
                 vc,
                 animated: true
             )
-        } else if section == .practices {
+        } else if section == HomeViewController.practiceSection {
             
             guard self.lang != nil else {
                 return
@@ -718,5 +866,15 @@ extension HomeViewController {
             print("After:", lang2rid)
         }
     }
+    
+}
+
+extension HomeViewController {
+    
+    // MARK: - Constants
+    
+    static let languageSection: Int = 0
+    static let listSection: Int = 1
+    static let practiceSection: Int = 2
     
 }

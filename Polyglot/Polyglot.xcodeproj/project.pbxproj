@@ -11,6 +11,7 @@
 		AC706291155790A1E33AAB8C /* Pods_PolyglotTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E379777C4FD33BCD824C64B5 /* Pods_PolyglotTests.framework */; };
 		C43026072813DBE394EFE8FB /* Pods_Polyglot.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F18AC45591099280DCFC633D /* Pods_Polyglot.framework */; };
 		C619E68F2AC8154F00A30B27 /* LangCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C619E68E2AC8154F00A30B27 /* LangCell.swift */; };
+		C619E6932AC830CB00A30B27 /* CardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C619E6922AC830CB00A30B27 /* CardCell.swift */; };
 		C6E1E0312AC5C2F600E4AF72 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E1E0302AC5C2F600E4AF72 /* HomeViewController.swift */; };
 		FF1780CF2A48EDCD005F588B /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1780CE2A48EDCD005F588B /* Notifications.swift */; };
 		FF23764E29528C840073AF96 /* ReadingPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF23764D29528C840073AF96 /* ReadingPracticeViewController.swift */; };
@@ -148,6 +149,7 @@
 		80A4DDEB0D1137F63C376D55 /* Pods-Polyglot-PolyglotUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Polyglot-PolyglotUITests.release.xcconfig"; path = "Target Support Files/Pods-Polyglot-PolyglotUITests/Pods-Polyglot-PolyglotUITests.release.xcconfig"; sourceTree = "<group>"; };
 		907D4F8E5EB18C9B62364FB2 /* Pods_Polyglot_PolyglotUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Polyglot_PolyglotUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C619E68E2AC8154F00A30B27 /* LangCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCell.swift; sourceTree = "<group>"; };
+		C619E6922AC830CB00A30B27 /* CardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardCell.swift; sourceTree = "<group>"; };
 		C6E1E0302AC5C2F600E4AF72 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		C9324C7255807718BBF5D9EC /* Pods-Polyglot-PolyglotUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Polyglot-PolyglotUITests.debug.xcconfig"; path = "Target Support Files/Pods-Polyglot-PolyglotUITests/Pods-Polyglot-PolyglotUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		DEDB21A8073730D28A47A161 /* Pods-Polyglot.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Polyglot.release.xcconfig"; path = "Target Support Files/Pods-Polyglot/Pods-Polyglot.release.xcconfig"; sourceTree = "<group>"; };
@@ -415,6 +417,7 @@
 			isa = PBXGroup;
 			children = (
 				C619E68E2AC8154F00A30B27 /* LangCell.swift */,
+				C619E6922AC830CB00A30B27 /* CardCell.swift */,
 			);
 			path = Home;
 			sourceTree = "<group>";
@@ -914,6 +917,7 @@
 				FF4964C92958B05300414AC5 /* RoundButton.swift in Sources */,
 				FF491E732959C2FD0088FD13 /* PracticeViewDelegate.swift in Sources */,
 				FF5690142980367A00CA2C7B /* LangCode.swift in Sources */,
+				C619E6932AC830CB00A30B27 /* CardCell.swift in Sources */,
 				FF495E8E2958F38800EA7EA9 /* UITableViewExtensions.swift in Sources */,
 				FF4AB0032A9B4C4400908062 /* ContentCreator.swift in Sources */,
 				FF5AA00B2961F208009D5237 /* Alerts.swift in Sources */,
