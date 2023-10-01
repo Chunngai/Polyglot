@@ -54,9 +54,9 @@ class ReadingEditTableCell: UITableViewCell {
     
     private func updateLayouts() {
         textView.snp.makeConstraints { (make) in
-            make.centerX.centerY.equalToSuperview()
-            make.width.equalToSuperview().multipliedBy(0.95)
-            make.height.equalToSuperview()
+            make.centerX.equalToSuperview()
+            make.width.equalToSuperview().multipliedBy(0.90)
+            make.top.bottom.equalToSuperview().inset(5)
         }
     }
     

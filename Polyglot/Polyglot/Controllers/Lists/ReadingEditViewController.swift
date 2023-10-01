@@ -30,12 +30,10 @@ class ReadingEditViewController: UIViewController {
     // Do not use a table view controller.
     // The scrolling is weired when the keyboard pops up.
     var tableView: UITableView = {
-        let tableView = UITableView()
-        tableView.backgroundColor = Colors.defaultBackgroundColor
+        let tableView = UITableView(frame: .zero, style: .insetGrouped)
         tableView.removeRedundantSeparators()
         // https://stackoverflow.com/questions/4399357/hide-keyboard-when-scroll-uitableview
         tableView.keyboardDismissMode = .onDrag
-        tableView.separatorStyle = .none
         return tableView
     }()
     
@@ -82,6 +80,7 @@ class ReadingEditViewController: UIViewController {
 
     private func updateSetups() {
         tableView.dataSource = self
+        tableView.delegate = self
         tableView.register(ReadingEditTableCell.self, forCellReuseIdentifier: ReadingEditViewController.cellIdentifier)
     }
     
@@ -118,19 +117,49 @@ extension ReadingEditViewController: UITableViewDataSource {
     // MARK: - UITableView Data Source
 
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 1
+        return 3
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return cells.count
+        if section == 0 {
+            return 2
+        } else {
+            return 1
+        }
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // TODO: - Increase the height of body text view.
         
-        return cells[indexPath.row]
+        let section = indexPath.section
+        let row = indexPath.row
+        
+        if section == 0 {
+            if row == 0 {
+                return cells[ReadingEditViewController.titleIdentifier]
+            } else if row == 1 {
+                return cells[ReadingEditViewController.topicIdentifier]
+            }
+        } else if section == 1 {
+            return cells[ReadingEditViewController.bodyIdentifier]
+        } else if section == 2 {
+            return cells[ReadingEditViewController.sourceIdentifier]
+        }
+        
+        fatalError("Not Implemented.")
     }
 
+}
+
+extension ReadingEditViewController: UITableViewDelegate {
+    
+    // MARK: - UITableView Delegate
+    
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        // For hiding the first header.
+        return UIView()
+    }
+    
 }
 
 extension ReadingEditViewController {
