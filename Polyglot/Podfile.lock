@@ -1,5 +1,5 @@
 PODS:
-  - IQKeyboardManagerSwift (6.5.12)
+  - IQKeyboardManagerSwift (6.5.13)
   - SwiftSoup (2.6.1)
 
 DEPENDENCIES:
@@ -12,7 +12,7 @@ SPEC REPOS:
     - SwiftSoup
 
 SPEC CHECKSUMS:
-  IQKeyboardManagerSwift: 371b08cb39664fb56030f5345c815a4ffc74bbc0
+  IQKeyboardManagerSwift: 69b5fb9960edff37263d45c44fd97427e1f8c22b
   SwiftSoup: 5dd2c1b06afc964f30d99894af6ede22ede627aa
 
 PODFILE CHECKSUM: 958578971376d2cfddf130c479240637199a5450
