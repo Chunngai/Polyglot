@@ -87,13 +87,13 @@ class CardCellContentView: UIView, UIContentView {
         
         if titleLabel.text != nil {
             titleLabel.snp.makeConstraints { make in
-                make.top.equalToSuperview().inset(20)
+                make.top.equalToSuperview().inset(15)
                 make.leading.trailing.equalToSuperview().inset(20)
             }
             contentLabel.snp.makeConstraints { make in
                 make.top.equalTo(titleLabel.snp.bottom).offset(10)
                 make.leading.trailing.equalToSuperview().inset(20)
-                make.bottom.equalToSuperview().inset(20)
+                make.bottom.equalToSuperview().inset(15)
             }
         }
     }

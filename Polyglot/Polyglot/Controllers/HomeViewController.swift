@@ -41,10 +41,6 @@ class HomeViewController: UIViewController {
     
     var learningLangs: [String] = {
         var learningLanguages = LangCode.loadLearningLanguages()
-        if learningLanguages.count == 0 {
-            // Set a default val.
-            learningLanguages = [LangCode.en]
-        }
         return learningLanguages
     }()
     
@@ -83,31 +79,45 @@ class HomeViewController: UIViewController {
         )
     }
     
-    lazy var listItems = [
+    var languageOfTextToDisplay: String {
+        if self.lang != nil {
+            return self.lang
+        } else {
+            if !learningLangs.isEmpty {
+                return learningLangs[0]
+            } else {
+                // Default val.
+                return LangCode.en
+            }
+        }
+    }
+    var listItems: [HomeItem] {[
         HomeItem(
             image: UIImage.init(systemName: "list.bullet"),
-            text: Strings._phrases[learningLangs[0]]
+            text: Strings._phrases[languageOfTextToDisplay],
+            secondaryText: wordMetaData?["count"]
         ),
         HomeItem(
             image: UIImage.init(systemName: "books.vertical"),
-            text: Strings._articles[learningLangs[0]]
+            text: Strings._articles[languageOfTextToDisplay],
+            secondaryText: articleMetaData?["count"]
         )
-    ]
+    ]}
     
-    lazy var practiceItems = [
+    var practiceItems: [HomeItem] {[
         HomeItem(
             image: UIImage.init(systemName: "square.and.pencil"),
-            text: Strings._phraseReview[learningLangs[0]]
+            text: Strings._phraseReview[languageOfTextToDisplay]
         ),
         HomeItem(
             image: UIImage.init(systemName: "doc"),
-            text: Strings._reading[learningLangs[0]]
+            text: Strings._reading[languageOfTextToDisplay]
         ),
         HomeItem(
             image: UIImage.init(systemName: "bubble"),
-            text: Strings._interpretation[learningLangs[0]]
+            text: Strings._interpretation[languageOfTextToDisplay]
         )
-    ]
+    ]}
     
     // MARK: - Models
     
@@ -267,43 +277,25 @@ extension HomeViewController {
     
     // MARK: - Utils
     
-    private func updateCell(at indexPath: IndexPath, text: String, secondaryText: String? = nil) {
-        if let cell = collectionView.cellForItem(at: indexPath) as? UICollectionViewListCell {
-            if var config = cell.contentConfiguration as? UIListContentConfiguration {
-                config.text = text
-                config.secondaryText = secondaryText
-                // Enable to display lists or practice.
-                config.textProperties.color = Colors.normalTextColor
-                cell.contentConfiguration = config
-            }
-        }
-    }
-    
     private func updateTexts() {
         navigationItem.title = Strings.homeTitle
         
-        updateCell(
-            at: IndexPath(row: 0, section: 1),
-            text: Strings.phrases,
-            secondaryText: wordMetaData["count"]
-        )
-        updateCell(
-            at: IndexPath(row: 1, section: 1),
-            text: Strings.articles,
-            secondaryText: articleMetaData["count"]
+        var listsSnapshot = dataSource.snapshot(for: HomeViewController.listSection)
+        listsSnapshot.deleteAll()
+        listsSnapshot.append(listItems)
+        dataSource.apply(
+            listsSnapshot,
+            to: HomeViewController.listSection,
+            animatingDifferences: false
         )
         
-        updateCell(
-            at: IndexPath(row: 0, section: 2),
-            text: Strings.phraseReview
-        )
-        updateCell(
-            at: IndexPath(row: 1, section: 2),
-            text: Strings.reading
-        )
-        updateCell(
-            at: IndexPath(row: 2, section: 2),
-            text: Strings.interpretation
+        var practicesSnapShot = dataSource.snapshot(for: HomeViewController.practiceSection)
+        practicesSnapShot.deleteAll()
+        practicesSnapShot.append(practiceItems)
+        dataSource.apply(
+            practicesSnapShot,
+            to: HomeViewController.practiceSection,
+            animatingDifferences: false
         )
     }
     
@@ -416,6 +408,15 @@ extension HomeViewController {
                 // Set the selection color to white.
                 return .white
             }
+
+            if self.learningLangs[indexPath.row] == self.lang {
+                background.strokeColor = .systemGray3
+                background.strokeWidth = 2
+            } else {
+                background.strokeColor = .clear
+                background.strokeWidth = .zero
+            }
+            
             cell.backgroundConfiguration = background
         }
     }
@@ -431,7 +432,7 @@ extension HomeViewController {
             content.image = item.image
             content.text = item.text
             content.secondaryText = item.secondaryText
-            content.textProperties.color = .lightGray
+            content.textProperties.color = self.lang != nil ? Colors.normalTextColor : Colors.inactiveTextColor
             cell.contentConfiguration = content
             
             var background = UIBackgroundConfiguration.listPlainCell()
@@ -498,17 +499,6 @@ extension HomeViewController {
             let section = indexPath.section
             
             if section == HomeViewController.languageSection {
-                if self.lang != nil {
-                    // Restore the selection background view of the cell.
-                    // TODO: - Use a smarter way.
-                    if let cell = collectionView.cellForItem(at: IndexPath(
-                        row: self.learningLangs.firstIndex(of: self.lang)!,
-                        section: HomeViewController.languageSection
-                    )) {
-                        cell.backgroundConfiguration?.strokeColor = .systemGray3
-                        cell.backgroundConfiguration?.strokeWidth = 2
-                    }
-                }
                 return collectionView.dequeueConfiguredReusableCell(
                     using: gridCellRegistration,
                     for: indexPath,

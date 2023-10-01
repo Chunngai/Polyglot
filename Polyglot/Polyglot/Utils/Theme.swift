@@ -17,6 +17,7 @@ struct Colors {
     
     static let normalTextColor: UIColor = .black
     static let weakTextColor: UIColor = UIColor.intRGB2UIColor(red: 106, green: 106, blue: 106)
+    static let inactiveTextColor: UIColor = .lightGray
     static let lightTextColor: UIColor = .white
         
     static let lightBlue: UIColor = UIColor.intRGB2UIColor(red: 206, green: 238, blue: 255)
