@@ -445,6 +445,8 @@ extension HomeViewController {
             
             if indexPath.section == HomeViewController.listSection {
                 cell.accessories = [UICellAccessory.disclosureIndicator()]
+            } else {
+                cell.accessories = []
             }
         }
     }

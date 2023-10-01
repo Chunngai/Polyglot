@@ -106,14 +106,14 @@ class CardCellContentView: UIView, UIContentView {
         headerLabel.textColor = Colors.weakTextColor
         headerLabel.font = UIFont.systemFont(
             ofSize: headerLabel.font.pointSize,
-            weight: .bold
+            weight: .medium
         )
         
         titleLabel.text = configuration.title
         titleLabel.textColor = Colors.normalTextColor
         titleLabel.font = UIFont.systemFont(
             ofSize: titleLabel.font.pointSize,
-            weight: .bold
+            weight: .medium
         )
         
         contentLabel.text = configuration.content
