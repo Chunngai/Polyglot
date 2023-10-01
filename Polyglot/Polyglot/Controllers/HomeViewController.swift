@@ -8,6 +8,7 @@
 
 import UIKit
 import SnapKit
+import MessageUI
 
 struct HomeItem: Hashable {
     
@@ -65,6 +66,11 @@ class HomeViewController: UIViewController {
                 // removeAllNotifications()
                 self.generateWordcardNotifications()
             }
+            
+//            self.sendAnCopy(
+//                of: Word.fileName(for: self.lang),
+//                to: "1036534165@qq.com"
+//            )
         }
     }
     
@@ -320,6 +326,66 @@ extension HomeViewController {
         )
     }
     
+}
+
+extension HomeViewController: MFMailComposeViewControllerDelegate {
+    
+    func sendAnCopy(of jsonFile: String, to email: String) {
+        guard MFMailComposeViewController.canSendMail() else {
+            // Handle the case where the device can't send emails, e.g., display an alert.
+            print("Cannot send email.")
+            return
+        }
+        
+        let mailComposer = MFMailComposeViewController()
+        mailComposer.mailComposeDelegate = self
+        
+        if let fileURL = try? constructFileUrl(from: jsonFile, create: false) {
+            if let data = try? Data(contentsOf: fileURL) {
+                mailComposer.addAttachmentData(data, mimeType: "application/json", fileName: jsonFile)
+            } else {
+                // Handle the case where reading the file data failed.
+                print("Failed to read file data")
+                return
+            }
+        } else {
+            // Handle any errors related to constructing the file URL
+            print("Filed to construct file URL")
+            return
+        }
+        
+        mailComposer.setToRecipients([email])
+        mailComposer.setSubject(jsonFile)
+        mailComposer.setMessageBody("", isHTML: false)
+        
+        // Present the mail composer view controller
+        self.present(mailComposer, animated: true, completion: nil)
+        
+    }
+    
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        controller.dismiss(animated: true, completion: nil)
+        
+        switch result {
+        case .sent:
+            // Handle the email sent successfully
+            print("Email sent successfully")
+        case .saved:
+            // Handle the email being saved as a draft
+            print("Email saved as draft")
+        case .cancelled:
+            // Handle the user canceling the email composition
+            print("Email composition canceled")
+        case .failed:
+            // Handle the case where the email failed to send
+            if let error = error {
+                print("Email send error: \(error.localizedDescription)")
+            }
+        @unknown default:
+            break
+        }
+    }
+
 }
 
 extension HomeViewController {
