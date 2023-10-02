@@ -18,17 +18,22 @@ class ReadingViewController: ListViewController {
     
     // MARK: - Models
     
-    var articles: [Article] {
-        get {
-            return delegate.articles
-        }
-        set {
-            delegate.articles = newValue
+    var articles: [Article]! {
+        didSet {
+            delegate.articles = articles
             
             // If the search controller is not active,
             // present all articles.
             // Otherwise, present the matched articles.
             updateSearchResults(for: searchController)
+        }
+    }
+    
+    // MARK: - Controllers
+    
+    override var delegate: HomeViewController! {
+        didSet {
+            self.articles = delegate.articles
         }
     }
     

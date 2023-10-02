@@ -22,26 +22,25 @@ class PracticeViewController: UIViewController {
     
     // MARK: - Models
     
-    var words: [Word] {
-        get {
-            return delegate.words
-        }
-        set {
-            delegate.words = newValue
+    var words: [Word]! {
+        didSet {
+            delegate.words = words
         }
     }
-    var articles: [Article] {
-        get {
-            return delegate.articles
-        }
-        set {
-            delegate.articles = newValue
+    var articles: [Article]! {
+        didSet {
+            delegate.articles = articles
         }
     }
     
     // MARK: - Controllers
     
-    var delegate: HomeViewController!
+    var delegate: HomeViewController! {
+        didSet {
+            self.words = delegate.words
+            self.articles = delegate.articles
+        }
+    }
     
     // MARK: - Views
     

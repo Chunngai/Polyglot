@@ -67,17 +67,22 @@ class WordsViewController: ListViewController {
     
     // MARK: - Models
     
-    var words: [Word] {
-        get {
-            return delegate.words
-        }
-        set {
-            delegate.words = newValue
+    var words: [Word]! {
+        didSet {
+            delegate.words = words
             
             // If the search controller is not active,
             // present all words.
             // Otherwise, present the matched words.
             updateSearchResults(for: searchController)
+        }
+    }
+    
+    // MARK: - Controllers
+    
+    override var delegate: HomeViewController! {
+        didSet {
+            self.words = delegate.words
         }
     }
     
