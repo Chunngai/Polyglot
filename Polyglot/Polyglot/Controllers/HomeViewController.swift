@@ -211,13 +211,91 @@ class HomeViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
+        updateWordCards()
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+    
+        updateSetups()
+        updateViews()
+        updateLayouts()
+    }
+    
+    private func updateSetups() {
+        // Set up the collection view.
+        configureHierarchy()
+        configureDataSource()
+        applyInitialSnapshots()
+        
+        // https://stackoverflow.com/questions/41393754/call-a-uiviewcontroller-method-when-application-goes-background-and-come-to-fore
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appMovedToForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+    }
+    
+    private func updateViews() {
+        navigationController?.navigationBar.prefersLargeTitles = true
+        
+        navigationItem.title = Strings._homeTitles[learningLangs[0]]
+        navigationItem.largeTitleDisplayMode = .always
+    }
+    
+    private func updateLayouts() {
+        
+    }
+}
+
+extension HomeViewController {
+    
+    // MARK: - Selectors
+    
+    @objc private func appMovedToForeground() {
+        updateWordCards()
+    }
+    
+}
+
+extension HomeViewController {
+    
+    // MARK: - Utils
+    
+    private func updateTexts() {
+        navigationItem.title = Strings.homeTitle
+        
+        var listsSnapshot = dataSource.snapshot(for: HomeViewController.listSection)
+        listsSnapshot.deleteAll()
+        listsSnapshot.append(listItems)
+        dataSource.apply(
+            listsSnapshot,
+            to: HomeViewController.listSection,
+            animatingDifferences: false
+        )
+        
+        var practicesSnapShot = dataSource.snapshot(for: HomeViewController.practiceSection)
+        practicesSnapShot.deleteAll()
+        practicesSnapShot.append(practiceItems)
+        dataSource.apply(
+            practicesSnapShot,
+            to: HomeViewController.practiceSection,
+            animatingDifferences: false
+        )
+    }
+ 
+    private func updateWordCards() {
         UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
             var entries: [(
                 dateString: String,
                 entry: WordCardEntry
             )] = notifications.compactMap { notification in
                 
-                let notificationDateComponents = (notification.request.trigger as! UNCalendarNotificationTrigger).dateComponents
+                guard let trigger = notification.request.trigger as? UNCalendarNotificationTrigger else {
+                    return nil
+                }
+                let notificationDateComponents = trigger.dateComponents
                 let notificationDate = Date.fromComponents(components: notificationDateComponents)
                 guard let notificationDate = notificationDate else {
                     return nil
@@ -272,60 +350,6 @@ class HomeViewController: UIViewController {
             }
         }
     }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    
-        updateSetups()
-        updateViews()
-        updateLayouts()
-    }
-    
-    private func updateSetups() {
-        // Set up the collection view.
-        configureHierarchy()
-        configureDataSource()
-        applyInitialSnapshots()
-    }
-    
-    private func updateViews() {
-        navigationController?.navigationBar.prefersLargeTitles = true
-        
-        navigationItem.title = Strings._homeTitles[learningLangs[0]]
-        navigationItem.largeTitleDisplayMode = .always
-    }
-    
-    private func updateLayouts() {
-        
-    }
-}
-
-extension HomeViewController {
-    
-    // MARK: - Utils
-    
-    private func updateTexts() {
-        navigationItem.title = Strings.homeTitle
-        
-        var listsSnapshot = dataSource.snapshot(for: HomeViewController.listSection)
-        listsSnapshot.deleteAll()
-        listsSnapshot.append(listItems)
-        dataSource.apply(
-            listsSnapshot,
-            to: HomeViewController.listSection,
-            animatingDifferences: false
-        )
-        
-        var practicesSnapShot = dataSource.snapshot(for: HomeViewController.practiceSection)
-        practicesSnapShot.deleteAll()
-        practicesSnapShot.append(practiceItems)
-        dataSource.apply(
-            practicesSnapShot,
-            to: HomeViewController.practiceSection,
-            animatingDifferences: false
-        )
-    }
-    
 }
 
 extension HomeViewController: MFMailComposeViewControllerDelegate {
@@ -659,6 +683,8 @@ extension HomeViewController {
 }
 
 extension HomeViewController: UICollectionViewDelegate {
+    
+    // MARK: - UICollectionView Delegate
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         
