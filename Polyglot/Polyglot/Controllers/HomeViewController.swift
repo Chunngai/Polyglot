@@ -121,14 +121,24 @@ class HomeViewController: UIViewController {
     
     // MARK: - Models
     
+    private var oldWordCount: Int!
     var words: [Word]! {
         get {
-            return Word.load(for: self.lang)
+            let words = Word.load(for: self.lang)
+            oldWordCount = words.count
+            return words
         }
         set {
             guard var newValue = newValue else {
                 return
             }
+            
+            guard abs(newValue.count - oldWordCount) <= 30 else {
+                return
+            }
+            print("old word count: \(oldWordCount), new word count: \(newValue.count)")
+            oldWordCount = newValue.count
+            
             Word.save(&newValue, for: self.lang)
             
             let newWordNumber = newValue.count
@@ -138,14 +148,25 @@ class HomeViewController: UIViewController {
             }
         }
     }
+    
+    private var oldArticleCount: Int!
     var articles: [Article]! {
         get {
-            return Article.load(for: self.lang)
+            let articles = Article.load(for: self.lang)
+            oldArticleCount = articles.count
+            return articles
         }
         set {
             guard var newValue = newValue else {
                 return
             }
+            
+            guard abs(newValue.count - oldArticleCount) <= 3 else {
+                return
+            }
+            print("old article count: \(oldArticleCount), new article count: \(newValue.count)")
+            oldArticleCount = newValue.count
+            
             Article.save(&newValue, for: self.lang)
             
             let newArticleNumber = newValue.count
