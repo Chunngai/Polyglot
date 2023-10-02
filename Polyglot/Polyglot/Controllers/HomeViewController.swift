@@ -66,11 +66,6 @@ class HomeViewController: UIViewController {
                 // removeAllNotifications()
                 self.generateWordcardNotifications()
             }
-            
-//            self.sendAnCopy(
-//                of: Word.fileName(for: self.lang),
-//                to: "1036534165@qq.com"
-//            )
         }
     }
     
@@ -242,6 +237,12 @@ class HomeViewController: UIViewController {
         
         navigationItem.title = Strings._homeTitles[learningLangs[0]]
         navigationItem.largeTitleDisplayMode = .always
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            image: UIImage.init(systemName: "square.and.arrow.up"),
+            style: .plain,
+            target: self,
+            action: #selector(emailAnCopy)
+        )
     }
     
     private func updateLayouts() {
@@ -350,11 +351,8 @@ extension HomeViewController {
             }
         }
     }
-}
-
-extension HomeViewController: MFMailComposeViewControllerDelegate {
     
-    func sendAnCopy(of jsonFile: String, to email: String) {
+    @objc private func emailAnCopy() {
         guard MFMailComposeViewController.canSendMail() else {
             // Handle the case where the device can't send emails, e.g., display an alert.
             print("Cannot send email.")
@@ -364,28 +362,50 @@ extension HomeViewController: MFMailComposeViewControllerDelegate {
         let mailComposer = MFMailComposeViewController()
         mailComposer.mailComposeDelegate = self
         
-        if let fileURL = try? constructFileUrl(from: jsonFile, create: false) {
-            if let data = try? Data(contentsOf: fileURL) {
-                mailComposer.addAttachmentData(data, mimeType: "application/json", fileName: jsonFile)
-            } else {
-                // Handle the case where reading the file data failed.
-                print("Failed to read file data")
-                return
-            }
-        } else {
-            // Handle any errors related to constructing the file URL
-            print("Filed to construct file URL")
-            return
+        var fileNames: [String] = []
+        for learningLang in self.learningLangs {
+            fileNames.append(Word.fileName(for: learningLang))
+            fileNames.append(Article.fileName(for: learningLang))
         }
         
-        mailComposer.setToRecipients([email])
-        mailComposer.setSubject(jsonFile)
+        for fileName in fileNames {
+            
+            if let fileURL = try? constructFileUrl(
+                from: fileName,
+                create: false
+            ) {
+                if let data = try? Data(contentsOf: fileURL) {
+                    mailComposer.addAttachmentData(
+                        data,
+                        mimeType: "application/json",
+                        fileName: fileName
+                    )
+                } else {
+                    // Handle the case where reading the file data failed.
+                    print("Failed to read data from \(fileName)")
+                    return
+                }
+            } else {
+                // Handle any errors related to constructing the file URL
+                print("Filed to construct URL for \(fileName)")
+                return
+            }
+            
+        }
+        
+        mailComposer.setToRecipients([Config.defaultEmail])
+        mailComposer.setSubject("Data Copy \(Date().repr())")
         mailComposer.setMessageBody("", isHTML: false)
         
         // Present the mail composer view controller
         self.present(mailComposer, animated: true, completion: nil)
         
     }
+}
+
+extension HomeViewController: MFMailComposeViewControllerDelegate {
+    
+    // MARK: - MFMailCompose ViewController Delegate
     
     func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
         controller.dismiss(animated: true, completion: nil)
