@@ -748,7 +748,7 @@ extension HomeViewController {
             }
             
             if wordCardContent.shouldObtainAccent {
-                if Variables.lang == LangCode.ja {
+                if self.lang == LangCode.ja {
                     Word.makeJaTokensFor(jaWord: wordCardContent.word) { tokens in
                         if let updatedWord = self.words.updateWord(of: wordCardContent.word.id, newTokens: tokens) {
                             let newTitle: String = self.makeWordCardTitle(word: updatedWord)
@@ -756,7 +756,7 @@ extension HomeViewController {
                         }
                     }
                 }
-                if Variables.lang == LangCode.ru {
+                if self.lang == LangCode.ru {
                     Word.makeRuTokensFor(ruWord: wordCardContent.word) { tokens in
                         if let updatedWord = self.words.updateWord(of: wordCardContent.word.id, newTokens: tokens) {
                             let newTitle: String = self.makeWordCardTitle(word: updatedWord)
