@@ -306,7 +306,7 @@ extension HomeViewController {
                 }
                 
                 return (
-                    dateString: notificationDate.repr(ofFormat: "HH:mm"),
+                    dateString: notificationDate.repr(of: "HH:mm"),
                     entry: WordCardEntry(
                         title: notification.request.content.title,
                         body: notification.request.content.body

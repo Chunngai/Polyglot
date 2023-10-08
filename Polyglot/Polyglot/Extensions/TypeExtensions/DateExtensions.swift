@@ -30,23 +30,25 @@ extension Date {
 }
 
 extension Date {
-        
-    private var defaultDateFormat: String {
-        "yy MMM d"
+    
+    static let defaultFormat: String = "yy MMM d"
+    
+    static var defaultFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = Date.defaultFormat
+        formatter.timeZone = TimeZone(secondsFromGMT: TimeZone.current.secondsFromGMT())
+        return formatter
     }
     
-    private func makeRepresentation(with format: String) -> String {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = format
-        dateFormatter.timeZone = TimeZone(secondsFromGMT: TimeZone.current.secondsFromGMT())
-        return dateFormatter.string(from: self)
+    func repr(from formatter: DateFormatter) -> String {
+        return formatter.string(from: self)
     }
     
-    func repr(ofFormat format: String = "") -> String {
-        let dateFormat = format.isEmpty
-            ? defaultDateFormat
-            : format
-        return makeRepresentation(with: dateFormat)
+    func repr(of format: String = Date.defaultFormat) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = format
+        formatter.timeZone = TimeZone(secondsFromGMT: TimeZone.current.secondsFromGMT())
+        return repr(from: formatter)
     }
 }
 
