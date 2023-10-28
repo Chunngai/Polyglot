@@ -171,6 +171,7 @@ class HomeViewController: UIViewController {
             guard var newValue = newValue else {
                 return
             }
+            self._words = newValue  // !
             
             guard abs(newValue.count - _wordCount) <= 30 else {
                 return
@@ -203,6 +204,7 @@ class HomeViewController: UIViewController {
             guard var newValue = newValue else {
                 return
             }
+            self._articles = newValue  // !
             
             guard abs(newValue.count - _articleCount) <= 3 else {
                 return
@@ -235,6 +237,7 @@ class HomeViewController: UIViewController {
             guard var newValue = newValue else {
                 return
             }
+            self._contentCards = newValue  // !
             
             guard abs(newValue.count - _contentCardCount) <= 3 else {
                 return
