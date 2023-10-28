@@ -15,11 +15,7 @@ extension NSMutableAttributedString {
 
         // https://stackoverflow.com/questions/27180184/color-all-occurrences-of-string-in-swift
         
-        let attrStr = self.string
-        let attrStrLen = attrStr.count
-        
-        let searchStr = text ?? self.string
-        let searchStrLen = searchStr.count
+        let searchString = text ?? string
         
         var options: NSString.CompareOptions = NSString.CompareOptions()
         if ignoreCasing {
@@ -29,13 +25,20 @@ extension NSMutableAttributedString {
             options.insert(.diacriticInsensitive)
         }
         
-        var range = NSRange(location: 0, length: attrStr.count)
-        while (range.location != NSNotFound) {
-            range = (attrStr as NSString).range(of: searchStr, options: options, range: range)
-            if (range.location != NSNotFound) {
-                self.addAttributes(attributes, range: NSRange(location: range.location, length: searchStrLen))
-                range = NSRange(location: range.location + range.length, length: attrStrLen - (range.location + range.length))
-            }
+        var rangeToSearch = string.startIndex..<string.endIndex
+        while let matchingRange = string.range(
+            of: searchString,
+            options: [],
+            range: rangeToSearch
+        ) {
+          addAttributes(
+            attributes,
+            range: NSRange(
+                matchingRange,
+                in: string
+            )
+          )
+          rangeToSearch = matchingRange.upperBound..<string.endIndex
         }
     }
 }
@@ -69,15 +72,17 @@ extension NSMutableAttributedString {
         )
     }
 //
-//    func setUnderline(for text: String? = nil, style: NSUnderlineStyle = .single, color: UIColor = .black) {
-//        set(
-//            attributes: [
-//                .underlineStyle: style.rawValue,
-//                .underlineColor: color
-//            ],
-//            for: text
-//        )
-//    }
+    func setUnderline(for text: String? = nil, style: NSUnderlineStyle = .single, color: UIColor = .black, ignoreCasing: Bool = false, ignoreAccents: Bool = false) {
+        add(
+            attributes: [
+                .underlineStyle: style.rawValue,
+                .underlineColor: color
+            ],
+            for: text,
+            ignoreCasing: ignoreCasing,
+            ignoreAccents: ignoreAccents
+        )
+    }
 //
 //    func removeUnderline(for text: String? = nil) {
 //        setUnderline(for: text, style: [], color: .black)

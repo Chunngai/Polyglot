@@ -703,4 +703,46 @@ struct Tokens {
         + "の から ぞ ほど ばかり だけ が".replacingOccurrences(of: " ", with: "・")
     static let japaneseParticles: [String] = [String](Set(Tokens._japaneseParticles.split(with: "・")))
     
+    // TODO: - it's only a temporary solution.
+    
+    static let _englishWordsToFilterInContentCardGeneration = [
+        "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
+        "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"
+    ]
+    
+    static let _spanishWordsToFilterInContentCardGeneration = [
+        "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
+        "á", "é", "í", "ó", "ú", "ü", "ñ",
+        "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+        "Á", "É", "Í", "Ó", "Ú", "Ü", "Ñ"
+    ]
+    static let _russianWordsToFilterInContentCardGeneration = [
+        "а", "б", "в", "г", "д", "е", "ё", "ж", "з", "и", "й", "к", "л", "м", "н", "о", "п", "р", "с", "т", "у", "ф", "х", "ц", "ч", "ш", "щ", "ъ", "ы", "ь", "э", "ю", "я",
+        "А", "Б", "В", "Г", "Д", "Е", "Ё", "Ж", "З", "И", "Й", "К", "Л", "М", "Н", "О", "П", "Р", "С", "Т", "У", "Ф", "Х", "Ц", "Ч", "Ш", "Щ", "Ъ", "Ы", "Ь", "Э", "Ю", "Я"
+    ]
+    static let _germanWordsToFilterInContentCardGeneration = [
+        "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
+        "ä", "ö", "ü", "ß",
+        "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+        "Ä", "Ö", "Ü", "ẞ"
+    ] + [
+        "der", "die", "das", "die",   // Nominative Case (masculine, feminine, neuter, plural)
+        "den", "die", "das", "die",   // Accusative Case (masculine, feminine, neuter, plural)
+        "dem", "der", "dem", "den",   // Dative Case (masculine, feminine, neuter, plural)
+        "des", "der", "des", "der",    // Genitive Case (masculine, feminine, neuter, plural)
+        
+        "ein", "eine", "ein",      // Nominative Case (masculine, feminine, neuter)
+        "einen", "eine", "ein",    // Accusative Case (masculine, feminine, neuter)
+        "einem", "einer", "einem",  // Dative Case (masculine, feminine, neuter)
+        "eines", "einer", "eines",   // Genitive Case (masculine, feminine, neuter)
+    ]
+    static let wordsToFilterInContentCardGeneration: Set<String> = Set(
+        Tokens._englishWordsToFilterInContentCardGeneration
+        + Tokens._spanishWordsToFilterInContentCardGeneration
+        + Tokens._russianWordsToFilterInContentCardGeneration
+        + Tokens._germanWordsToFilterInContentCardGeneration
+    )
+    
+    static let chatgptToken: String = "[ChatGPT]"
+    
 }

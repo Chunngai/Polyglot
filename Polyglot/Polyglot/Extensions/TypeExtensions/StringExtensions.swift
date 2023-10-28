@@ -47,6 +47,26 @@ extension String {
             .replacingOccurrences(of: "“", with: "\"")
             .replacingOccurrences(of: "”", with: "\"")
     }
+    
+    func removePunctuation() -> String {
+                
+        // Define a character set for punctuation characters, considering multiple languages.
+        let punctuationCharacterSet = NSMutableCharacterSet()
+        punctuationCharacterSet.formUnion(with: .punctuationCharacters)
+        
+        // Create a mutable string to remove punctuation.
+        let modifiedString = NSMutableString(string: self)
+        
+        // Enumerate and remove punctuation characters.
+        var range = modifiedString.rangeOfCharacter(from: punctuationCharacterSet as CharacterSet)
+        while range.location != NSNotFound {
+            modifiedString.deleteCharacters(in: range)
+            range = modifiedString.rangeOfCharacter(from: punctuationCharacterSet as CharacterSet)
+        }
+        
+        // Convert the modified string back to a Swift String.
+        return String(modifiedString)
+    }
 }
 
 extension String {

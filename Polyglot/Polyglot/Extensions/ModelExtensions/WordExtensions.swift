@@ -40,19 +40,30 @@ extension Token {
 }
 
 extension Word {
-    func accentedText(tokenSeparator: String) -> String {
+    
+    var accentedPronunciation: String {
+        if let tokens = tokens {
+            return tokens.pronunciationWithAccentList.joined(separator: Strings.wordSeparator)
+        } else {
+            return self.text
+        }
+    }
+    
+    var textWithAccentedPronunciation: String {
         if let tokens = self.tokens {
-            let textOfTokensLabel = tokens.pronunciationWithAccentList.joined(separator: tokenSeparator)
-            if textOfTokensLabel.normalized(
+            if accentedPronunciation.normalized(
                 caseInsensitive: true,
                 diacriticInsensitive: false
-            ).replacingOccurrences(of: String(Token.accentSymbol), with: "") == self.text.normalized(
+            ).replacingOccurrences(
+                of: String(Token.accentSymbol),
+                with: ""
+            ) == self.text.normalized(
                 caseInsensitive: true,
                 diacriticInsensitive: false
             ) {  // E.g., russian words, japanese words with katakana only.
-                return textOfTokensLabel
+                return accentedPronunciation
             } else {
-                return "\(self.text) (\(textOfTokensLabel))"
+                return "\(self.text) (\(accentedPronunciation))"
             }
         } else {
             return self.text

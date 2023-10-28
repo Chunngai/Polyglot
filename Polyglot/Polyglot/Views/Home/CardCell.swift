@@ -12,8 +12,14 @@ class CardCellContentConfiguration: UIContentConfiguration {
     
     var header: String?
     
-    var title: String?
+    var lang: String?
+    var words: [String]?
+    var meanings: [String]?
+    var pronunciations: [String]?
     var content: String?
+    var contentSource: ContentCard.ContentSource?
+    
+    var shouldDisplayMeanings: Bool = false
    
     func makeContentView() -> UIView & UIContentView {
         return CardCellContentView(configuration: self)
@@ -28,11 +34,6 @@ class CardCellContentConfiguration: UIContentConfiguration {
 class CardCellContentView: UIView, UIContentView {
     
     let headerLabel: UILabel = {
-        let label = UILabel()
-        label.numberOfLines = 0
-        return label
-    }()
-    let titleLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
         return label
@@ -66,12 +67,15 @@ class CardCellContentView: UIView, UIContentView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    private func updateSetups() {
+        
+    }
+    
     private func updateViews() {
         if headerLabel.text != nil {
             addSubview(headerLabel)
         }
-        if titleLabel.text != nil {
-            addSubview(titleLabel)
+        if contentLabel.text != nil {
             addSubview(contentLabel)
         }
     }
@@ -85,13 +89,9 @@ class CardCellContentView: UIView, UIContentView {
             }
         }
         
-        if titleLabel.text != nil {
-            titleLabel.snp.makeConstraints { make in
-                make.top.equalToSuperview().inset(15)
-                make.leading.trailing.equalToSuperview().inset(20)
-            }
+        if contentLabel.text != nil {
             contentLabel.snp.makeConstraints { make in
-                make.top.equalTo(titleLabel.snp.bottom).offset(10)
+                make.top.equalToSuperview().inset(15)
                 make.leading.trailing.equalToSuperview().inset(20)
                 make.bottom.equalToSuperview().inset(15)
             }
@@ -102,23 +102,81 @@ class CardCellContentView: UIView, UIContentView {
 
         currentConfiguration = configuration
         
-        headerLabel.text = configuration.header
-        headerLabel.textColor = Colors.weakTextColor
-        headerLabel.font = UIFont.systemFont(
-            ofSize: headerLabel.font.pointSize,
-            weight: .medium
-        )
+        if let header = configuration.header {
+            headerLabel.text = header
+            headerLabel.textColor = Colors.weakTextColor
+            headerLabel.font = UIFont.systemFont(
+                ofSize: headerLabel.font.pointSize,
+                weight: .medium
+            )
+        }
         
-        titleLabel.text = configuration.title
-        titleLabel.textColor = Colors.normalTextColor
-        titleLabel.font = UIFont.systemFont(
-            ofSize: titleLabel.font.pointSize,
-            weight: .medium
-        )
+        if let lang = configuration.lang,
+           var words = configuration.words,
+           let meanings = configuration.meanings,
+           let pronunciations = configuration.pronunciations,
+           var content = configuration.content,
+           let contentSource = configuration.contentSource {
+                        
+            var contentString = "\(LangCode.toFlagIcon(langCode: lang)) "
+            if contentSource == .chatgpt {
+                contentString += " \(Tokens.chatgptToken) "
+            }
+            contentString += content
+            
+            for i in 0 ..< words.count {
+                let shouldAddPronunciation = pronunciations[i].normalized(
+                    caseInsensitive: true,
+                    diacriticInsensitive: false
+                ).replacingOccurrences(
+                    of: String(Token.accentSymbol),
+                    with: ""
+                ) != words[i].normalized(
+                    caseInsensitive: true,
+                    diacriticInsensitive: false
+                )
+                
+                contentString = contentString.replacingOccurrences(
+                    of: words[i],
+                    with: (
+                        shouldAddPronunciation
+                        ? "\(words[i]) [\(pronunciations[i])] "
+                        : pronunciations[i]
+                    ) + (
+                        configuration.shouldDisplayMeanings
+                        ? " [\(meanings[i])] "
+                        : ""
+                    )
+                )
+                
+                if !shouldAddPronunciation {
+                    words[i] = pronunciations[i]  // For underlining.
+                }
+            }
+            
+            let attributedText = NSMutableAttributedString(string: contentString)
+            attributedText.setTextColor(
+                for: Tokens.chatgptToken,
+                with: Colors.inactiveTextColor
+            )
+            for i in 0 ..< words.count {
+                attributedText.setUnderline(
+                    for: words[i],
+                    ignoreCasing: true
+                )
+                attributedText.setTextColor(
+                    for: "[\(meanings[i])]",
+                    with: Colors.inactiveTextColor
+                )
+                attributedText.setTextColor(
+                    for: "[\(pronunciations[i])]",
+                    with: Colors.inactiveTextColor
+                )
+            }
+            contentLabel.attributedText = attributedText
+        }
         
-        contentLabel.text = configuration.content
-        contentLabel.textColor = Colors.normalTextColor
-        
+        updateSetups()
         updateViews()
         updateLayouts()
     }
@@ -140,4 +198,3 @@ class CardCell: UICollectionViewListCell {
         super.init(frame: frame)
     }
 }
-

@@ -53,10 +53,6 @@ struct Constants {
     static let requestTimeLimit: TimeInterval = TimeInterval.second * 10
     static let userAgent: String = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
     
-    // MARK: - Notifications.
-    
-    static let notificationRequestIdentifierSeparator: String = ":"
-    
     // MARK: - Practices.
     
     static let reorderingRowStackWidth: CGFloat = UIScreen.main.bounds.width * 0.8

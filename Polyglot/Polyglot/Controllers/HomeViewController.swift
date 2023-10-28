@@ -12,7 +12,7 @@ import MessageUI
 
 struct HomeItem: Hashable {
     
-    private let identifier = UUID()
+    let identifier = UUID()
 
     let image: UIImage?
     
@@ -20,19 +20,30 @@ struct HomeItem: Hashable {
     let secondaryText: String?
     
     let header: String?
-    let word: String?
+    let lang: String?
+    let words: [String]?
+    let meanings: [String]?
+    let pronunciations: [String]?
     let content: String?
+    let contentSource: ContentCard.ContentSource?
     
     init(
-        image: UIImage? = nil, text: String? = nil, secondaryText: String? = nil,
-        header: String? = nil, word: String? = nil, content: String? = nil
+        image: UIImage? = nil, 
+        text: String? = nil, secondaryText: String? = nil,
+        header: String? = nil, lang: String? = nil, words: [String]? = nil, meanings: [String]? = nil, pronunciations: [String]? = nil, content: String? = nil, contentSource: ContentCard.ContentSource? = nil
     ) {
         self.image = image
+        
         self.text = text
         self.secondaryText = secondaryText
+        
         self.header = header
-        self.word = word
+        self.lang = lang
+        self.words = words
+        self.meanings = meanings
+        self.pronunciations = pronunciations
         self.content = content
+        self.contentSource = contentSource
     }
 }
 
@@ -54,22 +65,17 @@ class HomeViewController: UIViewController {
             
             Variables.lang = lang
             
-            self.wordCardEntries = WordCardEntry.load(for: lang)
+            self.contentCreator = ContentCreator(lang: lang)
+            
             self.wordMetaData = Word.loadMetaData(for: lang)
             self.articleMetaData = Article.loadMetaData(for: lang)
+            self.contentCardMetaData = ContentCard.loadMetaData(for: lang)
             
             self.updateTexts()
-            
-            DispatchQueue.global(qos: .userInitiated).async {
-                self.generateWordcardEntries()
-                
-                // removeAllNotifications()
-                self.generateWordcardNotifications()
-            }
         }
     }
     
-    // Collection view stuff.
+    // Collection view.
     
     var dataSource: UICollectionViewDiffableDataSource<Int, HomeItem>!
     
@@ -120,6 +126,28 @@ class HomeViewController: UIViewController {
         )
     ]}
     
+    // Content cards.
+    
+    var contentCreator: ContentCreator!
+    
+    var contentCardsOfTheDay: [(
+        dateString: String,
+        contentCards: [ContentCard]
+    )]!
+    
+    private var shouldUpdateContentCardsOfTheDay: Bool {
+        if self.contentCardsOfTheDay == nil {
+            return true
+        }
+        if self.contentCardsOfTheDay.isEmpty {
+            return true
+        }
+        if contentCardsOfTheDay[0].dateString != Date().repr(of: ContentCard.dateRepr) {
+            return true
+        }
+        return false
+    }
+    
     // MARK: - Models
     
     private var oldWordCount: Int!
@@ -142,10 +170,9 @@ class HomeViewController: UIViewController {
             
             Word.save(&newValue, for: self.lang)
             
-            let newWordNumber = newValue.count
-            wordMetaData["count"] = String(newWordNumber)
-            DispatchQueue.main.async {
-                self.updateTexts()  // May be called by the accent retrieving in a closure.
+            wordMetaData["count"] = String(newValue.count)
+            DispatchQueue.main.async {  // May be called by the accent retrieving in a closure.
+                self.updateTexts()
             }
         }
     }
@@ -170,17 +197,37 @@ class HomeViewController: UIViewController {
             
             Article.save(&newValue, for: self.lang)
             
-            let newArticleNumber = newValue.count
-            articleMetaData["count"] = String(newArticleNumber)
-            DispatchQueue.main.async {
-                self.updateTexts()  // May be called by the accent retrieving in a closure.
+            articleMetaData["count"] = String(newValue.count)
+            DispatchQueue.main.async {  // May be called by the accent retrieving in a closure.
+                self.updateTexts()
             }
         }
     }
     
-    var wordCardEntries: [WordCardEntry]! {
-        didSet {
-            WordCardEntry.save(&wordCardEntries, for: self.lang)
+    private var oldContentCardCount: Int!
+    var contentCards: [ContentCard]! {  // TODO: - Will load data each time the var is accessed, which is slow.
+        get {
+            let contentCards = ContentCard.load(for: self.lang)
+            oldContentCardCount = contentCards.count
+            return contentCards
+        }
+        set {
+            guard var newValue = newValue else {
+                return
+            }
+            
+            guard abs(newValue.count - oldContentCardCount) <= 3 else {
+                return
+            }
+            print("old content card count: \(oldContentCardCount), new content card count: \(newValue.count)")
+            oldContentCardCount = newValue.count
+            
+            ContentCard.save(&newValue, for: self.lang)
+            
+            contentCardMetaData["count"] = String(newValue.count)
+            DispatchQueue.main.async {
+                self.updateTexts()
+            }
         }
     }
     
@@ -194,6 +241,11 @@ class HomeViewController: UIViewController {
             Article.saveMetaData(&articleMetaData, for: self.lang)
         }
     }
+    var contentCardMetaData: [String:String]! {
+        didSet {
+            ContentCard.saveMetaData(&contentCardMetaData, for: self.lang)
+        }
+    }
     
     // MARK: - Controllers
     
@@ -205,8 +257,13 @@ class HomeViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-        updateWordCards()
+    
+        DispatchQueue.global(qos: .userInitiated).async {
+            if self.shouldUpdateContentCardsOfTheDay {
+                self.updateContentCardsOfTheDay()
+            }
+            self.displayContentCardsOfTheDay()
+        }
     }
     
     override func viewDidLoad() {
@@ -255,7 +312,12 @@ extension HomeViewController {
     // MARK: - Selectors
     
     @objc private func appMovedToForeground() {
-        updateWordCards()
+        DispatchQueue.global(qos: .userInitiated).async {
+            if self.shouldUpdateContentCardsOfTheDay {
+                self.updateContentCardsOfTheDay()
+            }
+            self.displayContentCardsOfTheDay()
+        }
     }
     
 }
@@ -285,68 +347,279 @@ extension HomeViewController {
             animatingDifferences: false
         )
     }
- 
-    private func updateWordCards() {
-        UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
-            var entries: [(
-                dateString: String,
-                entry: WordCardEntry
-            )] = notifications.compactMap { notification in
-                
-                guard let trigger = notification.request.trigger as? UNCalendarNotificationTrigger else {
-                    return nil
-                }
-                let notificationDateComponents = trigger.dateComponents
-                let notificationDate = Date.fromComponents(components: notificationDateComponents)
-                guard let notificationDate = notificationDate else {
-                    return nil
-                }
-                guard Calendar.current.isDate(notificationDate, inSameDayAs: Date()) else {
-                    return nil
-                }
-                
-                return (
-                    dateString: notificationDate.repr(of: "HH:mm"),
-                    entry: WordCardEntry(
-                        title: notification.request.content.title,
-                        body: notification.request.content.body
+    
+    private func updateContentCardsOfTheDay() {
+        var dateStringToContentCards: [String: [ContentCard]] = [:]
+        for lang in self.learningLangs {
+            for contentCard in ContentCard.load(for: lang) {
+                if Calendar.current.isDate(
+                    contentCard.date,
+                    inSameDayAs: Date()
+                ) {
+                    let dateString = contentCard.date.repr(of: ContentCard.dateRepr)
+                    
+                    dateStringToContentCards.setDefault(
+                        value: [],
+                        for: dateString
                     )
-                )
+                    dateStringToContentCards[dateString]!.append(contentCard)
+                }
+            }
+        }
+        
+        self.contentCardsOfTheDay = dateStringToContentCards.map {(
+            dateString: $0,
+            contentCards: $1
+        )}.sorted { $0.dateString > $1.dateString }
+    }
+    
+    private func displayContentCardsOfTheDay() {
+        var sections: [(
+            header: HomeItem,
+            items: [HomeItem]
+        )] = []
+        for (dateString, contentCards) in contentCardsOfTheDay {
+            guard let hourOfDateString = Int(dateString.split(with: ":")[0]) else {
+                continue
+            }
+            guard let hourOfNow = Int(Date().repr(of: ContentCard.dateRepr).split(with: ":")[0]) else {
+                continue
+            }
+            if hourOfDateString > hourOfNow {
+                continue
             }
             
-            entries = entries.sorted(by: { a, b in
-                a.dateString > b.dateString
-            })
-            
-            var sections: [(
-                header: HomeItem,
-                items: [HomeItem]
-            )] = []
-            var currentHeaderText: String = ""
-            for entry in entries {
-                let headerText = entry.dateString
-                if currentHeaderText != headerText {
-                    currentHeaderText = headerText
-                    sections.append((
-                        header: HomeItem(header: currentHeaderText),
-                        items: []
-                    ))
+            sections.append((
+                header: HomeItem(header: dateString),
+                items: []
+            ))
+            for contentCard in contentCards {
+                if contentCard.content.isEmpty {
+                    continue
                 }
+                
                 sections[sections.count - 1].items.append(HomeItem(
-                    word: entry.entry.title,
-                    content: entry.entry.body
+                    lang: contentCard.lang,
+                    words: contentCard.words,
+                    meanings: contentCard.meanings,
+                    pronunciations: contentCard.pronunciations,
+                    content: contentCard.content,
+                    contentSource: contentCard.contentSource
                 ))
             }
+        }
+        
+        for (i, section) in sections.enumerated() {
+            var sectionSnapShot = NSDiffableDataSourceSectionSnapshot<HomeItem>()
             
-            for (i, section) in sections.enumerated() {
-                var sectionSnapShot = NSDiffableDataSourceSectionSnapshot<HomeItem>()
+            sectionSnapShot.append([section.header])
+            sectionSnapShot.append(section.items)
+            // sectionSnapShot.expand([headerItem])
+            
+            DispatchQueue.main.async {
+                self.dataSource.apply(sectionSnapShot, to: i + 3)
+            }
+        }
+    }
+    
+    private func generateContentCards() {
+        let now = Date()
+        
+        var date2indexForContentCardsAfterNow: [Date: Int] = [:]
+        for (i, contentCard) in self.contentCards.enumerated() {
+            if contentCard.date >= now {
+                date2indexForContentCardsAfterNow[contentCard.date] = i
+            }
+        }
+        
+        for day in now.nextNDays(n: 3) {
+        hourLoop: for hour in 10...22 {
+            let dateComponents = DateComponents(
+                year: day.get(.year),
+                month: day.get(.month),
+                day: day.get(.day),
+                hour: hour
+            )
+            guard let date = Date.fromComponents(components: dateComponents) else {
+                continue
+            }
+            
+            if date < now {
+                continue
+            }
+            
+            for (dateOfContentCardAfterNow, indexOfContentCardAfterNow) in date2indexForContentCardsAfterNow {
+                if dateOfContentCardAfterNow == date {  // A content card for the date has been generated.
+                    let contentCard = self.contentCards[indexOfContentCardAfterNow]
+                    if contentCard.contentSource == .chatgpt && contentCard.content.isEmpty {  // Content creation with chatgpt failed.
+                        print("Re-creating the content for: \(contentCard)")
+                        self.contentCreator.createContent(for: contentCard.words) { [langForContentCard = self.lang] (content: String?) in
+                            guard self.lang == langForContentCard else {
+                                return
+                            }
+                            guard let content = content else {
+                                return
+                            }
+                            self.contentCards[indexOfContentCardAfterNow].content = content
+                        }
+                    }
+                    
+                    continue hourLoop
+                }
+            }
+            
+            print("Generating a content card for \(date)")
+            
+            // Generate a content card.
+            if let randomWord = self.words.randomElement(),
+               let randomPara = self.articles.paraCandidates(
+                for: randomWord,
+                shouldIgnoreCase: true
+               ).randomElement(),
+               let content = randomPara.text.components(from: Variables.tokenizerOfLang(of: .sentence))
+                .first(where: { (sentence) -> Bool in
+                    sentence.contains(randomWord.text)
+                }) {
                 
-                sectionSnapShot.append([section.header])
-                sectionSnapShot.append(section.items)
-//                sectionSnapShot.expand([headerItem])
+                // Obtain all words that are in the content.
+                var containedWords: [Word] = [randomWord]
+                for word in self.words {
+                    if word.text.lowercased() != randomWord.text.lowercased()
+                        && content.lowercased().contains(word.text.lowercased())
+                        && !Tokens.wordsToFilterInContentCardGeneration.contains(word.text.lowercased()) {
+                        containedWords.append(word)
+                    }
+                }
                 
-                DispatchQueue.main.async {
-                    self.dataSource.apply(sectionSnapShot, to: i + 3)
+                // Ensure that the words in the content are really words
+                // instead of substrings in certain words.
+                // Note that the current solution cannot handle the situation where
+                // e.g., 동의어 in 동의어를
+                var pseudoWords: [Word] = []
+                let contentWoPunct = content.removePunctuation()
+                let lowercasedContentWords = contentWoPunct
+                    .split(separator: Strings.wordSeparator)  // Don't use String.split(with:), it's not working properly with "" being the separator.
+                    .map { $0.lowercased() }
+                for containedWord in containedWords {
+                    let containedWordWoPunct = containedWord.text.removePunctuation()
+                    let lowercasedWordsInContainedWord = containedWordWoPunct
+                        .split(separator: Strings.wordSeparator)
+                        .map { $0.lowercased() }
+                    if !lowercasedContentWords.contains(lowercasedWordsInContainedWord) {
+                        pseudoWords.append(containedWord)
+                        print("[x] Pseudo word \"\(containedWord.text)\" in \(content)")
+                    }
+                }
+                
+                // Resolve conflicted words.
+                var conflictedWords: [Word] = []
+                for longerWord in containedWords {
+                    for shorterWord in containedWords {
+                        if longerWord.text.lowercased() != shorterWord.text.lowercased()
+                            && longerWord.text.lowercased().contains(shorterWord.text.lowercased()) {
+                            conflictedWords.append(shorterWord)
+                            print("[x] Confliction. \"\(longerWord.text.lowercased())\" contains \"\(shorterWord.text.lowercased())\"")
+                        }
+                    }
+                }
+                
+                // Filtering.
+                containedWords = containedWords.compactMap { word in
+                    if word.text == randomWord.text {
+                        return word
+                    }
+                    
+                    if !pseudoWords.contains(word) && !conflictedWords.contains(word) {
+                        return word
+                    } else {
+                        return nil
+                    }
+                }
+                
+                let contentCard = ContentCard(
+                    date: date,
+                    lang: self.lang,
+                    words: containedWords.map{ $0.text },
+                    meanings: containedWords.map{ $0.meaning },
+                    pronunciations: containedWords.map{ $0.accentedPronunciation },
+                    content: content,
+                    contentSource: .articles
+                )
+                self.contentCards.append(contentCard)
+                print("Generated: \(contentCard)")
+                
+                updateAccents(for: containedWords)
+            } else {
+                var randomWords: [Word] = []
+                for _ in 0 ... 6 {
+                    guard let randomWord = self.words.randomElement() else {
+                        continue
+                    }
+                    if !randomWords.contains(randomWord) {
+                        randomWords.append(randomWord)
+                    }
+                }
+                
+                var contentCardWords: [String] = []
+                var contentCardMeanings: [String] = []
+                var contentCardPronunciations: [String] = []
+                for word in randomWords {
+                    contentCardWords.append(word.text)
+                    contentCardMeanings.append(word.meaning)
+                    contentCardPronunciations.append(word.accentedPronunciation)
+                }
+                
+                let contentCard = ContentCard(
+                    date: date,
+                    lang: self.lang,
+                    words: contentCardWords,
+                    meanings: contentCardMeanings,
+                    pronunciations: contentCardPronunciations,
+                    content: "",
+                    contentSource: .chatgpt
+                )
+                self.contentCards.append(contentCard)
+                print("Generated: \(contentCard)")
+                
+                self.contentCreator.createContent(for: randomWords.map{ $0.text }) { [langForContentCard = self.lang, contentCardIndex = self.contentCards.count] (content: String?) in
+                    guard self.lang == langForContentCard else {
+                        return
+                    }
+                    guard let content = content else {
+                        return
+                    }
+                    self.contentCards[contentCardIndex].content = content
+                }
+                
+                updateAccents(for: randomWords)
+            }
+        }
+        }
+    }
+    
+    private func updateAccents(for words: [Word]) {
+        if self.lang == LangCode.ja {
+            for word in words {
+                if word.tokens == nil || word.isOldJaAccents {
+                    Word.makeJaTokensFor(jaWord: word) { [langForWord = self.lang] tokens in
+                        guard self.lang == langForWord else {
+                            return
+                        }
+                        self.words.updateWord(of: word.id, newTokens: tokens)
+                    }
+                }
+            }
+        }
+        
+        if self.lang == LangCode.ru {
+            for word in words {
+                if word.tokens == nil {
+                    Word.makeRuTokensFor(ruWord: word) { [langForWord = self.lang] tokens in
+                        guard self.lang == langForWord else {
+                            return
+                        }
+                        self.words.updateWord(of: word.id, newTokens: tokens)
+                    }
                 }
             }
         }
@@ -541,7 +814,7 @@ extension HomeViewController {
             }
 
             if self.learningLangs[indexPath.row] == self.lang {
-                background.strokeColor = .systemGray3
+                background.strokeColor = .black
                 background.strokeWidth = 2
             } else {
                 background.strokeColor = .clear
@@ -606,8 +879,12 @@ extension HomeViewController {
         ) in
             
             let content = CardCellContentConfiguration()
-            content.title = item.word
+            content.lang = item.lang
+            content.words = item.words
+            content.meanings = item.meanings
+            content.pronunciations = item.pronunciations
             content.content = item.content
+            content.contentSource = item.contentSource
             cell.contentConfiguration = content
                  
             var background = UIBackgroundConfiguration.listPlainCell()
@@ -719,7 +996,7 @@ extension HomeViewController: UICollectionViewDelegate {
         
         if section == HomeViewController.languageSection {
             
-            cell.backgroundConfiguration?.strokeColor = .systemGray3
+            cell.backgroundConfiguration?.strokeColor = .black
             cell.backgroundConfiguration?.strokeWidth = 2
             // Change the view of other language cells
             // into the deselected status.
@@ -761,6 +1038,12 @@ extension HomeViewController: UICollectionViewDelegate {
                 vc,
                 animated: true
             )
+            
+            // Generate content cards here.
+            DispatchQueue.global(qos: .userInitiated).async {
+                self.generateContentCards()
+            }
+            
         } else if section == HomeViewController.practiceSection {
             
             guard self.lang != nil else {
@@ -784,214 +1067,17 @@ extension HomeViewController: UICollectionViewDelegate {
                 animated: true,
                 completion: nil
             )
-        }
-    }
-}
-
-extension HomeViewController {
-    
-    func createWordCardContent() -> (
-        word: Word,
-        content: String,
-        shouldObtainAccent: Bool
-    ) {
-        let word = self.words.randomElement()!
-        
-        var shouldObtainAccent = false
-        if self.lang == LangCode.ja && (word.tokens == nil || word.isOldJaAccents) {
-            shouldObtainAccent = true
-        }
-        if self.lang == LangCode.ru && word.tokens == nil {
-            shouldObtainAccent = true
-        }
-        
-        let candidates = articles.paraCandidates(
-            for: word,
-            shouldIgnoreCase: true
-        )
-        guard let candidate = candidates.randomElement() else {
-            return (
-                word: word,
-                content: word.meaning,
-                shouldObtainAccent: shouldObtainAccent
-            )
-        }
-        
-        let sentences = candidate.text.components(from: Variables.tokenizerOfLang(of: .sentence))
-        guard let targetSentence = sentences.first(where: { (sentence) -> Bool in
-            sentence.contains(word.text)
-        }) else {
-            return (
-                word: word,
-                content: word.meaning,
-                shouldObtainAccent: shouldObtainAccent
-            )
-        }
-        
-        return (
-            word: word,
-            content: targetSentence.replacingOccurrences(
-                of: word.text,
-                with: "#\(word.text)#"
-            ),
-            shouldObtainAccent: shouldObtainAccent
-        )
-    }
-    
-    func makeWordCardTitle(word: Word) -> String {
-        return word.accentedText(tokenSeparator: Strings.wordSeparator)
-    }
-    
-    func generateWordcardEntries() {
-        guard !words.isEmpty else {
-            return
-        }
-        
-        while wordCardEntries.count < WordCardEntry.maxEntryNumber {
-            let wordCardContent = self.createWordCardContent()
-            let title = makeWordCardTitle(word: wordCardContent.word)
-            let body: String = wordCardContent.content
-            
-            wordCardEntries.append(WordCardEntry(
-                title: title,
-                body: body
-            ))
-            let index = wordCardEntries.count - 1
+        } else {
+            if let cell = cell as? CardCell,
+                let configuration = cell.contentConfiguration as? CardCellContentConfiguration {
                 
-            if body == wordCardContent.word.meaning {
-                // Make content with ChatGPT.
-                ContentCreator().createContent(
-                    for: wordCardContent.word.text,
-                    in: lang
-                ) { (sentence: String?) in
-                    guard let sentence = sentence else {
-                        return
-                    }
-                    let newBody = "[ChatGPT] " + sentence.replacingOccurrences(
-                        of: wordCardContent.word.text,
-                        with: "#\(wordCardContent.word.text)#",
-                        options: [.caseInsensitive]
-                    )
-                    if index >= self.wordCardEntries.count {
-                        // TODO: - will happen occasionally
-                        return
-                    }
-                    self.wordCardEntries[index].body = newBody
-                }
-            }
-            
-            if wordCardContent.shouldObtainAccent {
-                if self.lang == LangCode.ja {
-                    Word.makeJaTokensFor(jaWord: wordCardContent.word) { tokens in
-                        if let updatedWord = self.words.updateWord(of: wordCardContent.word.id, newTokens: tokens) {
-                            let newTitle: String = self.makeWordCardTitle(word: updatedWord)
-                            self.wordCardEntries[index].title = newTitle
-                        }
-                    }
-                }
-                if self.lang == LangCode.ru {
-                    Word.makeRuTokensFor(ruWord: wordCardContent.word) { tokens in
-                        if let updatedWord = self.words.updateWord(of: wordCardContent.word.id, newTokens: tokens) {
-                            let newTitle: String = self.makeWordCardTitle(word: updatedWord)
-                            self.wordCardEntries[index].title = newTitle
-                        }
-                    }
-                }
+                configuration.shouldDisplayMeanings.toggle()
+                cell.contentConfiguration = configuration
+                
+                collectionView.performBatchUpdates(nil, completion: nil)  // For updating the cell height.
             }
         }
     }
-}
-
-extension HomeViewController {
-    
-    private func makeLang2rid(from requests: [UNNotificationRequest]) -> [String: [String]] {
-        var lang2rid: [String: [String]] = [:]
-        for learningLang in self.learningLangs {
-            lang2rid[learningLang] = []
-        }
-        for request in requests {
-            print("title:", request.content.title)
-            print("body:", request.content.body)
-            
-            let rid = request.identifier
-            let langCode = rid.split(with: Constants.notificationRequestIdentifierSeparator)[0]
-            lang2rid[langCode]!.append(rid)
-        }
-        
-        return lang2rid
-    }
-    
-    private var maxRequestPerLang: Int {
-        64 / self.learningLangs.count  // 64: max pending request num.
-    }
-    
-    private func makeWordCardIdentifier(lang: String, triggerDateComponents: DateComponents) -> String {
-        "\(lang):" + "\(triggerDateComponents.year!)\(triggerDateComponents.month!)\(triggerDateComponents.day!)\(triggerDateComponents.hour!)"
-    }
-    
-    private func addIcon(of langCode: String, to title: String) -> String {
-        return "\(LangCode.toFlagIcon(langCode: langCode)) \(title)"
-    }
-    
-    private func generateWordcardNotifications() {
-        
-        // https://stackoverflow.com/questions/40270598/ios-10-how-to-view-a-list-of-pending-notifications-using-unusernotificationcente
-        let notificationCenter = UNUserNotificationCenter.current()
-        notificationCenter.getPendingNotificationRequests { requests in
-            var lang2rid: [String: [String]] = self.makeLang2rid(from: requests)
-            print("Before:", lang2rid)
-            
-            // Create word cards for 10-22.
-            for day in Date().nextNDays(n: 3) {
-                for hour in 10...22 {
-                    if lang2rid[self.lang]!.count >= self.maxRequestPerLang {
-                        // Cannot be outside the loops
-                        // as new notifications will be added inside the loops.
-                        continue
-                    }
-                    
-                    let triggerDateComponents = DateComponents(
-                        year: day.get(.year),
-                        month: day.get(.month),
-                        day: day.get(.day),
-                        hour: hour
-                    )
-                    if let triggerDate = Date.fromComponents(components: triggerDateComponents), triggerDate < Date() {
-                        continue
-                    }
-                    
-                    let identifier = self.makeWordCardIdentifier(lang: self.lang, triggerDateComponents: triggerDateComponents)
-                    if lang2rid[self.lang]!.contains(identifier) {
-                        continue
-                    }
-                    
-                    guard let wordCardEntry = self.wordCardEntries.popLast() else {
-                        continue
-                    }
-                    
-                    let title: String = self.addIcon(of: self.lang, to: wordCardEntry.title)
-                    let body: String = wordCardEntry.body
-                    
-                    print("Adding a word card.")
-                    print("  [title] \(title)")
-                    print("  [body] \(body)")
-                    print("  [trigger date components] \(triggerDateComponents)")
-                    print("  [identifier] \(identifier)")
-                    let notificationRequest = makeNotificationRequest(
-                        title: title,
-                        body: body,
-                        triggerDateComponents: triggerDateComponents,
-                        identifier: identifier
-                    )
-                    notificationCenter.add(notificationRequest)
-                    lang2rid[self.lang]!.append(identifier)
-                }
-            }
-            
-            print("After:", lang2rid)
-        }
-    }
-    
 }
 
 extension HomeViewController {

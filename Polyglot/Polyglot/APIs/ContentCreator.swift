@@ -10,22 +10,30 @@ import Foundation
 
 struct ContentCreator {
 
-    private func makePrompt(for word: String, in language: String) -> String {
-        switch language {
-        case LangCode.zh: return "写一个包含词语“\(word)”的句子。请注意，不要更改所提供单词的形式。"
-        case LangCode.en: return "Write a sentence that contains the word \"\(word)\". Note that do not change the form of the provided word."
-        case LangCode.ja: return "「\(word)」という単語を含む文を書いてください。提供された単語の形式を変更しないでください。"
-        case LangCode.es: return "Escribe una oración que contenga la palabra \"\(word)\". Tenga en cuenta que no cambie la forma de la palabra proporcionada."
-        case LangCode.ru: return "Напишите предложение, в котором есть слово «\(word)». Обратите внимание: не меняйте форму предоставленного слова."
-        case LangCode.ko: return "\"\(word)\"이라는 단어를 포함하는 문장을 작성하세요. 제공된 단어의 형태를 변경하지 마십시오."
-        case LangCode.de: return "Schreiben Sie einen Satz, der das Wort „\(word)“ enthält. Beachten Sie, dass Sie die Form des angegebenen Worts nicht ändern."
+    let lang: String!
+    
+    init(lang: String!) {
+        self.lang = lang
+    }
+    
+    private func makePrompt(for words: [String]) -> String {
+        let words = words.joined(separator: "\n")
+        
+        switch self.lang {
+        case LangCode.zh: return "请写一个包含以下单词的段落，注意不要改变所提供单词的形式。\n\(words)"
+        case LangCode.en: return "Please write a paragraph containing the following words, taking care not to change the form of the words provided.\n\(words)"
+        case LangCode.ja: return "次の言葉を含む段落を、提供された言葉の形を変えないように注意して書いてください。\n\(words)"
+        case LangCode.es: return "Por favor escriba un párrafo que contenga las siguientes palabras, teniendo cuidado de no cambiar la forma de las palabras proporcionadas.\n\(words)"
+        case LangCode.ru: return "Пожалуйста, напишите абзац, содержащий следующие слова, стараясь не менять форму предоставленных слов.\n\(words)"
+        case LangCode.ko: return "제공된 단어의 형태가 변경되지 않도록 주의하면서 다음 단어를 포함하는 단락을 작성하십시오.\n\(words)"
+        case LangCode.de: return "Bitte schreiben Sie einen Absatz mit den folgenden Wörtern und achten Sie darauf, die Form der angegebenen Wörter nicht zu ändern.\n\(words)"
         default: return ""
         }
     }
     
-    func createContent(for word: String, in language: String, completion: @escaping (String?) -> Void) {
+    func createContent(for words: [String], completion: @escaping (String?) -> Void) {
         
-        guard !word.isEmpty else {
+        guard !words.isEmpty else {
             completion(nil)
             return
         }
@@ -49,7 +57,7 @@ struct ContentCreator {
             "model": "gpt-3.5-turbo",
             "messages": [[
                 "role": "user",
-                "content": makePrompt(for: word, in: language)
+                "content": makePrompt(for: words)
             ]]
         ])
         
