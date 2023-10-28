@@ -221,7 +221,7 @@ class HomeViewController: UIViewController {
     
     private var _contentCards: [ContentCard]!
     private var _contentCardCount: Int!
-    var contentCards: [ContentCard]! {  // TODO: - Will load data each time the var is accessed, which is slow.
+    var contentCards: [ContentCard]! {
         get {
             if self._contentCards == nil {
                 print("Reading content cards.")
@@ -340,33 +340,60 @@ extension HomeViewController {
         }
     }
     
+    @objc private func emailAnCopy() {
+        guard MFMailComposeViewController.canSendMail() else {
+            // Handle the case where the device can't send emails, e.g., display an alert.
+            print("Cannot send email.")
+            return
+        }
+        
+        let mailComposer = MFMailComposeViewController()
+        mailComposer.mailComposeDelegate = self
+        
+        var fileNames: [String] = []
+        for learningLang in self.learningLangs {
+            fileNames.append(Word.fileName(for: learningLang))
+            fileNames.append(Article.fileName(for: learningLang))
+        }
+        
+        for fileName in fileNames {
+            
+            if let fileURL = try? constructFileUrl(
+                from: fileName,
+                create: false
+            ) {
+                if let data = try? Data(contentsOf: fileURL) {
+                    mailComposer.addAttachmentData(
+                        data,
+                        mimeType: "application/json",
+                        fileName: fileName
+                    )
+                } else {
+                    // Handle the case where reading the file data failed.
+                    print("Failed to read data from \(fileName)")
+                    return
+                }
+            } else {
+                // Handle any errors related to constructing the file URL
+                print("Filed to construct URL for \(fileName)")
+                return
+            }
+            
+        }
+        
+        mailComposer.setToRecipients([Config.defaultEmail])
+        mailComposer.setSubject("Data Copy \(Date().repr())")
+        mailComposer.setMessageBody("", isHTML: false)
+        
+        // Present the mail composer view controller
+        self.present(mailComposer, animated: true, completion: nil)
+        
+    }
 }
 
 extension HomeViewController {
     
-    // MARK: - Utils
-    
-    private func updateTexts() {
-        navigationItem.title = Strings.homeTitle
-        
-        var listsSnapshot = dataSource.snapshot(for: HomeViewController.listSection)
-        listsSnapshot.deleteAll()
-        listsSnapshot.append(listItems)
-        dataSource.apply(
-            listsSnapshot,
-            to: HomeViewController.listSection,
-            animatingDifferences: false
-        )
-        
-        var practicesSnapShot = dataSource.snapshot(for: HomeViewController.practiceSection)
-        practicesSnapShot.deleteAll()
-        practicesSnapShot.append(practiceItems)
-        dataSource.apply(
-            practicesSnapShot,
-            to: HomeViewController.practiceSection,
-            animatingDifferences: false
-        )
-    }
+    // MARK: - Content Cards
     
     private func updateContentCardsOfTheDay() {
         var dateStringToContentCards: [String: [ContentCard]] = [:]
@@ -651,54 +678,32 @@ extension HomeViewController {
         }
     }
     
-    @objc private func emailAnCopy() {
-        guard MFMailComposeViewController.canSendMail() else {
-            // Handle the case where the device can't send emails, e.g., display an alert.
-            print("Cannot send email.")
-            return
-        }
+}
+
+extension HomeViewController {
+    
+    // MARK: - Utils
+    
+    private func updateTexts() {
+        navigationItem.title = Strings.homeTitle
         
-        let mailComposer = MFMailComposeViewController()
-        mailComposer.mailComposeDelegate = self
+        var listsSnapshot = dataSource.snapshot(for: HomeViewController.listSection)
+        listsSnapshot.deleteAll()
+        listsSnapshot.append(listItems)
+        dataSource.apply(
+            listsSnapshot,
+            to: HomeViewController.listSection,
+            animatingDifferences: false
+        )
         
-        var fileNames: [String] = []
-        for learningLang in self.learningLangs {
-            fileNames.append(Word.fileName(for: learningLang))
-            fileNames.append(Article.fileName(for: learningLang))
-        }
-        
-        for fileName in fileNames {
-            
-            if let fileURL = try? constructFileUrl(
-                from: fileName,
-                create: false
-            ) {
-                if let data = try? Data(contentsOf: fileURL) {
-                    mailComposer.addAttachmentData(
-                        data,
-                        mimeType: "application/json",
-                        fileName: fileName
-                    )
-                } else {
-                    // Handle the case where reading the file data failed.
-                    print("Failed to read data from \(fileName)")
-                    return
-                }
-            } else {
-                // Handle any errors related to constructing the file URL
-                print("Filed to construct URL for \(fileName)")
-                return
-            }
-            
-        }
-        
-        mailComposer.setToRecipients([Config.defaultEmail])
-        mailComposer.setSubject("Data Copy \(Date().repr())")
-        mailComposer.setMessageBody("", isHTML: false)
-        
-        // Present the mail composer view controller
-        self.present(mailComposer, animated: true, completion: nil)
-        
+        var practicesSnapShot = dataSource.snapshot(for: HomeViewController.practiceSection)
+        practicesSnapShot.deleteAll()
+        practicesSnapShot.append(practiceItems)
+        dataSource.apply(
+            practicesSnapShot,
+            to: HomeViewController.practiceSection,
+            animatingDifferences: false
+        )
     }
 }
 
