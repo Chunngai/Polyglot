@@ -633,7 +633,7 @@ extension HomeViewController {
                 
                 self.contentCreator.createContent(for: randomWords.map{ $0.text }) { [
                     langForContentCard = self.lang,
-                    contentCardIndex = self.contentCards.count - 1
+                    contentCardId = contentCard.id
                 ] (content: String?) in
                     guard self.lang == langForContentCard else {
                         return
@@ -641,7 +641,14 @@ extension HomeViewController {
                     guard let content = content else {
                         return
                     }
-                    self.contentCards[contentCardIndex].content = content
+                    // TODO: - Improve here.
+                    // Not working properly with count - 1?
+                    for i in 0 ..< self.contentCards.count {
+                        if self.contentCards[i].id == contentCardId {
+                            self.contentCards[i].content = content
+                            break
+                        }
+                    }
                 }
                 
                 updateAccents(for: randomWords)
