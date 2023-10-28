@@ -259,13 +259,19 @@ extension WordsPracticeViewController {
                 continue
             }
             
-            if Variables.lang == LangCode.ja && (word.tokens == nil || word.isOldJaAccents) {
-                Word.makeJaTokensFor(jaWord: word) { tokens in
+            if Variables.lang == LangCode.ja && (word.tokens == nil || JapaneseAccentAnalyzer.isOldAccents(word)) {
+                JapaneseAccentAnalyzer.makeTokens(for: word) { tokens in
+                    guard Variables.lang == LangCode.ja else {
+                        return
+                    }
                     self.words.updateWord(of: word.id, newTokens: tokens)
                 }
             }
             if Variables.lang == LangCode.ru && word.tokens == nil {
-                Word.makeRuTokensFor(ruWord: word) { tokens in
+                RussianAccentAnalyzer.makeTokens(for: word) { tokens in
+                    guard Variables.lang == LangCode.ru else {
+                        return
+                    }
                     self.words.updateWord(of: word.id, newTokens: tokens)
                 }
             }

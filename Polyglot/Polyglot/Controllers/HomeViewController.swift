@@ -653,9 +653,9 @@ extension HomeViewController {
     private func updateAccents(for words: [Word]) {
         if self.lang == LangCode.ja {
             for word in words {
-                if word.tokens == nil || word.isOldJaAccents {
-                    Word.makeJaTokensFor(jaWord: word) { [langForWord = self.lang] tokens in
-                        guard self.lang == langForWord else {
+                if word.tokens == nil || JapaneseAccentAnalyzer.isOldAccents(word) {
+                    JapaneseAccentAnalyzer.makeTokens(for: word) { tokens in
+                        guard self.lang == LangCode.ja else {
                             return
                         }
                         self.words.updateWord(of: word.id, newTokens: tokens)
@@ -667,8 +667,8 @@ extension HomeViewController {
         if self.lang == LangCode.ru {
             for word in words {
                 if word.tokens == nil {
-                    Word.makeRuTokensFor(ruWord: word) { [langForWord = self.lang] tokens in
-                        guard self.lang == langForWord else {
+                    RussianAccentAnalyzer.makeTokens(for: word) { tokens in
+                        guard self.lang == LangCode.ru else {
                             return
                         }
                         self.words.updateWord(of: word.id, newTokens: tokens)

@@ -256,14 +256,20 @@ extension WordsViewController {
             }
             
             if Variables.lang == LangCode.ja {
-                Word.makeJaTokensFor(jaWord: updatedWord) { tokens in
+                JapaneseAccentAnalyzer.makeTokens(for: updatedWord) { tokens in
+                    guard Variables.lang == LangCode.ja else {
+                        return
+                    }
                     DispatchQueue.main.async {
                         self.words.updateWord(of: updatedWord.id, newTokens: tokens)
                     }
                 }
             }
             if Variables.lang == LangCode.ru {
-                Word.makeRuTokensFor(ruWord: updatedWord) { tokens in
+                RussianAccentAnalyzer.makeTokens(for: updatedWord) { tokens in
+                    guard Variables.lang == LangCode.ru else {
+                        return
+                    }
                     DispatchQueue.main.async {
                         self.words.updateWord(of: updatedWord.id, newTokens: tokens)
                     }

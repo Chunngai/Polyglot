@@ -317,14 +317,20 @@ extension PracticeViewController {
         self.words.add(newWords: words)
         for word in words {
             if Variables.lang == LangCode.ja {
-                Word.makeJaTokensFor(jaWord: word) { tokens in
+                JapaneseAccentAnalyzer.makeTokens(for: word) { tokens in
+                    guard Variables.lang == LangCode.ja else {
+                        return
+                    }
                     DispatchQueue.main.async {
                         self.words.updateWord(of: word.id, newTokens: tokens)
                     }
                 }
             }
             if Variables.lang == LangCode.ru {
-                Word.makeRuTokensFor(ruWord: word) { tokens in
+                RussianAccentAnalyzer.makeTokens(for: word) { tokens in
+                    guard Variables.lang == LangCode.ru else {
+                        return
+                    }
                     DispatchQueue.main.async {
                         self.words.updateWord(of: word.id, newTokens: tokens)
                     }
