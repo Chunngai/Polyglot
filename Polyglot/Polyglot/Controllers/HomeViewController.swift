@@ -64,13 +64,18 @@ class HomeViewController: UIViewController {
             print("Updating lang to \(lang)")
             
             Variables.lang = lang
-            
-            self.contentCreator = ContentCreator(lang: lang)
+                        
+            print("Resetting data.")
+            self._words = nil
+            self._articles = nil
+            self._contentCards = nil
             
             self.wordMetaData = Word.loadMetaData(for: lang)
             self.articleMetaData = Article.loadMetaData(for: lang)
             self.contentCardMetaData = ContentCard.loadMetaData(for: lang)
             
+            self.contentCreator = ContentCreator(lang: lang)
+
             self.updateTexts()
         }
     }
@@ -150,23 +155,28 @@ class HomeViewController: UIViewController {
     
     // MARK: - Models
     
-    private var oldWordCount: Int!
+    private var _words: [Word]!
+    private var _wordCount: Int!
     var words: [Word]! {
         get {
-            let words = Word.load(for: self.lang)
-            oldWordCount = words.count
-            return words
+            if self._words == nil {
+                print("Reading words.")
+                self._words = Word.load(for: self.lang)
+                self._wordCount = self._words.count
+            }
+            
+            return self._words
         }
         set {
             guard var newValue = newValue else {
                 return
             }
             
-            guard abs(newValue.count - oldWordCount) <= 30 else {
+            guard abs(newValue.count - _wordCount) <= 30 else {
                 return
             }
-            print("old word count: \(oldWordCount), new word count: \(newValue.count)")
-            oldWordCount = newValue.count
+            print("Word count: \(_wordCount ?? -1) -> \(newValue.count)")
+            _wordCount = newValue.count
             
             Word.save(&newValue, for: self.lang)
             
@@ -177,23 +187,28 @@ class HomeViewController: UIViewController {
         }
     }
     
-    private var oldArticleCount: Int!
+    private var _articles: [Article]!
+    private var _articleCount: Int!
     var articles: [Article]! {
         get {
-            let articles = Article.load(for: self.lang)
-            oldArticleCount = articles.count
-            return articles
+            if self._articles == nil {
+                print("Reading articles.")
+                self._articles = Article.load(for: self.lang)
+                self._articleCount = self._articles.count
+            }
+            
+            return self._articles
         }
         set {
             guard var newValue = newValue else {
                 return
             }
             
-            guard abs(newValue.count - oldArticleCount) <= 3 else {
+            guard abs(newValue.count - _articleCount) <= 3 else {
                 return
             }
-            print("old article count: \(oldArticleCount), new article count: \(newValue.count)")
-            oldArticleCount = newValue.count
+            print("Article count: \(_articleCount ?? -1) -> \(newValue.count)")
+            _articleCount = newValue.count
             
             Article.save(&newValue, for: self.lang)
             
@@ -204,23 +219,28 @@ class HomeViewController: UIViewController {
         }
     }
     
-    private var oldContentCardCount: Int!
+    private var _contentCards: [ContentCard]!
+    private var _contentCardCount: Int!
     var contentCards: [ContentCard]! {  // TODO: - Will load data each time the var is accessed, which is slow.
         get {
-            let contentCards = ContentCard.load(for: self.lang)
-            oldContentCardCount = contentCards.count
-            return contentCards
+            if self._contentCards == nil {
+                print("Reading content cards.")
+                self._contentCards = ContentCard.load(for: self.lang)
+                self._contentCardCount = self._contentCards.count
+            }
+            
+            return self._contentCards
         }
         set {
             guard var newValue = newValue else {
                 return
             }
             
-            guard abs(newValue.count - oldContentCardCount) <= 3 else {
+            guard abs(newValue.count - _contentCardCount) <= 3 else {
                 return
             }
-            print("old content card count: \(oldContentCardCount), new content card count: \(newValue.count)")
-            oldContentCardCount = newValue.count
+            print("Card count: \(_contentCardCount ?? -1) -> \(newValue.count)")
+            _contentCardCount = newValue.count
             
             ContentCard.save(&newValue, for: self.lang)
             
@@ -450,6 +470,9 @@ extension HomeViewController {
             
             for (dateOfContentCardAfterNow, indexOfContentCardAfterNow) in date2indexForContentCardsAfterNow {
                 if dateOfContentCardAfterNow == date {  // A content card for the date has been generated.
+                    guard indexOfContentCardAfterNow < self.contentCards.count else {  // Index out of range when quickly switching languages.
+                        continue hourLoop
+                    }
                     let contentCard = self.contentCards[indexOfContentCardAfterNow]
                     if contentCard.contentSource == .chatgpt && contentCard.content.isEmpty {  // Content creation with chatgpt failed.
                         print("Re-creating the content for: \(contentCard)")
