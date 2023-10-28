@@ -581,7 +581,10 @@ extension HomeViewController {
                 self.contentCards.append(contentCard)
                 print("Generated: \(contentCard)")
                 
-                self.contentCreator.createContent(for: randomWords.map{ $0.text }) { [langForContentCard = self.lang, contentCardIndex = self.contentCards.count] (content: String?) in
+                self.contentCreator.createContent(for: randomWords.map{ $0.text }) { [
+                    langForContentCard = self.lang,
+                    contentCardIndex = self.contentCards.count - 1
+                ] (content: String?) in
                     guard self.lang == langForContentCard else {
                         return
                     }
