@@ -146,7 +146,8 @@ class CardCellContentView: UIView, UIContentView {
                         configuration.shouldDisplayMeanings
                         ? " [\(meanings[i])] "
                         : ""
-                    )
+                    ),
+                    options: [.caseInsensitive]
                 )
                 
                 if !shouldAddPronunciation {

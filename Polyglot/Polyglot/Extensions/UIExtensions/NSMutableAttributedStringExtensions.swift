@@ -28,7 +28,7 @@ extension NSMutableAttributedString {
         var rangeToSearch = string.startIndex..<string.endIndex
         while let matchingRange = string.range(
             of: searchString,
-            options: [],
+            options: options,
             range: rangeToSearch
         ) {
           addAttributes(
