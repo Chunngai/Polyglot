@@ -439,22 +439,25 @@ extension HomeViewController {
                 continue
             }
             
-            sections.append((
-                header: HomeItem(header: dateString),
-                items: []
-            ))
+            var items: [HomeItem] = []
             for contentCard in contentCards {
                 if contentCard.content.isEmpty {
                     continue
                 }
                 
-                sections[sections.count - 1].items.append(HomeItem(
+                items.append(HomeItem(
                     lang: contentCard.lang,
                     words: contentCard.words,
                     meanings: contentCard.meanings,
                     pronunciations: contentCard.pronunciations,
                     content: contentCard.content,
                     contentSource: contentCard.contentSource
+                ))
+            }
+            if !items.isEmpty {
+                sections.append((
+                    header: HomeItem(header: dateString),
+                    items: items
                 ))
             }
         }
