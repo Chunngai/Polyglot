@@ -85,6 +85,7 @@ class ReadingEditViewController: UIViewController {
     }
     
     private func updateViews() {
+        navigationItem.title = Strings.articleEditingTitle
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             image: Icons.cancelIcon,
             style: .plain,

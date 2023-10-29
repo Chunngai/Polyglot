@@ -472,6 +472,18 @@ extension Strings {
         return Strings._articleSourcePrompts[Variables.lang]!
     }
     
+    private static let _articleEditingTitles: [String : String] = [
+        LangCode.en : "Article Editing",
+        LangCode.ja : "文章編集",
+        LangCode.es : "Edición de Artículos",
+        LangCode.ru : "Редактирование Статьи",
+        LangCode.ko : "문장 편집",
+        LangCode.de : "Artikelbearbeitung",
+    ]
+    static var articleEditingTitle: String {
+        return Strings._articleEditingTitles[Variables.lang]!
+    }
+    
     static let windowsNewLineSymbol: String = "\r\n"
     static let macNewLineSymbol: String = "\n\r"
 }
