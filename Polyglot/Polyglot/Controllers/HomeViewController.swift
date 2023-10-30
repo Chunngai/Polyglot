@@ -639,7 +639,8 @@ extension HomeViewController {
                 
                 self.contentCreator.createContent(for: randomWords.map{ $0.text }) { [
                     langForContentCard = self.lang,
-                    contentCardId = contentCard.id
+                    contentCardId = contentCard.id,
+                    contentCardIndex = self.contentCards.count - 1
                 ] (content: String?) in
                     guard self.lang == langForContentCard else {
                         return
@@ -647,12 +648,15 @@ extension HomeViewController {
                     guard let content = content else {
                         return
                     }
-                    // TODO: - Improve here.
-                    // Not working properly with count - 1?
-                    for i in 0 ..< self.contentCards.count {
-                        if self.contentCards[i].id == contentCardId {
-                            self.contentCards[i].content = content
-                            break
+                    
+                    if self.contentCards[contentCardIndex].id == contentCardId {
+                        self.contentCards[contentCardIndex].content = content
+                    } else {
+                        for i in 0 ..< self.contentCards.count {
+                            if self.contentCards[i].id == contentCardId {
+                                self.contentCards[i].content = content
+                                break
+                            }
                         }
                     }
                 }
