@@ -53,9 +53,11 @@ class ReadingEditTableCell: UITableViewCell {
     }
     
     private func updateLayouts() {
+        let padding = Sizes.smallFontSize
+        
         textView.snp.makeConstraints { (make) in
             make.centerX.equalToSuperview()
-            make.width.equalToSuperview().multipliedBy(0.90)
+            make.leading.trailing.equalToSuperview().inset(padding)
             make.top.bottom.equalToSuperview().inset(5)
         }
     }

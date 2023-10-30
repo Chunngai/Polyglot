@@ -157,8 +157,54 @@ extension ReadingEditViewController: UITableViewDelegate {
     // MARK: - UITableView Delegate
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        // For hiding the first header.
-        return UIView()
+        if section == 1 {
+            return {
+                let view = UIView()
+                
+                let label = {
+                    let label = UILabel()
+                    label.textColor = Colors.normalTextColor
+                    label.text = Strings.articleBodyPrompt
+                    label.textAlignment = .left
+                    label.textColor = Colors.weakTextColor
+                    label.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
+                    return label
+                }()
+                let button = {
+                    let button = UIButton()
+                    button.addTarget(
+                        self, action: #selector(articleSplittingButtonTapped),
+                        for: .touchUpInside
+                    )
+                    button.setTitle(
+                        Strings.articleSplittingTitle,
+                        for: .normal
+                    )
+                    button.setTitleColor(
+                        .systemBlue,
+                        for: .normal
+                    )
+                    button.titleLabel?.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
+                    return button
+                }()
+                
+                view.addSubview(label)
+                view.addSubview(button)
+                
+                label.snp.makeConstraints { make in
+                    make.top.bottom.equalToSuperview()
+                    make.leading.equalToSuperview().inset(Sizes.smallFontSize)
+                }
+                button.snp.makeConstraints { make in
+                    make.top.bottom.equalToSuperview()
+                    make.trailing.equalToSuperview()
+                }
+                
+                return view
+            }()
+        } else {
+            return UIView()
+        }
     }
     
 }
@@ -183,7 +229,7 @@ extension ReadingEditViewController {
         switch identifier {
         case ReadingEditViewController.titleIdentifier: return Strings.articleTitlePrompt
         case ReadingEditViewController.topicIdentifier: return Strings.articleTopicPrompt
-        case ReadingEditViewController.bodyIdentifier: return Strings.articleBodyPrompt
+        case ReadingEditViewController.bodyIdentifier: return ""
         case ReadingEditViewController.sourceIdentifier: return Strings.articleSourcePrompt
         default: return ""
         }
@@ -279,6 +325,14 @@ extension ReadingEditViewController {
         }
         
         navigationController?.dismiss(animated: true, completion: nil)
+    }
+    
+    @objc private func articleSplittingButtonTapped() {
+        var body = self.content["body"]
+        self.cells[ReadingEditViewController.bodyIdentifier].textView.text = body?.replacingOccurrences(
+            of: "\n",
+            with: "\n\n"
+        ).replaceMultipleBlankLinesWithSingleLine()
     }
 }
 

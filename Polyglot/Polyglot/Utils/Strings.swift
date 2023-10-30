@@ -396,32 +396,6 @@ extension Strings {
 
 extension Strings {
     
-    // MARK: - Word Adding
-    
-    private static let _wordListPrompts: [String : String] = [
-        LangCode.en : "Word List",
-        LangCode.ja : "ワードリスト：",
-        LangCode.es : "Lista de palabras",
-        LangCode.ru : "Список слов",
-        LangCode.ko : "워드 리스트",
-        LangCode.de : "Wortliste",
-    ]
-    static var wordListPrompt: String {
-        return Strings._wordListPrompts[Variables.lang]!
-    }
-    
-    private static let _machineTranslationPrompts: [String : String] = [
-        LangCode.en : "Machine translation",
-        LangCode.ja : "機械翻訳",
-        LangCode.es : "Traducción automática",
-        LangCode.ru : "Машинный перевод",
-        LangCode.ko : "기계 번역",
-        LangCode.de : "Maschinenübersetzung",
-    ]
-    static var machineTranslationPrompt: String {
-        return Strings._machineTranslationPrompts[Variables.lang]!
-    }
-    
     // MARK: - Article Adding
     
     private static let _articleTitlePrompts: [String : String] = [
@@ -449,12 +423,12 @@ extension Strings {
     }
     
     private static let _articleBodyPrompts: [String : String] = [
-        LangCode.en : "Body: \n",
-        LangCode.ja : "本文：\n",
-        LangCode.es : "Cuerpo: \n",
-        LangCode.ru : "Тело: \n",
-        LangCode.ko : "본문: \n",
-        LangCode.de : "Textkörper: \n",
+        LangCode.en : "Body:",
+        LangCode.ja : "本文：",
+        LangCode.es : "Cuerpo:",
+        LangCode.ru : "Тело:",
+        LangCode.ko : "본문:",
+        LangCode.de : "Textkörper:",
     ]
     static var articleBodyPrompt: String {
         return Strings._articleBodyPrompts[Variables.lang]!
@@ -482,6 +456,18 @@ extension Strings {
     ]
     static var articleEditingTitle: String {
         return Strings._articleEditingTitles[Variables.lang]!
+    }
+    
+    private static let _articleSplittingTitles: [String : String] = [
+        LangCode.en : "Split with Newlines",
+        LangCode.ja : "改行で分割",
+        LangCode.es : "Dividir con Nuevas Líneas",
+        LangCode.ru : "Разделить с Помощью Новой Строки",
+        LangCode.ko : "줄바꿈으로 분할",
+        LangCode.de : "Mit Newlines Teilen",
+    ]
+    static var articleSplittingTitle: String {
+        return Strings._articleSplittingTitles[Variables.lang]!
     }
     
     static let windowsNewLineSymbol: String = "\r\n"

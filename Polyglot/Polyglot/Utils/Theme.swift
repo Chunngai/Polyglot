@@ -175,12 +175,16 @@ struct Attributes {
     ]
     
     static let newArticleTitleAttributes = [
-        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.secondaryPromptFontSize, weight: .heavy),
+        NSAttributedString.Key.font : UIFont.systemFont(
+            ofSize: Sizes.smallFontSize,
+            weight: .bold
+        ),
         NSAttributedString.Key.foregroundColor : Colors.normalTextColor,
         NSAttributedString.Key.paragraphStyle: Attributes.leftAlignedParaStyle
     ]
     static let newArticleTopicAttributes = Attributes.leftAlignedLongTextAttributes
     static let newArticleBodyAttributes = Attributes.defaultLongTextAttributes
+    static let newArticleShouldSplitAttributes = Attributes.defaultLongTextAttributes
     static let newArticleSourceAttributes = Attributes.leftAlignedLongTextAttributes
     
     // MARK: - Buttons.
