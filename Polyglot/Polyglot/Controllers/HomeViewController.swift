@@ -604,7 +604,10 @@ extension HomeViewController {
                 self.contentCards.append(contentCard)
                 print("Generated: \(contentCard)")
                 
-                updateAccents(for: containedWords)
+                updateAccents(
+                    for: containedWords,
+                    inContentCardOfIndex: self.contentCards.count - 1
+                )
             } else {
                 var randomWords: [Word] = []
                 for _ in 0 ... 10 {
@@ -661,13 +664,26 @@ extension HomeViewController {
                     }
                 }
                 
-                updateAccents(for: randomWords)
+                updateAccents(
+                    for: randomWords,
+                    inContentCardOfIndex: self.contentCards.count - 1
+                )
             }
         }
         }
     }
     
-    private func updateAccents(for words: [Word]) {
+    private func updateAccents(for words: [Word], inContentCardOfIndex index: Int) {
+        
+        func updateContentCard(with updatedWord: Word) {
+            for i in 0 ..< self.contentCards[index].words.count {
+                if self.contentCards[index].words[i] == updatedWord.text {
+                    self.contentCards[index].pronunciations[i] = updatedWord.accentedPronunciation
+                    break
+                }
+            }
+        }
+        
         if self.lang == LangCode.ja {
             for word in words {
                 if word.tokens == nil || JapaneseAccentAnalyzer.isOldAccents(word) {
@@ -675,7 +691,7 @@ extension HomeViewController {
                         guard self.lang == LangCode.ja else {
                             return
                         }
-                        self.words.updateWord(of: word.id, newTokens: tokens)
+                        let updatedWord = self.words.updateWord(of: word.id, newTokens: tokens)
                     }
                 }
             }
@@ -688,7 +704,7 @@ extension HomeViewController {
                         guard self.lang == LangCode.ru else {
                             return
                         }
-                        self.words.updateWord(of: word.id, newTokens: tokens)
+                        let updatedWord = self.words.updateWord(of: word.id, newTokens: tokens)
                     }
                 }
             }
