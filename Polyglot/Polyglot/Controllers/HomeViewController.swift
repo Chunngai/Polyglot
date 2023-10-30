@@ -486,7 +486,7 @@ extension HomeViewController {
         }
         
         for day in now.nextNDays(n: 3) {
-        hourLoop: for hour in 10...22 {
+        hourLoop: for hour in 11...23 {
             let dateComponents = DateComponents(
                 year: day.get(.year),
                 month: day.get(.month),
@@ -607,7 +607,7 @@ extension HomeViewController {
                 updateAccents(for: containedWords)
             } else {
                 var randomWords: [Word] = []
-                for _ in 0 ... 6 {
+                for _ in 0 ... 10 {
                     guard let randomWord = self.words.randomElement() else {
                         continue
                     }
