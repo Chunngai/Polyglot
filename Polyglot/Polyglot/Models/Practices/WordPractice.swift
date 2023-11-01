@@ -194,7 +194,10 @@ extension WordPractice {
     
     static func load() -> [WordPractice] {
         do {
-            let wordPractices = try readSequenceDataFromJson(fileName: WordPractice.fileName, type: WordPractice.self) as! [WordPractice]
+            let wordPractices = try readDataFromJson(
+                fileName: WordPractice.fileName,
+                type: [WordPractice].self
+            ) as! [WordPractice]
             return wordPractices
         } catch {
             print(error)
@@ -204,7 +207,10 @@ extension WordPractice {
     
     static func save(_ wordPractices: inout [WordPractice]) {
         do {
-            try writeSequenceDataFromJson(fileName: WordPractice.fileName, data: wordPractices)
+            try writeDataToJson(
+                fileName: WordPractice.fileName,
+                data: wordPractices
+            )
         } catch {
             print(error)
             exit(1)

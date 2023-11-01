@@ -123,9 +123,9 @@ extension ContentCard {
     
     static func load(for lang: String) -> [ContentCard] {
         do {
-            let entries = try readSequenceDataFromJson(
+            let entries = try readDataFromJson(
                 fileName: ContentCard.fileName(for: lang),
-                type: ContentCard.self
+                type: [ContentCard].self
             ) as! [ContentCard]
             return entries
         } catch {
@@ -136,7 +136,7 @@ extension ContentCard {
     
     static func save(_ contentCards: inout [ContentCard], for lang: String) {
         do {
-            try writeSequenceDataFromJson(
+            try writeDataToJson(
                 fileName: ContentCard.fileName(for: lang),
                 data: contentCards
             )
@@ -155,10 +155,9 @@ extension ContentCard {
     
     static func loadMetaData(for lang: String) -> [String: String] {
         do {
-            let metaData = try readMappingDataFromJson(
+            let metaData = try readDataFromJson(
                 fileName: ContentCard.metaDataFileName(for: lang),
-                keyType: String.self,
-                valType: String.self
+                type: [String: String].self
             ) as! [String:String]
             return metaData
         } catch {
@@ -169,7 +168,7 @@ extension ContentCard {
     
     static func saveMetaData(_ metaData: inout [String:String], for lang: String) {
         do {
-            try writeMappingDataFromJson(
+            try writeDataToJson(
                 fileName: ContentCard.metaDataFileName(for: lang),
                 data: metaData
             )

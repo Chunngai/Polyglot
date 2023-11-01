@@ -60,7 +60,10 @@ extension LangCode {
     
     static func loadLearningLanguages() -> [String] {
         do {
-            let langCodes = try readSequenceDataFromJson(fileName: LangCode.fileName, type: String.self) as! [String]
+            let langCodes = try readDataFromJson(
+                fileName: LangCode.fileName,
+                type: [String].self
+            ) as! [String]
             return langCodes
         } catch {
             print(error)
@@ -70,7 +73,10 @@ extension LangCode {
     
     static func saveLearningLanguages(_ langCodes: inout [String]) {
         do {
-            try writeSequenceDataFromJson(fileName: LangCode.fileName, data: langCodes)
+            try writeDataToJson(
+                fileName: LangCode.fileName,
+                data: langCodes
+            )
         } catch {
             print(error)
             exit(1)

@@ -26,7 +26,7 @@ func constructFileUrl(from fileName: String, create: Bool) throws -> URL {
     }
 }
 
-func readSequenceDataFromJson<T: Decodable>(fileName: String, type: T.Type) throws -> Any? {
+func readDataFromJson<T: Decodable>(fileName: String, type: T.Type) throws -> Any? {
     
     // https://stackoverflow.com/questions/57665746/swift-5-xcode-11-betas-5-6-how-to-write-to-a-json-file
     // https://stackoverflow.com/questions/24308975/how-to-pass-a-class-type-as-a-function-parameter
@@ -35,7 +35,7 @@ func readSequenceDataFromJson<T: Decodable>(fileName: String, type: T.Type) thro
     do {
         let fileURL = try constructFileUrl(from: fileName, create: false)
         let data = try Data(contentsOf: fileURL)
-        let items = try JSONDecoder().decode(Array<T>.self, from: data)
+        let items = try JSONDecoder().decode(T.self, from: data)
         
         return items
     } catch let error as CocoaError {
@@ -49,39 +49,7 @@ func readSequenceDataFromJson<T: Decodable>(fileName: String, type: T.Type) thro
     }
 }
 
-func readMappingDataFromJson<T: Decodable & Hashable, U: Decodable>(fileName: String, keyType: T.Type, valType: U.Type) throws -> Any? {
-    
-    do {
-        let fileURL = try constructFileUrl(from: fileName, create: false)
-        let data = try Data(contentsOf: fileURL)
-        let items = try JSONDecoder().decode(Dictionary<T, U>.self, from: data)
-        
-        return items
-    } catch let error as CocoaError {
-        if error.code.rawValue == 260 {
-            print(error)  // File not exists.
-            return [:]
-        }
-        throw error
-    } catch let error as DecodingError {
-        throw error
-    }
-}
-
-func writeSequenceDataFromJson<T: Encodable>(fileName: String, data: [T]) throws {
-    
-    do {
-        let fileURL = try constructFileUrl(from: fileName, create: true)
-        try JSONEncoder()
-            .encode(data)
-            .write(to: fileURL)
-    } catch let error as EncodingError {
-        throw error
-    }
-    
-}
-
-func writeMappingDataFromJson<T: Encodable, U: Encodable>(fileName: String, data: [T:U]) throws {
+func writeDataToJson<T: Encodable>(fileName: String, data: T) throws {
     
     do {
         let fileURL = try constructFileUrl(from: fileName, create: true)

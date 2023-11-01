@@ -169,7 +169,10 @@ extension Word {
     
     static func load(for lang: String) -> [Word] {
         do {
-            let words = try readSequenceDataFromJson(fileName: Word.fileName(for: lang), type: Word.self) as! [Word]
+            let words = try readDataFromJson(
+                fileName: Word.fileName(for: lang),
+                type: [Word].self
+            ) as! [Word]
             return words
         } catch {
             print(error)
@@ -179,7 +182,10 @@ extension Word {
     
     static func save(_ words: inout [Word], for lang: String) {
         do {
-            try writeSequenceDataFromJson(fileName: Word.fileName(for: lang), data: words)
+            try writeDataToJson(
+                fileName: Word.fileName(for: lang),
+                data: words
+            )
         } catch {
             print(error)
             exit(1)
@@ -195,10 +201,9 @@ extension Word {
     
     static func loadMetaData(for lang: String) -> [String: String] {
         do {
-            let metaData = try readMappingDataFromJson(
+            let metaData = try readDataFromJson(
                 fileName: Word.metaDataFileName(for: lang),
-                keyType: String.self,
-                valType: String.self
+                type: [String: String].self
             ) as! [String:String]
             return metaData
         } catch {
@@ -209,7 +214,7 @@ extension Word {
     
     static func saveMetaData(_ metaData: inout [String:String], for lang: String) {
         do {
-            try writeMappingDataFromJson(
+            try writeDataToJson(
                 fileName: Word.metaDataFileName(for: lang),
                 data: metaData
             )

@@ -235,7 +235,10 @@ extension Article {
     
     static func load(for lang: String) -> [Article] {
         do {
-            let articles = try readSequenceDataFromJson(fileName: Article.fileName(for: lang), type: Article.self) as! [Article]
+            let articles = try readDataFromJson(
+                fileName: Article.fileName(for: lang),
+                type: [Article].self
+            ) as! [Article]
             return articles
         } catch {
             print(error)
@@ -245,7 +248,10 @@ extension Article {
     
     static func save(_ articles: inout [Article], for lang: String) {
         do {
-            try writeSequenceDataFromJson(fileName: Article.fileName(for: lang), data: articles)
+            try writeDataToJson(
+                fileName: Article.fileName(for: lang),
+                data: articles
+            )
         } catch {
             print(error)
             exit(1)
@@ -262,10 +268,9 @@ extension Article {
     
     static func loadMetaData(for lang: String) -> [String:String] {
         do {
-            let metaData = try readMappingDataFromJson(
+            let metaData = try readDataFromJson(
                 fileName: Article.metaDataFileName(for: lang),
-                keyType: String.self,
-                valType: String.self
+                type: [String: String].self
             ) as! [String:String]
             return metaData
         } catch {
@@ -276,7 +281,7 @@ extension Article {
     
     static func saveMetaData(_ metaData: inout [String:String], for lang: String) {
         do {
-            try writeMappingDataFromJson(
+            try writeDataToJson(
                 fileName: Article.metaDataFileName(for: lang),
                 data: metaData
             )
