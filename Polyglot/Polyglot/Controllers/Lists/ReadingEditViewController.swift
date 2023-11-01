@@ -207,6 +207,14 @@ extension ReadingEditViewController: UITableViewDelegate {
         }
     }
     
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        if indexPath.section == 1 {
+            return UIScreen.main.bounds.height * 0.55
+        } else {
+            return UITableView.automaticDimension
+        }
+    }
+    
 }
 
 extension ReadingEditViewController {
