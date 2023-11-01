@@ -30,7 +30,16 @@ class SelectionPracticeView: UIView {
     }()
     
     private var textView: UITextView = {
-        let textView = UITextView()
+        // Use TextKit 1 by setting usingTextLayoutManager to false.
+        // Otherwise the following warning will be raised
+        // and the text view cannot be scrolled after scrolling the
+        // underscore to the middle of the view using textView.setContentOffset()
+        // in layoutSubviews().
+        //
+        // UITextView 4,365,398,528 is switching to TextKit 1 compatibility mode because its layoutManager was accessed. Break on void _UITextViewEnablingCompatibilityMode(UITextView *__strong, BOOL) to debug.
+        //
+        // https://stackoverflow.com/questions/74517550/siwiftui-uitextview-is-switching-to-textkit-1
+        let textView = UITextView(usingTextLayoutManager: false)
         textView.backgroundColor = Colors.lightGrayBackgroundColor
         textView.textColor = Colors.normalTextColor
         textView.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
