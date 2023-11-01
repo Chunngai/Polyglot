@@ -316,8 +316,8 @@ extension WordsViewController {
                 self.translations.append(translations.joined(separator: "; "))
                 DispatchQueue.main.async {
                     self.isTranslating = false
-                    if !translations.isEmpty {
-                        self.wordAddingMeaningTextField?.text = translations[self.translationIndex]
+                    if self.translationIndex < self.translations.count {
+                        self.wordAddingMeaningTextField?.text = self.translations[self.translationIndex]
                     }
                 }
             }
