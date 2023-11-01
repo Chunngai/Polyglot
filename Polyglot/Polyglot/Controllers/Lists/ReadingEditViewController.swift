@@ -34,6 +34,7 @@ class ReadingEditViewController: UIViewController {
         tableView.removeRedundantSeparators()
         // https://stackoverflow.com/questions/4399357/hide-keyboard-when-scroll-uitableview
         tableView.keyboardDismissMode = .onDrag
+        tableView.isScrollEnabled = false
         return tableView
     }()
     
@@ -130,7 +131,6 @@ extension ReadingEditViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        // TODO: - Increase the height of body text view.
         
         let section = indexPath.section
         let row = indexPath.row
@@ -208,11 +208,22 @@ extension ReadingEditViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if indexPath.section == 1 {
-            return UIScreen.main.bounds.height * 0.55
-        } else {
-            return UITableView.automaticDimension
+        let section = indexPath.section
+        let row = indexPath.row
+        
+        if section == 0 {
+            if row == 0 {
+                return ReadingEditViewController.cellHeights[ReadingEditViewController.titleIdentifier]
+            } else if row == 1 {
+                return ReadingEditViewController.cellHeights[ReadingEditViewController.topicIdentifier]
+            }
+        } else if section == 1 {
+            return ReadingEditViewController.cellHeights[ReadingEditViewController.bodyIdentifier]
+        } else if section == 2 {
+            return ReadingEditViewController.cellHeights[ReadingEditViewController.sourceIdentifier]
         }
+        
+        return UITableView.automaticDimension
     }
     
 }
@@ -336,7 +347,7 @@ extension ReadingEditViewController {
     }
     
     @objc private func articleSplittingButtonTapped() {
-        var body = self.content["body"]
+        let body = self.content["body"]
         self.cells[ReadingEditViewController.bodyIdentifier].textView.text = body?.replacingOccurrences(
             of: "\n",
             with: "\n\n"
@@ -360,7 +371,12 @@ extension ReadingEditViewController {
         Attributes.newArticleBodyAttributes,
         Attributes.newArticleSourceAttributes
     ]
-    
+    private static let cellHeights: [CGFloat] = [
+        Sizes.smallFontSize * 5,
+        Sizes.smallFontSize * 3,
+        UIScreen.main.bounds.height * 0.50,
+        Sizes.smallFontSize * 3
+    ]
 }
 
 protocol ReadingEditViewControllerDelegate {

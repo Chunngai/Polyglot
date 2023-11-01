@@ -14,16 +14,14 @@ class ReadingEditTableCell: UITableViewCell {
     
     var delegate: ReadingEditViewController! {
         didSet {
-            textView.tableView = delegate.tableView
             textView.promptAttributes = Attributes.promptTextColorAttribute
         }
     }
     
     // MARK: - Views
     
-    var textView: AutoResizingTextViewWithPrompt = {
-        let textView = AutoResizingTextViewWithPrompt()
-        textView.isScrollEnabled = false
+    var textView: TextViewWithPrompt = {
+        let textView = TextViewWithPrompt()
         return textView
     }()
     
