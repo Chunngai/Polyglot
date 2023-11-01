@@ -357,6 +357,7 @@ extension HomeViewController {
         for learningLang in self.learningLangs {
             fileNames.append(Word.fileName(for: learningLang))
             fileNames.append(Article.fileName(for: learningLang))
+            fileNames.append(ContentCard.fileName(for: learningLang))
         }
         
         for fileName in fileNames {
