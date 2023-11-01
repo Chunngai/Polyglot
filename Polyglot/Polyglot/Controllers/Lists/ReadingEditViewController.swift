@@ -40,36 +40,19 @@ class ReadingEditViewController: UIViewController {
     
     // MARK: - Init
     
-//    override func viewWillAppear(_ animated: Bool) {
-//        super.viewWillAppear(animated)
-//        
-//        // Hide the nav bar separator but do not make the nav bar bg transparent.
-//        // https://stackoverflow.com/questions/61297266/hide-navigation-bar-separator-line-on-ios-13
-//        navigationController?.navigationBar.isTranslucent = false
-//    }
-//    
-//    override func viewDidAppear(_ animated: Bool) {
-//        super.viewDidAppear(animated)
-//        
-//        // Due to the hidden nav bar separator,
-//        // table content will be displayed under the status bar.
-//        // Assigning a bg color for the status bar
-//        // can solve the problem.
-//        UIApplication.shared.statusBarUIView?.backgroundColor = Colors.defaultBackgroundColor
-//    }
-//    
-//    override func viewWillDisappear(_ animated: Bool) {
-//        super.viewDidDisappear(animated)
-//        
-//        // Reset the bg color.
-//        UIApplication.shared.statusBarUIView?.backgroundColor = nil
-//    }
-//    
-//    override func viewDidDisappear(_ animated: Bool) {
-//        super.viewDidDisappear(animated)
-//        
-//        navigationController?.navigationBar.isTranslucent = true
-//    }
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        // Ensure that the status bar has a bg color in the modal presentation mode.
+        UIApplication.shared.statusBarUIView?.backgroundColor = .systemGroupedBackground
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        // Reset the status bar bg color.
+        UIApplication.shared.statusBarUIView?.backgroundColor = nil
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -86,6 +69,9 @@ class ReadingEditViewController: UIViewController {
     }
     
     private func updateViews() {
+        // Ensure that the nav bar has a bg color in the modal presentation mode.
+        navigationController?.navigationBar.backgroundColor = .systemGroupedBackground
+        
         navigationItem.title = Strings.articleEditingTitle
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             image: Icons.cancelIcon,
@@ -241,6 +227,10 @@ extension ReadingEditViewController {
         let attributes = ReadingEditViewController.attributes[identifier]
         
         cell.updateValues(prompt: prompt, text: text, attributes: attributes, textViewTag: identifier)
+        cell.textView.isScrollEnabled = (
+            identifier == ReadingEditViewController.titleIdentifier
+            || identifier == ReadingEditViewController.bodyIdentifier
+        )
         return cell
     }
     

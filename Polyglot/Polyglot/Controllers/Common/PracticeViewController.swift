@@ -99,6 +99,20 @@ class PracticeViewController: UIViewController {
     
     // MARK: - Init
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        // Ensure that the status bar has a bg color in the modal presentation mode.
+        UIApplication.shared.statusBarUIView?.backgroundColor = Colors.defaultBackgroundColor
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        // Reset the status bar bg color.
+        UIApplication.shared.statusBarUIView?.backgroundColor = nil
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -120,6 +134,9 @@ class PracticeViewController: UIViewController {
     }
     
     func updateViews() {
+        // Ensure that the nav bar has a bg color in the modal presentation mode.
+        navigationController?.navigationBar.backgroundColor = Colors.defaultBackgroundColor
+        
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             image: Icons.cancelIcon,
             style: .plain,
