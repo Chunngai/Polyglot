@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import IQKeyboardManagerSwift
 
 class ReadingEditViewController: UIViewController {
     
@@ -43,12 +44,16 @@ class ReadingEditViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
+        IQKeyboardManager.shared.enableAutoToolbar = true
+        
         // Ensure that the status bar has a bg color in the modal presentation mode.
         UIApplication.shared.statusBarUIView?.backgroundColor = .systemGroupedBackground
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
+        
+        IQKeyboardManager.shared.enableAutoToolbar = false
         
         // Reset the status bar bg color.
         UIApplication.shared.statusBarUIView?.backgroundColor = nil
