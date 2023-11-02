@@ -476,6 +476,59 @@ extension HomeViewController {
         }
     }
     
+    private func obtainWords(in content: String) -> [Word] {
+        var wordsInContent: [Word] = []
+        for word in self.words {
+            if content.lowercased().contains(word.text.lowercased())
+                && !Tokens.wordsToFilterInContentCardGeneration.contains(word.text.lowercased()) {
+                wordsInContent.append(word)
+            }
+        }
+        
+        // Ensure that the words in the content are really words
+        // instead of substrings in certain words.
+        // Note that the current solution cannot handle the situation where
+        // e.g., 동의어 in 동의어를
+        var pseudoWords: [Word] = []
+        let contentWoPunct = content.removePunctuation()
+        let lowercasedContentWords = contentWoPunct
+            .split(separator: Strings.wordSeparator)  // Don't use String.split(with:), it's not working properly with "" being the separator.
+            .map { $0.lowercased() }
+        for containedWord in wordsInContent {
+            let containedWordWoPunct = containedWord.text.removePunctuation()
+            let lowercasedWordsInContainedWord = containedWordWoPunct
+                .split(separator: Strings.wordSeparator)
+                .map { $0.lowercased() }
+            if !lowercasedContentWords.contains(lowercasedWordsInContainedWord) {
+                pseudoWords.append(containedWord)
+                print("[x] Pseudo word \"\(containedWord.text)\" in \(content)")
+            }
+        }
+        
+        // Resolve conflicted words.
+        var conflictedWords: [Word] = []
+        for longerWord in wordsInContent {
+            for shorterWord in wordsInContent {
+                if longerWord.text.lowercased() != shorterWord.text.lowercased()
+                    && longerWord.text.lowercased().contains(shorterWord.text.lowercased()) {
+                    conflictedWords.append(shorterWord)
+                    print("[x] Confliction. \"\(longerWord.text.lowercased())\" contains \"\(shorterWord.text.lowercased())\"")
+                }
+            }
+        }
+        
+        // Filtering.
+        wordsInContent = wordsInContent.compactMap { word in
+            if !pseudoWords.contains(word) && !conflictedWords.contains(word) {
+                return word
+            } else {
+                return nil
+            }
+        }
+        
+        return wordsInContent
+    }
+    
     private func generateContentCards() {
         let now = Date()
         
@@ -538,67 +591,17 @@ extension HomeViewController {
                     sentence.contains(randomWord.text)
                 }) {
                 
-                // Obtain all words that are in the content.
-                var containedWords: [Word] = [randomWord]
-                for word in self.words {
-                    if word.text.lowercased() != randomWord.text.lowercased()
-                        && content.lowercased().contains(word.text.lowercased())
-                        && !Tokens.wordsToFilterInContentCardGeneration.contains(word.text.lowercased()) {
-                        containedWords.append(word)
-                    }
-                }
-                
-                // Ensure that the words in the content are really words
-                // instead of substrings in certain words.
-                // Note that the current solution cannot handle the situation where
-                // e.g., 동의어 in 동의어를
-                var pseudoWords: [Word] = []
-                let contentWoPunct = content.removePunctuation()
-                let lowercasedContentWords = contentWoPunct
-                    .split(separator: Strings.wordSeparator)  // Don't use String.split(with:), it's not working properly with "" being the separator.
-                    .map { $0.lowercased() }
-                for containedWord in containedWords {
-                    let containedWordWoPunct = containedWord.text.removePunctuation()
-                    let lowercasedWordsInContainedWord = containedWordWoPunct
-                        .split(separator: Strings.wordSeparator)
-                        .map { $0.lowercased() }
-                    if !lowercasedContentWords.contains(lowercasedWordsInContainedWord) {
-                        pseudoWords.append(containedWord)
-                        print("[x] Pseudo word \"\(containedWord.text)\" in \(content)")
-                    }
-                }
-                
-                // Resolve conflicted words.
-                var conflictedWords: [Word] = []
-                for longerWord in containedWords {
-                    for shorterWord in containedWords {
-                        if longerWord.text.lowercased() != shorterWord.text.lowercased()
-                            && longerWord.text.lowercased().contains(shorterWord.text.lowercased()) {
-                            conflictedWords.append(shorterWord)
-                            print("[x] Confliction. \"\(longerWord.text.lowercased())\" contains \"\(shorterWord.text.lowercased())\"")
-                        }
-                    }
-                }
-                
-                // Filtering.
-                containedWords = containedWords.compactMap { word in
-                    if word.text == randomWord.text {
-                        return word
-                    }
-                    
-                    if !pseudoWords.contains(word) && !conflictedWords.contains(word) {
-                        return word
-                    } else {
-                        return nil
-                    }
+                var wordsInContent = obtainWords(in: content)
+                if !wordsInContent.contains(randomWord) {
+                    wordsInContent.append(randomWord)
                 }
                 
                 let contentCard = ContentCard(
                     date: date,
                     lang: self.lang,
-                    words: containedWords.map{ $0.text },
-                    meanings: containedWords.map{ $0.meaning },
-                    pronunciations: containedWords.map{ $0.accentedPronunciation },
+                    words: wordsInContent.map{ $0.text },
+                    meanings: wordsInContent.map{ $0.meaning },
+                    pronunciations: wordsInContent.map{ $0.accentedPronunciation },
                     content: content,
                     contentSource: .articles
                 )
@@ -606,7 +609,7 @@ extension HomeViewController {
                 print("Generated: \(contentCard)")
                 
                 updateAccents(
-                    for: containedWords,
+                    for: wordsInContent,
                     inContentCardOfIndex: self.contentCards.count - 1
                 )
             } else {
@@ -620,21 +623,12 @@ extension HomeViewController {
                     }
                 }
                 
-                var contentCardWords: [String] = []
-                var contentCardMeanings: [String] = []
-                var contentCardPronunciations: [String] = []
-                for word in randomWords {
-                    contentCardWords.append(word.text)
-                    contentCardMeanings.append(word.meaning)
-                    contentCardPronunciations.append(word.accentedPronunciation)
-                }
-                
                 let contentCard = ContentCard(
                     date: date,
                     lang: self.lang,
-                    words: contentCardWords,
-                    meanings: contentCardMeanings,
-                    pronunciations: contentCardPronunciations,
+                    words: randomWords.map { $0.text },
+                    meanings: randomWords.map { $0.meaning },
+                    pronunciations: randomWords.map { $0.accentedPronunciation },
                     content: "",
                     contentSource: .chatgpt
                 )
@@ -643,6 +637,7 @@ extension HomeViewController {
                 
                 self.contentCreator.createContent(for: randomWords.map{ $0.text }) { [
                     langForContentCard = self.lang,
+                    randomWords = randomWords,
                     contentCardId = contentCard.id,
                     contentCardIndex = self.contentCards.count - 1
                 ] (content: String?) in
@@ -653,16 +648,36 @@ extension HomeViewController {
                         return
                     }
                     
-                    if self.contentCards[contentCardIndex].id == contentCardId {
-                        self.contentCards[contentCardIndex].content = content
-                    } else {
+                    var wordsInContent = self.obtainWords(in: content)
+                    for randomWord in randomWords {
+                        if !wordsInContent.contains(randomWord) {
+                            wordsInContent.append(randomWord)
+                        }
+                    }
+                    
+                    var contentCardIndex = contentCardIndex
+                    if self.contentCards[contentCardIndex].id != contentCardId {
                         for i in 0 ..< self.contentCards.count {
                             if self.contentCards[i].id == contentCardId {
-                                self.contentCards[i].content = content
+                                contentCardIndex = i
                                 break
                             }
                         }
                     }
+                        
+                    if contentCardIndex >= self.contentCards.count {
+                        return
+                    }
+                    
+                    self.contentCards[contentCardIndex].words = wordsInContent.map{ $0.text }
+                    self.contentCards[contentCardIndex].meanings = wordsInContent.map{ $0.meaning }
+                    self.contentCards[contentCardIndex].pronunciations = wordsInContent.map{ $0.accentedPronunciation }
+                    self.contentCards[contentCardIndex].content = content
+                    
+                    self.updateAccents(
+                        for: wordsInContent,
+                        inContentCardOfIndex: contentCardIndex
+                    )
                 }
                 
                 updateAccents(
