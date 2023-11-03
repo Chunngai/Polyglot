@@ -39,23 +39,23 @@ class WordsViewController: ListViewController {
         }
     }
     
+    // Don't use self.presentedController to obtain the alert contrller.
+    // When the search controller is active, the alert controller
+    // cannot be obtained with this method.
     private var wordAddingWordTextField: UITextField? {
-        if let presentedViewController = self.presentedViewController {
-            if let alertController = presentedViewController as? UIAlertController {
-                return alertController.textFields?[0]
-            }
+        guard let lastAlertController = self.lastAlertController else {
+            return nil
         }
-        return nil
+        return lastAlertController.textFields?[0]
     }
     private var wordAddingMeaningTextField: UITextField? {
-        if let presentedViewController = self.presentedViewController {
-            if let alertController = presentedViewController as? UIAlertController {
-                return alertController.textFields?[1]
-            }
+        guard let lastAlertController = self.lastAlertController else {
+            return nil
         }
-        return nil
+        return lastAlertController.textFields?[1]
     }
     private var lastlyTypedWord: String = ""
+    private var lastAlertController: UIAlertController!
     
     // Table view stuff.
     
@@ -277,12 +277,16 @@ extension WordsViewController {
             }
             
             self.clearTranslations()
+            self.lastAlertController = nil
         }))
         alert.addAction(UIAlertAction(title: Strings.cancel, style: .cancel, handler: { (_) in
             self.clearTranslations()
+            self.lastAlertController = nil
         }))
 
-        self.present(alert, animated: true, completion: nil)
+        self.present(alert, animated: true) {
+            self.lastAlertController = alert
+        }
     }
     
 }
