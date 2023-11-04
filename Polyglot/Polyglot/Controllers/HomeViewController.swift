@@ -379,7 +379,7 @@ extension HomeViewController {
                 }
             } else {
                 // Handle any errors related to constructing the file URL
-                print("Filed to construct URL for \(fileName)")
+                print("Failed to construct URL for \(fileName)")
                 return
             }
             
