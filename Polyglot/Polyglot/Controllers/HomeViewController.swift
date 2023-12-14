@@ -614,7 +614,7 @@ extension HomeViewController {
                 )
             } else {
                 var randomWords: [Word] = []
-                for _ in 0 ... 10 {
+                for _ in 0 ... 2 {
                     guard let randomWord = self.words.randomElement() else {
                         continue
                     }

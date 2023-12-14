@@ -733,6 +733,8 @@ struct Tokens {
         "einen", "eine", "ein",    // Accusative Case (masculine, feminine, neuter)
         "einem", "einer", "einem",  // Dative Case (masculine, feminine, neuter)
         "eines", "einer", "eines",   // Genitive Case (masculine, feminine, neuter)
+        
+        "ich", "du", "er", "sie", "es", "wir", "ihr"
     ]
     static let wordsToFilterInContentCardGeneration: Set<String> = Set(
         Tokens._englishWordsToFilterInContentCardGeneration
