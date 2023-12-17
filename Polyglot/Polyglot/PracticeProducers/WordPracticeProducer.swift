@@ -65,82 +65,82 @@ class WordPracticeProducer: PracticeProducerDelegate {
     
     func make() -> [WordPracticeProducer.Item] {
         
-        func calculateProbs() -> [Double] {
-            
-            guard !practices.isEmpty else {
-                return Array<Double>(
-                    repeating: 1.0 / Double(dataSource.count),
-                    count: dataSource.count
-                )
-            }
-            
-            var wordProbMapping: [String: Double] = {
-                var map: [String: Double] = [:]
-                for word in dataSource {
-                    map[word.id] = 0.0
-                }
-                return map
-            }()
-            for practice in practices {
-                guard let word = dataSource.getWord(from: practice.wordId) else {
-                    continue
-                }
-                guard let correctness = practice.correctness else {
-                    continue
-                }
-                
-                print(
-                    practice.practiceType,
-                    {
-                        switch practice.direction {
-                        case .textToMeaning: return dataSource.getWord(from: practice.wordId)!.meaning
-                        case .meaningToText: return dataSource.getWord(from: practice.wordId)!.text
-                        case .text: return dataSource.getWord(from: practice.wordId)!.text
-                        }
-                    }(),
-                    correctness
-                )
-                
-                let val: Double = {
-                    
-                    if practice.practiceType == .accentSelection {
-                        return 0  // TODO: No weights for accent selection.
-                    }
-                    
-                    switch correctness {
-                    case .correct:
-                        return -1  // Decrease the weight.
-                    case .incorrect:
-                        return +1  // Increase the weight.
-                    case .partiallyCorrect:
-                        return 0  // Keep the weight unchanged.
-                    }
-                }()
-                
-                wordProbMapping[word.id]! += val
-            }
-            
-            var probs: [Double] = []
-            for word in dataSource {
-                let prob = wordProbMapping[word.id]!
-                probs.append(prob)
-            }
-            
-            probs = probs.toPositives()!
-            for (word, prob) in zip(dataSource, probs) {
-                print("\(word.text):\(prob)", terminator: " ")
-            }
-            print()
-            
-            return probs
-        }
+//        func calculateProbs() -> [Double] {
+//            
+//            guard !practices.isEmpty else {
+//                return Array<Double>(
+//                    repeating: 1.0 / Double(dataSource.count),
+//                    count: dataSource.count
+//                )
+//            }
+//            
+//            var wordProbMapping: [String: Double] = {
+//                var map: [String: Double] = [:]
+//                for word in dataSource {
+//                    map[word.id] = 0.0
+//                }
+//                return map
+//            }()
+//            for practice in practices {
+//                guard let word = dataSource.getWord(from: practice.wordId) else {
+//                    continue
+//                }
+//                guard let correctness = practice.correctness else {
+//                    continue
+//                }
+//                
+//                print(
+//                    practice.practiceType,
+//                    {
+//                        switch practice.direction {
+//                        case .textToMeaning: return dataSource.getWord(from: practice.wordId)!.meaning
+//                        case .meaningToText: return dataSource.getWord(from: practice.wordId)!.text
+//                        case .text: return dataSource.getWord(from: practice.wordId)!.text
+//                        }
+//                    }(),
+//                    correctness
+//                )
+//                
+//                let val: Double = {
+//                    
+//                    if practice.practiceType == .accentSelection {
+//                        return 0  // TODO: No weights for accent selection.
+//                    }
+//                    
+//                    switch correctness {
+//                    case .correct:
+//                        return -1  // Decrease the weight.
+//                    case .incorrect:
+//                        return +1  // Increase the weight.
+//                    case .partiallyCorrect:
+//                        return 0  // Keep the weight unchanged.
+//                    }
+//                }()
+//                
+//                wordProbMapping[word.id]! += val
+//            }
+//            
+//            var probs: [Double] = []
+//            for word in dataSource {
+//                let prob = wordProbMapping[word.id]!
+//                probs.append(prob)
+//            }
+//            
+//            probs = probs.toPositives()!
+//            for (word, prob) in zip(dataSource, probs) {
+//                print("\(word.text):\(prob)", terminator: " ")
+//            }
+//            print()
+//            
+//            return probs
+//        }
         
-        let probs = calculateProbs()
+//        let probs = calculateProbs()
         
         // Randomly choose some words.
         var randomWords: [Word] = []
         while true {
-            let randomWord = dataSource.randomElement(from: probs)!
+            let randomWord = dataSource.randomElement()!
             if !randomWords.contains(randomWord) {
                 randomWords.append(randomWord)
             }
