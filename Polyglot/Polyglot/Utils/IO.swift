@@ -41,6 +41,7 @@ func readDataFromJson<T: Decodable>(fileName: String, type: T.Type) throws -> An
     } catch let error as CocoaError {
         if error.code.rawValue == 260 {
             print(error)  // File not exists.
+            // TODO: - When the file does not exist, an array is returned. Make it more flexible for other return types.
             return []
         }
         throw error

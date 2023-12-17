@@ -71,7 +71,7 @@ extension NSMutableAttributedString {
             ignoreAccents: ignoreAccents
         )
     }
-//
+
     func setUnderline(for text: String? = nil, style: NSUnderlineStyle = .single, color: UIColor = .black, ignoreCasing: Bool = false, ignoreAccents: Bool = false) {
         add(
             attributes: [
@@ -83,8 +83,13 @@ extension NSMutableAttributedString {
             ignoreAccents: ignoreAccents
         )
     }
-//
-//    func removeUnderline(for text: String? = nil) {
-//        setUnderline(for: text, style: [], color: .black)
-//    }
+
+    func removeUnderline(for text: String? = nil, ignoreCasing: Bool = false, ignoreAccents: Bool = false) {
+        setUnderline(
+            for: text,
+            style: [],
+            ignoreCasing: ignoreCasing,
+            ignoreAccents: ignoreAccents
+        )
+    }
 }

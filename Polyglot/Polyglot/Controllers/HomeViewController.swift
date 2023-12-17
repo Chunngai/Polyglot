@@ -9,6 +9,7 @@
 import UIKit
 import SnapKit
 import MessageUI
+import Alamofire
 
 struct HomeItem: Hashable {
     
@@ -25,12 +26,12 @@ struct HomeItem: Hashable {
     let meanings: [String]?
     let pronunciations: [String]?
     let content: String?
-    let contentSource: ContentCard.ContentSource?
+    let contentSource: String?
     
     init(
         image: UIImage? = nil, 
         text: String? = nil, secondaryText: String? = nil,
-        header: String? = nil, lang: String? = nil, words: [String]? = nil, meanings: [String]? = nil, pronunciations: [String]? = nil, content: String? = nil, contentSource: ContentCard.ContentSource? = nil
+        header: String? = nil, lang: String? = nil, words: [String]? = nil, meanings: [String]? = nil, pronunciations: [String]? = nil, content: String? = nil, contentSource: String? = nil
     ) {
         self.image = image
         
@@ -68,14 +69,10 @@ class HomeViewController: UIViewController {
             print("Resetting data.")
             self._words = nil
             self._articles = nil
-            self._contentCards = nil
             
             self.wordMetaData = Word.loadMetaData(for: lang)
             self.articleMetaData = Article.loadMetaData(for: lang)
-            self.contentCardMetaData = ContentCard.loadMetaData(for: lang)
             
-            self.contentCreator = ContentCreator(lang: lang)
-
             self.updateTexts()
         }
     }
@@ -130,28 +127,6 @@ class HomeViewController: UIViewController {
             text: Strings._interpretation[languageOfTextToDisplay]
         )
     ]}
-    
-    // Content cards.
-    
-    var contentCreator: ContentCreator!
-    
-    var contentCardsOfTheDay: [(
-        dateString: String,
-        contentCards: [ContentCard]
-    )]!
-    
-    private var shouldUpdateContentCardsOfTheDay: Bool {
-        if self.contentCardsOfTheDay == nil {
-            return true
-        }
-        if self.contentCardsOfTheDay.isEmpty {
-            return true
-        }
-        if contentCardsOfTheDay[0].dateString != Date().repr(of: ContentCard.dateRepr) {
-            return true
-        }
-        return false
-    }
     
     // MARK: - Models
     
@@ -221,39 +196,6 @@ class HomeViewController: UIViewController {
         }
     }
     
-    private var _contentCards: [ContentCard]!
-    private var _contentCardCount: Int!
-    var contentCards: [ContentCard]! {
-        get {
-            if self._contentCards == nil {
-                print("Reading content cards.")
-                self._contentCards = ContentCard.load(for: self.lang)
-                self._contentCardCount = self._contentCards.count
-            }
-            
-            return self._contentCards
-        }
-        set {
-            guard var newValue = newValue else {
-                return
-            }
-            self._contentCards = newValue  // !
-            
-            guard abs(newValue.count - _contentCardCount) <= 3 else {
-                return
-            }
-            print("Card count: \(_contentCardCount ?? -1) -> \(newValue.count)")
-            _contentCardCount = newValue.count
-            
-            ContentCard.save(&newValue, for: self.lang)
-            
-            contentCardMetaData["count"] = String(newValue.count)
-            DispatchQueue.main.async {
-                self.updateTexts()
-            }
-        }
-    }
-    
     var wordMetaData: [String:String]! {
         didSet {
             Word.saveMetaData(&wordMetaData, for: self.lang)
@@ -262,11 +204,6 @@ class HomeViewController: UIViewController {
     var articleMetaData: [String:String]! {
         didSet {
             Article.saveMetaData(&articleMetaData, for: self.lang)
-        }
-    }
-    var contentCardMetaData: [String:String]! {
-        didSet {
-            ContentCard.saveMetaData(&contentCardMetaData, for: self.lang)
         }
     }
     
@@ -282,16 +219,15 @@ class HomeViewController: UIViewController {
         super.viewDidAppear(animated)
     
         DispatchQueue.global(qos: .userInitiated).async {
-            if self.shouldUpdateContentCardsOfTheDay {
-                self.updateContentCardsOfTheDay()
-            }
-            self.displayContentCardsOfTheDay()
+            self.displayContentCards()
         }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
     
+        uploadFilesToServer()
+        
         updateSetups()
         updateViews()
         updateLayouts()
@@ -336,10 +272,7 @@ extension HomeViewController {
     
     @objc private func appMovedToForeground() {
         DispatchQueue.global(qos: .userInitiated).async {
-            if self.shouldUpdateContentCardsOfTheDay {
-                self.updateContentCardsOfTheDay()
-            }
-            self.displayContentCardsOfTheDay()
+            self.displayContentCards()
         }
     }
     
@@ -353,14 +286,7 @@ extension HomeViewController {
         let mailComposer = MFMailComposeViewController()
         mailComposer.mailComposeDelegate = self
         
-        var fileNames: [String] = []
-        for learningLang in self.learningLangs {
-            fileNames.append(Word.fileName(for: learningLang))
-            fileNames.append(Article.fileName(for: learningLang))
-            fileNames.append(ContentCard.fileName(for: learningLang))
-        }
-        
-        for fileName in fileNames {
+        for fileName in self.fileNamesToUpload {
             
             if let fileURL = try? constructFileUrl(
                 from: fileName,
@@ -399,67 +325,135 @@ extension HomeViewController {
     
     // MARK: - Content Cards
     
-    private func updateContentCardsOfTheDay() {
-        var dateStringToContentCards: [String: [ContentCard]] = [:]
-        for lang in self.learningLangs {
-            for contentCard in ContentCard.load(for: lang) {
-                if Calendar.current.isDate(
-                    contentCard.date,
-                    inSameDayAs: Date()
-                ) {
-                    let dateString = contentCard.date.repr(of: ContentCard.dateRepr)
-                    
-                    dateStringToContentCards.setDefault(
-                        value: [],
-                        for: dateString
-                    )
-                    dateStringToContentCards[dateString]!.append(contentCard)
-                }
-            }
-        }
-        
-        self.contentCardsOfTheDay = dateStringToContentCards.map {(
-            dateString: $0,
-            contentCards: $1
-        )}.sorted { $0.dateString > $1.dateString }
-    }
-    
-    private func displayContentCardsOfTheDay() {
+    private func _displayContentCards(contentCards: ContentCards) {
         var sections: [(
             header: HomeItem,
             items: [HomeItem]
         )] = []
-        for (dateString, contentCards) in contentCardsOfTheDay {
-            guard let hourOfDateString = Int(dateString.split(with: ":")[0]) else {
+        
+        var contentCardSentences: [String: [String: ContentCards.SentenceEntry]] = [:]
+        // lang:[hour:] -> hour:[lang:]
+        for (lang, hour2sentenceEntry) in contentCards.sentences {
+            for (hour, sentenceEntry) in hour2sentenceEntry {
+                if !contentCardSentences.keys.contains(hour) {
+                    contentCardSentences[hour] = [:]
+                }
+                contentCardSentences[hour]![lang] = sentenceEntry
+            }
+        }
+        // Sort.
+        let sortedContentcardSentences = contentCardSentences.sorted(by: { a, b in
+            Int(a.key)! > Int(b.key)!
+        })
+        for (hourString, sentenceEntries) in sortedContentcardSentences {
+            guard let hourOfNow = Int(Date().repr(of: "HH")) else {
                 continue
             }
-            guard let hourOfNow = Int(Date().repr(of: ContentCard.dateRepr).split(with: ":")[0]) else {
-                continue
-            }
-            if hourOfDateString > hourOfNow {
+            if Int(hourString)! > hourOfNow {
                 continue
             }
             
             var items: [HomeItem] = []
-            for contentCard in contentCards {
-                if contentCard.content.isEmpty {
+            for (sentenceLang, sentenceEntry) in sentenceEntries {
+                guard let content = sentenceEntry.content, !content.isEmpty else {
                     continue
                 }
                 
                 items.append(HomeItem(
-                    lang: contentCard.lang,
-                    words: contentCard.words,
-                    meanings: contentCard.meanings,
-                    pronunciations: contentCard.pronunciations,
-                    content: contentCard.content,
-                    contentSource: contentCard.contentSource
+                    lang: sentenceLang,
+                    words: [sentenceEntry.word!.text!],
+                    meanings: [sentenceEntry.word!.meaning!],
+                    pronunciations: [sentenceEntry.word!.pronunciation!],
+                    content: content,
+                    contentSource: sentenceEntry.source
                 ))
             }
+            
+            items = items.sorted(by: { a, b in
+                a.lang! < b.lang!
+            })
+            
             if !items.isEmpty {
                 sections.append((
-                    header: HomeItem(header: dateString),
+                    header: HomeItem(header: "\(hourString):00"),
                     items: items
                 ))
+            }
+        }
+        
+        var contentCardParagraphs: [String: [String: ContentCards.ParagraphEntry]] = [:]
+        // lang:[hour:] -> hour:[lang:]
+        for (lang, hour2ParagraphEntry) in contentCards.paragraphs {
+            for (hour, paragraphEntry) in hour2ParagraphEntry {
+                if !contentCardParagraphs.keys.contains(hour) {
+                    contentCardParagraphs[hour] = [:]
+                }
+                contentCardParagraphs[hour]![lang] = paragraphEntry
+            }
+        }
+        // Sort.
+        let sortedContentParagraphs = contentCardParagraphs.sorted(by: { a, b in
+            Int(a.key)! > Int(b.key)!
+        })
+        for (hourString, paragraphEntries) in sortedContentParagraphs {
+            guard let hourOfNow = Int(Date().repr(of: "HH")) else {
+                continue
+            }
+            if Int(hourString)! > hourOfNow {
+                continue
+            }
+            
+            var items: [HomeItem] = []
+            for (paragraphLang, paragraphEntry) in paragraphEntries {
+                guard let content = paragraphEntry.content, !content.isEmpty else {
+                    continue
+                }
+                
+                var allWords: [String] = []
+                var allMeanings: [String] = []
+                var allPronunciations: [String] = []
+                for (langOfWords, wordEntry) in contentCards.words {
+                    if langOfWords != paragraphLang {
+                        continue
+                    }
+                    
+                    let newWord = wordEntry.new_word!
+                    allWords.append(newWord.text!)
+                    allMeanings.append(newWord.meaning!)
+                    allPronunciations.append(newWord.pronunciation!)
+                    
+                    for wordToReview in wordEntry.words_to_review! {
+                        allWords.append(wordToReview.text!)
+                        allMeanings.append(wordToReview.meaning!)
+                        allPronunciations.append(wordToReview.pronunciation!)
+                    }
+                }
+                
+                items.append(HomeItem(
+                    lang: paragraphLang,
+                    words: allWords,
+                    meanings: allMeanings,
+                    pronunciations: allPronunciations,
+                    content: content,
+                    contentSource: "chatgpt"
+                ))
+            }
+            
+            items = items.sorted(by: { a, b in
+                a.lang! < b.lang!
+            })
+            
+            if !items.isEmpty {
+                var insertionIndex: Int = 0
+                for (i, section) in sections.enumerated() {
+                    if section.header.header == "\(hourString):00" {
+                        insertionIndex = i
+                    }
+                }
+                sections.insert((
+                    header: HomeItem(header: "\(hourString):00"),
+                    items: items
+                ), at: insertionIndex)
             }
         }
         
@@ -476,256 +470,267 @@ extension HomeViewController {
         }
     }
     
-    private func obtainWords(in content: String) -> [Word] {
-        var wordsInContent: [Word] = []
-        for word in self.words {
-            if content.lowercased().contains(word.text.lowercased())
-                && !Tokens.wordsToFilterInContentCardGeneration.contains(word.text.lowercased()) {
-                wordsInContent.append(word)
+    private func displayContentCards() {
+        let contentCards = ContentCards.load()
+        if contentCards.date != Date().repr(of: ContentCards.dateFormat) {
+            ContentCards.fetch { contentCards in
+                self._displayContentCards(contentCards: contentCards)
             }
-        }
-        
-        // Ensure that the words in the content are really words
-        // instead of substrings in certain words.
-        // Note that the current solution cannot handle the situation where
-        // e.g., 동의어 in 동의어를
-        var pseudoWords: [Word] = []
-        let contentWoPunct = content.removePunctuation()
-        let lowercasedContentWords = contentWoPunct
-            .split(separator: Strings.wordSeparator)  // Don't use String.split(with:), it's not working properly with "" being the separator.
-            .map { $0.lowercased() }
-        for containedWord in wordsInContent {
-            let containedWordWoPunct = containedWord.text.removePunctuation()
-            let lowercasedWordsInContainedWord = containedWordWoPunct
-                .split(separator: Strings.wordSeparator)
-                .map { $0.lowercased() }
-            if !lowercasedContentWords.contains(lowercasedWordsInContainedWord) {
-                pseudoWords.append(containedWord)
-                print("[x] Pseudo word \"\(containedWord.text)\" in \(content)")
-            }
-        }
-        
-        // Resolve conflicted words.
-        var conflictedWords: [Word] = []
-        for longerWord in wordsInContent {
-            for shorterWord in wordsInContent {
-                if longerWord.text.lowercased() != shorterWord.text.lowercased()
-                    && longerWord.text.lowercased().contains(shorterWord.text.lowercased()) {
-                    conflictedWords.append(shorterWord)
-                    print("[x] Confliction. \"\(longerWord.text.lowercased())\" contains \"\(shorterWord.text.lowercased())\"")
-                }
-            }
-        }
-        
-        // Filtering.
-        wordsInContent = wordsInContent.compactMap { word in
-            if !pseudoWords.contains(word) && !conflictedWords.contains(word) {
-                return word
-            } else {
-                return nil
-            }
-        }
-        
-        return wordsInContent
-    }
-    
-    private func generateContentCards() {
-        let now = Date()
-        
-        var date2indexForContentCardsAfterNow: [Date: Int] = [:]
-        for (i, contentCard) in self.contentCards.enumerated() {
-            if contentCard.date >= now {
-                date2indexForContentCardsAfterNow[contentCard.date] = i
-            }
-        }
-        
-        for day in now.nextNDays(n: 3) {
-        hourLoop: for hour in 11...23 {
-            let dateComponents = DateComponents(
-                year: day.get(.year),
-                month: day.get(.month),
-                day: day.get(.day),
-                hour: hour
-            )
-            guard let date = Date.fromComponents(components: dateComponents) else {
-                continue
-            }
-            
-            if date < now {
-                continue
-            }
-            
-            for (dateOfContentCardAfterNow, indexOfContentCardAfterNow) in date2indexForContentCardsAfterNow {
-                if dateOfContentCardAfterNow == date {  // A content card for the date has been generated.
-                    guard indexOfContentCardAfterNow < self.contentCards.count else {  // Index out of range when quickly switching languages.
-                        continue hourLoop
-                    }
-                    let contentCard = self.contentCards[indexOfContentCardAfterNow]
-                    if contentCard.contentSource == .chatgpt && contentCard.content.isEmpty {  // Content creation with chatgpt failed.
-                        print("Re-creating the content for: \(contentCard)")
-                        self.contentCreator.createContent(for: contentCard.words) { [langForContentCard = self.lang] (content: String?) in
-                            guard self.lang == langForContentCard else {
-                                return
-                            }
-                            guard let content = content else {
-                                return
-                            }
-                            self.contentCards[indexOfContentCardAfterNow].content = content
-                        }
-                    }
-                    
-                    continue hourLoop
-                }
-            }
-            
-            print("Generating a content card for \(date)")
-            
-            // Generate a content card.
-            if let randomWord = self.words.randomElement(),
-               let randomPara = self.articles.paraCandidates(
-                for: randomWord,
-                shouldIgnoreCase: true
-               ).randomElement(),
-               let content = randomPara.text.components(from: Variables.tokenizerOfLang(of: .sentence))
-                .first(where: { (sentence) -> Bool in
-                    sentence.contains(randomWord.text)
-                }) {
-                
-                var wordsInContent = obtainWords(in: content)
-                if !wordsInContent.contains(randomWord) {
-                    wordsInContent.append(randomWord)
-                }
-                
-                let contentCard = ContentCard(
-                    date: date,
-                    lang: self.lang,
-                    words: wordsInContent.map{ $0.text },
-                    meanings: wordsInContent.map{ $0.meaning },
-                    pronunciations: wordsInContent.map{ $0.accentedPronunciation },
-                    content: content,
-                    contentSource: .articles
-                )
-                self.contentCards.append(contentCard)
-                print("Generated: \(contentCard)")
-                
-                updateAccents(
-                    for: wordsInContent,
-                    inContentCardOfIndex: self.contentCards.count - 1
-                )
-            } else {
-                var randomWords: [Word] = []
-                for _ in 0 ... 2 {
-                    guard let randomWord = self.words.randomElement() else {
-                        continue
-                    }
-                    if !randomWords.contains(randomWord) {
-                        randomWords.append(randomWord)
-                    }
-                }
-                
-                let contentCard = ContentCard(
-                    date: date,
-                    lang: self.lang,
-                    words: randomWords.map { $0.text },
-                    meanings: randomWords.map { $0.meaning },
-                    pronunciations: randomWords.map { $0.accentedPronunciation },
-                    content: "",
-                    contentSource: .chatgpt
-                )
-                self.contentCards.append(contentCard)
-                print("Generated: \(contentCard)")
-                
-                self.contentCreator.createContent(for: randomWords.map{ $0.text }) { [
-                    langForContentCard = self.lang,
-                    randomWords = randomWords,
-                    contentCardId = contentCard.id,
-                    contentCardIndex = self.contentCards.count - 1
-                ] (content: String?) in
-                    guard self.lang == langForContentCard else {
-                        return
-                    }
-                    guard let content = content else {
-                        return
-                    }
-                    
-                    var wordsInContent = self.obtainWords(in: content)
-                    for randomWord in randomWords {
-                        if !wordsInContent.contains(randomWord) {
-                            wordsInContent.append(randomWord)
-                        }
-                    }
-                    
-                    var contentCardIndex = contentCardIndex
-                    if self.contentCards[contentCardIndex].id != contentCardId {
-                        for i in 0 ..< self.contentCards.count {
-                            if self.contentCards[i].id == contentCardId {
-                                contentCardIndex = i
-                                break
-                            }
-                        }
-                    }
-                        
-                    if contentCardIndex >= self.contentCards.count {
-                        return
-                    }
-                    
-                    self.contentCards[contentCardIndex].words = wordsInContent.map{ $0.text }
-                    self.contentCards[contentCardIndex].meanings = wordsInContent.map{ $0.meaning }
-                    self.contentCards[contentCardIndex].pronunciations = wordsInContent.map{ $0.accentedPronunciation }
-                    self.contentCards[contentCardIndex].content = content
-                    
-                    self.updateAccents(
-                        for: wordsInContent,
-                        inContentCardOfIndex: contentCardIndex
-                    )
-                }
-                
-                updateAccents(
-                    for: randomWords,
-                    inContentCardOfIndex: self.contentCards.count - 1
-                )
-            }
-        }
+        } else {
+            _displayContentCards(contentCards: contentCards)
         }
     }
     
-    private func updateAccents(for words: [Word], inContentCardOfIndex index: Int) {
-        
-        func updateContentCard(with updatedWord: Word) {
-            for i in 0 ..< self.contentCards[index].words.count {
-                if self.contentCards[index].words[i] == updatedWord.text {
-                    self.contentCards[index].pronunciations[i] = updatedWord.accentedPronunciation
-                    break
-                }
-            }
-        }
-        
-        if self.lang == LangCode.ja {
-            for word in words {
-                if word.tokens == nil || JapaneseAccentAnalyzer.isOldAccents(word) {
-                    JapaneseAccentAnalyzer.makeTokens(for: word) { tokens in
-                        guard self.lang == LangCode.ja else {
-                            return
-                        }
-                        let updatedWord = self.words.updateWord(of: word.id, newTokens: tokens)
-                    }
-                }
-            }
-        }
-        
-        if self.lang == LangCode.ru {
-            for word in words {
-                if word.tokens == nil {
-                    RussianAccentAnalyzer.makeTokens(for: word) { tokens in
-                        guard self.lang == LangCode.ru else {
-                            return
-                        }
-                        let updatedWord = self.words.updateWord(of: word.id, newTokens: tokens)
-                    }
-                }
-            }
-        }
-    }
+//    private func obtainWords(in content: String) -> [Word] {
+//        var wordsInContent: [Word] = []
+//        for word in self.words {
+//            if content.lowercased().contains(word.text.lowercased())
+//                && !Tokens.wordsToFilterInContentCardGeneration.contains(word.text.lowercased()) {
+//                wordsInContent.append(word)
+//            }
+//        }
+//        
+//        // Ensure that the words in the content are really words
+//        // instead of substrings in certain words.
+//        // Note that the current solution cannot handle the situation where
+//        // e.g., 동의어 in 동의어를
+//        var pseudoWords: [Word] = []
+//        let contentWoPunct = content.removePunctuation()
+//        let lowercasedContentWords = contentWoPunct
+//            .split(separator: Strings.wordSeparator)  // Don't use String.split(with:), it's not working properly with "" being the separator.
+//            .map { $0.lowercased() }
+//        for containedWord in wordsInContent {
+//            let containedWordWoPunct = containedWord.text.removePunctuation()
+//            let lowercasedWordsInContainedWord = containedWordWoPunct
+//                .split(separator: Strings.wordSeparator)
+//                .map { $0.lowercased() }
+//            if !lowercasedContentWords.contains(lowercasedWordsInContainedWord) {
+//                pseudoWords.append(containedWord)
+//                print("[x] Pseudo word \"\(containedWord.text)\" in \(content)")
+//            }
+//        }
+//        
+//        // Resolve conflicted words.
+//        var conflictedWords: [Word] = []
+//        for longerWord in wordsInContent {
+//            for shorterWord in wordsInContent {
+//                if longerWord.text.lowercased() != shorterWord.text.lowercased()
+//                    && longerWord.text.lowercased().contains(shorterWord.text.lowercased()) {
+//                    conflictedWords.append(shorterWord)
+//                    print("[x] Confliction. \"\(longerWord.text.lowercased())\" contains \"\(shorterWord.text.lowercased())\"")
+//                }
+//            }
+//        }
+//        
+//        // Filtering.
+//        wordsInContent = wordsInContent.compactMap { word in
+//            if !pseudoWords.contains(word) && !conflictedWords.contains(word) {
+//                return word
+//            } else {
+//                return nil
+//            }
+//        }
+//        
+//        return wordsInContent
+//    }
+    
+//    private func generateContentCards() {
+//        let now = Date()
+//        
+//        var date2indexForContentCardsAfterNow: [Date: Int] = [:]
+//        for (i, contentCard) in self.contentCards.enumerated() {
+//            if contentCard.date >= now {
+//                date2indexForContentCardsAfterNow[contentCard.date] = i
+//            }
+//        }
+//        
+//        for day in now.nextNDays(n: 3) {
+//        hourLoop: for hour in 11...23 {
+//            let dateComponents = DateComponents(
+//                year: day.get(.year),
+//                month: day.get(.month),
+//                day: day.get(.day),
+//                hour: hour
+//            )
+//            guard let date = Date.fromComponents(components: dateComponents) else {
+//                continue
+//            }
+//            
+//            if date < now {
+//                continue
+//            }
+//            
+//            for (dateOfContentCardAfterNow, indexOfContentCardAfterNow) in date2indexForContentCardsAfterNow {
+//                if dateOfContentCardAfterNow == date {  // A content card for the date has been generated.
+//                    guard indexOfContentCardAfterNow < self.contentCards.count else {  // Index out of range when quickly switching languages.
+//                        continue hourLoop
+//                    }
+//                    let contentCard = self.contentCards[indexOfContentCardAfterNow]
+//                    if contentCard.contentSource == .chatgpt && contentCard.content.isEmpty {  // Content creation with chatgpt failed.
+//                        print("Re-creating the content for: \(contentCard)")
+//                        self.contentCreator.createContent(for: contentCard.words) { [langForContentCard = self.lang] (content: String?) in
+//                            guard self.lang == langForContentCard else {
+//                                return
+//                            }
+//                            guard let content = content else {
+//                                return
+//                            }
+//                            self.contentCards[indexOfContentCardAfterNow].content = content
+//                        }
+//                    }
+//                    
+//                    continue hourLoop
+//                }
+//            }
+//            
+//            print("Generating a content card for \(date)")
+//            
+//            // Generate a content card.
+//            if let randomWord = self.words.randomElement(),
+//               let randomPara = self.articles.paraCandidates(
+//                for: randomWord,
+//                shouldIgnoreCase: true
+//               ).randomElement(),
+//               let content = randomPara.text.components(from: Variables.tokenizerOfLang(of: .sentence))
+//                .first(where: { (sentence) -> Bool in
+//                    sentence.contains(randomWord.text)
+//                }) {
+//                
+//                var wordsInContent = obtainWords(in: content)
+//                if !wordsInContent.contains(randomWord) {
+//                    wordsInContent.append(randomWord)
+//                }
+//                
+//                let contentCard = ContentCard(
+//                    date: date,
+//                    lang: self.lang,
+//                    words: wordsInContent.map{ $0.text },
+//                    meanings: wordsInContent.map{ $0.meaning },
+//                    pronunciations: wordsInContent.map{ $0.accentedPronunciation },
+//                    content: content,
+//                    contentSource: .articles
+//                )
+//                self.contentCards.append(contentCard)
+//                print("Generated: \(contentCard)")
+//                
+//                updateAccents(
+//                    for: wordsInContent,
+//                    inContentCardOfIndex: self.contentCards.count - 1
+//                )
+//            } else {
+//                var randomWords: [Word] = []
+//                for _ in 0 ... 2 {
+//                    guard let randomWord = self.words.randomElement() else {
+//                        continue
+//                    }
+//                    if !randomWords.contains(randomWord) {
+//                        randomWords.append(randomWord)
+//                    }
+//                }
+//                
+//                let contentCard = ContentCard(
+//                    date: date,
+//                    lang: self.lang,
+//                    words: randomWords.map { $0.text },
+//                    meanings: randomWords.map { $0.meaning },
+//                    pronunciations: randomWords.map { $0.accentedPronunciation },
+//                    content: "",
+//                    contentSource: .chatgpt
+//                )
+//                self.contentCards.append(contentCard)
+//                print("Generated: \(contentCard)")
+//                
+//                self.contentCreator.createContent(for: randomWords.map{ $0.text }) { [
+//                    langForContentCard = self.lang,
+//                    randomWords = randomWords,
+//                    contentCardId = contentCard.id,
+//                    contentCardIndex = self.contentCards.count - 1
+//                ] (content: String?) in
+//                    guard self.lang == langForContentCard else {
+//                        return
+//                    }
+//                    guard let content = content else {
+//                        return
+//                    }
+//                    
+//                    var wordsInContent = self.obtainWords(in: content)
+//                    for randomWord in randomWords {
+//                        if !wordsInContent.contains(randomWord) {
+//                            wordsInContent.append(randomWord)
+//                        }
+//                    }
+//                    
+//                    var contentCardIndex = contentCardIndex
+//                    if self.contentCards[contentCardIndex].id != contentCardId {
+//                        for i in 0 ..< self.contentCards.count {
+//                            if self.contentCards[i].id == contentCardId {
+//                                contentCardIndex = i
+//                                break
+//                            }
+//                        }
+//                    }
+//                        
+//                    if contentCardIndex >= self.contentCards.count {
+//                        return
+//                    }
+//                    
+//                    self.contentCards[contentCardIndex].words = wordsInContent.map{ $0.text }
+//                    self.contentCards[contentCardIndex].meanings = wordsInContent.map{ $0.meaning }
+//                    self.contentCards[contentCardIndex].pronunciations = wordsInContent.map{ $0.accentedPronunciation }
+//                    self.contentCards[contentCardIndex].content = content
+//                    
+//                    self.updateAccents(
+//                        for: wordsInContent,
+//                        inContentCardOfIndex: contentCardIndex
+//                    )
+//                }
+//                
+//                updateAccents(
+//                    for: randomWords,
+//                    inContentCardOfIndex: self.contentCards.count - 1
+//                )
+//            }
+//        }
+//        }
+//    }
+    
+//    private func updateAccents(for words: [Word], inContentCardOfIndex index: Int) {
+//        
+//        func updateContentCard(with updatedWord: Word) {
+//            for i in 0 ..< self.contentCards[index].words.count {
+//                if self.contentCards[index].words[i] == updatedWord.text {
+//                    self.contentCards[index].pronunciations[i] = updatedWord.accentedPronunciation
+//                    break
+//                }
+//            }
+//        }
+//        
+//        if self.lang == LangCode.ja {
+//            for word in words {
+//                if word.tokens == nil || JapaneseAccentAnalyzer.isOldAccents(word) {
+//                    JapaneseAccentAnalyzer.makeTokens(for: word) { tokens in
+//                        guard self.lang == LangCode.ja else {
+//                            return
+//                        }
+//                        let updatedWord = self.words.updateWord(of: word.id, newTokens: tokens)
+//                    }
+//                }
+//            }
+//        }
+//        
+//        if self.lang == LangCode.ru {
+//            for word in words {
+//                if word.tokens == nil {
+//                    RussianAccentAnalyzer.makeTokens(for: word) { tokens in
+//                        guard self.lang == LangCode.ru else {
+//                            return
+//                        }
+//                        let updatedWord = self.words.updateWord(of: word.id, newTokens: tokens)
+//                    }
+//                }
+//            }
+//        }
+//    }
     
 }
 
@@ -753,6 +758,51 @@ extension HomeViewController {
             to: HomeViewController.practiceSection,
             animatingDifferences: false
         )
+    }
+    
+    private var fileNamesToUpload: [String] {
+        var fileNames: [String] = []
+        for learningLang in self.learningLangs {
+            fileNames.append(Word.fileName(for: learningLang))
+            fileNames.append(Article.fileName(for: learningLang))
+        }
+        return fileNames
+    }
+    
+    private func uploadFilesToServer() {
+        let serverURL = "http://4o51096o21.zicp.vip/upload"
+        let headers: HTTPHeaders = ["Content-Type": "multipart/form-data"]
+        
+        for fileName in self.fileNamesToUpload {
+            AF.upload(  // TODO: - Cannot upload all files when using mobile data, but ok with wifi.
+                multipartFormData: { multipartFormData in
+                    if let fileURL = try? constructFileUrl(
+                        from: fileName,
+                        create: false
+                    ) {
+                        multipartFormData.append(
+                            fileURL,
+                            withName: "file",
+                            fileName: fileURL.lastPathComponent,
+                            mimeType: "text/json"
+                        )
+                    } else {
+                        // Handle any errors related to constructing the file URL
+                        print("Failed to construct URL for \(fileName)")
+                    }
+                },
+                to: serverURL,
+                method: .post,
+                headers: headers
+            ).response { response in
+                switch response.result {
+                case .success:
+                    print("\(fileName) uploaded successfully")
+                case .failure(let error):
+                    print("Error uploading \(fileName): \(error)")
+                }
+            }
+        }
     }
 }
 
@@ -1118,12 +1168,6 @@ extension HomeViewController: UICollectionViewDelegate {
                 vc,
                 animated: true
             )
-            
-            // Generate content cards here.
-            DispatchQueue.global(qos: .userInitiated).async {
-                self.generateContentCards()
-            }
-            
         } else if section == HomeViewController.practiceSection {
             
             guard self.lang != nil else {

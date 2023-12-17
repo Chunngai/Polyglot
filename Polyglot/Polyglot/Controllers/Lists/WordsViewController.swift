@@ -74,7 +74,7 @@ class WordsViewController: ListViewController {
             // If the search controller is not active,
             // present all words.
             // Otherwise, present the matched words.
-            updateSearchResults(for: searchController)
+            self.updateSearchResults(for: self.searchController)
         }
     }
     
@@ -111,6 +111,10 @@ class WordsViewController: ListViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.updateSomeAccents()
+        }
         
         updateSetups()
         updateViews()
@@ -346,6 +350,49 @@ extension WordsViewController {
         self.lastlyTypedWord = ""
     }
     
+    private func updateSomeAccents(n: Int = 10) {
+        if Variables.lang == LangCode.ja {
+            var counter: Int = 0
+            for word in words {
+                if word.tokens == nil || JapaneseAccentAnalyzer.isOldAccents(word) {
+                    JapaneseAccentAnalyzer.makeTokens(for: word) { tokens in
+                        guard Variables.lang == LangCode.ja else {
+                            return
+                        }
+                        DispatchQueue.main.async {
+                            self.words.updateWord(of: word.id, newTokens: tokens)
+                        }
+                    }
+                    
+                    counter += 1
+                    if counter >= n {
+                        break
+                    }
+                }
+            }
+        }
+        
+        if Variables.lang == LangCode.ru {
+            var counter: Int = 0
+            for word in words {
+                if word.tokens == nil {
+                    RussianAccentAnalyzer.makeTokens(for: word) { tokens in
+                        guard Variables.lang == LangCode.ru else {
+                            return
+                        }
+                        DispatchQueue.main.async {
+                            self.words.updateWord(of: word.id, newTokens: tokens)
+                        }
+                    }
+                    
+                    counter += 1
+                    if counter >= n {
+                        break
+                    }
+                }
+            }
+        }
+    }
 }
 
 extension WordsViewController: UISearchResultsUpdating {

@@ -15,9 +15,20 @@ struct JapaneseAccentAnalyzer {
             return false
         }
         for token in tokens {
-            if token.text.count != 1 {
-                return true
+            if token.text == "" {  // Due to a bug the text of the last token may be an empty string.
+                continue
             }
+            if token.text.count == 1 {
+                if token.accentLoc == nil || token.accentLoc == 0 {
+                    continue
+                }
+            }
+            if token.text.count == 2 {  // ?ya/?yu/?yo.
+                if token.accentLoc == nil || token.accentLoc == 0 || token.accentLoc == 1 {
+                    continue
+                }
+            }
+            return true
         }
         return false
     }

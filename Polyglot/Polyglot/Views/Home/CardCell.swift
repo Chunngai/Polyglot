@@ -17,7 +17,7 @@ class CardCellContentConfiguration: UIContentConfiguration {
     var meanings: [String]?
     var pronunciations: [String]?
     var content: String?
-    var contentSource: ContentCard.ContentSource?
+    var contentSource: String?
     
     var shouldDisplayMeanings: Bool = false
    
@@ -115,11 +115,11 @@ class CardCellContentView: UIView, UIContentView {
            var words = configuration.words,
            let meanings = configuration.meanings,
            let pronunciations = configuration.pronunciations,
-           var content = configuration.content,
+           let content = configuration.content,
            let contentSource = configuration.contentSource {
                         
             var contentString = "\(LangCode.toFlagIcon(langCode: lang)) "
-            if contentSource == .chatgpt {
+            if contentSource == "chatgpt" {
                 contentString += " \(Tokens.chatgptToken) "
             }
             contentString += content
@@ -155,6 +155,20 @@ class CardCellContentView: UIView, UIContentView {
                 }
             }
             
+            // Handle the case when the form of the word is changed.
+            // TODO: - Should handle with a better method.
+            var hiddenWords: [String] = []  // Words that the forms are changed.
+            for word in words {
+                if !contentString.contains(word) {
+                    hiddenWords.append(word)
+                }
+            }
+            var textOfHiddenWords: String? = nil
+            if !hiddenWords.isEmpty {
+                textOfHiddenWords = "(\(hiddenWords.joined(separator: "/")))"
+                contentString += "\(Strings._wordSeparators[lang]!)\(textOfHiddenWords!)"
+            }
+
             let attributedText = NSMutableAttributedString(string: contentString)
             attributedText.setTextColor(
                 for: Tokens.chatgptToken,
@@ -173,6 +187,14 @@ class CardCellContentView: UIView, UIContentView {
                     for: "[\(pronunciations[i])]",
                     with: Colors.inactiveTextColor
                 )
+            }
+            if let textOfHiddenWords = textOfHiddenWords {
+                attributedText.setTextColor(
+                    for: textOfHiddenWords,
+                    with: Colors.inactiveTextColor
+                )
+                // Remove the underline added with the code above.
+                attributedText.removeUnderline(for: textOfHiddenWords)
             }
             contentLabel.attributedText = attributedText
         }
