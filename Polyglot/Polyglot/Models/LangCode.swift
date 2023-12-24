@@ -48,6 +48,19 @@ extension LangCode {
         default: return ""
         }
     }
+    
+    static func toVoiceIdentifier(langCode: String) -> String {
+        switch langCode {
+        case LangCode.zh: return "com.apple.ttsbundle.siri_Li-mu_zh-CN_compact"
+        case LangCode.en: return "com.apple.voice.compact.en-GB.Daniel"
+        case LangCode.ja: return "com.apple.ttsbundle.siri_Hattori_ja-JP_compact"
+        case LangCode.es: return "com.apple.voice.compact.es-ES.Monica"
+        case LangCode.ru: return "com.apple.voice.compact.ru-RU.Milena"
+        case LangCode.ko: return "com.apple.voice.enhanced.ko-KR.Yuna"
+        case LangCode.de: return "com.apple.ttsbundle.siri_Martin_de-DE_compact"
+        default: return LangCode.toVoiceIdentifier(langCode: LangCode.en)
+        }
+    }
 }
 
 extension LangCode {

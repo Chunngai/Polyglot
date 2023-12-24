@@ -75,6 +75,7 @@ struct Icons {
     static let addIcon = UIImage(imageLiteralResourceName: "add")
     static let startIcon = UIImage(imageLiteralResourceName: "start")
     static let pauseIcon = UIImage(imageLiteralResourceName: "pause")
+    static let chatgptIcon = UIImage(imageLiteralResourceName: "chatgpt")
     
 }
 

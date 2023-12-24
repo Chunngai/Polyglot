@@ -10,6 +10,7 @@ import UIKit
 import SnapKit
 import MessageUI
 import Alamofire
+import AVFoundation
 
 struct HomeItem: Hashable {
     
@@ -49,6 +50,10 @@ struct HomeItem: Hashable {
 }
 
 class HomeViewController: UIViewController {
+    
+    // Ref: https://stackoverflow.com/questions/73706115/avspeechsynthesizer-isnt-working-under-ios16-anymore
+    var synthesizer = AVSpeechSynthesizer()
+    var activeTextToSpeechButton: UIButton? = nil
     
     // Langauges.
     
@@ -246,6 +251,8 @@ class HomeViewController: UIViewController {
             name: UIApplication.willEnterForegroundNotification,
             object: nil
         )
+        
+        synthesizer.delegate = self
     }
     
     private func updateViews() {
@@ -1015,6 +1022,7 @@ extension HomeViewController {
             content.pronunciations = item.pronunciations
             content.content = item.content
             content.contentSource = item.contentSource
+            content.delegate = self
             cell.contentConfiguration = content
                  
             var background = UIBackgroundConfiguration.listPlainCell()
@@ -1191,16 +1199,36 @@ extension HomeViewController: UICollectionViewDelegate {
                 animated: true,
                 completion: nil
             )
-        } else {
-            if let cell = cell as? CardCell,
-                let configuration = cell.contentConfiguration as? CardCellContentConfiguration {
-                
-                configuration.shouldDisplayMeanings.toggle()
-                cell.contentConfiguration = configuration
-                
-                collectionView.performBatchUpdates(nil, completion: nil)  // For updating the cell height.
-            }
         }
+    }
+}
+
+extension HomeViewController: CardCellDelegate {
+    
+    // MARK: - Card Cell Delegate
+    
+    func updateCellHeight() {
+        // Ref: https://stackoverflow.com/questions/14094684/avoid-animation-of-uicollectionview-after-reloaditemsatindexpaths
+        UIView.performWithoutAnimation {
+            collectionView.performBatchUpdates(nil, completion: nil)  // For updating the cell height.
+        }
+    }
+    
+}
+
+extension HomeViewController: AVSpeechSynthesizerDelegate {
+    
+    // MARK: - AVSpeechSynthesizer Delegate
+    
+    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, willSpeak marker: AVSpeechSynthesisMarker, utterance: AVSpeechUtterance) {
+        activeTextToSpeechButton?.setImage(CardCellContentView.buttonImageWhenProducingVoice, for: .normal)
+    }
+    
+    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        // Disactivate the button when the speech finishes.
+        activeTextToSpeechButton?.setImage(CardCellContentView.buttonImageWhenNotProducingVoice, for: .normal)
+        activeTextToSpeechButton = nil
+        
     }
 }
 

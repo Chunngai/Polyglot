@@ -661,7 +661,7 @@ extension Strings {
         LangCode.ko: ",",
         LangCode.de: ",",
     ]
-    static var subsentenceSeparator: String{
+    static var subsentenceSeparator: String {
         return Strings._subsentenceSeparators[Variables.lang]!
     }
 }
