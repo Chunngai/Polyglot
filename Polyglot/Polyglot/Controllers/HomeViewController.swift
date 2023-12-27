@@ -1130,7 +1130,7 @@ extension HomeViewController: UICollectionViewDelegate {
         let section = indexPath.section
         let row = indexPath.row
         
-        Feedbacks.defaultFeedbackGenerator.selectionChanged()
+//        Feedbacks.defaultFeedbackGenerator.selectionChanged()
         
         if section == HomeViewController.languageSection {
             

@@ -67,7 +67,8 @@ struct TranslationPracticeProducer: PracticeProducerDelegate {
             let para = randomArticle.paras[i]
             
             // Randomly choose a direction.
-            let randomDirection = Array<PracticeDirection>(arrayLiteral: .textToMeaning, .meaningToText).randomElement(from: [0.2, 0.8])!  // 0.2 prob for text -> meaning and 0.8 prob for meaning -> text.
+//            let randomDirection = Array<PracticeDirection>(arrayLiteral: .textToMeaning, .meaningToText).randomElement(from: [0.2, 0.8])!  // 0.2 prob for text -> meaning and 0.8 prob for meaning -> text.
+            let randomDirection = PracticeDirection.meaningToText
             
             var text: String!
             var meaning: String!
