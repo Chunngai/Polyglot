@@ -131,7 +131,7 @@ class CardCellContentView: UIView, UIContentView {
                 make.top.equalToSuperview()
                 make.width.equalTo(flagIconLabel.intrinsicContentSize.width)
             }
-            chatgptImageView.snp.updateConstraints { make in
+            chatgptImageView.snp.makeConstraints { make in
                 make.leading.equalTo(flagIconLabel.snp.trailing).offset(5)
                 make.top.equalToSuperview()
                 make.width.equalTo(contentHeader.snp.height)
@@ -142,7 +142,7 @@ class CardCellContentView: UIView, UIContentView {
                 make.top.equalToSuperview()
                 make.width.equalTo(textToSpeechButton.intrinsicContentSize.width)
             }
-            displayMeaningsButton.snp.updateConstraints { make in
+            displayMeaningsButton.snp.makeConstraints { make in
                 make.trailing.equalTo(textToSpeechButton.snp.leading).offset(-5)
                 make.top.equalToSuperview()
                 make.width.equalTo(displayMeaningsButton.intrinsicContentSize.width)

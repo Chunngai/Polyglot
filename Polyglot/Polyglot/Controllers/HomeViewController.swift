@@ -472,7 +472,9 @@ extension HomeViewController {
             // sectionSnapShot.expand([headerItem])
             
             DispatchQueue.main.async {
-                self.dataSource.apply(sectionSnapShot, to: i + 3)
+                UIView.performWithoutAnimation {
+                    self.dataSource.apply(sectionSnapShot, to: i + 3)
+                }
             }
         }
     }
