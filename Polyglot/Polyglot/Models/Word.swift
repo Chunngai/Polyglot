@@ -48,7 +48,7 @@ struct Word {
         self.text = text.normalized(caseInsensitive: true, diacriticInsensitive: false)
         self.tokens = tokens
         
-        self.meaning = meaning.lowercased().strip()
+        self.meaning = meaning.normalized(caseInsensitive: true, diacriticInsensitive: false)
         
         self.note = note?.strip()
     }
