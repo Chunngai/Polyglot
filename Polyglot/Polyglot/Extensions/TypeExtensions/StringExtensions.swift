@@ -78,9 +78,14 @@ extension String {
 
 extension String {
     
-    func normalized(caseInsensitive: Bool = false, diacriticInsensitive: Bool = false) -> String {
+    func normalized(shouldStrip: Bool = true, caseInsensitive: Bool = false, diacriticInsensitive: Bool = false) -> String {
         var normalizedString = self
-            .strip()
+        
+        if shouldStrip {
+            normalizedString = normalizedString.strip()
+        }
+        
+        normalizedString = normalizedString
             .replaceMultipleSpacesWithSingleOne()
             .normalizeQuotes()
         
