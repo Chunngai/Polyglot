@@ -51,10 +51,6 @@ struct HomeItem: Hashable {
 
 class HomeViewController: UIViewController {
     
-    // Ref: https://stackoverflow.com/questions/73706115/avspeechsynthesizer-isnt-working-under-ios16-anymore
-    var synthesizer = AVSpeechSynthesizer()
-    var activeTextToSpeechButton: UIButton? = nil
-    
     // Langauges.
     
     var learningLangs: [String] = {
@@ -212,6 +208,22 @@ class HomeViewController: UIViewController {
         }
     }
     
+    var contentCards: ContentCards!
+    var contentCardSnapshots: [String: [
+        Int: NSDiffableDataSourceSectionSnapshot<HomeItem>
+    ]] = [
+        "sentences": [:],
+        "paragraphs": [:],
+    ]
+    
+    // MARK: - CardCell Delegate
+    
+    // Ref: https://stackoverflow.com/questions/73706115/avspeechsynthesizer-isnt-working-under-ios16-anymore
+    var synthesizer = AVSpeechSynthesizer()
+    
+    var indexPathsForCellsThatAreDisplayingMeanings: Set<IndexPath> = []
+    var indexPathAndTextToSpeechButtonForCellThatIsProcudingVoice: (indexPath: IndexPath, button: UIButton)? = nil
+        
     // MARK: - Controllers
     
     // MARK: - Views
@@ -332,112 +344,59 @@ extension HomeViewController {
     
     // MARK: - Content Cards
     
-    private func _displayContentCards(contentCards: ContentCards) {
-        var sections: [(
-            header: HomeItem,
-            items: [HomeItem]
-        )] = []
+    private func generateContentCardSnapshots() {
         
-        var contentCardSentences: [String: [String: ContentCards.SentenceEntry]] = [:]
-        // lang:[hour:] -> hour:[lang:]
-        for (lang, hour2sentenceEntry) in contentCards.sentences {
-            for (hour, sentenceEntry) in hour2sentenceEntry {
-                if !contentCardSentences.keys.contains(hour) {
-                    contentCardSentences[hour] = [:]
-                }
-                contentCardSentences[hour]![lang] = sentenceEntry
-            }
-        }
-        // Sort.
-        let sortedContentcardSentences = contentCardSentences.sorted(by: { a, b in
-            Int(a.key)! > Int(b.key)!
-        })
-        for (hourString, sentenceEntries) in sortedContentcardSentences {
-            guard let hourOfNow = Int(Date().repr(of: "HH")) else {
-                continue
-            }
-            if Int(hourString)! > hourOfNow {
-                continue
-            }
+        for hour in 0...23 {
             
-            var items: [HomeItem] = []
-            for (sentenceLang, sentenceEntry) in sentenceEntries {
-                guard let content = sentenceEntry.content, !content.isEmpty else {
+            var sentenceItems:[HomeItem] = []
+            for lang in learningLangs {
+                guard let entry = contentCards.sentences[hour]?[lang] else {
                     continue
                 }
-                
-                items.append(HomeItem(
-                    lang: sentenceLang,
-                    words: [sentenceEntry.word!.text!],
-                    meanings: [sentenceEntry.word!.meaning!],
-                    pronunciations: [sentenceEntry.word!.pronunciation!],
-                    content: content,
-                    contentSource: sentenceEntry.source
-                ))
-            }
-            
-            items = items.sorted(by: { a, b in
-                a.lang! < b.lang!
-            })
-            
-            if !items.isEmpty {
-                sections.append((
-                    header: HomeItem(header: "\(hourString):00"),
-                    items: items
-                ))
-            }
-        }
-        
-        var contentCardParagraphs: [String: [String: ContentCards.ParagraphEntry]] = [:]
-        // lang:[hour:] -> hour:[lang:]
-        for (lang, hour2ParagraphEntry) in contentCards.paragraphs {
-            for (hour, paragraphEntry) in hour2ParagraphEntry {
-                if !contentCardParagraphs.keys.contains(hour) {
-                    contentCardParagraphs[hour] = [:]
+                guard let content = entry.content, !content.isEmpty else {
+                    continue
                 }
-                contentCardParagraphs[hour]![lang] = paragraphEntry
+                sentenceItems.append(HomeItem(
+                    lang: lang,
+                    words: [entry.word!.text!],
+                    meanings: [entry.word!.meaning!],
+                    pronunciations: [entry.word!.pronunciation!],
+                    content: content,
+                    contentSource: entry.source
+                ))
             }
-        }
-        // Sort.
-        let sortedContentParagraphs = contentCardParagraphs.sorted(by: { a, b in
-            Int(a.key)! > Int(b.key)!
-        })
-        for (hourString, paragraphEntries) in sortedContentParagraphs {
-            guard let hourOfNow = Int(Date().repr(of: "HH")) else {
-                continue
-            }
-            if Int(hourString)! > hourOfNow {
-                continue
+            if !sentenceItems.isEmpty {
+                var sectionSnapshot = NSDiffableDataSourceSectionSnapshot<HomeItem>()
+                sectionSnapshot.append([HomeItem(header: "\(hour):00")])
+                sectionSnapshot.append(sentenceItems)
+                self.contentCardSnapshots["sentences"]![hour] = sectionSnapshot
             }
             
-            var items: [HomeItem] = []
-            for (paragraphLang, paragraphEntry) in paragraphEntries {
-                guard let content = paragraphEntry.content, !content.isEmpty else {
+            var paragraphItems: [HomeItem] = []
+            for lang in learningLangs {
+                guard let entry = contentCards.paragraphs[hour]?[lang] else {
+                    continue
+                }
+                guard let content = entry.content, !content.isEmpty else {
                     continue
                 }
                 
                 var allWords: [String] = []
                 var allMeanings: [String] = []
                 var allPronunciations: [String] = []
-                for (langOfWords, wordEntry) in contentCards.words {
-                    if langOfWords != paragraphLang {
+                for (wordLang, wordEntries) in contentCards.words {
+                    if wordLang != lang {
                         continue
                     }
-                    
-                    let newWord = wordEntry.new_word!
-                    allWords.append(newWord.text!)
-                    allMeanings.append(newWord.meaning!)
-                    allPronunciations.append(newWord.pronunciation!)
-                    
-                    for wordToReview in wordEntry.words_to_review! {
-                        allWords.append(wordToReview.text!)
-                        allMeanings.append(wordToReview.meaning!)
-                        allPronunciations.append(wordToReview.pronunciation!)
+                    for wordEntry in wordEntries {
+                        allWords.append(wordEntry.text!)
+                        allMeanings.append(wordEntry.meaning!)
+                        allPronunciations.append(wordEntry.pronunciation!)
                     }
                 }
                 
-                items.append(HomeItem(
-                    lang: paragraphLang,
+                paragraphItems.append(HomeItem(
+                    lang: lang,
                     words: allWords,
                     meanings: allMeanings,
                     pronunciations: allPronunciations,
@@ -445,49 +404,74 @@ extension HomeViewController {
                     contentSource: "chatgpt"
                 ))
             }
-            
-            items = items.sorted(by: { a, b in
-                a.lang! < b.lang!
-            })
-            
-            if !items.isEmpty {
-                var insertionIndex: Int = 0
-                for (i, section) in sections.enumerated() {
-                    if section.header.header == "\(hourString):00" {
-                        insertionIndex = i
-                    }
-                }
-                sections.insert((
-                    header: HomeItem(header: "\(hourString):00"),
-                    items: items
-                ), at: insertionIndex)
+            if !paragraphItems.isEmpty {
+                var sectionSnapshot = NSDiffableDataSourceSectionSnapshot<HomeItem>()
+                sectionSnapshot.append([HomeItem(header: "\(hour):00")])
+                sectionSnapshot.append(paragraphItems)
+                self.contentCardSnapshots["paragraphs"]![hour] = sectionSnapshot
             }
         }
+    }
+    
+    private func applyContentCardSnapshots() {
+        let currentSectionIdentifiers = dataSource.snapshot().sectionIdentifiers
         
-        for (i, section) in sections.enumerated() {
-            var sectionSnapShot = NSDiffableDataSourceSectionSnapshot<HomeItem>()
+        for hour in 0...23 {
+            guard let hourOfNow = Int(Date().repr(of: ContentCards.hourFormat)) else {
+                continue
+            }
+            if hourOfNow < hour {
+                continue
+            }
             
-            sectionSnapShot.append([section.header])
-            sectionSnapShot.append(section.items)
-            // sectionSnapShot.expand([headerItem])
-            
+            // Sentences.
+            let sentenceSectionIdentifier = ContentCards.sentenceSectionIdentifier(for: hour)
+            if currentSectionIdentifiers.contains(sentenceSectionIdentifier) {
+                continue
+            }
+            guard let sentenceSnapShot = contentCardSnapshots["sentences"]![hour] else {
+                continue
+            }
             DispatchQueue.main.async {
                 UIView.performWithoutAnimation {
-                    self.dataSource.apply(sectionSnapShot, to: i + 3)
+                    self.dataSource.apply(
+                        sentenceSnapShot,
+                        to: sentenceSectionIdentifier
+                    )
+                }
+            }
+            
+            // Paragraphs.
+            let paragraphSectionIdentifier = ContentCards.paragraphSectionIdentifier(for: hour)
+            if currentSectionIdentifiers.contains(paragraphSectionIdentifier) {
+                continue
+            }
+            guard let paragraphSnapShot = contentCardSnapshots["paragraphs"]![hour] else {
+                continue
+            }
+            DispatchQueue.main.async {
+                UIView.performWithoutAnimation {
+                    self.dataSource.apply(
+                        paragraphSnapShot,
+                        to: paragraphSectionIdentifier
+                    )
                 }
             }
         }
     }
     
     private func displayContentCards() {
-        let contentCards = ContentCards.load()
-        if contentCards.date != Date().repr(of: ContentCards.dateFormat) {
-            ContentCards.fetch { contentCards in
-                self._displayContentCards(contentCards: contentCards)
-            }
-        } else {
-            _displayContentCards(contentCards: contentCards)
+        if contentCards == nil {
+            contentCards = ContentCards.load()
+            generateContentCardSnapshots()
         }
+        // Date check.
+        if contentCards.dateString != Date().repr(of: ContentCards.dateFormat) {
+            ContentCards.fetchAndSave { contentCards in
+                self.generateContentCardSnapshots()
+            }
+        }
+        self.applyContentCardSnapshots()
     }
     
 }
@@ -773,6 +757,9 @@ extension HomeViewController {
             content.pronunciations = item.pronunciations
             content.content = item.content
             content.contentSource = item.contentSource
+            content.indexPath = indexPath
+            content.isDisplayMeanings = self.indexPathsForCellsThatAreDisplayingMeanings.contains(indexPath)
+            content.isProducingVoice = self.indexPathAndTextToSpeechButtonForCellThatIsProcudingVoice?.indexPath == indexPath
             content.delegate = self
             cell.contentConfiguration = content
                  
@@ -965,23 +952,47 @@ extension HomeViewController: CardCellDelegate {
         }
     }
     
+    func updateIndexPathsThatDisplayingMeanings(indexPath: IndexPath, isDisplayMeanings: Bool) {
+        if isDisplayMeanings {
+            indexPathsForCellsThatAreDisplayingMeanings.insert(indexPath)
+        } else {
+            indexPathsForCellsThatAreDisplayingMeanings.remove(indexPath)
+        }
+    }
+    
+    func updateConfigOfCurrentlyVoiceProducingItemToNotProducing() {
+        
+        // TODO: - Problematic when scrolling. Possibly due to the concurrent execution of createCardCellRegistration and this method.
+        
+        guard let indexPathThatProcudingVoice = indexPathAndTextToSpeechButtonForCellThatIsProcudingVoice?.indexPath,
+              let cell = dataSource.collectionView(collectionView, cellForItemAt: indexPathThatProcudingVoice) as? CardCell,
+              let config = cell.contentConfiguration as? CardCellContentConfiguration else {
+            return
+        }
+        
+        config.isProducingVoice = false
+        // WHEN SCOLLING, THE CONFIG UPDATE VIA THE CODE ABOVE
+        // MAY NOT BE ABLE TO BE APPLIED TO THE CONTENT VIEW
+        // IMMEDIATELY, SO USE THE ADDITIONAL LINE OF CODE BELOW
+        // TO ENSURE IMMEDIATE VIEW CHANGING.
+        self.indexPathAndTextToSpeechButtonForCellThatIsProcudingVoice?.button.setImage(
+            CardCellContentView.buttonImageWhenNotProducingVoice,
+            for: .normal
+        )
+        
+        self.indexPathAndTextToSpeechButtonForCellThatIsProcudingVoice = nil
+    }
 }
 
 extension HomeViewController: AVSpeechSynthesizerDelegate {
     
     // MARK: - AVSpeechSynthesizer Delegate
     
-    func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, willSpeak marker: AVSpeechSynthesisMarker, utterance: AVSpeechUtterance) {
-        activeTextToSpeechButton?.setImage(CardCellContentView.buttonImageWhenProducingVoice, for: .normal)
-    }
-    
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-        // Disactivate the button when the speech finishes.
-        activeTextToSpeechButton?.setImage(CardCellContentView.buttonImageWhenNotProducingVoice, for: .normal)
-        activeTextToSpeechButton = nil
-        
+        self.updateConfigOfCurrentlyVoiceProducingItemToNotProducing()
     }
 }
+
 
 extension HomeViewController {
     

@@ -20,7 +20,9 @@ class CardCellContentConfiguration: UIContentConfiguration {
     var content: String?
     var contentSource: String?
     
-    var shouldDisplayMeanings: Bool = false
+    var indexPath: IndexPath!
+    var isDisplayMeanings: Bool = false
+    var isProducingVoice: Bool = false
     
     var delegate: CardCellDelegate!
    
@@ -178,6 +180,30 @@ class CardCellContentView: UIView, UIContentView {
                         
             flagIconLabel.text = LangCode.toFlagIcon(langCode: lang)
             chatgptImageView.isHidden = contentSource != "chatgpt"
+                        
+            if configuration.isDisplayMeanings {
+                displayMeaningsButton.setImage(
+                    CardCellContentView.buttonImageWhenDisplayingMeanings,
+                    for: .normal
+                )
+            } else {
+                displayMeaningsButton.setImage(
+                    CardCellContentView.buttonImageWhenNotDisplayingMeanings,
+                    for: .normal
+                )
+            }
+            
+            if configuration.isProducingVoice {
+                textToSpeechButton.setImage(
+                    CardCellContentView.buttonImageWhenProducingVoice,
+                    for: .normal
+                )
+            } else {
+                textToSpeechButton.setImage(
+                    CardCellContentView.buttonImageWhenNotProducingVoice,
+                    for: .normal
+                )
+            }
             
             var contentString = content
             
@@ -200,7 +226,7 @@ class CardCellContentView: UIView, UIContentView {
                         ? "\(words[i]) [\(pronunciations[i])] "
                         : pronunciations[i]
                     ) + (
-                        configuration.shouldDisplayMeanings
+                        configuration.isDisplayMeanings
                         ? " [\(meanings[i])] "
                         : ""
                     ),
@@ -269,16 +295,15 @@ extension CardCellContentView {
             return
         }
         
-        config.shouldDisplayMeanings.toggle()
+        config.isDisplayMeanings.toggle()
         configuration = config
         
         config.delegate.updateCellHeight()
-        
-        if config.shouldDisplayMeanings {
-            displayMeaningsButton.setImage(CardCellContentView.buttonImageWhenDisplayingMeanings, for: .normal)
-        } else {
-            displayMeaningsButton.setImage(CardCellContentView.buttonImageWhenNotDisplayingMeanings, for: .normal)
-        }
+        // Store the change to be able to restore in reload.
+        config.delegate.updateIndexPathsThatDisplayingMeanings(
+            indexPath: config.indexPath,
+            isDisplayMeanings: config.isDisplayMeanings
+        )
     }
     
     @objc
@@ -288,43 +313,37 @@ extension CardCellContentView {
             return
         }
         
-        guard let lang = config.lang else {
-            return
-        }
-        guard let content = config.content else {
+        config.isProducingVoice.toggle()
+        configuration = config
+        
+        guard let lang = config.lang, let content = config.content else {
             return
         }
         
-        if textToSpeechButton.imageView?.image == CardCellContentView.buttonImageWhenNotProducingVoice {  // Not producing speech.
+        if config.isProducingVoice {
             
-            // Stop the current speech (of another cell).
-            if config.delegate.activeTextToSpeechButton != nil {
-                
-                // Re-create one. If stopping the synthesizer instead of
-                // the re-creation, the speechSynthesizer(_ synthesizer:didFinish utterance:) delegate method will be executed twice,
-                // once from synthesizer.stopSpeaking() and once from the finishing of synthesizer.speak(),
-                // producing strange behaviours.
+            if config.delegate.indexPathAndTextToSpeechButtonForCellThatIsProcudingVoice != nil {
+                config.delegate.updateConfigOfCurrentlyVoiceProducingItemToNotProducing()
+                // RE-CREATE ONE.
+                // DO NOT USE synthesizer.stopSpeaking() HERE AS THIS METHOD (WHICH CALLS
+                // updateConfigOfCurrentlyVoiceProducingItemToNotProducing()) IS CALLED AFTER ALL
+                // CODE OF THIS BLOCK HAS BEEN EXECUTED, AFTER WHICH THE INDEXPATH HAS BEEN CHANGED
+                // TO THAT OF THE NEW CELL. THEREFPRE, WHEN synthesizer.stopSpeaking() IS CALLED,
+                // THE CONFIG OF THR NEW CELL WILL BE CHANGED, WHICH IS INCORRECT.
                 config.delegate.synthesizer = AVSpeechSynthesizer()
                 config.delegate.synthesizer.delegate = config.delegate as! AVSpeechSynthesizerDelegate
-                
-                config.delegate.activeTextToSpeechButton?.setImage(CardCellContentView.buttonImageWhenNotProducingVoice, for: .normal)
-                config.delegate.activeTextToSpeechButton = nil
             }
             
             let utterance = AVSpeechUtterance(string: content)
             utterance.voice = AVSpeechSynthesisVoice(identifier: LangCode.toVoiceIdentifier(langCode: lang))
+            
+            config.delegate.indexPathAndTextToSpeechButtonForCellThatIsProcudingVoice = (indexPath: config.indexPath, button: textToSpeechButton)
             config.delegate.synthesizer.speak(utterance)
-            
-            textToSpeechButton.setImage(CardCellContentView.buttonImageWhenProducingVoice, for: .normal)
-            config.delegate.activeTextToSpeechButton = self.textToSpeechButton
-        } else {  // Producing speech.
+        } else {
             config.delegate.synthesizer.stopSpeaking(at: .immediate)
-            
-            // May be redundant, as the speechSynthesizer(_ synthesizer:didFinish utterance:) delegate method
-            // in the delegate class will be executed after
-            // `config.delegate.synthesizer.stopSpeaking(at: .immediate)`.
-            textToSpeechButton.setImage(CardCellContentView.buttonImageWhenNotProducingVoice, for: .normal)
-            config.delegate.activeTextToSpeechButton = nil
+            // Should assign `config.delegate.indexPathThatProcudingVoice` with nil in
+            // the delegate method `speechSynthesizer(_:didFinish:)` of the synthesizer,
+            // as this method will be called after executing all code in this block.
         }
     }
 }
@@ -349,9 +368,13 @@ class CardCell: UICollectionViewListCell {
 protocol CardCellDelegate {
     
     var synthesizer: AVSpeechSynthesizer { get set }
-    var activeTextToSpeechButton: UIButton? { get set }
+    
+    var indexPathsForCellsThatAreDisplayingMeanings: Set<IndexPath> { get set }
+    var indexPathAndTextToSpeechButtonForCellThatIsProcudingVoice: (indexPath: IndexPath, button: UIButton)? { get set }
     
     func updateCellHeight()
+    func updateIndexPathsThatDisplayingMeanings(indexPath: IndexPath, isDisplayMeanings: Bool)
+    func updateConfigOfCurrentlyVoiceProducingItemToNotProducing()
     
 }
 

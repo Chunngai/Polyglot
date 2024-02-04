@@ -8,20 +8,18 @@
 
 import Foundation
 
+typealias ContentCardsHour = Int
 typealias ContentCardsLang = String
-typealias ContentCardsHour = String
 
-struct ContentCards: Codable {
+typealias OldContentCardsHour = String
+
+struct ContentCards {
     
     struct WordEntry: Codable {
+        var isNewWord: Bool?
         var text: String?
         var meaning: String?
         var pronunciation: String?
-    }
-    
-    struct ContentCardsWords: Codable {
-        var new_word: WordEntry?
-        var words_to_review: [WordEntry]?
     }
     
     struct SentenceEntry: Codable {
@@ -35,18 +33,120 @@ struct ContentCards: Codable {
         var source: String?
     }
     
-    var date: String
+    var dateString: String
     
-    var words: [ContentCardsLang: ContentCardsWords]  // lang: wordEntry
-    var sentences: [ContentCardsLang: [ContentCardsHour: SentenceEntry]]  // lang: [hour: sentenceEntry]
-    var paragraphs: [ContentCardsLang: [ContentCardsHour: ParagraphEntry]]  // lang: [hour: paragraphEntry]
+    var words: [ContentCardsLang: [WordEntry]]
+    var sentences: [ContentCardsHour: [ContentCardsLang: SentenceEntry]]
+    var paragraphs: [ContentCardsHour: [ContentCardsLang: ParagraphEntry]]
+    
+}
 
+extension ContentCards {
+    
+    struct OldWordEntry: Codable {
+        var text: String?
+        var meaning: String?
+        var pronunciation: String?
+    }
+    
+    struct OldContentCardsWords: Codable {
+        var new_word: WordEntry?
+        var words_to_review: [WordEntry]?
+    }
+    
+}
+
+extension ContentCards: Codable {
+    
     enum CodingKeys: String, CodingKey {
-        case date
+        case dateString
         case words = "words"
         case sentences = "sentences"
         case paragraphs = "paragraphs"
+        
+        // Old keys.
+        
+        case date
     }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(dateString, forKey: .dateString)
+        
+        try container.encode(words, forKey: .words)
+        try container.encode(sentences, forKey: .sentences)
+        try container.encode(paragraphs, forKey: .paragraphs)
+    }
+    
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        
+        do {
+            dateString = try values.decode(String.self, forKey: .dateString)
+        } catch {
+            dateString = try values.decode(String.self, forKey: .date)
+        }
+        
+        do {
+            words = try values.decode([ContentCardsLang: [WordEntry]].self, forKey: .words)
+        } catch {
+            let oldVersionWords = try values.decode([ContentCardsLang: OldContentCardsWords].self, forKey: .words)
+            
+            words = [:]
+            for (lang, words_) in oldVersionWords {
+                self.words[lang] = [WordEntry(
+                    isNewWord: true,
+                    text: words_.new_word!.text,
+                    meaning: words_.new_word!.meaning,
+                    pronunciation: words_.new_word!.pronunciation
+                )]
+                for word in words_.words_to_review! {
+                    self.words[lang]!.append(WordEntry(
+                        isNewWord: false,
+                        text: word.text,
+                        meaning: word.meaning,
+                        pronunciation: word.pronunciation
+                    ))
+                }
+            }
+        }
+        
+        do {
+            sentences = try values.decode([ContentCardsHour: [ContentCardsLang: SentenceEntry]].self, forKey: .sentences)
+        } catch {
+            let oldVersionSentences = try values.decode([ContentCardsLang: [OldContentCardsHour: SentenceEntry]].self, forKey: .sentences)
+            
+            sentences = [:]
+            for (lang, hour2sentenceEntry) in oldVersionSentences {
+                for (hourString, sentenceEntry) in hour2sentenceEntry {
+                    let hour = Int(hourString)!
+                    if !sentences.keys.contains(hour) {
+                        sentences[hour] = [:]
+                    }
+                    sentences[hour]![lang] = sentenceEntry
+                }
+            }
+        }
+        
+        do {
+            paragraphs = try values.decode([ContentCardsHour: [ContentCardsLang: ParagraphEntry]].self, forKey: .paragraphs)
+        } catch {
+            let oldVersionParagraphs = try values.decode([ContentCardsLang: [OldContentCardsHour: ParagraphEntry]].self, forKey: .paragraphs)
+            
+            paragraphs = [:]
+            for (lang, hour2paragraphEntry) in oldVersionParagraphs {
+                for (hourString, paragraphEntry) in hour2paragraphEntry {
+                    let hour = Int(hourString)!
+                    if !paragraphs.keys.contains(hour) {
+                        paragraphs[hour] = [:]
+                    }
+                    paragraphs[hour]![lang] = paragraphEntry
+                }
+            }
+        }
+    }
+    
 }
 
 extension ContentCards {
@@ -63,11 +163,11 @@ extension ContentCards {
             ) as? ContentCards {
                 return contentCards
             } else {
-                return ContentCards(date: "", words: [:], sentences: [:], paragraphs: [:])
+                return ContentCards(dateString: "", words: [:], sentences: [:], paragraphs: [:])
             }
         } catch {
             print(error)
-            return ContentCards(date: "", words: [:], sentences: [:], paragraphs: [:])
+            return ContentCards(dateString: "", words: [:], sentences: [:], paragraphs: [:])
         }
     }
     
@@ -87,7 +187,7 @@ extension ContentCards {
 
 extension ContentCards {
     
-    static func fetch(completion: @escaping (ContentCards) -> Void) {
+    static func fetchAndSave(completion: @escaping (ContentCards) -> Void) {
         let json: [String: Any] = [
             "date": Date().repr(of: ContentCards.dateFormat)
         ]
@@ -127,5 +227,6 @@ extension ContentCards {
 extension ContentCards {
     
     static let dateFormat: String = "yyMMdd"
+    static let hourFormat: String = "HH"
     
 }
