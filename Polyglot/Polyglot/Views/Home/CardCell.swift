@@ -205,77 +205,80 @@ class CardCellContentView: UIView, UIContentView {
                 )
             }
             
-            var contentString = content
-            
-            for i in 0 ..< words.count {
-                let shouldAddPronunciation = pronunciations[i].normalized(
-                    caseInsensitive: true,
-                    diacriticInsensitive: false
-                ).replacingOccurrences(
-                    of: String(Token.accentSymbol),
-                    with: ""
-                ) != words[i].normalized(
-                    caseInsensitive: true,
-                    diacriticInsensitive: false
-                )
+            contentLabel.attributedText = {
+                var contentString = content
                 
-                contentString = contentString.replacingOccurrences(
-                    of: words[i],
-                    with: (
-                        shouldAddPronunciation
-                        ? "\(words[i]) [\(pronunciations[i])] "
-                        : pronunciations[i]
-                    ) + (
-                        configuration.isDisplayMeanings
-                        ? " [\(meanings[i])] "
-                        : ""
-                    ),
-                    options: [.caseInsensitive]
-                )
+                for i in 0 ..< words.count {
+                    let shouldAddPronunciation = pronunciations[i].normalized(
+                        caseInsensitive: true,
+                        diacriticInsensitive: false
+                    ).replacingOccurrences(
+                        of: String(Token.accentSymbol),
+                        with: ""
+                    ) != words[i].normalized(
+                        caseInsensitive: true,
+                        diacriticInsensitive: false
+                    )
+                    
+                    contentString = contentString.replacingOccurrences(
+                        of: words[i],
+                        with: (
+                            shouldAddPronunciation
+                            ? "\(words[i]) [\(pronunciations[i])] "
+                            : pronunciations[i]
+                        ) + (
+                            configuration.isDisplayMeanings
+                            ? " [\(meanings[i])] "
+                            : ""
+                        ),
+                        options: [.caseInsensitive]
+                    )
+                    
+                    if !shouldAddPronunciation {
+                        words[i] = pronunciations[i]  // For underlining.
+                    }
+                }
                 
-                if !shouldAddPronunciation {
-                    words[i] = pronunciations[i]  // For underlining.
+                // Handle the case when the form of the word is changed.
+                // TODO: - Should handle with a better method.
+                var hiddenWords: [String] = []  // Words that the forms are changed.
+                for word in words {
+                    if !contentString.contains(word) {
+                        hiddenWords.append(word)
+                    }
                 }
-            }
-            
-            // Handle the case when the form of the word is changed.
-            // TODO: - Should handle with a better method.
-            var hiddenWords: [String] = []  // Words that the forms are changed.
-            for word in words {
-                if !contentString.contains(word) {
-                    hiddenWords.append(word)
+                var textOfHiddenWords: String? = nil
+                if !hiddenWords.isEmpty {
+                    textOfHiddenWords = "(\(hiddenWords.joined(separator: "/")))"
+                    contentString += "\(Strings._wordSeparators[lang]!)\(textOfHiddenWords!)"
                 }
-            }
-            var textOfHiddenWords: String? = nil
-            if !hiddenWords.isEmpty {
-                textOfHiddenWords = "(\(hiddenWords.joined(separator: "/")))"
-                contentString += "\(Strings._wordSeparators[lang]!)\(textOfHiddenWords!)"
-            }
 
-            let attributedText = NSMutableAttributedString(string: contentString)
-            for i in 0 ..< words.count {
-                attributedText.setUnderline(
-                    for: words[i],
-                    ignoreCasing: true
-                )
-                attributedText.setTextColor(
-                    for: "[\(meanings[i])]",
-                    with: Colors.inactiveTextColor
-                )
-                attributedText.setTextColor(
-                    for: "[\(pronunciations[i])]",
-                    with: Colors.inactiveTextColor
-                )
-            }
-            if let textOfHiddenWords = textOfHiddenWords {
-                attributedText.setTextColor(
-                    for: textOfHiddenWords,
-                    with: Colors.inactiveTextColor
-                )
-                // Remove the underline added with the code above.
-                attributedText.removeUnderline(for: textOfHiddenWords)
-            }
-            contentLabel.attributedText = attributedText
+                let attributedText = NSMutableAttributedString(string: contentString)
+                for i in 0 ..< words.count {
+                    attributedText.setUnderline(
+                        for: words[i],
+                        ignoreCasing: true
+                    )
+                    attributedText.setTextColor(
+                        for: "[\(meanings[i])]",
+                        with: Colors.inactiveTextColor
+                    )
+                    attributedText.setTextColor(
+                        for: "[\(pronunciations[i])]",
+                        with: Colors.inactiveTextColor
+                    )
+                }
+                if let textOfHiddenWords = textOfHiddenWords {
+                    attributedText.setTextColor(
+                        for: textOfHiddenWords,
+                        with: Colors.inactiveTextColor
+                    )
+                    // Remove the underline added with the code above.
+                    attributedText.removeUnderline(for: textOfHiddenWords)
+                }
+                
+                return attributedText
+            }()
         }
         
         updateSetups()

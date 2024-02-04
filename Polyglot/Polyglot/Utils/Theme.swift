@@ -12,7 +12,7 @@ import UIKit
 struct Colors {
     
     static let defaultBackgroundColor: UIColor = .white
-    static let lightGrayBackgroundColor: UIColor = UIColor.intRGB2UIColor(red: 238, green: 237, blue: 244)
+    static let lightGrayBackgroundColor: UIColor = .secondarySystemBackground
     static let maskBackgroundColor: UIColor = UIColor.intRGB2UIColor(red: 0, green: 0, blue: 0, alpha: 0.6)
     
     static let normalTextColor: UIColor = .black
@@ -32,6 +32,7 @@ struct Colors {
     static let strongIncorrectColor: UIColor = UIColor.intRGB2UIColor(red: 231, green: 105, blue: 110)
     
     static let timingBarTintColor: UIColor = .systemGray5
+    static let borderColor: UIColor = .systemGray5
 
     static let separatorColor: UIColor = .lightGray
     
@@ -92,9 +93,10 @@ struct Sizes {
     
     static let primaryPromptFontSize: CGFloat = 50
     static let secondaryPromptFontSize: CGFloat = 20
-    static let largeFontSize: CGFloat = 23
-    static let mediumFontSize: CGFloat = 20
-    static let smallFontSize: CGFloat = 14
+//    static let largeFontSize: CGFloat = 23
+    static let mediumFontSize: CGFloat = 17
+    static let smallFontSize: CGFloat = 15
+    static let practiceFontSize: CGFloat = 20
     
     // MARK: - Scaling.
     
@@ -160,12 +162,12 @@ struct Attributes {
     ]
     
     static let practicePromptAttributes = [
-        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.mediumFontSize),
+        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.practiceFontSize),
         NSAttributedString.Key.paragraphStyle : Attributes.practicePromptParaStyle,
         NSAttributedString.Key.foregroundColor : Colors.weakTextColor
     ]
     static let practiceWordAttributes = [
-        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.mediumFontSize),
+        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.practiceFontSize),
         NSAttributedString.Key.foregroundColor : Colors.normalTextColor
     ]
     
@@ -184,18 +186,17 @@ struct Attributes {
         NSAttributedString.Key.paragraphStyle: Attributes.leftAlignedParaStyle
     ]
     static let newArticleTopicAttributes = Attributes.leftAlignedLongTextAttributes
-    static let newArticleBodyAttributes = Attributes.defaultLongTextAttributes
-    static let newArticleShouldSplitAttributes = Attributes.defaultLongTextAttributes
+    static let newArticleBodyAttributes = Attributes.leftAlignedLongTextAttributes
     static let newArticleSourceAttributes = Attributes.leftAlignedLongTextAttributes
     
     // MARK: - Buttons.
     
     static let inactiveSelectionButtonTextAttributes = [
-        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.mediumFontSize, weight: .regular),
+        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.practiceFontSize, weight: .regular),  // TODO: - Should be set in the stack.
         NSAttributedString.Key.foregroundColor : Colors.weakTextColor
     ]
     static let activeSelectionButtonTextAttributes = [
-        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.mediumFontSize, weight: .regular),
+        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.practiceFontSize, weight: .regular),  // TODO: - Should be set in the stack.
         NSAttributedString.Key.foregroundColor : Colors.normalTextColor
     ]
 }	

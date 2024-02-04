@@ -23,7 +23,7 @@ class FillingPracticeView: UIView {
     
     var textField: UITextField = {
         let textField = UITextField()
-        textField.font = UIFont.systemFont(ofSize: Sizes.largeFontSize)
+        textField.font = UIFont.systemFont(ofSize: Sizes.practiceFontSize)
         textField.textColor = Colors.normalTextColor
         textField.textAlignment = .center
         textField.adjustsFontSizeToFitWidth = true

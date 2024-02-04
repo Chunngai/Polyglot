@@ -119,10 +119,10 @@ class HomeViewController: UIViewController {
             image: UIImage.init(systemName: "square.and.pencil"),
             text: Strings._phraseReview[languageOfTextToDisplay]
         ),
-        HomeItem(
-            image: UIImage.init(systemName: "doc"),
-            text: Strings._reading[languageOfTextToDisplay]
-        ),
+//        HomeItem(
+//            image: UIImage.init(systemName: "doc"),
+//            text: Strings._reading[languageOfTextToDisplay]
+//        ),
         HomeItem(
             image: UIImage.init(systemName: "bubble"),
             text: Strings._interpretation[languageOfTextToDisplay]
@@ -921,11 +921,18 @@ extension HomeViewController: UICollectionViewDelegate {
             }
             
             let vc: PracticeViewController
+//            if row == 0 {
+//                vc = WordsPracticeViewController()
+//            } else if row == 1 {
+//                vc = ReadingPracticeViewController()
+//            } else if row == 2 {
+//                vc = TranslationPracticeViewController()
+//            } else {
+//                fatalError("Not Implemented.")
+//            }
             if row == 0 {
                 vc = WordsPracticeViewController()
             } else if row == 1 {
-                vc = ReadingPracticeViewController()
-            } else if row == 2 {
                 vc = TranslationPracticeViewController()
             } else {
                 fatalError("Not Implemented.")

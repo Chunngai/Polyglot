@@ -48,7 +48,7 @@ class SelectionPracticeView: UIView {
         textView.showsVerticalScrollIndicator = false
         textView.attributedText = NSAttributedString(
             string: " ",
-            attributes: Attributes.defaultLongTextAttributes
+            attributes: Attributes.leftAlignedLongTextAttributes
         )
         textView.isHidden = true
         return textView

@@ -54,9 +54,9 @@ class ReadingEditTableCell: UITableViewCell {
         let padding = Sizes.smallFontSize
         
         textView.snp.makeConstraints { (make) in
-            make.centerX.equalToSuperview()
+//            make.centerX.equalToSuperview()
             make.leading.trailing.equalToSuperview().inset(padding)
-            make.top.bottom.equalToSuperview().inset(5)
+            make.top.bottom.equalToSuperview().inset(6)
         }
     }
     

@@ -14,8 +14,8 @@ class ReadingEditViewController: UIViewController {
     private lazy var cells: [ReadingEditTableCell] = [
         self.cell(for: ReadingEditViewController.titleIdentifier),
         self.cell(for: ReadingEditViewController.topicIdentifier),
-        self.cell(for: ReadingEditViewController.bodyIdentifier),
-        self.cell(for: ReadingEditViewController.sourceIdentifier)
+        self.cell(for: ReadingEditViewController.sourceIdentifier),
+        self.cell(for: ReadingEditViewController.bodyIdentifier)
     ]
     
     // MARK: - Models
@@ -110,12 +110,12 @@ extension ReadingEditViewController: UITableViewDataSource {
     // MARK: - UITableView Data Source
 
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 3
+        return 2
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
-            return 2
+            return 3
         } else {
             return 1
         }
@@ -131,11 +131,11 @@ extension ReadingEditViewController: UITableViewDataSource {
                 return cells[ReadingEditViewController.titleIdentifier]
             } else if row == 1 {
                 return cells[ReadingEditViewController.topicIdentifier]
+            } else if row == 2 {
+                return cells[ReadingEditViewController.sourceIdentifier]
             }
         } else if section == 1 {
             return cells[ReadingEditViewController.bodyIdentifier]
-        } else if section == 2 {
-            return cells[ReadingEditViewController.sourceIdentifier]
         }
         
         fatalError("Not Implemented.")
@@ -183,12 +183,14 @@ extension ReadingEditViewController: UITableViewDelegate {
                 view.addSubview(button)
                 
                 label.snp.makeConstraints { make in
-                    make.top.bottom.equalToSuperview()
-                    make.leading.equalToSuperview().inset(Sizes.smallFontSize)
+                    make.top.equalToSuperview()
+                    make.bottom.equalToSuperview().inset(6)  // For the top margin of the header.
+                    make.leading.equalToSuperview().inset(6)
                 }
                 button.snp.makeConstraints { make in
-                    make.top.bottom.equalToSuperview()
-                    make.trailing.equalToSuperview()
+                    make.top.equalToSuperview()
+                    make.bottom.equalToSuperview().inset(6)  // For the top margin of the header.
+                    make.trailing.equalToSuperview().inset(6)
                 }
                 
                 return view
@@ -196,6 +198,15 @@ extension ReadingEditViewController: UITableViewDelegate {
         } else {
             return UIView()
         }
+    }
+    
+    func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
+        6  // For the bottom margin of the header.
+    }
+    
+    func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        // For hiding footers.
+        UIView()
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -207,11 +218,11 @@ extension ReadingEditViewController: UITableViewDelegate {
                 return ReadingEditViewController.cellHeights[ReadingEditViewController.titleIdentifier]
             } else if row == 1 {
                 return ReadingEditViewController.cellHeights[ReadingEditViewController.topicIdentifier]
+            } else if row == 2 {
+                return ReadingEditViewController.cellHeights[ReadingEditViewController.sourceIdentifier]
             }
         } else if section == 1 {
             return ReadingEditViewController.cellHeights[ReadingEditViewController.bodyIdentifier]
-        } else if section == 2 {
-            return ReadingEditViewController.cellHeights[ReadingEditViewController.sourceIdentifier]
         }
         
         return UITableView.automaticDimension
@@ -232,10 +243,7 @@ extension ReadingEditViewController {
         let attributes = ReadingEditViewController.attributes[identifier]
         
         cell.updateValues(prompt: prompt, text: text, attributes: attributes, textViewTag: identifier)
-        cell.textView.isScrollEnabled = (
-            identifier == ReadingEditViewController.titleIdentifier
-            || identifier == ReadingEditViewController.bodyIdentifier
-        )
+        cell.textView.isScrollEnabled = identifier == ReadingEditViewController.bodyIdentifier
         return cell
     }
     
@@ -243,8 +251,8 @@ extension ReadingEditViewController {
         switch identifier {
         case ReadingEditViewController.titleIdentifier: return Strings.articleTitlePrompt
         case ReadingEditViewController.topicIdentifier: return Strings.articleTopicPrompt
-        case ReadingEditViewController.bodyIdentifier: return ""
         case ReadingEditViewController.sourceIdentifier: return Strings.articleSourcePrompt
+        case ReadingEditViewController.bodyIdentifier: return ""
         default: return ""
         }
     }
@@ -256,8 +264,8 @@ extension ReadingEditViewController {
         switch identifier {
         case ReadingEditViewController.titleIdentifier: return article.title
         case ReadingEditViewController.topicIdentifier: return article.topic
-        case ReadingEditViewController.bodyIdentifier: return article.body
         case ReadingEditViewController.sourceIdentifier: return article.source
+        case ReadingEditViewController.bodyIdentifier: return article.body
         default: return ""
         }
     }
@@ -266,12 +274,11 @@ extension ReadingEditViewController {
         return [
             "title": cells[ReadingEditViewController.titleIdentifier].textView.content,
             "topic": cells[ReadingEditViewController.topicIdentifier].textView.content,
+            "source": cells[ReadingEditViewController.sourceIdentifier].textView.content,
             "body": cells[ReadingEditViewController.bodyIdentifier].textView.content
                 // Handle Windows and Mac newline symbols.
                 .replacingOccurrences(of: Strings.windowsNewLineSymbol, with: "\n")
                 .replacingOccurrences(of: Strings.macNewLineSymbol, with: "\n"),
-            "source": cells[ReadingEditViewController.sourceIdentifier].textView.content
-        
         ]
     }
 }
@@ -284,24 +291,24 @@ extension ReadingEditViewController {
         
         let oldTitle: String!
         let oldTopic: String!
-        let oldBody: String!
         let oldSource: String!
+        let oldBody: String!
         if let article = article {
             oldTitle = article.title
             oldTopic = article.topic
-            oldBody = article.body
             oldSource = article.source
+            oldBody = article.body
         } else {
             oldTitle = ""
             oldTopic = ""
-            oldBody = ""
             oldSource = ""
+            oldBody = ""
         }
         
         if oldTitle != content["title"]!
             || oldTopic != content["topic"]!
-            || oldBody != content["body"]!
-            || oldSource != content["source"]! {
+            || oldSource != content["source"]!
+            || oldBody != content["body"]! {
             // Edits have been made.
             presentExitWithoutSavingAlert(viewController: self) { (isOk) in
                 if isOk {
@@ -358,19 +365,19 @@ extension ReadingEditViewController {
     
     private static let titleIdentifier: Int = 0
     private static let topicIdentifier: Int = 1
-    private static let bodyIdentifier: Int = 2
-    private static let sourceIdentifier: Int = 3
+    private static let sourceIdentifier: Int = 2
+    private static let bodyIdentifier: Int = 3
     private static let attributes: [[NSAttributedString.Key : Any]] = [
         Attributes.newArticleTitleAttributes,
         Attributes.newArticleTopicAttributes,
+        Attributes.newArticleSourceAttributes,
         Attributes.newArticleBodyAttributes,
-        Attributes.newArticleSourceAttributes
     ]
     private static let cellHeights: [CGFloat] = [
-        Sizes.smallFontSize * 5,
         Sizes.smallFontSize * 3,
-        UIScreen.main.bounds.height * 0.50,
-        Sizes.smallFontSize * 3
+        Sizes.smallFontSize * 3,
+        Sizes.smallFontSize * 3,
+        UIScreen.main.bounds.height * 0.60,
     ]
 }
 

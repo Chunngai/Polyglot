@@ -27,6 +27,8 @@ class TranslationPracticeView: UIView, PracticeViewDelegate {
         view.backgroundColor = Colors.lightGrayBackgroundColor
         view.layer.masksToBounds = true
         view.layer.cornerRadius = Sizes.defaultCornerRadius
+        view.layer.borderWidth = 2
+        view.layer.borderColor = Colors.borderColor.cgColor
         return view
     }()
     
@@ -49,7 +51,7 @@ class TranslationPracticeView: UIView, PracticeViewDelegate {
         textView = NewWordAddingTextView(textLang: Variables.lang, meaningLang: Variables.pairedLang)  // TODO: - is it proper to directly pass langs here?
         textView.attributedText = NSMutableAttributedString(
             string: " ",
-            attributes: Attributes.defaultLongTextAttributes
+            attributes: Attributes.leftAlignedLongTextAttributes
         )
         
         if self.text != nil {
@@ -97,9 +99,10 @@ class TranslationPracticeView: UIView, PracticeViewDelegate {
             make.height.equalToSuperview()
         }
         textView.snp.makeConstraints { (make) in
-            make.centerX.centerY.equalToSuperview()
-            make.width.equalToSuperview().multipliedBy(0.9)
-            make.height.equalToSuperview().multipliedBy(0.9)
+//            make.centerX.centerY.equalToSuperview()
+//            make.width.equalToSuperview().multipliedBy(0.9)
+//            make.height.equalToSuperview().multipliedBy(0.9)
+            make.top.bottom.leading.trailing.equalToSuperview().inset(Sizes.mediumFontSize)
         }
     }
 }
