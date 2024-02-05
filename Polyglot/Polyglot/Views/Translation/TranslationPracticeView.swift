@@ -16,8 +16,11 @@ class TranslationPracticeView: UIView, PracticeViewDelegate {
     var textLang: String!
     var meaningLang: String!
     
-    var translationToken: String {
-        return "\n\n\(Strings.translationToken):\n"
+    var textLangFlag: String {
+        LangCode.toFlagIcon(langCode: textLang)
+    }
+    var meaningLangFlag: String {
+        LangCode.toFlagIcon(langCode: meaningLang)
     }
     
     // MARK: - Views
@@ -48,28 +51,30 @@ class TranslationPracticeView: UIView, PracticeViewDelegate {
         self.textLang = textLang
         self.meaningLang = meaningLang
         
-        textView = NewWordAddingTextView(textLang: Variables.lang, meaningLang: Variables.pairedLang)  // TODO: - is it proper to directly pass langs here?
+        textView = NewWordAddingTextView(
+            textLang: Variables.lang,
+            meaningLang: Variables.pairedLang
+        )  // TODO: - is it proper to directly pass langs here?
         textView.attributedText = NSMutableAttributedString(
             string: " ",
             attributes: Attributes.leftAlignedLongTextAttributes
         )
         
-        if self.text != nil {
-            textView.text = text
-        } else if self.meaning != nil {
+        if let text = self.text {
+            textView.text = "\(textLangFlag): \(text)"
+        } else if let meaning = self.meaning {
             GoogleTranslator(
                 srcLang: meaningLang,
                 trgLang: textLang
-            ).translate(query: self.meaning!) { (res) in
-                var translatedText: String
+            ).translate(query: meaning) { (res) in
+                var textToDisplay: String
                 if let translation = res.first {
-                    translatedText = translation
+                    textToDisplay = "(\(Strings.machineTranslationToken)) \(translation)"
                 } else {
-                    translatedText = Strings.machineTranslationErrorToken
+                    textToDisplay = Strings.machineTranslationErrorToken
                 }
                 DispatchQueue.main.async {
-                    self.text = "(\(Strings.machineTranslationToken)) \(translatedText)"
-                    self.textView.text = "(\(Strings.machineTranslationToken)) \(translatedText)"
+                    self.textView.text = "\(self.textLangFlag): \(textToDisplay)"
                 }
             }
         }
@@ -111,33 +116,26 @@ extension TranslationPracticeView {
     
     func displayTranslation() {
         
-        // Ensure that self.text is not nil.
-        if self.text == nil {
-            self.text = "[No text]"
-        }
-        
-        if self.meaning != nil {
-            textView.text = "\(self.text!)\(translationToken)\(self.meaning!)"
-        } else if self.text != nil {
+        if let meaning = self.meaning {
+            textView.text = "\(textView.text!)\n\n\(meaningLangFlag): \(meaning)"
+        } else if let text = self.text {
             GoogleTranslator(
                 srcLang: textLang,
                 trgLang: meaningLang
-            ).translate(query: self.text!) { (res) in
-                var translatedMeaning: String
+            ).translate(query: text) { (res) in
+                var meaningToDisplay: String
                 if let translation = res.first {
-                    translatedMeaning = translation
+                    meaningToDisplay = "(\(Strings.machineTranslationToken)) \(translation)"
                 } else {
-                    translatedMeaning = Strings.machineTranslationErrorToken
+                    meaningToDisplay = Strings.machineTranslationErrorToken
                 }
                 DispatchQueue.main.async {
-                    self.meaning = translatedMeaning
-                    self.textView.text = "\(self.text!)\n\n\(Strings.machineTranslationToken):\n\(translatedMeaning)\(self.meaning!)"
+                    self.textView.text = "\(self.textView.text!)\n\n\(self.meaningLangFlag): \(meaningToDisplay)"
                 }
             }
         }
         
         // Restore the highlights.
-        // TODO: - Simplify here.
         textView.highlightAll()
     }
     

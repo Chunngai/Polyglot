@@ -586,7 +586,7 @@ extension Strings {
         LangCode.de : "Fehler bei der maschinellen Übersetzung",
     ]
     static var machineTranslationErrorToken: String {
-        return Strings._machineTranslationErrorTokens[Variables.lang]!
+        return Strings._machineTranslationErrorTokens[Variables.lang]!.uppercased()
     }
         
     private static let _textsForPausedPractice: [String : String] = [

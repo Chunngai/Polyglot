@@ -65,7 +65,7 @@ class TranslationPracticeViewController: PracticeViewController {
     override func updateViews() {
         super.updateViews()
         
-        promptLabel.isHidden = true
+//        promptLabel.isHidden = true
     }
     
     override func updatePracticeView() {
@@ -74,6 +74,16 @@ class TranslationPracticeViewController: PracticeViewController {
         // of the next new word adding text view will have
         // invalid height.
         view.endEditing(true)
+        
+        // Update the prompt.
+        // IMPORTANT: SHOULD BE ABOVE THE SNP SETTING OF THE PRACTICE VIEW,
+        // WHOSE TOP DEPENDS ON THE BOTTOM OF THE PROMPT VIEW.
+        // OTHERWISE, THE LOCATIONS OF THE DRAGGABLE LABELS MAY BE WEIRD.
+        let promptAttributes = NSMutableAttributedString(
+            string: "\(Strings.interpretation): \(LangCode.toFlagIcon(langCode: practiceProducer.currentPractice.textLang)) ⇒ \(LangCode.toFlagIcon(langCode: practiceProducer.currentPractice.meaningLang))",
+            attributes: Attributes.practicePromptAttributes
+        )
+        promptLabel.attributedText = promptAttributes
         
         // Remove the old practice view.
         if practiceView != nil {
@@ -91,9 +101,9 @@ class TranslationPracticeViewController: PracticeViewController {
         // Add to the main view and update layouts.
         mainView.addSubview(practiceView)
         practiceView.snp.makeConstraints { (make) in
-            make.top.equalToSuperview()
+            make.top.equalTo(promptLabel.snp.bottom).offset(20)
             make.centerX.equalToSuperview()
-            make.width.equalToSuperview().multipliedBy(0.9)
+            make.width.equalToSuperview().multipliedBy(PracticeViewController.practiceViewWidthRatio)
             make.bottom.equalTo(nextButton.snp.top).offset(-20)
         }
         // Also remember to update the textview in the practice view.

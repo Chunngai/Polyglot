@@ -50,13 +50,14 @@ struct GoogleTranslator {
             return
         }
         
-        var request: URLRequest = URLRequest(url: url, timeoutInterval: Constants.requestTimeLimit)
+        var request: URLRequest = URLRequest(url: url, timeoutInterval: Constants.shortRequestTimeLimit)
         request.setValue(Constants.userAgent, forHTTPHeaderField: "User-Agent")
         
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             
             guard let data = data, error == nil else {
                 print(error?.localizedDescription ?? "Unknown error.")
+                completion([])
                 return
             }
             
