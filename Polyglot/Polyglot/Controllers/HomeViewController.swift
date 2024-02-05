@@ -222,11 +222,7 @@ class HomeViewController: UIViewController {
     var synthesizer = AVSpeechSynthesizer()
     
     var indexPath2TranslationForCellsThatAreDisplayingMeanings: [IndexPath: String] = [:]
-    var indexPathForCellThatIsProcudingVoice: IndexPath? = nil {
-        didSet {
-            self.collectionView.reloadData()  // IMPORTANT!!! WITHOUT THIS THE BUTTON IMAGE MAY NOT BE CHANGED.
-        }
-    }
+    var indexPathForCellThatIsProcudingVoice: IndexPath? = nil
         
     // MARK: - Controllers
     
@@ -1001,17 +997,27 @@ extension HomeViewController: CardCellDelegate {
     }
     
     func updateConfigOfCurrentlyVoiceProducingItemToNotProducing() {
+                
+        let tmpIndexPathForCellThatIsProcudingVoice = self.indexPathForCellThatIsProcudingVoice
+        // Should reset before the guard statement as
+        // collectionView.cellForItem() will return nil if the cell is not in the screen!
+        self.indexPathForCellThatIsProcudingVoice = nil
         
-        // TODO: - Problematic when scrolling. Possibly due to the concurrent execution of createCardCellRegistration and this method.
-        
-        guard let indexPathForCellThatIsProcudingVoice = indexPathForCellThatIsProcudingVoice,
-              let cell = dataSource.collectionView(collectionView, cellForItemAt: indexPathForCellThatIsProcudingVoice) as? CardCell,
+        guard let indexPathForCellThatIsProcudingVoice = tmpIndexPathForCellThatIsProcudingVoice,
+//              let cell = dataSource.collectionView(collectionView, cellForItemAt: indexPathForCellThatIsProcudingVoice) as? CardCell,
+              // DON'T USE THE CODE OF THE PREVIOUS LINE, AS IT WILL CALL createCardCellRegistration(),
+              // WHICH CALLS apply() OF THE CELL CONTENT VIEW WHEN SCROLLING.
+              // THIS MAKES THAT SOMETIMES THE BUTTON IMAGES CANNOT BA UPDATED
+              // AND THAT IT REQUIRES collectionView.reloadData() TO MAKE THE UPDATE WORK
+              // EACH TIME indexPathForCellThatIsProcudingVoice IS UPDATED.
+              let cell = collectionView.cellForItem(at: indexPathForCellThatIsProcudingVoice) as? CardCell,  // NOTE THAT nil WILL BE RETURNED IF THE CELL IS NOT IN THE SCREEN!
               let config = cell.contentConfiguration as? CardCellContentConfiguration else {
             return
         }
-        config.isProducingVoice = false
         
-        self.indexPathForCellThatIsProcudingVoice = nil
+        // Immediate content view update if the cell is in the screen.
+        config.isProducingVoice = false
+        cell.contentConfiguration = config
     }
 }
 
