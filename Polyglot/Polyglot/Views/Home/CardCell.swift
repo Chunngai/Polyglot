@@ -21,11 +21,11 @@ class CardCellContentConfiguration: UIContentConfiguration {
     var contentSource: String?
     
     var indexPath: IndexPath!
+    var delegate: CardCellDelegate!
     var isDisplayMeanings: Bool = false
     var isProducingVoice: Bool = false
-    
-    var delegate: CardCellDelegate!
-   
+    var contentTranslation: String?
+       
     func makeContentView() -> UIView & UIContentView {
         return CardCellContentView(configuration: self)
     }
@@ -208,6 +208,7 @@ class CardCellContentView: UIView, UIContentView {
             contentLabel.attributedText = {
                 var contentString = content
                 
+                // Make the content string with meanings and pronunciations.
                 for i in 0 ..< words.count {
                     let shouldAddPronunciation = pronunciations[i].normalized(
                         caseInsensitive: true,
@@ -252,8 +253,16 @@ class CardCellContentView: UIView, UIContentView {
                     textOfHiddenWords = "(\(hiddenWords.joined(separator: "/")))"
                     contentString += "\(Strings._wordSeparators[lang]!)\(textOfHiddenWords!)"
                 }
+                
+                // Add content translation.
+                if let contentTranslation = configuration.contentTranslation {
+                    contentString += "\n⇒ \(contentTranslation)"
+                }
 
+                // Convert the content string to attributed text.
                 let attributedText = NSMutableAttributedString(string: contentString)
+                
+                // Underline words, convert meanings and pronunciations to inactive text color.
                 for i in 0 ..< words.count {
                     attributedText.setUnderline(
                         for: words[i],
@@ -268,6 +277,16 @@ class CardCellContentView: UIView, UIContentView {
                         with: Colors.inactiveTextColor
                     )
                 }
+                
+                // Convert the content translation to inactive text color.
+                if let contentTranslation = configuration.contentTranslation {
+                    attributedText.setTextColor(
+                        for: contentTranslation,
+                        with: Colors.inactiveTextColor
+                    )
+                }
+                
+                // Special handling for hidden words.
                 if let textOfHiddenWords = textOfHiddenWords {
                     attributedText.setTextColor(
                         for: textOfHiddenWords,
@@ -303,7 +322,7 @@ extension CardCellContentView {
         
         config.delegate.updateCellHeight()
         // Store the change to be able to restore in reload.
-        config.delegate.updateIndexPathsThatDisplayingMeanings(
+        config.delegate.updateIndexPath2TranslationForCellsThatAreDisplayingMeanings(
             indexPath: config.indexPath,
             isDisplayMeanings: config.isDisplayMeanings
         )
@@ -372,11 +391,11 @@ protocol CardCellDelegate {
     
     var synthesizer: AVSpeechSynthesizer { get set }
     
-    var indexPathsForCellsThatAreDisplayingMeanings: Set<IndexPath> { get set }
+    var indexPath2TranslationForCellsThatAreDisplayingMeanings: [IndexPath: String] { get set }
     var indexPathForCellThatIsProcudingVoice: IndexPath? { get set }
     
     func updateCellHeight()
-    func updateIndexPathsThatDisplayingMeanings(indexPath: IndexPath, isDisplayMeanings: Bool)
+    func updateIndexPath2TranslationForCellsThatAreDisplayingMeanings(indexPath: IndexPath, isDisplayMeanings: Bool)
     func updateConfigOfCurrentlyVoiceProducingItemToNotProducing()
     
 }

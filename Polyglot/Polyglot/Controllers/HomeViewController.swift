@@ -221,7 +221,7 @@ class HomeViewController: UIViewController {
     // Ref: https://stackoverflow.com/questions/73706115/avspeechsynthesizer-isnt-working-under-ios16-anymore
     var synthesizer = AVSpeechSynthesizer()
     
-    var indexPathsForCellsThatAreDisplayingMeanings: Set<IndexPath> = []
+    var indexPath2TranslationForCellsThatAreDisplayingMeanings: [IndexPath: String] = [:]
     var indexPathForCellThatIsProcudingVoice: IndexPath? = nil {
         didSet {
             self.collectionView.reloadData()  // IMPORTANT!!! WITHOUT THIS THE BUTTON IMAGE MAY NOT BE CHANGED.
@@ -762,9 +762,12 @@ extension HomeViewController {
             content.content = item.content
             content.contentSource = item.contentSource
             content.indexPath = indexPath
-            content.isDisplayMeanings = self.indexPathsForCellsThatAreDisplayingMeanings.contains(indexPath)
-            content.isProducingVoice = self.indexPathForCellThatIsProcudingVoice == indexPath
             content.delegate = self
+            content.isDisplayMeanings = self.indexPath2TranslationForCellsThatAreDisplayingMeanings.keys.contains(indexPath)
+            content.isProducingVoice = self.indexPathForCellThatIsProcudingVoice == indexPath
+            if let contentTranslation = self.indexPath2TranslationForCellsThatAreDisplayingMeanings[indexPath] {
+                content.contentTranslation = contentTranslation
+            }
             cell.contentConfiguration = content
                  
             var background = UIBackgroundConfiguration.listPlainCell()
@@ -963,11 +966,37 @@ extension HomeViewController: CardCellDelegate {
         }
     }
     
-    func updateIndexPathsThatDisplayingMeanings(indexPath: IndexPath, isDisplayMeanings: Bool) {
+    func updateIndexPath2TranslationForCellsThatAreDisplayingMeanings(indexPath: IndexPath, isDisplayMeanings: Bool) {
+        
+        guard let cell = collectionView.cellForItem(at: indexPath) as? CardCell,
+              let config = cell.contentConfiguration as? CardCellContentConfiguration else {
+            return
+        }
+        
+        func updateConfig(with contentTranslation: String?) {
+            config.contentTranslation = contentTranslation
+            cell.contentConfiguration = config
+            
+            self.updateCellHeight()
+        }
+        
         if isDisplayMeanings {
-            indexPathsForCellsThatAreDisplayingMeanings.insert(indexPath)
+            // Translation.
+            GoogleTranslator(
+                srcLang: config.lang!,
+                trgLang: LangCode.zh
+            ).translate(query: config.content!) { translations in
+                guard let translation = translations.first else {
+                    return
+                }
+                self.indexPath2TranslationForCellsThatAreDisplayingMeanings[indexPath] = translation
+                DispatchQueue.main.async {
+                    updateConfig(with: translation)
+                }
+            }
         } else {
-            indexPathsForCellsThatAreDisplayingMeanings.remove(indexPath)
+            self.indexPath2TranslationForCellsThatAreDisplayingMeanings.removeValue(forKey: indexPath)
+            updateConfig(with: nil)
         }
     }
     
