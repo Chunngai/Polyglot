@@ -222,7 +222,11 @@ class HomeViewController: UIViewController {
     var synthesizer = AVSpeechSynthesizer()
     
     var indexPathsForCellsThatAreDisplayingMeanings: Set<IndexPath> = []
-    var indexPathAndTextToSpeechButtonForCellThatIsProcudingVoice: (indexPath: IndexPath, button: UIButton)? = nil
+    var indexPathForCellThatIsProcudingVoice: IndexPath? = nil {
+        didSet {
+            self.collectionView.reloadData()  // IMPORTANT!!! WITHOUT THIS THE BUTTON IMAGE MAY NOT BE CHANGED.
+        }
+    }
         
     // MARK: - Controllers
     
@@ -759,7 +763,7 @@ extension HomeViewController {
             content.contentSource = item.contentSource
             content.indexPath = indexPath
             content.isDisplayMeanings = self.indexPathsForCellsThatAreDisplayingMeanings.contains(indexPath)
-            content.isProducingVoice = self.indexPathAndTextToSpeechButtonForCellThatIsProcudingVoice?.indexPath == indexPath
+            content.isProducingVoice = self.indexPathForCellThatIsProcudingVoice == indexPath
             content.delegate = self
             cell.contentConfiguration = content
                  
@@ -971,23 +975,14 @@ extension HomeViewController: CardCellDelegate {
         
         // TODO: - Problematic when scrolling. Possibly due to the concurrent execution of createCardCellRegistration and this method.
         
-        guard let indexPathThatProcudingVoice = indexPathAndTextToSpeechButtonForCellThatIsProcudingVoice?.indexPath,
-              let cell = dataSource.collectionView(collectionView, cellForItemAt: indexPathThatProcudingVoice) as? CardCell,
+        guard let indexPathForCellThatIsProcudingVoice = indexPathForCellThatIsProcudingVoice,
+              let cell = dataSource.collectionView(collectionView, cellForItemAt: indexPathForCellThatIsProcudingVoice) as? CardCell,
               let config = cell.contentConfiguration as? CardCellContentConfiguration else {
             return
         }
-        
         config.isProducingVoice = false
-        // WHEN SCOLLING, THE CONFIG UPDATE VIA THE CODE ABOVE
-        // MAY NOT BE ABLE TO BE APPLIED TO THE CONTENT VIEW
-        // IMMEDIATELY, SO USE THE ADDITIONAL LINE OF CODE BELOW
-        // TO ENSURE IMMEDIATE VIEW CHANGING.
-        self.indexPathAndTextToSpeechButtonForCellThatIsProcudingVoice?.button.setImage(
-            CardCellContentView.buttonImageWhenNotProducingVoice,
-            for: .normal
-        )
         
-        self.indexPathAndTextToSpeechButtonForCellThatIsProcudingVoice = nil
+        self.indexPathForCellThatIsProcudingVoice = nil
     }
 }
 

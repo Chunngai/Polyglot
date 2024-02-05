@@ -325,7 +325,7 @@ extension CardCellContentView {
         
         if config.isProducingVoice {
             
-            if config.delegate.indexPathAndTextToSpeechButtonForCellThatIsProcudingVoice != nil {
+            if config.delegate.indexPathForCellThatIsProcudingVoice != nil {
                 config.delegate.updateConfigOfCurrentlyVoiceProducingItemToNotProducing()
                 // RE-CREATE ONE.
                 // DO NOT USE synthesizer.stopSpeaking() HERE AS THIS METHOD (WHICH CALLS
@@ -340,7 +340,7 @@ extension CardCellContentView {
             let utterance = AVSpeechUtterance(string: content)
             utterance.voice = AVSpeechSynthesisVoice(identifier: LangCode.toVoiceIdentifier(langCode: lang))
             
-            config.delegate.indexPathAndTextToSpeechButtonForCellThatIsProcudingVoice = (indexPath: config.indexPath, button: textToSpeechButton)
+            config.delegate.indexPathForCellThatIsProcudingVoice = config.indexPath
             config.delegate.synthesizer.speak(utterance)
         } else {
             config.delegate.synthesizer.stopSpeaking(at: .immediate)
@@ -373,7 +373,7 @@ protocol CardCellDelegate {
     var synthesizer: AVSpeechSynthesizer { get set }
     
     var indexPathsForCellsThatAreDisplayingMeanings: Set<IndexPath> { get set }
-    var indexPathAndTextToSpeechButtonForCellThatIsProcudingVoice: (indexPath: IndexPath, button: UIButton)? { get set }
+    var indexPathForCellThatIsProcudingVoice: IndexPath? { get set }
     
     func updateCellHeight()
     func updateIndexPathsThatDisplayingMeanings(indexPath: IndexPath, isDisplayMeanings: Bool)
