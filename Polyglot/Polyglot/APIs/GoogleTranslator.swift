@@ -57,6 +57,7 @@ struct GoogleTranslator {
             
             guard let data = data, error == nil else {
                 print(error?.localizedDescription ?? "Unknown error.")
+                
                 completion([])
                 return
             }
@@ -68,15 +69,18 @@ struct GoogleTranslator {
                 }
                 
                 guard let resArray = jsonArray[5] as? [Any] else {
-                    throw NSError()
+                    completion([])
+                    return
                 }
                 if resArray.count == 1 {
                     // Return multiple translation candidates.
                     guard let res = resArray[0] as? [Any] else {
-                        throw NSError()
+                        completion([])
+                        return
                     }
                     guard let translationArrays = res[2] as? [Any] else {
-                        throw NSError()
+                        completion([])
+                        return
                     }
                     
                     let translations = translationArrays.compactMap { (arr) -> String? in
@@ -89,17 +93,20 @@ struct GoogleTranslator {
                     var translation: String = ""
                     for res in resArray {
                         guard let res = res as? [Any] else {
-                            throw NSError()
+                            completion([])
+                            return
                         }
-                        guard let translationArrays = res[2] as? [Any] else {
-                            throw NSError()
+                        if let translationArrays = res[2] as? [Any] {
+                            let sentenceTranslation = (translationArrays[0] as? [Any])?[0] as? String ?? ""
+                            translation += sentenceTranslation
+                        } else if let lineBreak = res[0] as? String, lineBreak == "\n" {
+                            translation += "\n"
+                        } else {
+                            completion([])
+                            return
                         }
-                        
-                        let sentenceTranslation = (translationArrays[0] as? [Any])?[0] as? String ?? ""
-                        translation += sentenceTranslation
                     }
                     
-                    print(translation)
                     completion([translation])
                 }
             } catch {
