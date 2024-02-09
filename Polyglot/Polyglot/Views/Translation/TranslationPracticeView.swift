@@ -8,64 +8,42 @@
 
 import UIKit
 
-class TranslationPracticeView: UIView, PracticeViewDelegate {
+class TranslationPracticeView: PracticeViewWithNewWordAddingTextView {
     
-    var text: String!
-    var meaning: String!
-    
-    var textLang: String!
-    var meaningLang: String!
+    var practice: TranslationPracticeProducer.Item!
     
     var textLangFlag: String {
-        LangCode.toFlagIcon(langCode: textLang)
+        LangCode.toFlagIcon(langCode: practice.textLang)
     }
     var meaningLangFlag: String {
-        LangCode.toFlagIcon(langCode: meaningLang)
+        LangCode.toFlagIcon(langCode: practice.meaningLang)
     }
-    
-    // MARK: - Views
-    
-    var mainView: UIView = {
-        let view = UIView()
-        view.backgroundColor = Colors.lightGrayBackgroundColor
-        view.layer.masksToBounds = true
-        view.layer.cornerRadius = Sizes.defaultCornerRadius
-        view.layer.borderWidth = 2
-        view.layer.borderColor = Colors.borderColor.cgColor
-        return view
-    }()
-    
-    var textView: NewWordAddingTextView!
     
     // MARK: - Init
     
-    init(frame: CGRect = .zero, text: String?, meaning: String?, textLang: String, meaningLang: String) {
+    init(frame: CGRect = .zero, practice: TranslationPracticeProducer.Item) {
         super.init(frame: frame)
         
-        if let text = text {
-            self.text = text
-        }
-        if let meaning = meaning {
-            self.meaning = meaning
-        }
-        self.textLang = textLang
-        self.meaningLang = meaningLang
+        self.practice = practice
         
-        textView = NewWordAddingTextView(
-            textLang: Variables.lang,
-            meaningLang: Variables.pairedLang
-        )  // TODO: - is it proper to directly pass langs here?
-        textView.attributedText = NSMutableAttributedString(
-            string: " ",
-            attributes: Attributes.leftAlignedLongTextAttributes
-        )
+        self.updateSetups()
+        self.updateViews()
+        self.updateLayouts()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
+    
+    override func updateViews() {
+        super.updateViews()
         
-        if let text = self.text {
+        if let text = practice.text {
             textView.text = "\(textLangFlag): \(text)"
-        } else if let meaning = self.meaning {
+        } else if let meaning = practice.meaning {
             GoogleTranslator(
-                srcLang: meaningLang,
-                trgLang: textLang
+                srcLang: practice.meaningLang,
+                trgLang: practice.textLang
             ).translate(query: meaning) { (res) in
                 var textToDisplay: String
                 if let translation = res.first {
@@ -78,37 +56,6 @@ class TranslationPracticeView: UIView, PracticeViewDelegate {
                 }
             }
         }
-                
-        updateSetups()
-        updateViews()
-        updateLayouts()
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-    }
-    
-    private func updateSetups() {
-        
-    }
-    
-    private func updateViews() {
-        addSubview(mainView)
-        mainView.addSubview(textView)
-    }
-    
-    private func updateLayouts() {
-        mainView.snp.makeConstraints { (make) in
-            make.centerX.centerY.equalToSuperview()
-            make.width.equalToSuperview()
-            make.height.equalToSuperview()
-        }
-        textView.snp.makeConstraints { (make) in
-//            make.centerX.centerY.equalToSuperview()
-//            make.width.equalToSuperview().multipliedBy(0.9)
-//            make.height.equalToSuperview().multipliedBy(0.9)
-            make.top.bottom.leading.trailing.equalToSuperview().inset(Sizes.mediumFontSize)
-        }
     }
 }
 
@@ -116,12 +63,12 @@ extension TranslationPracticeView {
     
     func displayTranslation() {
         
-        if let meaning = self.meaning {
+        if let meaning = practice.meaning {
             textView.text = "\(textView.text!)\n\n\(meaningLangFlag): \(meaning)"
-        } else if let text = self.text {
+        } else if let text = practice.text {
             GoogleTranslator(
-                srcLang: textLang,
-                trgLang: meaningLang
+                srcLang: practice.textLang,
+                trgLang: practice.meaningLang
             ).translate(query: text) { (res) in
                 var meaningToDisplay: String
                 if let translation = res.first {

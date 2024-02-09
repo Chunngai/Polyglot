@@ -17,6 +17,13 @@ protocol PracticeViewDelegate: UIView {
 protocol WordPracticeViewDelegate: PracticeViewDelegate {
     
     func submit() -> String
-    func updateViews(for correctness: WordPractice.Correctness, key: String, tokenizer: NLTokenizer)
+    func updateViewsAfterSubmission(for correctness: WordPractice.Correctness, key: String, tokenizer: NLTokenizer)
+    
+}
+
+protocol ListeningPracticeViewDelegate: PracticeViewDelegate {
+    
+    func submit()
+    func updateViewsAfterSubmission()
     
 }

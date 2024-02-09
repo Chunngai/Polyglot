@@ -151,7 +151,7 @@ extension SelectionPracticeView: WordPracticeViewDelegate {
         return selectionStack.selectedButton!.titleLabel!.text!
     }
     
-    func updateViews(for correctness: WordPractice.Correctness, key: String, tokenizer: NLTokenizer) {
+    func updateViewsAfterSubmission(for correctness: WordPractice.Correctness, key: String, tokenizer: NLTokenizer) {
         if correctness == .correct {
             selectionStack.selectedButton!.backgroundColor = Colors.lightCorrectColor
         } else {

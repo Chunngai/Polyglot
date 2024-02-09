@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import AVFoundation
+import Speech
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
@@ -15,14 +17,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
-        // Ask permissions for notifications.
-        let center = UNUserNotificationCenter.current()
-        center.delegate = self
-        center.requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
+        AVAudioApplication.requestRecordPermission { granted in
             if granted {
-                print("Permission granted.")
+                print("Recording permission granted.")
             } else {
-                print("Permission denied.")
+                print("Recording permission denied.")
+            }
+        }
+        
+        SFSpeechRecognizer.requestAuthorization { (authStatus) in
+            switch authStatus {
+            case .authorized:
+                print("Speech recognizer permission granted.")
+            case .denied, .restricted, .notDetermined:
+                print("Speech recognizer permission denied.")
+            @unknown default:
+                fatalError()
             }
         }
         

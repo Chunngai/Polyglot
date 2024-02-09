@@ -17,7 +17,6 @@ struct HomeItem: Hashable {
     let identifier = UUID()
 
     let image: UIImage?
-    
     let text: String?
     let secondaryText: String?
     
@@ -30,12 +29,10 @@ struct HomeItem: Hashable {
     let contentSource: String?
     
     init(
-        image: UIImage? = nil, 
-        text: String? = nil, secondaryText: String? = nil,
+        image: UIImage? = nil, text: String? = nil, secondaryText: String? = nil,
         header: String? = nil, lang: String? = nil, words: [String]? = nil, meanings: [String]? = nil, pronunciations: [String]? = nil, content: String? = nil, contentSource: String? = nil
     ) {
         self.image = image
-        
         self.text = text
         self.secondaryText = secondaryText
         
@@ -53,10 +50,7 @@ class HomeViewController: UIViewController {
     
     // Langauges.
     
-    var learningLangs: [String] = {
-        var learningLanguages = LangCode.loadLearningLanguages()
-        return learningLanguages
-    }()
+    let learningLangs: [String] = LangCode.loadLearningLanguages()
     
     var lang: String! {
         didSet {
@@ -103,12 +97,12 @@ class HomeViewController: UIViewController {
     }
     var listItems: [HomeItem] {[
         HomeItem(
-            image: UIImage.init(systemName: "list.bullet"),
+            image: Images.wordsImage,
             text: Strings._phrases[languageOfTextToDisplay],
             secondaryText: wordMetaData?["count"]
         ),
         HomeItem(
-            image: UIImage.init(systemName: "books.vertical"),
+            image: Images.articlesImage,
             text: Strings._articles[languageOfTextToDisplay],
             secondaryText: articleMetaData?["count"]
         )
@@ -116,16 +110,16 @@ class HomeViewController: UIViewController {
     
     var practiceItems: [HomeItem] {[
         HomeItem(
-            image: UIImage.init(systemName: "square.and.pencil"),
+            image: Images.wordPracticeImage,
             text: Strings._phraseReview[languageOfTextToDisplay]
         ),
-//        HomeItem(
-//            image: UIImage.init(systemName: "doc"),
-//            text: Strings._reading[languageOfTextToDisplay]
-//        ),
         HomeItem(
-            image: UIImage.init(systemName: "bubble"),
-            text: Strings._interpretation[languageOfTextToDisplay]
+            image: Images.listeningPracticeImage,
+            text: Strings._listening[languageOfTextToDisplay]
+        ),
+        HomeItem(
+            image: Images.translationPracticeImage,
+            text: Strings._speaking[languageOfTextToDisplay]
         )
     ]}
     
@@ -539,7 +533,7 @@ extension HomeViewController {
             ).response { response in
                 switch response.result {
                 case .success:
-                    print("\(fileName) uploaded successfully")
+                    break
                 case .failure(let error):
                     print("Error uploading \(fileName): \(error)")
                 }
@@ -924,18 +918,11 @@ extension HomeViewController: UICollectionViewDelegate {
             }
             
             let vc: PracticeViewController
-//            if row == 0 {
-//                vc = WordsPracticeViewController()
-//            } else if row == 1 {
-//                vc = ReadingPracticeViewController()
-//            } else if row == 2 {
-//                vc = TranslationPracticeViewController()
-//            } else {
-//                fatalError("Not Implemented.")
-//            }
             if row == 0 {
                 vc = WordsPracticeViewController()
             } else if row == 1 {
+                vc = ListeningPracticeViewController()
+            } else if row == 2 {
                 vc = TranslationPracticeViewController()
             } else {
                 fatalError("Not Implemented.")

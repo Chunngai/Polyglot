@@ -210,16 +210,28 @@ extension Strings {
         return Strings._reading[Variables.lang]!
     }
     
-    static let _interpretation: [String : String] = [
-        LangCode.en : "Interpretation",
-        LangCode.ja : "通訳",
-        LangCode.es : "Interpretación",
-        LangCode.ru : "Интерпретация",
-        LangCode.ko : "통역",
-        LangCode.de : "Deutung",
+    static let _listening: [String : String] = [
+        LangCode.en : "Listening",
+        LangCode.ja : "聞くこと",
+        LangCode.es : "Escuchar",
+        LangCode.ru : "Слушание",
+        LangCode.ko : "듣기",
+        LangCode.de : "Hören",
     ]
-    static var interpretation: String {
-        return Strings._interpretation[Variables.lang]!
+    static var listening: String {
+        return Strings._listening[Variables.lang]!
+    }
+    
+    static let _speaking: [String : String] = [
+        LangCode.en : "Speaking",
+        LangCode.ja : "話すこと",
+        LangCode.es : "Hablar",
+        LangCode.ru : "Разговор",
+        LangCode.ko : "말하기",
+        LangCode.de : "Sprechen",
+    ]
+    static var speaking: String {
+        return Strings._speaking[Variables.lang]!
     }
     
 }
@@ -541,6 +553,30 @@ extension Strings {
         return Strings._reorderingPracticePrompts[Variables.lang]!
     }
     
+    private static let _listeningAndRepeatPracticePrompts: [String : String] = [
+        LangCode.en : "listening and repeating",
+        LangCode.ja : "聞き取りと繰り返し",
+        LangCode.es : "Escucha y repetición",
+        LangCode.ru : "Прослушивание и повторение",
+        LangCode.ko : "청취와 반복",
+        LangCode.de : "Hören und Wiederholung",
+    ]
+    static var listeningAndRepeatPracticePrompt: String {
+        return Strings._listeningAndRepeatPracticePrompts[Variables.lang]!
+    }
+    
+    private static let _listenAndCompletePracticePrompts: [String : String] = [
+        LangCode.en : "Listening and completing",
+        LangCode.ja : "聞き取りと完成",
+        LangCode.es : "Escucha y completación",
+        LangCode.ru : "Прослушивание и завершение",
+        LangCode.ko : "청취와 완성",
+        LangCode.de : "Hören und Vervollständigung",
+    ]
+    static var listenAndCompletePracticePrompt: String {
+        return Strings._listenAndCompletePracticePrompts[Variables.lang]!
+    }
+    
     private static let _translationPracticePrompts: [String : String] = [
         LangCode.en : "Interpret the paragraph.",
         LangCode.ja : "この段落を通訳してください。",
@@ -551,6 +587,18 @@ extension Strings {
     ]
     static var translationPracticePrompt: String {
         return Strings._translationPracticePrompts[Variables.lang]!
+    }
+    
+    static let _interpretationPracticePrompt: [String : String] = [
+        LangCode.en : "Interpretation",
+        LangCode.ja : "通訳",
+        LangCode.es : "Interpretación",
+        LangCode.ru : "Интерпретация",
+        LangCode.ko : "통역",
+        LangCode.de : "Deutung",
+    ]
+    static var interpretationPracticePrompt: String {
+        return Strings._interpretationPracticePrompt[Variables.lang]!
     }
     
     private static let _translationTokens: [String : String] = [
@@ -742,7 +790,5 @@ struct Tokens {
         + Tokens._russianWordsToFilterInContentCardGeneration
         + Tokens._germanWordsToFilterInContentCardGeneration
     )
-    
-    static let chatgptToken: String = "[ChatGPT]"
     
 }

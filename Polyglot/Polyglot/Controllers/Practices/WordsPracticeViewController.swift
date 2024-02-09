@@ -90,7 +90,7 @@ class WordsPracticeViewController: PracticeViewController {
         resetFillingPracticeViewMovingOffset()
     }
     
-    
+    // MARK: - Init
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
@@ -111,14 +111,6 @@ class WordsPracticeViewController: PracticeViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         
         practiceStatus = .beforeAnswering
-    }
-    
-    override func updateViews() {
-        super.updateViews()
-    }
-    
-    override func updateLayouts() {
-        super.updateLayouts()
     }
     
     override func updatePracticeView() {
@@ -227,7 +219,7 @@ extension WordsPracticeViewController {
     @objc override func doneButtonTapped() {
         let answer = (practiceView as! WordPracticeViewDelegate).submit()
         practiceProducer.submit(answer: answer)
-        (practiceView as! WordPracticeViewDelegate).updateViews(
+        (practiceView as! WordPracticeViewDelegate).updateViewsAfterSubmission(
             for: practiceProducer.currentPractice.practice.correctness!,
             key: practiceProducer.currentPractice.key,
             tokenizer: practiceProducer.currentPractice.tokenizer

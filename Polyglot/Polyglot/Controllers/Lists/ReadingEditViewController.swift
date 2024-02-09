@@ -172,7 +172,7 @@ extension ReadingEditViewController: UITableViewDelegate {
                         for: .normal
                     )
                     button.setTitleColor(
-                        .systemBlue,
+                        Colors.activeSystemButtonColor,
                         for: .normal
                     )
                     button.titleLabel?.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)

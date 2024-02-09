@@ -51,15 +51,15 @@ class CardCellContentView: UIView, UIContentView {
     let chatgptImageView: UIImageView = UIImageView(image: Icons.chatgptIcon)
     let displayMeaningsButton: UIButton = {
         let button = UIButton()
-        button.setTitleColor(.systemBlue, for: .normal)
-        button.setImage(CardCellContentView.buttonImageWhenNotDisplayingMeanings, for: .normal)
+        button.tintColor = Colors.activeSystemButtonColor
+        button.setImage(Images.contentCardHidingMeaningImage, for: .normal)
         button.contentEdgeInsets = UIEdgeInsets(top: -1, left: 0, bottom: 0, right: 0)  // https://stackoverflow.com/questions/31873049/how-to-remove-the-top-and-bottom-padding-of-uibutton-when-create-it-using-auto
         return button
     }()
     let textToSpeechButton: UIButton = {
         let button = UIButton()
-        button.setTitleColor(.systemBlue, for: .normal)
-        button.setImage(CardCellContentView.buttonImageWhenNotProducingVoice, for: .normal)
+        button.tintColor = Colors.activeSystemButtonColor
+        button.setImage(Images.contentCardProduceSpeechImage, for: .normal)
         button.contentEdgeInsets = UIEdgeInsets(top: -1, left: 0, bottom: 0, right: 0)
         return button
     }()
@@ -183,24 +183,24 @@ class CardCellContentView: UIView, UIContentView {
                         
             if configuration.isDisplayMeanings {
                 displayMeaningsButton.setImage(
-                    CardCellContentView.buttonImageWhenDisplayingMeanings,
+                    Images.contentCardDisplayingMeaningImage,
                     for: .normal
                 )
             } else {
                 displayMeaningsButton.setImage(
-                    CardCellContentView.buttonImageWhenNotDisplayingMeanings,
+                    Images.contentCardHidingMeaningImage,
                     for: .normal
                 )
             }
             
             if configuration.isProducingVoice {
                 textToSpeechButton.setImage(
-                    CardCellContentView.buttonImageWhenProducingVoice,
+                    Images.contentCardStopSpeechImage,
                     for: .normal
                 )
             } else {
                 textToSpeechButton.setImage(
-                    CardCellContentView.buttonImageWhenNotProducingVoice,
+                    Images.contentCardProduceSpeechImage,
                     for: .normal
                 )
             }
@@ -397,17 +397,5 @@ protocol CardCellDelegate {
     func updateCellHeight()
     func updateIndexPath2TranslationForCellsThatAreDisplayingMeanings(indexPath: IndexPath, isDisplayMeanings: Bool)
     func updateConfigOfCurrentlyVoiceProducingItemToNotProducing()
-    
-}
-
-extension CardCellContentView {
-    
-    // MARK: - Constants
-    
-    static let buttonImageWhenDisplayingMeanings: UIImage = UIImage(systemName: "questionmark.app.fill")!
-    static let buttonImageWhenNotDisplayingMeanings: UIImage = UIImage(systemName: "questionmark.app")!
-    
-    static let buttonImageWhenProducingVoice: UIImage = UIImage(systemName: "waveform.circle.fill")!
-    static let buttonImageWhenNotProducingVoice: UIImage = UIImage(systemName: "waveform.circle")!
     
 }

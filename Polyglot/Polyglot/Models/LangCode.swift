@@ -9,7 +9,7 @@
 import Foundation
 import NaturalLanguage
 
-struct LangCode {
+struct LangCode {  // TODO: - Convert to enum
         
     static let zh: String = "zh"
     static let en: String = "en"
@@ -59,6 +59,19 @@ extension LangCode {
         case LangCode.ko: return "com.apple.voice.enhanced.ko-KR.Yuna"
         case LangCode.de: return "com.apple.ttsbundle.siri_Martin_de-DE_compact"
         default: return LangCode.toVoiceIdentifier(langCode: LangCode.en)
+        }
+    }
+    
+    static func toLocale(langCode: String) -> Locale {
+        switch langCode {
+        case LangCode.zh: return Locale(identifier: "zh-CN")
+        case LangCode.en: return Locale(identifier: "en-GB")
+        case LangCode.ja: return Locale(identifier: "ja-JP")
+        case LangCode.es: return Locale(identifier: "es-ES")
+        case LangCode.ru: return Locale(identifier: "ru-RU")
+        case LangCode.ko: return Locale(identifier: "ko-KR")
+        case LangCode.de: return Locale(identifier: "de-DE")
+        default: return LangCode.toLocale(langCode: LangCode.en)
         }
     }
 }

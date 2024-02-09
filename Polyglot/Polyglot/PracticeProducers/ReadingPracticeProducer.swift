@@ -8,16 +8,16 @@
 
 import Foundation
 
-struct ReadingPracticeProducer: PracticeProducerDelegate {
+class ReadingPracticeProducer: PracticeProducerDelegate {
     
-    typealias T = Article
     typealias U = ReadingPracticeProducer.Item
     
-    var dataSource: [Article]
+    var words: [Word] = []
+    var articles: [Article]
     var batchSize: Int
     
-    var practiceList: [ReadingPracticeProducer.Item]
-    var currentPracticeIndex: Int {
+    var practiceList: [ReadingPracticeProducer.Item] = []
+    var currentPracticeIndex: Int = 0 {
         didSet {
             if currentPracticeIndex >= practiceList.count {
                 practiceList.append(contentsOf: make())
@@ -34,13 +34,10 @@ struct ReadingPracticeProducer: PracticeProducerDelegate {
     }
     
     init(articles: [Article]) {
-        self.dataSource = articles
-        self.batchSize = dataSource.count >= ReadingPracticeProducer.defaultBatchSize ?
+        self.articles = articles
+        self.batchSize = self.articles.count >= ReadingPracticeProducer.defaultBatchSize ?
             ReadingPracticeProducer.defaultBatchSize :
-            dataSource.count
-        
-        self.practiceList = []
-        self.currentPracticeIndex = 0
+            self.articles.count
         
         self.practiceList.append(contentsOf: make())
     }
@@ -48,10 +45,10 @@ struct ReadingPracticeProducer: PracticeProducerDelegate {
     // TODO: - Update
     func make() -> [ReadingPracticeProducer.Item] {
         // Randomly choose a topic.
-        let randomTopic = dataSource.topics.randomElement()!
+        let randomTopic = self.articles.topics.randomElement()!
 
         // Randomly choose an article.
-        let randomArticle = dataSource.compactMap({ (article) -> Article? in
+        let randomArticle = self.articles.compactMap({ (article) -> Article? in
             return article.topic == randomTopic ? article : nil
         }).randomElement()!
         
@@ -79,10 +76,6 @@ struct ReadingPracticeProducer: PracticeProducerDelegate {
         }
         return practiceList
     }
-    
-    mutating func next() {
-        currentPracticeIndex += 1
-    }
 }
 
 extension ReadingPracticeProducer {
@@ -90,7 +83,6 @@ extension ReadingPracticeProducer {
     struct Item: PracticeItemDelegate {
         
         typealias T = ReadingPractice
-        
         var practice: ReadingPractice
         
         var text: String
@@ -99,13 +91,5 @@ extension ReadingPracticeProducer {
         var textLang: String
         var meaningLang: String
     }
-    
-}
-
-extension ReadingPracticeProducer {
-    
-    // MARK: - Constants
-    
-    static let defaultBatchSize: Int = 6
     
 }

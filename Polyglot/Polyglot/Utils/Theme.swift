@@ -20,6 +20,9 @@ struct Colors {
     static let inactiveTextColor: UIColor = .lightGray
     static let lightTextColor: UIColor = .white
         
+    static let activeSystemButtonColor: UIColor = .systemBlue
+    static let inactiveSystemButtonColor: UIColor = .lightGray
+    
     static let lightBlue: UIColor = UIColor.intRGB2UIColor(red: 206, green: 238, blue: 255)
     static let strongLightBlue: UIColor = UIColor.intRGB2UIColor(red: 135, green: 211, blue: 255)
     
@@ -32,9 +35,13 @@ struct Colors {
     static let strongIncorrectColor: UIColor = UIColor.intRGB2UIColor(red: 231, green: 105, blue: 110)
     
     static let timingBarTintColor: UIColor = .systemGray5
+    
     static let borderColor: UIColor = .systemGray5
 
     static let separatorColor: UIColor = .lightGray
+    
+    static let clozeMaskColor: UIColor = .systemGray5
+    static let clozeMatchedTextColor: UIColor = Colors.strongLightBlue
     
 }
 
@@ -62,6 +69,27 @@ struct Images {
     static var langImage: UIImage {
         return Images.langImages[Variables.lang]!
     }
+    
+    // Cell images.
+    
+    static let wordsImage: UIImage = UIImage.init(systemName: "list.bullet")!
+    static let articlesImage: UIImage = UIImage.init(systemName: "books.vertical")!
+    
+    static let wordPracticeImage: UIImage = UIImage.init(systemName: "square.and.pencil")!
+    static let listeningPracticeImage: UIImage = UIImage.init(systemName: "beats.headphones")!
+    static let translationPracticeImage: UIImage = UIImage.init(systemName: "bubble")!
+    
+    static let contentCardProduceSpeechImage: UIImage = UIImage.init(systemName: "play.circle")!
+    static let contentCardStopSpeechImage: UIImage = UIImage.init(systemName: "stop.circle")!
+    static let contentCardHidingMeaningImage: UIImage = UIImage.init(systemName: "questionmark.app")!
+    static let contentCardDisplayingMeaningImage: UIImage = UIImage.init(systemName: "questionmark.app.fill")!
+    
+    static let listeningPracticeProduceSpeechImage: UIImage = UIImage.init(systemName: "play.circle")!
+    static let listeningPracticePauseSpeechImage: UIImage = UIImage.init(systemName: "pause.circle")!
+    static let listeningPracticeStartToRecordSpeechImage: UIImage = UIImage.init(systemName: "mic.circle")!
+    static let listeningPracticeRecordingSpeechImage: UIImage = UIImage.init(systemName: "mic.circle.fill")!
+    static let listeningPracticeDisallowSpeechRecordingImage: UIImage = UIImage.init(systemName: "mic.slash.circle")!
+    
 }
 
 struct Icons {

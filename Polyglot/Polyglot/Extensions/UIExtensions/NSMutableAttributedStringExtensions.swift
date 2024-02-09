@@ -41,6 +41,14 @@ extension NSMutableAttributedString {
           rangeToSearch = matchingRange.upperBound..<string.endIndex
         }
     }
+    
+    func add(attributes: [NSAttributedString.Key: Any], for range: NSRange) {
+        
+        addAttributes(
+            attributes,
+            range: range
+        )
+    }
 }
 
 extension NSMutableAttributedString {
@@ -71,6 +79,24 @@ extension NSMutableAttributedString {
             ignoreAccents: ignoreAccents
         )
     }
+    
+    func setTextColor(for range: NSRange, with color: UIColor) {
+        add(
+            attributes: [
+                .foregroundColor : color
+            ],
+            for: range
+        )
+    }
+    
+    func setBackgroundColor(for range: NSRange, with color: UIColor) {
+        add(
+            attributes: [
+                .backgroundColor : color
+            ],
+            for: range
+        )
+    }
 
     func setUnderline(for text: String? = nil, style: NSUnderlineStyle = .single, color: UIColor = .black, ignoreCasing: Bool = false, ignoreAccents: Bool = false) {
         add(
@@ -83,6 +109,16 @@ extension NSMutableAttributedString {
             ignoreAccents: ignoreAccents
         )
     }
+    
+    func setUnderline(for range: NSRange, style: NSUnderlineStyle = .single, color: UIColor = .black) {
+        add(
+            attributes: [
+                .underlineStyle: style.rawValue,
+                .underlineColor: color
+            ],
+            for: range
+        )
+    }
 
     func removeUnderline(for text: String? = nil, ignoreCasing: Bool = false, ignoreAccents: Bool = false) {
         setUnderline(
@@ -90,6 +126,13 @@ extension NSMutableAttributedString {
             style: [],
             ignoreCasing: ignoreCasing,
             ignoreAccents: ignoreAccents
+        )
+    }
+    
+    func removeUnderline(for range: NSRange) {
+        setUnderline(
+            for: range,
+            style: []
         )
     }
 }

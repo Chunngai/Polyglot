@@ -142,7 +142,7 @@ extension ReadingPracticeViewController {
             var newWords: [Word] = []
             for (practiceItemIndex, newWordsInfo) in allNewWordsInfo {
                 let articleId = practiceProducer.practiceList[practiceItemIndex].practice.articleId
-                let article = practiceProducer.dataSource.getArticle(from: articleId)
+                let article = practiceProducer.articles.getArticle(from: articleId)
                 let articleTitle = article?.title
                 
                 for newWordInfo in newWordsInfo {

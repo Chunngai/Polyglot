@@ -12,20 +12,19 @@ import NaturalLanguage
 
 class WordPracticeProducer: PracticeProducerDelegate {
     
-    typealias T = Word
     typealias U = WordPracticeProducer.Item
     
-    var dataSource: [Word]
+    var words: [Word]
+    var articles: [Article]
     var batchSize: Int
     
-    var practiceList: [WordPracticeProducer.Item]
-    var currentPracticeIndex: Int {
+    var practiceList: [WordPracticeProducer.Item] = []
+    var currentPracticeIndex: Int = 0 {
         didSet {
-            if currentPracticeIndex >= practiceList.count - 5 {  // For saving time.
+            if currentPracticeIndex >= practiceList.count - WordPracticeProducer.defaultBatchSize {  // For saving time.
                 DispatchQueue.global(qos: .userInitiated).async {
-                    let newPractices = self.make()
                     DispatchQueue.main.async {
-                        self.practiceList.append(contentsOf: newPractices)
+                        self.practiceList.append(contentsOf: self.make())
                     }
                 }
             }
@@ -44,21 +43,12 @@ class WordPracticeProducer: PracticeProducerDelegate {
         }
     }
     
-    // TODO: - Are these vars proper?
-    var articles: [Article]!
-    
     init(words: [Word], articles: [Article]) {
-        self.dataSource = words
-        self.batchSize = dataSource.count >= WordPracticeProducer.defaultBatchSize ?
-            WordPracticeProducer.defaultBatchSize :
-            dataSource.count
-        
-        self.practiceList = []
-        self.currentPracticeIndex = 0
-        
-        // The articles are for making context, reordering practices.
-        // SHOULD BE PLACED BEFORE CALLING make().
+        self.words = words
         self.articles = articles
+        self.batchSize = self.words.count >= WordPracticeProducer.defaultBatchSize ?
+            WordPracticeProducer.defaultBatchSize :
+            self.words.count
         
         self.practiceList.append(contentsOf: make())
     }
@@ -140,7 +130,7 @@ class WordPracticeProducer: PracticeProducerDelegate {
         // Randomly choose some words.
         var randomWords: [Word] = []
         while true {
-            let randomWord = dataSource.randomElement()!
+            let randomWord = self.words.randomElement()!
             if !randomWords.contains(randomWord) {
                 randomWords.append(randomWord)
             }
@@ -166,18 +156,13 @@ class WordPracticeProducer: PracticeProducerDelegate {
                 practiceList.append(reorderingPractice)
             }
             
-            let accentSelectionPractice = makeAccentSelectionPractice(for: randomWord)
-            if let accentSelectionPractice = accentSelectionPractice {
+            if let accentSelectionPractice = makeAccentSelectionPractice(for: randomWord) {
                 practiceList.append(accentSelectionPractice)
             }
         }
         practiceList.shuffle()
         
         return practiceList
-    }
-    
-    func next() {
-        currentPracticeIndex += 1
     }
     
     var choiceNumber: Int = WordPracticeProducer.defaultChoiceNumber
@@ -253,7 +238,7 @@ extension WordPracticeProducer {
         var selectionWords: [Word] = [wordToPractice]
         // Randomly choose two words.
         while true {
-            let selectionWord = dataSource.randomElement()!
+            let selectionWord = self.words.randomElement()!
             if !selectionWords.contains(selectionWord) {
                 selectionWords.append(selectionWord)
             }
@@ -313,12 +298,11 @@ extension WordPracticeProducer {
     
     private func makeContextSelectionPractice(for wordToPractice: Word) -> WordPracticeProducer.Item? {
         
-        var candidates = articles.paraCandidates(for: wordToPractice, shouldIgnoreCase: true)
-        if candidates.isEmpty {
+        let candidates = articles.paraCandidates(for: wordToPractice.text)
+        guard candidates.count != 0,
+              let candidate = candidates.randomElement() else {
             return nil
         }
-        candidates.shuffle()
-        let candidate = candidates[0]
         
         let selectionWords = makeSelectionWords(for: wordToPractice)
         
@@ -431,14 +415,13 @@ extension WordPracticeProducer {
     
     private func makeReorderingPractice(for wordToPractice: Word) -> WordPracticeProducer.Item? {
         
-        var candidates = articles.paraCandidates(for: wordToPractice, shouldIgnoreCase: true)
-        if candidates.isEmpty {
+        let candidates = articles.paraCandidates(for: wordToPractice.text)
+        guard candidates.count != 0,
+              let candidate = candidates.randomElement() else {
             return nil
         }
-        candidates.shuffle()
-        let candidate = candidates[0]
         
-        let sentences = candidate.text.components(from: Variables.tokenizerOfLang(of: .sentence))
+        let sentences = candidate.text.tokenized(with: Variables.tokenizerOfLang(of: .sentence))
         guard let targetSentence = sentences.first(where: { (sentence) -> Bool in
             sentence.contains(wordToPractice.text)
         }) else {
@@ -457,7 +440,7 @@ extension WordPracticeProducer {
         
         // Reduce the number of tokens.
         // TODO: - Improvement.
-        let rawWords = targetSubSentence.components(from: Variables.tokenizerOfLang())
+        let rawWords = targetSubSentence.tokenized(with: Variables.tokenizerOfLang())
         var words: [String] = []
         if Variables.lang == LangCode.ja {
             var indexOfLastWord: Int = -1
@@ -507,7 +490,6 @@ extension WordPracticeProducer {
     struct Item: PracticeItemDelegate {
         
         typealias T = WordPractice
-        
         var practice: WordPractice
         
         var wordInPrompt: String
@@ -547,8 +529,8 @@ extension WordPracticeProducer {
             let key = self.key.normalized(caseInsensitive: shouldIgnoreCaseAndAccent, diacriticInsensitive: shouldIgnoreCaseAndAccent)
             let answer = answer.normalized(caseInsensitive: shouldIgnoreCaseAndAccent, diacriticInsensitive: shouldIgnoreCaseAndAccent)
             
-            let keyComponents = key.components(from: tokenizer)
-            let answerComponents = answer.components(from: tokenizer)
+            let keyComponents = key.tokenized(with: tokenizer)
+            let answerComponents = answer.tokenized(with: tokenizer)
             
             if keyComponents == answerComponents {
                 // Totally correct, including word order.
@@ -591,7 +573,6 @@ extension WordPracticeProducer {
     
     // MARK: - Constants
     
-    private static let defaultBatchSize: Int = 6
     private static let defaultChoiceNumber: Int = 3
     
 }

@@ -132,10 +132,14 @@ extension Array where Iterator.Element == Article {
 
 extension Array where Iterator.Element == Article {
     
-    func paraCandidates(for word: Word, shouldIgnoreCase: Bool, maxCandidateNumber: Int = 10) -> [(articleId: String, paraId: String, text: String)] {  // TODO: - Move elsewhere.
+    func paraCandidates(for word: String, maxCandidateNumber: Int = 10) -> [(
+        articleId: String,
+        paraId: String,
+        text: String
+    )] {  // TODO: - Move elsewhere.
         
-        let wordText: String = word.text.normalized(
-            caseInsensitive: shouldIgnoreCase,
+        let wordText: String = word.normalized(
+            caseInsensitive: true,
             diacriticInsensitive: false  // E.g., Apfel and Äpfel.
         )
         
@@ -145,29 +149,31 @@ extension Array where Iterator.Element == Article {
             text: String
         )] = []
         var candidateCounter: Int = 0
-        for article in self.shuffled() {
-            for para in article.paras.shuffled() {
+        for article in self {
+            for para in article.paras {
                 
                 let paraText: String = para.text.normalized(
-                    caseInsensitive: shouldIgnoreCase,
+                    caseInsensitive: true,
                     diacriticInsensitive: false  // E.g., Apfel and Äpfel.
                 )
+                if !paraText.contains(wordText) {
+                    continue
+                }
                 
-                if paraText.contains(wordText) {
-                    candidates.append((
-                        articleId: article.id,
-                        paraId: para.id,
-                        text: para.text
-                    ))
-                    
-                    candidateCounter += 1
-                    if candidateCounter >= maxCandidateNumber {
-                        // Prevent memory overflow.
-                        return candidates
-                    }
+                candidates.append((
+                    articleId: article.id,
+                    paraId: para.id,
+                    text: para.text
+                ))
+                
+                candidateCounter += 1
+                if candidateCounter >= maxCandidateNumber {
+                    // Prevent memory overflow.
+                    return candidates
                 }
             }
         }
+        
         return candidates
     }
 }

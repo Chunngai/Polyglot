@@ -65,7 +65,8 @@ class TranslationPracticeViewController: PracticeViewController {
     override func updateViews() {
         super.updateViews()
         
-//        promptLabel.isHidden = true
+        promptLabel.numberOfLines = 1
+        promptLabel.adjustsFontSizeToFitWidth = true
     }
     
     override func updatePracticeView() {
@@ -80,7 +81,7 @@ class TranslationPracticeViewController: PracticeViewController {
         // WHOSE TOP DEPENDS ON THE BOTTOM OF THE PROMPT VIEW.
         // OTHERWISE, THE LOCATIONS OF THE DRAGGABLE LABELS MAY BE WEIRD.
         let promptAttributes = NSMutableAttributedString(
-            string: "\(Strings.interpretation): \(LangCode.toFlagIcon(langCode: practiceProducer.currentPractice.textLang)) ⇒ \(LangCode.toFlagIcon(langCode: practiceProducer.currentPractice.meaningLang))",
+            string: "\(Strings.interpretationPracticePrompt): \(LangCode.toFlagIcon(langCode: practiceProducer.currentPractice.textLang)) ⇒ \(LangCode.toFlagIcon(langCode: practiceProducer.currentPractice.meaningLang))",
             attributes: Attributes.practicePromptAttributes
         )
         promptLabel.attributedText = promptAttributes
@@ -90,14 +91,7 @@ class TranslationPracticeViewController: PracticeViewController {
             practiceView.removeFromSuperview()
         }
         // Make a new one.
-        practiceView = {
-            return TranslationPracticeView(
-                text: practiceProducer.currentPractice.text,
-                meaning: practiceProducer.currentPractice.meaning,
-                textLang: practiceProducer.currentPractice.textLang,
-                meaningLang: practiceProducer.currentPractice.meaningLang
-            )
-        }()
+        practiceView = TranslationPracticeView(practice: practiceProducer.currentPractice)
         // Add to the main view and update layouts.
         mainView.addSubview(practiceView)
         practiceView.snp.makeConstraints { (make) in
@@ -174,7 +168,7 @@ extension TranslationPracticeViewController {
                 
                 // TODO: - Simplify this block.
                 let articleId = practiceProducer.practiceList[practiceItemIndex].practice.articleId
-                let article = practiceProducer.dataSource.getArticle(from: articleId)
+                let article = practiceProducer.articles.getArticle(from: articleId)
                 let articleTitle = article?.title
                 
                 for newWordInfo in newWordsInfo {

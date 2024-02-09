@@ -49,7 +49,7 @@ class ReorderingPracticeView: UIView {
     var translationLabel: UILabel = {
         let label = UILabel()
         label.textColor = Colors.weakTextColor
-        label.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        label.font = UIFont.systemFont(ofSize: Sizes.practiceFontSize)
         label.numberOfLines = 0
         return label
     }()
@@ -181,7 +181,7 @@ extension ReorderingPracticeView: WordPracticeViewDelegate {
         return answer
     }
     
-    func updateViews(for correctness: WordPractice.Correctness, key: String, tokenizer: NLTokenizer) {
+    func updateViewsAfterSubmission(for correctness: WordPractice.Correctness, key: String, tokenizer: NLTokenizer) {
         
 //        let keyComponents = key.components(from: tokenizer)
 //

@@ -39,7 +39,7 @@ class FillingPracticeView: UIView {
     var referenceLabel: UILabel = {
         let label = UILabel()
         label.textColor = Colors.normalTextColor
-        label.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
+        label.font = UIFont.systemFont(ofSize: Sizes.practiceFontSize)
         label.isHidden = true
         label.numberOfLines = 0
         return label
@@ -110,12 +110,12 @@ extension FillingPracticeView: WordPracticeViewDelegate {
         return answer
     }
     
-    func updateViews(for correctness: WordPractice.Correctness, key: String, tokenizer: NLTokenizer) {
+    func updateViewsAfterSubmission(for correctness: WordPractice.Correctness, key: String, tokenizer: NLTokenizer) {
         
         let attributedAnswer = NSMutableAttributedString(string: answer)
         
-        let keyComponents = key.normalized(caseInsensitive: true, diacriticInsensitive: true).components(from: tokenizer)
-        let answerComponents = answer.normalized(caseInsensitive: true, diacriticInsensitive: true).components(from: tokenizer)
+        let keyComponents = key.normalized(caseInsensitive: true, diacriticInsensitive: true).tokenized(with: tokenizer)
+        let answerComponents = answer.normalized(caseInsensitive: true, diacriticInsensitive: true).tokenized(with: tokenizer)
         // Highlight overlap chars.
         for keyComponent in keyComponents {
             if answerComponents.contains(keyComponent) {

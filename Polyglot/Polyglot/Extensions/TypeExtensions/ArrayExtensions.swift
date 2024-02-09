@@ -37,6 +37,23 @@ extension Array {
         return self.last!
     }
     
+    func randomElements(of number: Int) -> [Element] {
+      
+        guard self.count >= number else {
+            return self
+        }
+
+        // Enumerate the array and shuffle the resulting pairs
+        let shuffledPairs = self.enumerated().shuffled()
+
+        // Take the first 10 pairs, sort them by their original indices to maintain order
+        let selectedPairs = shuffledPairs.prefix(number).sorted { $0.offset < $1.offset }
+
+        // Map the result back to just the elements
+        let selectedElements = selectedPairs.map { $0.element }
+        return selectedElements
+    }
+    
     func chunked(into size: Int) -> [[Element]] {
         // https://www.hackingwithswift.com/example-code/language/how-to-split-an-array-into-chunks
         

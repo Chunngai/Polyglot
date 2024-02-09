@@ -15,9 +15,20 @@
 		C67B85A22AED943200F7657A /* JapaneseAccentAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67B85A12AED943200F7657A /* JapaneseAccentAnalyzer.swift */; };
 		C67B85A42AED94B800F7657A /* RussianAccentAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67B85A32AED94B800F7657A /* RussianAccentAnalyzer.swift */; };
 		C696B9512B6DEDA600B00A02 /* ContentCardsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C696B9502B6DEDA600B00A02 /* ContentCardsExtensions.swift */; };
+		C69DB5EA2B73BE9B00B3BC66 /* PracticeViewWithNewWordAddingTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69DB5E92B73BE9B00B3BC66 /* PracticeViewWithNewWordAddingTextView.swift */; };
+		C69DB5EC2B73C05700B3BC66 /* ListenAndRepeatPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69DB5EB2B73C05700B3BC66 /* ListenAndRepeatPracticeView.swift */; };
+		C69DB5EE2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69DB5ED2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift */; };
+		C69DB5F02B73D3A800B3BC66 /* SpeechRecognitionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69DB5EF2B73D3A800B3BC66 /* SpeechRecognitionViewController.swift */; };
 		C6A1F1142ACB91F600EAD9A2 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A1F1132ACB91F600EAD9A2 /* Config.swift */; };
+		C6A666F72B75EC03002B4DEE /* US2UKSpellingMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A666F62B75EC03002B4DEE /* US2UKSpellingMapping.swift */; };
 		C6B5187C2AF2C19C00451B90 /* TextViewWithPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B5187B2AF2C19C00451B90 /* TextViewWithPrompt.swift */; };
+		C6C8C3132B75F95500FBC43B /* CFStringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C8C3122B75F95500FBC43B /* CFStringExtensions.swift */; };
+		C6C8C3152B75F96A00FBC43B /* CFRangeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C8C3142B75F96A00FBC43B /* CFRangeExtensions.swift */; };
+		C6C8C3172B7617F200FBC43B /* Text.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C8C3162B7617F200FBC43B /* Text.swift */; };
 		C6E1E0312AC5C2F600E4AF72 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E1E0302AC5C2F600E4AF72 /* HomeViewController.swift */; };
+		C6F5FB762B71079C0040A26B /* ClozeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F5FB752B71079C0040A26B /* ClozeViewController.swift */; };
+		C6F5FB7A2B7202AF0040A26B /* ListeningPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F5FB792B7202AF0040A26B /* ListeningPracticeViewController.swift */; };
+		C6F5FB7E2B72067F0040A26B /* ListeningPracticeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F5FB7D2B72067F0040A26B /* ListeningPracticeProducer.swift */; };
 		FF1780CF2A48EDCD005F588B /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1780CE2A48EDCD005F588B /* Notifications.swift */; };
 		FF23764E29528C840073AF96 /* ReadingPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF23764D29528C840073AF96 /* ReadingPracticeViewController.swift */; };
 		FF491E732959C2FD0088FD13 /* PracticeViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E722959C2FD0088FD13 /* PracticeViewDelegate.swift */; };
@@ -157,9 +168,20 @@
 		C67B85A12AED943200F7657A /* JapaneseAccentAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JapaneseAccentAnalyzer.swift; sourceTree = "<group>"; };
 		C67B85A32AED94B800F7657A /* RussianAccentAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RussianAccentAnalyzer.swift; sourceTree = "<group>"; };
 		C696B9502B6DEDA600B00A02 /* ContentCardsExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardsExtensions.swift; sourceTree = "<group>"; };
+		C69DB5E92B73BE9B00B3BC66 /* PracticeViewWithNewWordAddingTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeViewWithNewWordAddingTextView.swift; sourceTree = "<group>"; };
+		C69DB5EB2B73C05700B3BC66 /* ListenAndRepeatPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListenAndRepeatPracticeView.swift; sourceTree = "<group>"; };
+		C69DB5ED2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListenAndCompletePracticeView.swift; sourceTree = "<group>"; };
+		C69DB5EF2B73D3A800B3BC66 /* SpeechRecognitionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionViewController.swift; sourceTree = "<group>"; };
 		C6A1F1132ACB91F600EAD9A2 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
+		C6A666F62B75EC03002B4DEE /* US2UKSpellingMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = US2UKSpellingMapping.swift; sourceTree = "<group>"; };
 		C6B5187B2AF2C19C00451B90 /* TextViewWithPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewWithPrompt.swift; sourceTree = "<group>"; };
+		C6C8C3122B75F95500FBC43B /* CFStringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CFStringExtensions.swift; sourceTree = "<group>"; };
+		C6C8C3142B75F96A00FBC43B /* CFRangeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CFRangeExtensions.swift; sourceTree = "<group>"; };
+		C6C8C3162B7617F200FBC43B /* Text.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Text.swift; sourceTree = "<group>"; };
 		C6E1E0302AC5C2F600E4AF72 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
+		C6F5FB752B71079C0040A26B /* ClozeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClozeViewController.swift; sourceTree = "<group>"; };
+		C6F5FB792B7202AF0040A26B /* ListeningPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningPracticeViewController.swift; sourceTree = "<group>"; };
+		C6F5FB7D2B72067F0040A26B /* ListeningPracticeProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningPracticeProducer.swift; sourceTree = "<group>"; };
 		C9324C7255807718BBF5D9EC /* Pods-Polyglot-PolyglotUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Polyglot-PolyglotUITests.debug.xcconfig"; path = "Target Support Files/Pods-Polyglot-PolyglotUITests/Pods-Polyglot-PolyglotUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		DEDB21A8073730D28A47A161 /* Pods-Polyglot.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Polyglot.release.xcconfig"; path = "Target Support Files/Pods-Polyglot/Pods-Polyglot.release.xcconfig"; sourceTree = "<group>"; };
 		E379777C4FD33BCD824C64B5 /* Pods_PolyglotTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_PolyglotTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -312,14 +334,33 @@
 				FF495EA12959244C00EA7EA9 /* WordsPracticeViewController.swift */,
 				FF23764D29528C840073AF96 /* ReadingPracticeViewController.swift */,
 				FF4CA72F295E869900423946 /* TranslationPracticeViewController.swift */,
+				C6F5FB792B7202AF0040A26B /* ListeningPracticeViewController.swift */,
 			);
 			path = Practices;
+			sourceTree = "<group>";
+		};
+		C69DB5E82B73BE3E00B3BC66 /* Listening */ = {
+			isa = PBXGroup;
+			children = (
+				C69DB5EB2B73C05700B3BC66 /* ListenAndRepeatPracticeView.swift */,
+				C69DB5ED2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift */,
+			);
+			path = Listening;
+			sourceTree = "<group>";
+		};
+		C6A666F32B75EBE6002B4DEE /* Resource */ = {
+			isa = PBXGroup;
+			children = (
+				C6A666F62B75EC03002B4DEE /* US2UKSpellingMapping.swift */,
+			);
+			path = Resource;
 			sourceTree = "<group>";
 		};
 		FF24AB75297073AA00129EEF /* Common */ = {
 			isa = PBXGroup;
 			children = (
 				FF495E9F29591DEC00EA7EA9 /* TableHeaderView.swift */,
+				C69DB5E92B73BE9B00B3BC66 /* PracticeViewWithNewWordAddingTextView.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -358,6 +399,8 @@
 				FF584433296732B400137E00 /* DictionaryExtensions.swift */,
 				FF5FE945297431C30002691C /* ArrayExtensions.swift */,
 				FF4964CC2958BE8900414AC5 /* TimeIntervalExtensions.swift */,
+				C6C8C3122B75F95500FBC43B /* CFStringExtensions.swift */,
+				C6C8C3142B75F96A00FBC43B /* CFRangeExtensions.swift */,
 			);
 			path = TypeExtensions;
 			sourceTree = "<group>";
@@ -393,6 +436,7 @@
 				FF5B182B2961E55F00C80DC3 /* IO.swift */,
 				FF1780CE2A48EDCD005F588B /* Notifications.swift */,
 				C6A1F1132ACB91F600EAD9A2 /* Config.swift */,
+				C6C8C3162B7617F200FBC43B /* Text.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -486,6 +530,9 @@
 				FF506ECA2A69A54700136C82 /* Unit 2.info.json */,
 				FF506ECC2A69A54C00136C82 /* Unit 3.info.json */,
 				FF506ECE2A69A55800136C82 /* de.words.duome.u1.json */,
+				C6F5FB752B71079C0040A26B /* ClozeViewController.swift */,
+				C69DB5EF2B73D3A800B3BC66 /* SpeechRecognitionViewController.swift */,
+				C6A666F32B75EBE6002B4DEE /* Resource */,
 				FF502510295248BF0097C2CB /* Models */,
 				FF62C9A629513A2800D41797 /* Controllers */,
 				FF62C9A729513A3700D41797 /* Views */,
@@ -540,6 +587,7 @@
 				FF495E9A295903B700EA7EA9 /* Words */,
 				FF706DFE2951503700DBCF8E /* Reading */,
 				FFCBB0DE296B45DB00E5B9D9 /* Translation */,
+				C69DB5E82B73BE3E00B3BC66 /* Listening */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -561,6 +609,7 @@
 				FFBD60402969D713004165FC /* WordPracticeProducer.swift */,
 				FFBD60422969D721004165FC /* ReadingPracticeProducer.swift */,
 				FFBD60442969D733004165FC /* TranslationPracticeProducer.swift */,
+				C6F5FB7D2B72067F0040A26B /* ListeningPracticeProducer.swift */,
 			);
 			path = PracticeProducers;
 			sourceTree = "<group>";
@@ -915,8 +964,10 @@
 				FF495E962958FFE600EA7EA9 /* WordsViewController.swift in Sources */,
 				FF502512295248D10097C2CB /* Article.swift in Sources */,
 				FFBD60432969D721004165FC /* ReadingPracticeProducer.swift in Sources */,
+				C6C8C3172B7617F200FBC43B /* Text.swift in Sources */,
 				C696B9512B6DEDA600B00A02 /* ContentCardsExtensions.swift in Sources */,
 				FF491E772959CC960088FD13 /* FillingPracticeView.swift in Sources */,
+				C69DB5EA2B73BE9B00B3BC66 /* PracticeViewWithNewWordAddingTextView.swift in Sources */,
 				FF491E752959C4320088FD13 /* SelectionPracticeView.swift in Sources */,
 				FFCBB0E0296B45F300E5B9D9 /* TranslationPracticeView.swift in Sources */,
 				FF4964BA29579C5A00414AC5 /* UISearchBarExtensions.swift in Sources */,
@@ -925,12 +976,15 @@
 				FF4A21542959A5D600AD3AF8 /* Practice.swift in Sources */,
 				FF4964C029579DA100414AC5 /* ArticleExtensions.swift in Sources */,
 				FF1780CF2A48EDCD005F588B /* Notifications.swift in Sources */,
+				C6C8C3152B75F96A00FBC43B /* CFRangeExtensions.swift in Sources */,
 				FF23764E29528C840073AF96 /* ReadingPracticeViewController.swift in Sources */,
 				FF4964C92958B05300414AC5 /* RoundButton.swift in Sources */,
 				FF491E732959C2FD0088FD13 /* PracticeViewDelegate.swift in Sources */,
 				C67B85A22AED943200F7657A /* JapaneseAccentAnalyzer.swift in Sources */,
 				FF5690142980367A00CA2C7B /* LangCode.swift in Sources */,
+				C6F5FB7A2B7202AF0040A26B /* ListeningPracticeViewController.swift in Sources */,
 				C619E6932AC830CB00A30B27 /* CardCell.swift in Sources */,
+				C6A666F72B75EC03002B4DEE /* US2UKSpellingMapping.swift in Sources */,
 				FF495E8E2958F38800EA7EA9 /* UITableViewExtensions.swift in Sources */,
 				FF4AB0032A9B4C4400908062 /* ContentCreator.swift in Sources */,
 				FF5AA00B2961F208009D5237 /* Alerts.swift in Sources */,
@@ -947,12 +1001,16 @@
 				FF4964BE29579C9700414AC5 /* StringExtensions.swift in Sources */,
 				FF706DF5295144B000DBCF8E /* UIColorExtensions.swift in Sources */,
 				FF58518F29819CF8004EB63C /* GoogleTranslator.swift in Sources */,
+				C69DB5EE2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift in Sources */,
 				FFCBB0D7296B0AA200E5B9D9 /* PracticeViewController.swift in Sources */,
 				FF495E9C295903DF00EA7EA9 /* WordsTableCell.swift in Sources */,
 				C619E68F2AC8154F00A30B27 /* LangCell.swift in Sources */,
+				C6F5FB7E2B72067F0040A26B /* ListeningPracticeProducer.swift in Sources */,
 				FF584434296732B400137E00 /* DictionaryExtensions.swift in Sources */,
 				FFCBB0DB296B1A6700E5B9D9 /* PracticeProducerDelegate.swift in Sources */,
+				C6C8C3132B75F95500FBC43B /* CFStringExtensions.swift in Sources */,
 				FF52921229520D1200858B55 /* UINavigationBarExtensions.swift in Sources */,
+				C6F5FB762B71079C0040A26B /* ClozeViewController.swift in Sources */,
 				FF4AB0072A9B4DE600908062 /* APIKeys.swift in Sources */,
 				FF5882BE29604E0300FC33CF /* NewWordAddingTextView.swift in Sources */,
 				FF495EA029591DEC00EA7EA9 /* TableHeaderView.swift in Sources */,
@@ -975,8 +1033,10 @@
 				FF495E9E2959084200EA7EA9 /* DateExtensions.swift in Sources */,
 				FF4964CB2958BAFD00414AC5 /* TimingBar.swift in Sources */,
 				C6A1F1142ACB91F600EAD9A2 /* Config.swift in Sources */,
+				C69DB5F02B73D3A800B3BC66 /* SpeechRecognitionViewController.swift in Sources */,
 				FF50250E295244F10097C2CB /* ReadingViewController.swift in Sources */,
 				FFBC8A842A9F2FDD001123EB /* UILabelExtensions.swift in Sources */,
+				C69DB5EC2B73C05700B3BC66 /* ListenAndRepeatPracticeView.swift in Sources */,
 				C67B85A42AED94B800F7657A /* RussianAccentAnalyzer.swift in Sources */,
 				FF55D156296F3AEC0092FB6B /* Values.swift in Sources */,
 				FFCBB0DD296B2E4000E5B9D9 /* ReadingPracticeView.swift in Sources */,
