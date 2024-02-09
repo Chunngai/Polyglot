@@ -99,11 +99,10 @@ struct GoogleTranslator {
                         if let translationArrays = res[2] as? [Any] {
                             let sentenceTranslation = (translationArrays[0] as? [Any])?[0] as? String ?? ""
                             translation += sentenceTranslation
-                        } else if let lineBreak = res[0] as? String, lineBreak == "\n" {
-                            translation += "\n"
+                        } else if let spaces = res[0] as? String, spaces.strip().isEmpty {
+                            translation += spaces
                         } else {
-                            completion([])
-                            return
+                            continue
                         }
                     }
                     
