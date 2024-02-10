@@ -93,6 +93,22 @@ extension LangCode {
 
 extension LangCode {
     
+    var wordTokenizer: NLTokenizer {
+        let tokenizer = NLTokenizer(unit: .word)
+        tokenizer.setLanguage(self.NLLanguage)
+        return tokenizer
+    }
+    
+    var sentenceTokenizer: NLTokenizer {
+        let tokenizer = NLTokenizer(unit: .sentence)
+        tokenizer.setLanguage(self.NLLanguage)
+        return tokenizer
+    }
+    
+}
+
+extension LangCode {
+    
     // MARK: - IO
     
     static var fileName: String {

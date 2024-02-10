@@ -12,18 +12,6 @@ import NaturalLanguage
 
 struct Variables {
     
-    static func tokenizerOfLang(of unit: NLTokenUnit = .word) -> NLTokenizer {
-        let tokenizer = NLTokenizer(unit: unit)
-        tokenizer.setLanguage(LangCode.currentLanguage.NLLanguage)
-        return tokenizer
-    }
-    
-    static func tokenizerOfPairedLang(of unit: NLTokenUnit = .word) -> NLTokenizer {
-        let tokenizer = NLTokenizer(unit: unit)
-        tokenizer.setLanguage(LangCode.pairedLanguage.NLLanguage)
-        return tokenizer
-    }
-    
     static var isTimingEnabled: Bool = true
 }
 

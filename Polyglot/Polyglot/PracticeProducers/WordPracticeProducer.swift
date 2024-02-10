@@ -166,8 +166,6 @@ class WordPracticeProducer: PracticeProducerDelegate {
     }
     
     var choiceNumber: Int = WordPracticeProducer.defaultChoiceNumber
-    
-    private var practices: [WordPractice] = WordPractice.load()
 }
 
 extension WordPracticeProducer {
@@ -421,7 +419,7 @@ extension WordPracticeProducer {
             return nil
         }
         
-        let sentences = candidate.text.tokenized(with: Variables.tokenizerOfLang(of: .sentence))
+        let sentences = candidate.text.tokenized(with: LangCode.currentLanguage.sentenceTokenizer)
         guard let targetSentence = sentences.first(where: { (sentence) -> Bool in
             sentence.contains(wordToPractice.text)
         }) else {
@@ -440,7 +438,7 @@ extension WordPracticeProducer {
         
         // Reduce the number of tokens.
         // TODO: - Improvement.
-        let rawWords = targetSubSentence.tokenized(with: Variables.tokenizerOfLang())
+        let rawWords = targetSubSentence.tokenized(with: LangCode.currentLanguage.wordTokenizer)
         var words: [String] = []
         if LangCode.currentLanguage == LangCode.ja {
             var indexOfLastWord: Int = -1
@@ -514,9 +512,9 @@ extension WordPracticeProducer {
 //            print(lang)
             
             if lang == LangCode.currentLanguage {
-                return Variables.tokenizerOfLang()
+                return LangCode.currentLanguage.wordTokenizer
             } else {
-                return Variables.tokenizerOfPairedLang()
+                return LangCode.pairedLanguage.wordTokenizer
             }
         }
                 
@@ -543,29 +541,6 @@ extension WordPracticeProducer {
                 }
             }
         }
-    }
-}
-
-extension WordPracticeProducer {
-    
-    // MARK: - IO
-    
-    func save() {
-        var practicesToSave: [WordPractice] = []
-        for practiceIndex in 0..<currentPracticeIndex {
-            let item = practiceList[practiceIndex]
-            if !item.isForReinforcement {
-                practicesToSave.append(item.practice)
-            }
-        }
-        if currentPractice.practice.correctness != nil {
-            if !currentPractice.isForReinforcement {
-                practicesToSave.append(currentPractice.practice)
-            }
-        }
-        
-        practices.append(contentsOf: practicesToSave)
-        WordPractice.save(&practices)
     }
 }
 

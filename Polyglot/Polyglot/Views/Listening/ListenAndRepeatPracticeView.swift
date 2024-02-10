@@ -184,7 +184,7 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
     // MARK: - ListeningPracticeViewController Delegate
     
     func processRecognizedSpeech(_ text: String) {
-        let speechTokens = text.tokenized(with: Variables.tokenizerOfLang())
+        let speechTokens = text.tokenized(with: LangCode.currentLanguage.wordTokenizer)
         let speechBiGrams = generateBiGrams(from: speechTokens)
         
         let newAttributes = NSMutableAttributedString(attributedString: textView.attributedText!)

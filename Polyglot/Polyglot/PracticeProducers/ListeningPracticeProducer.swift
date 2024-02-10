@@ -187,7 +187,7 @@ extension ListeningPracticeProducer {
         var clozeRanges: [NSRange] = []
 
         // For Japanese and some languages, tokenization is crucial.
-        var tokens = text.tokenized(with: Variables.tokenizerOfLang())
+        var tokens = text.tokenized(with: LangCode.currentLanguage.wordTokenizer)
         
         var tokenBuffer: String = ""
         var location: Int = 0
@@ -271,7 +271,7 @@ extension ListeningPracticeProducer {
             let paraCandidates = self.articles.paraCandidates(for: randomWord.text)
             if paraCandidates.count != 0,
                let paraCandidate = paraCandidates.randomElement(),
-               let targetSentence = paraCandidate.text.tokenized(with: Variables.tokenizerOfLang(of: .sentence)).first(where: { sentence in
+               let targetSentence = paraCandidate.text.tokenized(with: LangCode.currentLanguage.sentenceTokenizer).first(where: { sentence in
                    sentence.lowercased().contains(randomWord.text.lowercased())  // Case-insensitive.
                }) {
                 return makePractice(

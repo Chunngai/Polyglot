@@ -241,7 +241,6 @@ extension WordsPracticeViewController {
     // MARK: - TimingBar Delegate
     
     override func stopPracticing() {
-        practiceProducer.save()
         
         for practiceItem in practiceProducer.practiceList {
             guard let word = words.getWord(from: practiceItem.practice.wordId) else {
