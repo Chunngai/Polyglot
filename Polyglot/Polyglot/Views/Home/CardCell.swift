@@ -13,7 +13,7 @@ class CardCellContentConfiguration: UIContentConfiguration {
     
     var header: String?
     
-    var lang: String?
+    var lang: LangCode?
     var words: [String]?
     var meanings: [String]?
     var pronunciations: [String]?
@@ -178,7 +178,7 @@ class CardCellContentView: UIView, UIContentView {
            let content = configuration.content,
            let contentSource = configuration.contentSource {
                         
-            flagIconLabel.text = LangCode.toFlagIcon(langCode: lang)
+            flagIconLabel.text = lang.flagIcon
             chatgptImageView.isHidden = contentSource != "chatgpt"
                         
             if configuration.isDisplayMeanings {
@@ -357,7 +357,7 @@ extension CardCellContentView {
             }
             
             let utterance = AVSpeechUtterance(string: content)
-            utterance.voice = AVSpeechSynthesisVoice(identifier: LangCode.toVoiceIdentifier(langCode: lang))
+            utterance.voice = AVSpeechSynthesisVoice(identifier: lang.voiceIdentifier)
             
             config.delegate.indexPathForCellThatIsProcudingVoice = config.indexPath
             config.delegate.synthesizer.speak(utterance)

@@ -189,7 +189,7 @@ extension WordPractice {
     // MARK: - IO
     
     static var fileName: String {
-        return "wordPractices.\(Variables.lang).json"
+        return "wordPractices.\(LangCode.currentLanguage).json"
     }
     
     static func load() -> [WordPractice] {

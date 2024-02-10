@@ -260,8 +260,8 @@ extension ListeningPracticeProducer {
                 prompt: makePrompt(for: type),
                 text: text,
                 meaning: meaning,
-                textLang: Variables.lang,
-                meaningLang: Variables.pairedLang,
+                textLang: LangCode.currentLanguage,
+                meaningLang: LangCode.pairedLanguage,
                 articleId: articleId,
                 clozeRanges: clozeRanges
             )
@@ -279,7 +279,7 @@ extension ListeningPracticeProducer {
                     articleId: paraCandidate.articleId
                 )
             } else {
-                ContentCreator(lang: Variables.lang).createContent(for: [randomWord.text]) { content in
+                ContentCreator(lang: LangCode.currentLanguage).createContent(for: [randomWord.text]) { content in
                     guard let content = content else {
                         return
                     }
@@ -315,8 +315,8 @@ extension ListeningPracticeProducer {
         var prompt: String
         var text: String
         var meaning: String? = nil
-        var textLang: String
-        var meaningLang: String
+        var textLang: LangCode
+        var meaningLang: LangCode
         var articleId: String? = nil  // nil: chatgpt
         var clozeRanges: [NSRange]
         

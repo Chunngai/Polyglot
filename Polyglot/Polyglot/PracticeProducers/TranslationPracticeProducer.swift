@@ -69,18 +69,18 @@ class TranslationPracticeProducer: PracticeProducerDelegate {
             
             var text: String!
             var meaning: String!
-            var textLang: String!
-            var meaningLang: String!
+            var textLang: LangCode!
+            var meaningLang: LangCode!
             if randomDirection == .textToMeaning {
                 text = para.text
                 meaning = para.meaning
-                textLang = Variables.lang
-                meaningLang = Variables.pairedLang
+                textLang = LangCode.currentLanguage
+                meaningLang = LangCode.pairedLanguage
             } else if randomDirection == .meaningToText {
                 text = para.meaning
                 meaning = para.text
-                textLang = Variables.pairedLang
-                meaningLang = Variables.lang
+                textLang = LangCode.pairedLanguage
+                meaningLang = LangCode.currentLanguage
             }
             
             practiceList.append(TranslationPracticeProducer.Item(
@@ -109,8 +109,8 @@ extension TranslationPracticeProducer {
         var text: String?
         var meaning: String?
      
-        var textLang: String
-        var meaningLang: String
+        var textLang: LangCode
+        var meaningLang: LangCode
     }
     
 }

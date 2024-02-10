@@ -442,7 +442,7 @@ extension WordPracticeProducer {
         // TODO: - Improvement.
         let rawWords = targetSubSentence.tokenized(with: Variables.tokenizerOfLang())
         var words: [String] = []
-        if Variables.lang == LangCode.ja {
+        if LangCode.currentLanguage == LangCode.ja {
             var indexOfLastWord: Int = -1
             for i in 0..<rawWords.count {
                 let rawWord = rawWords[i]
@@ -504,16 +504,16 @@ extension WordPracticeProducer {
         var isForReinforcement: Bool = false  // True for re-added practices (with wrong answers).
         
         var tokenizer: NLTokenizer {
-            let lang: String = {
+            let lang: LangCode = {
                 switch practice.direction {
-                case .textToMeaning: return Variables.pairedLang
-                case .meaningToText: return Variables.lang
-                case .text: return Variables.lang
+                case .textToMeaning: return LangCode.pairedLanguage
+                case .meaningToText: return LangCode.currentLanguage
+                case .text: return LangCode.currentLanguage
                 }
             }()
 //            print(lang)
             
-            if lang == Variables.lang {
+            if lang == LangCode.currentLanguage {
                 return Variables.tokenizerOfLang()
             } else {
                 return Variables.tokenizerOfPairedLang()

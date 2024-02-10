@@ -333,9 +333,9 @@ extension PracticeViewController {
     func addWordsFromArticles(words: [Word]) {
         self.words.add(newWords: words)
         for word in words {
-            if Variables.lang == LangCode.ja {
+            if LangCode.currentLanguage == LangCode.ja {
                 JapaneseAccentAnalyzer.makeTokens(for: word) { tokens in
-                    guard Variables.lang == LangCode.ja else {
+                    guard LangCode.currentLanguage == LangCode.ja else {
                         return
                     }
                     DispatchQueue.main.async {
@@ -343,9 +343,9 @@ extension PracticeViewController {
                     }
                 }
             }
-            if Variables.lang == LangCode.ru {
+            if LangCode.currentLanguage == LangCode.ru {
                 RussianAccentAnalyzer.makeTokens(for: word) { tokens in
-                    guard Variables.lang == LangCode.ru else {
+                    guard LangCode.currentLanguage == LangCode.ru else {
                         return
                     }
                     DispatchQueue.main.async {

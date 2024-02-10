@@ -10,10 +10,10 @@ import Foundation
 
 struct GoogleTranslator {
     
-    var srcLang: String
-    var trgLang: String
+    var srcLang: LangCode
+    var trgLang: LangCode
     
-    init(srcLang: String, trgLang: String) {
+    init(srcLang: LangCode, trgLang: LangCode) {
         self.srcLang = srcLang
         self.trgLang = trgLang
     }
@@ -24,8 +24,8 @@ struct GoogleTranslator {
         // https://medium.com/彼得潘的-swift-ios-app-開發問題解答集/使用-baseurl-urlcomponents-urlqueryitem-產生-url-1e4539a33a89
         
         var queryItems = GoogleTranslator.queryItems
-        queryItems["sl"] = srcLang
-        queryItems["tl"] = trgLang
+        queryItems["sl"] = srcLang.rawValue
+        queryItems["tl"] = trgLang.rawValue
         queryItems["q"] = query
         
         var components = URLComponents()

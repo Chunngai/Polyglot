@@ -115,7 +115,7 @@ class NewWordAddingBottomView: UIView {
     
     // MARK: - Init
     
-    init(frame: CGRect = .zero, wordLang: String, meaningLang: String) {
+    init(frame: CGRect = .zero, wordLang: LangCode, meaningLang: LangCode) {
         super.init(frame: frame)
         
         translator = GoogleTranslator(srcLang: wordLang, trgLang: meaningLang)

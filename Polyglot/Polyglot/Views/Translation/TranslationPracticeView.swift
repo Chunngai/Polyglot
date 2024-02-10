@@ -12,13 +12,6 @@ class TranslationPracticeView: PracticeViewWithNewWordAddingTextView {
     
     var practice: TranslationPracticeProducer.Item!
     
-    var textLangFlag: String {
-        LangCode.toFlagIcon(langCode: practice.textLang)
-    }
-    var meaningLangFlag: String {
-        LangCode.toFlagIcon(langCode: practice.meaningLang)
-    }
-    
     // MARK: - Init
     
     init(frame: CGRect = .zero, practice: TranslationPracticeProducer.Item) {
@@ -39,7 +32,7 @@ class TranslationPracticeView: PracticeViewWithNewWordAddingTextView {
         super.updateViews()
         
         if let text = practice.text {
-            textView.text = "\(textLangFlag): \(text)"
+            textView.text = "\(practice.textLang.flagIcon): \(text)"
         } else if let meaning = practice.meaning {
             GoogleTranslator(
                 srcLang: practice.meaningLang,
@@ -52,7 +45,7 @@ class TranslationPracticeView: PracticeViewWithNewWordAddingTextView {
                     textToDisplay = Strings.machineTranslationErrorToken
                 }
                 DispatchQueue.main.async {
-                    self.textView.text = "\(self.textLangFlag): \(textToDisplay)"
+                    self.textView.text = "\(self.practice.textLang.flagIcon): \(textToDisplay)"
                 }
             }
         }
@@ -64,7 +57,7 @@ extension TranslationPracticeView {
     func displayTranslation() {
         
         if let meaning = practice.meaning {
-            textView.text = "\(textView.text!)\n\n\(meaningLangFlag): \(meaning)"
+            textView.text = "\(textView.text!)\n\n\(practice.meaningLang.flagIcon): \(meaning)"
         } else if let text = practice.text {
             GoogleTranslator(
                 srcLang: practice.textLang,
@@ -77,7 +70,7 @@ extension TranslationPracticeView {
                     meaningToDisplay = Strings.machineTranslationErrorToken
                 }
                 DispatchQueue.main.async {
-                    self.textView.text = "\(self.textView.text!)\n\n\(self.meaningLangFlag): \(meaningToDisplay)"
+                    self.textView.text = "\(self.textView.text!)\n\n\(self.practice.meaningLang): \(meaningToDisplay)"
                 }
             }
         }

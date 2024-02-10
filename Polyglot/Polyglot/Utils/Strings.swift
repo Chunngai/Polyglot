@@ -13,7 +13,7 @@ struct Strings {
     
     // MARK: - Language Strings
     
-    static let _enStrings: [String : String] = [
+    static let _enStrings: [LangCode : String] = [
         LangCode.en : "English",
         LangCode.ja : "英語",
         LangCode.es : "inglés",
@@ -22,10 +22,10 @@ struct Strings {
         LangCode.de : "Englisch",
     ]
     static var enString: String {
-        return Strings._enStrings[Variables.lang]!
+        return Strings._enStrings[LangCode.currentLanguage]!
     }
     
-    static let _jaStrings: [String : String] = [
+    static let _jaStrings: [LangCode : String] = [
         LangCode.en : "Japanese",
         LangCode.ja : "日本語",
         LangCode.es : "japonés",
@@ -34,10 +34,10 @@ struct Strings {
         LangCode.de : "Japanisch",
     ]
     static var jaString: String {
-        return Strings._jaStrings[Variables.lang]!
+        return Strings._jaStrings[LangCode.currentLanguage]!
     }
     
-    static let _esStrings: [String : String] = [
+    static let _esStrings: [LangCode : String] = [
         LangCode.en : "Spanish",
         LangCode.ja : "スペイン語",
         LangCode.es : "español",
@@ -46,10 +46,10 @@ struct Strings {
         LangCode.de : "Spanisch",
     ]
     static var esString: String {
-        return Strings._esStrings[Variables.lang]!
+        return Strings._esStrings[LangCode.currentLanguage]!
     }
     
-    static let _ruStrings: [String : String] = [
+    static let _ruStrings: [LangCode : String] = [
         LangCode.en : "Russian",
         LangCode.ja : "ロシア語",
         LangCode.es : "ruso",
@@ -58,10 +58,10 @@ struct Strings {
         LangCode.de : "Russisch",
     ]
     static var ruString: String {
-        return Strings._ruStrings[Variables.lang]!
+        return Strings._ruStrings[LangCode.currentLanguage]!
     }
     
-    static let _koStrings: [String : String] = [
+    static let _koStrings: [LangCode : String] = [
         LangCode.en : "Korean",
         LangCode.ja : "韓国語",
         LangCode.es : "coreano",
@@ -70,10 +70,10 @@ struct Strings {
         LangCode.de : "Koreanisch",
     ]
     static var koString: String {
-        return Strings._koStrings[Variables.lang]!
+        return Strings._koStrings[LangCode.currentLanguage]!
     }
     
-    static let _deStrings: [String : String] = [
+    static let _deStrings: [LangCode : String] = [
         LangCode.en : "German",
         LangCode.ja : "ドイツ語",
         LangCode.es : "alemán",
@@ -82,27 +82,16 @@ struct Strings {
         LangCode.de : "Deutsch",
     ]
     static var deString: String {
-        return Strings._deStrings[Variables.lang]!
+        return Strings._deStrings[LangCode.currentLanguage]!
     }
-    
-    static func langStrings(for langCode: String) -> [String: String] {
-        switch langCode {
-        case LangCode.en: return Strings._enStrings
-        case LangCode.ja: return Strings._jaStrings
-        case LangCode.es: return Strings._esStrings
-        case LangCode.ru: return Strings._ruStrings
-        case LangCode.ko: return Strings._koStrings
-        case LangCode.de: return Strings._deStrings
-        default: return [:]
-        }
-    }
+
 }
 
 extension Strings {
     
     // MARK: - Home Texts
     
-    static let _homeTitles: [String : String] = [
+    static let _homeTitles: [LangCode : String] = [
         LangCode.en : "Home",
         LangCode.ja : "ホーム",
         LangCode.es : "Inicio",
@@ -111,10 +100,10 @@ extension Strings {
         LangCode.de : "Startseite",
     ]
     static var homeTitle: String {
-        return Strings._homeTitles[Variables.lang]!
+        return Strings._homeTitles[LangCode.currentLanguage]!
     }
     
-//    static let _mainPrimaryPrompts: [String : String] = [
+//    static let _mainPrimaryPrompts: [LangCode : String] = [
 //        LangCode.en : "Hello!",
 //        LangCode.ja : "こんにちは！",
 //        LangCode.es : "Hola!",
@@ -123,10 +112,10 @@ extension Strings {
 //        LangCode.de : "Hallo!",
 //    ]
 //    static var mainPrimaryPrompt: String {
-//        return Strings._mainPrimaryPrompts[Variables.lang]!
+//        return Strings._mainPrimaryPrompts[LangCode.currentLanguage]!
 //    }
             
-//    private static let _menuPrimaryPrompts: [String : String] = [
+//    private static let _menuPrimaryPrompts: [LangCode : String] = [
 //        LangCode.en : "English",
 //        LangCode.ja : "日本語",
 //        LangCode.es : "Español",
@@ -135,10 +124,10 @@ extension Strings {
 //        LangCode.de : "Deutsch",
 //    ]
 //    static var menuPrimaryPrompt: String {
-//        return Strings._menuPrimaryPrompts[Variables.lang]!
+//        return Strings._menuPrimaryPrompts[LangCode.currentLanguage]!
 //    }
         
-//    static let _wordListNavItemTitles: [String : String] = [
+//    static let _wordListNavItemTitles: [LangCode : String] = [
 //        LangCode.en : "Words and Phrases",
 //        LangCode.ja : "単語とフレーズ",
 //        LangCode.es : "Palabras y Frases",
@@ -147,10 +136,10 @@ extension Strings {
 //        LangCode.de : "Wörter und Sätze",
 //    ]
 //    static var wordListNavItemTitle: String {
-//        return Strings._wordListNavItemTitles[Variables.lang]!
+//        return Strings._wordListNavItemTitles[LangCode.currentLanguage]!
 //    }
     
-    static let _phrases: [String : String] = [
+    static let _phrases: [LangCode : String] = [
         LangCode.en : "Phrases",
         LangCode.ja : "フレーズ",
         LangCode.es : "Frases",
@@ -159,10 +148,10 @@ extension Strings {
         LangCode.de : "Sätze",
     ]
     static var phrases: String {
-        return Strings._phrases[Variables.lang]!
+        return Strings._phrases[LangCode.currentLanguage]!
     }
     
-    static let _articles: [String : String] = [
+    static let _articles: [LangCode : String] = [
         LangCode.en : "Articles",
         LangCode.ja : "文章",
         LangCode.es : "Artículos",
@@ -171,10 +160,10 @@ extension Strings {
         LangCode.de : "Artikel",
     ]
     static var articles: String {
-        return Strings._articles[Variables.lang]!
+        return Strings._articles[LangCode.currentLanguage]!
     }
     
-    static let _newArticle: [String : String] = [
+    static let _newArticle: [LangCode : String] = [
         LangCode.en : "New Article",
         LangCode.ja : "新しい文章",
         LangCode.es : "Articulo Nuevo",
@@ -183,10 +172,10 @@ extension Strings {
         LangCode.de : "Neuer Artikel",
     ]
     static var newArticle: String {
-        return Strings._articles[Variables.lang]!
+        return Strings._articles[LangCode.currentLanguage]!
     }
     
-    static let _phraseReview: [String : String] = [
+    static let _phraseReview: [LangCode : String] = [
         LangCode.en : "Phrase Review",
         LangCode.ja : "フレーズレビュー",
         LangCode.es : "Revisión de frases",
@@ -195,10 +184,10 @@ extension Strings {
         LangCode.de : "Phrasenüberprüfung",
     ]
     static var phraseReview: String {
-        return Strings._phraseReview[Variables.lang]!
+        return Strings._phraseReview[LangCode.currentLanguage]!
     }
     
-    static let _reading: [String : String] = [
+    static let _reading: [LangCode : String] = [
         LangCode.en : "Reading",
         LangCode.ja : "読解",
         LangCode.es : "Leer",
@@ -207,10 +196,10 @@ extension Strings {
         LangCode.de : "Lektüre",
     ]
     static var reading: String {
-        return Strings._reading[Variables.lang]!
+        return Strings._reading[LangCode.currentLanguage]!
     }
     
-    static let _listening: [String : String] = [
+    static let _listening: [LangCode : String] = [
         LangCode.en : "Listening",
         LangCode.ja : "聞くこと",
         LangCode.es : "Escuchar",
@@ -219,10 +208,10 @@ extension Strings {
         LangCode.de : "Hören",
     ]
     static var listening: String {
-        return Strings._listening[Variables.lang]!
+        return Strings._listening[LangCode.currentLanguage]!
     }
     
-    static let _speaking: [String : String] = [
+    static let _speaking: [LangCode : String] = [
         LangCode.en : "Speaking",
         LangCode.ja : "話すこと",
         LangCode.es : "Hablar",
@@ -231,7 +220,7 @@ extension Strings {
         LangCode.de : "Sprechen",
     ]
     static var speaking: String {
-        return Strings._speaking[Variables.lang]!
+        return Strings._speaking[LangCode.currentLanguage]!
     }
     
 }
@@ -240,7 +229,7 @@ extension Strings {
     
     // MARK: - Alert Buttons
     
-    private static let _ok: [String : String] = [
+    private static let _ok: [LangCode : String] = [
         LangCode.en : "Ok",
         LangCode.ja : "はい",
         LangCode.es : "Sí",
@@ -249,10 +238,10 @@ extension Strings {
         LangCode.de : "Ja",
     ]
     static var ok: String {
-        return Strings._ok[Variables.lang]!
+        return Strings._ok[LangCode.currentLanguage]!
     }
     
-    private static let _done: [String : String] = [
+    private static let _done: [LangCode : String] = [
         LangCode.en : "Done",
         LangCode.ja : "完了",
         LangCode.es : "Hecho",
@@ -261,10 +250,10 @@ extension Strings {
         LangCode.de : "Erledigt",
     ]
     static var done: String {
-        return Strings._done[Variables.lang]!
+        return Strings._done[LangCode.currentLanguage]!
     }
     
-    private static let _cancel: [String : String] = [
+    private static let _cancel: [LangCode : String] = [
         LangCode.en : "Cancel",
         LangCode.ja : "キャンセル",
         LangCode.es : "Cancelar",
@@ -273,12 +262,12 @@ extension Strings {
         LangCode.de : "Stornieren",
     ]
     static var cancel: String {
-        return Strings._cancel[Variables.lang]!
+        return Strings._cancel[LangCode.currentLanguage]!
     }
     
     // MARK: - Alert Prompts
     
-    private static let _exitWithoutSavingAlertTitles: [String : String] = [
+    private static let _exitWithoutSavingAlertTitles: [LangCode : String] = [
         LangCode.en : "Leave without Saving",
         LangCode.ja : "保存せずに終了",
         LangCode.es : "Salir sin Guardar",
@@ -287,10 +276,10 @@ extension Strings {
         LangCode.de : "Beenden ohne Speichern",
     ]
     static var exitWithoutSavingAlertTitle: String {
-        return Strings._exitWithoutSavingAlertTitles[Variables.lang]!
+        return Strings._exitWithoutSavingAlertTitles[LangCode.currentLanguage]!
     }
     
-    private static let _exitWithoutSavingAlertBodies: [String : String] = [
+    private static let _exitWithoutSavingAlertBodies: [LangCode : String] = [
         LangCode.en : "Edits have been made. Leave without saving them?",
         LangCode.ja : "編集が行われました。 保存せずに終了しますか?",
         LangCode.es : "Se han hecho modificaciones. ¿Sale sin guardarlas?",
@@ -299,7 +288,7 @@ extension Strings {
         LangCode.de : "Es wurde eine Bearbeitung vorgenommen. Beenden ohne Speichern?",
     ]
     static var exitWithoutSavingAlertBody: String {
-        return Strings._exitWithoutSavingAlertBodies[Variables.lang]!
+        return Strings._exitWithoutSavingAlertBodies[LangCode.currentLanguage]!
     }
 }
 
@@ -307,7 +296,7 @@ extension Strings {
     
     // MARK: - Word Adding
     
-    private static let _addingNewWordAlertTitles: [String : String] = [
+    private static let _addingNewWordAlertTitles: [LangCode : String] = [
         LangCode.en : "Add a New Word",
         LangCode.ja : "新単語を追加",
         LangCode.es : "Agregar una Nueva Palabra",
@@ -316,10 +305,10 @@ extension Strings {
         LangCode.de : "Neues Wort hinzufügen",
     ]
     static var addingNewWordAlertTitle: String {
-        return Strings._addingNewWordAlertTitles[Variables.lang]!
+        return Strings._addingNewWordAlertTitles[LangCode.currentLanguage]!
     }
     
-    private static let _addingNewWordAlertTextFieldPlaceholderForTexts: [String : String] = [
+    private static let _addingNewWordAlertTextFieldPlaceholderForTexts: [LangCode : String] = [
         LangCode.en : "Word",
         LangCode.ja : "単語",
         LangCode.es : "Palabra",
@@ -328,10 +317,10 @@ extension Strings {
         LangCode.de : "Wort",
     ]
     static var addingNewWordAlertTextFieldPlaceholderForText: String {
-        return Strings._addingNewWordAlertTextFieldPlaceholderForTexts[Variables.lang]!
+        return Strings._addingNewWordAlertTextFieldPlaceholderForTexts[LangCode.currentLanguage]!
     }
     
-    private static let _addingNewWordAlertTextFieldPlaceHolderForMeanings: [String : String] = [
+    private static let _addingNewWordAlertTextFieldPlaceHolderForMeanings: [LangCode : String] = [
         LangCode.en : "Meaning",
         LangCode.ja : "意味",
         LangCode.es : "Significado",
@@ -340,10 +329,10 @@ extension Strings {
         LangCode.de : "Bedeutung",
     ]
     static var addingNewWordAlertTextFieldPlaceHolderForMeaning: String {
-        return Strings._addingNewWordAlertTextFieldPlaceHolderForMeanings[Variables.lang]!
+        return Strings._addingNewWordAlertTextFieldPlaceHolderForMeanings[LangCode.currentLanguage]!
     }
     
-    private static let _addingNewWordAlertTextFieldPlaceHolderForNotes: [String : String] = [
+    private static let _addingNewWordAlertTextFieldPlaceHolderForNotes: [LangCode : String] = [
         LangCode.en : "Notes",
         LangCode.ja : "ノート",
         LangCode.es : "Notas",
@@ -352,12 +341,12 @@ extension Strings {
         LangCode.de : "Notizen",
     ]
     static var addingNewWordAlertTextFieldPlaceHolderForNote: String {
-        return Strings._addingNewWordAlertTextFieldPlaceHolderForNotes[Variables.lang]!
+        return Strings._addingNewWordAlertTextFieldPlaceHolderForNotes[LangCode.currentLanguage]!
     }
     
     // MARK: - Batch Adding
     
-//    private static let _wordEditTextViewPrompts: [String : String] = [
+//    private static let _wordEditTextViewPrompts: [LangCode : String] = [
 //        LangCode.en : "Format：\nDate - Notes\n1. Word １\n2. Word 2\n\nDate - Notes\n1. Word １\n2. Word 2\n\n",
 //        LangCode.ja : "フォーマット：\n日付 - ノート\n1. 単語１\n2. 単語2\n\n日付 - ノート\n1. 単語１\n2. 単語2\n\n",
 //        LangCode.es : "Formato：\nFecha - ノート\n1. Palabra １\n2. Palabra 2\n\nFecha - ノート\n1. Palabra １\n2. Palabra 2\n\n",
@@ -365,10 +354,10 @@ extension Strings {
 //        LangCode.ko : "형식: \n날짜 - 노트\n1. 단어 1\n2. 단어 2\n\n날짜 - 노트\n1. 단어 1\n2. 단어 2\n\n",
 //    ]
 //    static var wordEditTextViewPrompt: String {
-//        return Strings._wordEditTextViewPrompts[Variables.lang]!
+//        return Strings._wordEditTextViewPrompts[LangCode.currentLanguage]!
 //    }
 //
-//    private static let _wordMeaningSeparators: [String : Substring.Element] = [
+//    private static let _wordMeaningSeparators: [LangCode : Substring.Element] = [
 //        LangCode.en : ":",
 //        LangCode.ja : " ",
 //        LangCode.es : ":",
@@ -376,12 +365,12 @@ extension Strings {
 //        LangCode.ko : ":",
 //    ]
 //    static var wordMeaningSeparator: Substring.Element {
-//        return Strings._wordMeaningSeparators[Variables.lang]!
+//        return Strings._wordMeaningSeparators[LangCode.currentLanguage]!
 //    }
 //
     // MARK: - Bottom View / Text View
     
-    private static let _newWordMenuItemStrings: [String : String] = [
+    private static let _newWordMenuItemStrings: [LangCode : String] = [
         LangCode.en : "New Word",
         LangCode.ja : "新単語",
         LangCode.es : "Palabra Nueva",
@@ -390,10 +379,10 @@ extension Strings {
         LangCode.de : "Neues Wort",
     ]
     static var newWordMenuItemString: String {
-        return Strings._newWordMenuItemStrings[Variables.lang]!
+        return Strings._newWordMenuItemStrings[LangCode.currentLanguage]!
     }
     
-    private static let _newWordBottomViewMeaningPrompts: [String : String] = [
+    private static let _newWordBottomViewMeaningPrompts: [LangCode : String] = [
         LangCode.en : "Also select/type the corresponding meaning",
         LangCode.ja : "相応する意味も選択/入力してください",
         LangCode.es : "Seleccione/ingrese también el significado correspondiente",
@@ -402,7 +391,7 @@ extension Strings {
         LangCode.de : "Bitte wählen Sie auch die entsprechende Bedeutung aus/geben Sie sie ein",
     ]
     static var newWordBottomViewMeaningPrompt: String {
-        return Strings._newWordBottomViewMeaningPrompts[Variables.lang]!
+        return Strings._newWordBottomViewMeaningPrompts[LangCode.currentLanguage]!
     }
 }
 
@@ -410,7 +399,7 @@ extension Strings {
     
     // MARK: - Article Adding
     
-    private static let _articleTitlePrompts: [String : String] = [
+    private static let _articleTitlePrompts: [LangCode : String] = [
         LangCode.en : "Title: ",
         LangCode.ja : "タイトル：",
         LangCode.es : "Título: ",
@@ -419,10 +408,10 @@ extension Strings {
         LangCode.de : "Titel: ",
     ]
     static var articleTitlePrompt: String {
-        return Strings._articleTitlePrompts[Variables.lang]!
+        return Strings._articleTitlePrompts[LangCode.currentLanguage]!
     }
     
-    private static let _articleTopicPrompts: [String : String] = [
+    private static let _articleTopicPrompts: [LangCode : String] = [
         LangCode.en : "Topic: ",
         LangCode.ja : "トピック：",
         LangCode.es : "Tema: ",
@@ -431,10 +420,10 @@ extension Strings {
         LangCode.de : "Thema: ",
     ]
     static var articleTopicPrompt: String {
-        return Strings._articleTopicPrompts[Variables.lang]!
+        return Strings._articleTopicPrompts[LangCode.currentLanguage]!
     }
     
-    private static let _articleBodyPrompts: [String : String] = [
+    private static let _articleBodyPrompts: [LangCode : String] = [
         LangCode.en : "Body:",
         LangCode.ja : "本文：",
         LangCode.es : "Cuerpo:",
@@ -443,10 +432,10 @@ extension Strings {
         LangCode.de : "Textkörper:",
     ]
     static var articleBodyPrompt: String {
-        return Strings._articleBodyPrompts[Variables.lang]!
+        return Strings._articleBodyPrompts[LangCode.currentLanguage]!
     }
     
-    private static let _articleSourcePrompts: [String : String] = [
+    private static let _articleSourcePrompts: [LangCode : String] = [
         LangCode.en : "Source: ",
         LangCode.ja : "ソース：",
         LangCode.es : "Fuente: ",
@@ -455,10 +444,10 @@ extension Strings {
         LangCode.de : "Quelle: ",
     ]
     static var articleSourcePrompt: String {
-        return Strings._articleSourcePrompts[Variables.lang]!
+        return Strings._articleSourcePrompts[LangCode.currentLanguage]!
     }
     
-    private static let _articleEditingTitles: [String : String] = [
+    private static let _articleEditingTitles: [LangCode : String] = [
         LangCode.en : "Article Editing",
         LangCode.ja : "文章編集",
         LangCode.es : "Edición de Artículos",
@@ -467,10 +456,10 @@ extension Strings {
         LangCode.de : "Artikelbearbeitung",
     ]
     static var articleEditingTitle: String {
-        return Strings._articleEditingTitles[Variables.lang]!
+        return Strings._articleEditingTitles[LangCode.currentLanguage]!
     }
     
-    private static let _articleSplittingTitles: [String : String] = [
+    private static let _articleSplittingTitles: [LangCode : String] = [
         LangCode.en : "Split with Newlines",
         LangCode.ja : "改行で分割",
         LangCode.es : "Dividir con Nuevas Líneas",
@@ -479,7 +468,7 @@ extension Strings {
         LangCode.de : "Mit Newlines Teilen",
     ]
     static var articleSplittingTitle: String {
-        return Strings._articleSplittingTitles[Variables.lang]!
+        return Strings._articleSplittingTitles[LangCode.currentLanguage]!
     }
     
     static let windowsNewLineSymbol: String = "\r\n"
@@ -493,7 +482,7 @@ extension Strings {
     static let maskToken: String = "[MASK]"
     static let underscoreToken: String = String.init(repeating: "\u{FF3F}", count: 6)
     
-    private static let _meaningSelectionAndFillingPracticePrompt: [String : String] = [
+    private static let _meaningSelectionAndFillingPracticePrompt: [LangCode : String] = [
         LangCode.en : "The meaning of\n\(Strings.maskToken)?",
         LangCode.ja : "\(Strings.maskToken)\nの意味は？",
         LangCode.es : "¿El significado de\n\(Strings.maskToken)?",
@@ -502,10 +491,10 @@ extension Strings {
         LangCode.de : "Die Bedeutung von\n\(Strings.maskToken)?",
     ]
     static var meaningSelectionAndFillingPracticePrompt: String {
-        return Strings._meaningSelectionAndFillingPracticePrompt[Variables.lang]!
+        return Strings._meaningSelectionAndFillingPracticePrompt[LangCode.currentLanguage]!
     }
         
-    private static let _referenceLabelPrefices: [String : String] = [
+    private static let _referenceLabelPrefices: [LangCode : String] = [
         LangCode.en : "Reference: ",
         LangCode.ja : "参考：",
         LangCode.es : "Referencia: ",
@@ -514,10 +503,10 @@ extension Strings {
         LangCode.de : "Referenz: ",
     ]
     static var referenceLabelPrefix: String {
-        return Strings._referenceLabelPrefices[Variables.lang]!
+        return Strings._referenceLabelPrefices[LangCode.currentLanguage]!
     }
     
-    private static let _contextSelectionPracticePrompts: [String : String] = [
+    private static let _contextSelectionPracticePrompts: [LangCode : String] = [
         LangCode.en : "Select a proper word.",
         LangCode.ja : "適切な単語を選んでください。",
         LangCode.es : "Seleccione una palabra adecuada.",
@@ -526,10 +515,10 @@ extension Strings {
         LangCode.de : "Wählen Sie ein passendes Wort aus.",
     ]
     static var contextSelectionPracticePrompt: String {
-        return Strings._contextSelectionPracticePrompts[Variables.lang]!
+        return Strings._contextSelectionPracticePrompts[LangCode.currentLanguage]!
     }
     
-    private static let _accentSelectionPracticePrompts: [String : String] = [
+    private static let _accentSelectionPracticePrompts: [LangCode : String] = [
         LangCode.en : "The accents for\n\(Strings.maskToken)?",
         LangCode.ja : "\(Strings.maskToken)\nのアクセントは？",
         LangCode.es : "¿Los acentos para\n\(Strings.maskToken)?",
@@ -538,10 +527,10 @@ extension Strings {
         LangCode.de : "Die Akzente für\n\(Strings.maskToken)?",
     ]
     static var accentSelectionPracticePrompt: String {
-        return Strings._accentSelectionPracticePrompts[Variables.lang]!
+        return Strings._accentSelectionPracticePrompts[LangCode.currentLanguage]!
     }
     
-    private static let _reorderingPracticePrompts: [String : String] = [
+    private static let _reorderingPracticePrompts: [LangCode : String] = [
         LangCode.en : "Reorder the words.",
         LangCode.ja : "単語を並べ替えてください。",
         LangCode.es : "Reordene las palabras.",
@@ -550,10 +539,10 @@ extension Strings {
         LangCode.de : "Ordnen Sie die Wörter neu.",
     ]
     static var reorderingPracticePrompt: String {
-        return Strings._reorderingPracticePrompts[Variables.lang]!
+        return Strings._reorderingPracticePrompts[LangCode.currentLanguage]!
     }
     
-    private static let _listeningAndRepeatPracticePrompts: [String : String] = [
+    private static let _listeningAndRepeatPracticePrompts: [LangCode : String] = [
         LangCode.en : "listening and repeating",
         LangCode.ja : "聞き取りと繰り返し",
         LangCode.es : "Escucha y repetición",
@@ -562,10 +551,10 @@ extension Strings {
         LangCode.de : "Hören und Wiederholung",
     ]
     static var listeningAndRepeatPracticePrompt: String {
-        return Strings._listeningAndRepeatPracticePrompts[Variables.lang]!
+        return Strings._listeningAndRepeatPracticePrompts[LangCode.currentLanguage]!
     }
     
-    private static let _listenAndCompletePracticePrompts: [String : String] = [
+    private static let _listenAndCompletePracticePrompts: [LangCode : String] = [
         LangCode.en : "Listening and completing",
         LangCode.ja : "聞き取りと完成",
         LangCode.es : "Escucha y completación",
@@ -574,10 +563,10 @@ extension Strings {
         LangCode.de : "Hören und Vervollständigung",
     ]
     static var listenAndCompletePracticePrompt: String {
-        return Strings._listenAndCompletePracticePrompts[Variables.lang]!
+        return Strings._listenAndCompletePracticePrompts[LangCode.currentLanguage]!
     }
     
-    private static let _translationPracticePrompts: [String : String] = [
+    private static let _translationPracticePrompts: [LangCode : String] = [
         LangCode.en : "Interpret the paragraph.",
         LangCode.ja : "この段落を通訳してください。",
         LangCode.es : "Interprete el párrafo.",
@@ -586,10 +575,10 @@ extension Strings {
         LangCode.de : "Interpretieren Sie den Absatz.",
     ]
     static var translationPracticePrompt: String {
-        return Strings._translationPracticePrompts[Variables.lang]!
+        return Strings._translationPracticePrompts[LangCode.currentLanguage]!
     }
     
-    static let _interpretationPracticePrompt: [String : String] = [
+    static let _interpretationPracticePrompt: [LangCode : String] = [
         LangCode.en : "Interpretation",
         LangCode.ja : "通訳",
         LangCode.es : "Interpretación",
@@ -598,10 +587,10 @@ extension Strings {
         LangCode.de : "Deutung",
     ]
     static var interpretationPracticePrompt: String {
-        return Strings._interpretationPracticePrompt[Variables.lang]!
+        return Strings._interpretationPracticePrompt[LangCode.currentLanguage]!
     }
     
-    private static let _translationTokens: [String : String] = [
+    private static let _translationTokens: [LangCode : String] = [
         LangCode.en : "Translation",
         LangCode.ja : "訳文",
         LangCode.es : "Traducción",
@@ -610,10 +599,10 @@ extension Strings {
         LangCode.de : "Übersetzung",
     ]
     static var translationToken: String {
-        return Strings._translationTokens[Variables.lang]!
+        return Strings._translationTokens[LangCode.currentLanguage]!
     }
     
-    private static let _machineTranslationTokens: [String : String] = [
+    private static let _machineTranslationTokens: [LangCode : String] = [
         LangCode.en : "Machine translation",
         LangCode.ja : "機械翻訳",
         LangCode.es : "Traducción automática",
@@ -622,10 +611,10 @@ extension Strings {
         LangCode.de : "Maschinenübersetzung",
     ]
     static var machineTranslationToken: String {
-        return Strings._machineTranslationTokens[Variables.lang]!
+        return Strings._machineTranslationTokens[LangCode.currentLanguage]!
     }
     
-    private static let _machineTranslationErrorTokens: [String : String] = [
+    private static let _machineTranslationErrorTokens: [LangCode : String] = [
         LangCode.en : "Machine translation error",
         LangCode.ja : "機械翻訳エラー",
         LangCode.es : "Error de traducción automática",
@@ -634,10 +623,10 @@ extension Strings {
         LangCode.de : "Fehler bei der maschinellen Übersetzung",
     ]
     static var machineTranslationErrorToken: String {
-        return Strings._machineTranslationErrorTokens[Variables.lang]!.uppercased()
+        return Strings._machineTranslationErrorTokens[LangCode.currentLanguage]!.uppercased()
     }
         
-    private static let _textsForPausedPractice: [String : String] = [
+    private static let _textsForPausedPractice: [LangCode : String] = [
         LangCode.en : "Practice paused.",
         LangCode.ja : "練習を一時停止しました。",
         LangCode.es : "Práctica en pausa.",
@@ -646,12 +635,12 @@ extension Strings {
         LangCode.de : "Das Training wurde unterbrochen.",
     ]
     static var textForPausedPractice: String {
-        return Strings._textsForPausedPractice[Variables.lang]!
+        return Strings._textsForPausedPractice[LangCode.currentLanguage]!
     }
     
     // MARK: - Timing
         
-    private static let _timeUpAlertTitles: [String : String] = [
+    private static let _timeUpAlertTitles: [LangCode : String] = [
         LangCode.en : "Time Up",
         LangCode.ja : "タイムアップ",
         LangCode.es : "Se Acabó el Tiempo",
@@ -660,10 +649,10 @@ extension Strings {
         LangCode.de : "Zeit vorbei",
     ]
     static var timeUpAlertTitle: String {
-        return Strings._timeUpAlertTitles[Variables.lang]!
+        return Strings._timeUpAlertTitles[LangCode.currentLanguage]!
     }
     
-    private static let _timeUpAlertBodies: [String : String] = [
+    private static let _timeUpAlertBodies: [LangCode : String] = [
         LangCode.en : "You have practiced for \(Strings.maskToken) minutes. Continue practicing?",
         LangCode.ja : "もう\(Strings.maskToken)分練習しました。練習を続けますか？",
         LangCode.es : "¿Ha practicado por \(Strings.maskToken) minutos. Siga practicando?",
@@ -672,10 +661,10 @@ extension Strings {
         LangCode.de : "Sie haben \(Strings.maskToken) Minuten lang geübt. Weiter üben?",
     ]
     static var timeUpAlertBody: String {
-        return Strings._timeUpAlertBodies[Variables.lang]!
+        return Strings._timeUpAlertBodies[LangCode.currentLanguage]!
     }
     
-    private static let _maxTimeUpAlertBodies: [String : String] = [
+    private static let _maxTimeUpAlertBodies: [LangCode : String] = [
         LangCode.en : "You have practiced for \(Strings.maskToken) minutes. Take a break.",
         LangCode.ja : "もう\(Strings.maskToken)分練習しました。少し休んでください。",
         LangCode.es : "Ya ha practicado por \(Strings.maskToken) minutos. Tome un descanso.",
@@ -684,12 +673,12 @@ extension Strings {
         LangCode.de : "Sie haben \(Strings.maskToken) Minuten lang geübt. Machen Sie eine Pause.",
     ]
     static var maxTimeUpAlertBody: String {
-        return Strings._maxTimeUpAlertBodies[Variables.lang]!
+        return Strings._maxTimeUpAlertBodies[LangCode.currentLanguage]!
     }
 }
 
 extension Strings {
-    static let _wordSeparators: [String : String] = [
+    static let _wordSeparators: [LangCode : String] = [
         LangCode.en: " ",
         LangCode.ja: "",
         LangCode.es: " ",
@@ -698,10 +687,10 @@ extension Strings {
         LangCode.de: " ",
     ]
     static var wordSeparator: String{
-        return Strings._wordSeparators[Variables.lang]!
+        return Strings._wordSeparators[LangCode.currentLanguage]!
     }
     
-    private static let _subsentenceSeparators: [String : String] = [
+    private static let _subsentenceSeparators: [LangCode : String] = [
         LangCode.en: ",",
         LangCode.ja: "、",
         LangCode.es: ",",
@@ -710,7 +699,7 @@ extension Strings {
         LangCode.de: ",",
     ]
     static var subsentenceSeparator: String {
-        return Strings._subsentenceSeparators[Variables.lang]!
+        return Strings._subsentenceSeparators[LangCode.currentLanguage]!
     }
 }
 

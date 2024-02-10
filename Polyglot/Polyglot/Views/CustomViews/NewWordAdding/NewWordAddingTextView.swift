@@ -32,7 +32,7 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
     
     // MARK: - Init
     
-    init(frame: CGRect = .zero, textContainer: NSTextContainer? = nil, textLang: String, meaningLang: String) {
+    init(frame: CGRect = .zero, textContainer: NSTextContainer? = nil, textLang: LangCode, meaningLang: LangCode) {
         super.init(frame: frame, textContainer: textContainer)
         
         newWordBottomView = NewWordAddingBottomView(wordLang: textLang, meaningLang: meaningLang)

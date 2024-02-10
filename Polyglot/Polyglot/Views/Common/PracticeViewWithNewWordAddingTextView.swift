@@ -30,8 +30,8 @@ class PracticeViewWithNewWordAddingTextView: UIView, PracticeViewDelegate {
         super.init(frame: frame)
         
         textView = NewWordAddingTextView(
-            textLang: Variables.lang,
-            meaningLang: Variables.pairedLang
+            textLang: LangCode.currentLanguage,
+            meaningLang: LangCode.pairedLanguage
         )  // TODO: - is it proper to directly pass langs here?
         textView.attributedText = NSMutableAttributedString(
             string: " ",

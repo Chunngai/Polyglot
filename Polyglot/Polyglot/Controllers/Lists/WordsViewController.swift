@@ -13,8 +13,8 @@ class WordsViewController: ListViewController {
     // Translation stuff.
     
     private var translator: GoogleTranslator = GoogleTranslator(
-        srcLang: Variables.lang,
-        trgLang: Variables.pairedLang
+        srcLang: LangCode.currentLanguage,
+        trgLang: LangCode.pairedLanguage
     )
     private var translations: [String] = []
     private var translationIndex: Int = 0 {
@@ -259,9 +259,9 @@ extension WordsViewController {
                 updatedWord = newWord
             }
             
-            if Variables.lang == LangCode.ja {
+            if LangCode.currentLanguage == LangCode.ja {
                 JapaneseAccentAnalyzer.makeTokens(for: updatedWord) { tokens in
-                    guard Variables.lang == LangCode.ja else {
+                    guard LangCode.currentLanguage == LangCode.ja else {
                         return
                     }
                     DispatchQueue.main.async {
@@ -269,9 +269,9 @@ extension WordsViewController {
                     }
                 }
             }
-            if Variables.lang == LangCode.ru {
+            if LangCode.currentLanguage == LangCode.ru {
                 RussianAccentAnalyzer.makeTokens(for: updatedWord) { tokens in
-                    guard Variables.lang == LangCode.ru else {
+                    guard LangCode.currentLanguage == LangCode.ru else {
                         return
                     }
                     DispatchQueue.main.async {
@@ -351,12 +351,12 @@ extension WordsViewController {
     }
     
     private func updateSomeAccents(n: Int = 10) {
-        if Variables.lang == LangCode.ja {
+        if LangCode.currentLanguage == LangCode.ja {
             var counter: Int = 0
             for word in words {
                 if word.tokens == nil || JapaneseAccentAnalyzer.isOldAccents(word) {
                     JapaneseAccentAnalyzer.makeTokens(for: word) { tokens in
-                        guard Variables.lang == LangCode.ja else {
+                        guard LangCode.currentLanguage == LangCode.ja else {
                             return
                         }
                         DispatchQueue.main.async {
@@ -372,12 +372,12 @@ extension WordsViewController {
             }
         }
         
-        if Variables.lang == LangCode.ru {
+        if LangCode.currentLanguage == LangCode.ru {
             var counter: Int = 0
             for word in words {
                 if word.tokens == nil {
                     RussianAccentAnalyzer.makeTokens(for: word) { tokens in
-                        guard Variables.lang == LangCode.ru else {
+                        guard LangCode.currentLanguage == LangCode.ru else {
                             return
                         }
                         DispatchQueue.main.async {

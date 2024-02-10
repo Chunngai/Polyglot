@@ -21,7 +21,7 @@ struct HomeItem: Hashable {
     let secondaryText: String?
     
     let header: String?
-    let lang: String?
+    let lang: LangCode?
     let words: [String]?
     let meanings: [String]?
     let pronunciations: [String]?
@@ -30,7 +30,7 @@ struct HomeItem: Hashable {
     
     init(
         image: UIImage? = nil, text: String? = nil, secondaryText: String? = nil,
-        header: String? = nil, lang: String? = nil, words: [String]? = nil, meanings: [String]? = nil, pronunciations: [String]? = nil, content: String? = nil, contentSource: String? = nil
+        header: String? = nil, lang: LangCode? = nil, words: [String]? = nil, meanings: [String]? = nil, pronunciations: [String]? = nil, content: String? = nil, contentSource: String? = nil
     ) {
         self.image = image
         self.text = text
@@ -49,24 +49,22 @@ struct HomeItem: Hashable {
 class HomeViewController: UIViewController {
     
     // Langauges.
-    
-    let learningLangs: [String] = LangCode.loadLearningLanguages()
-    
-    var lang: String! {
+        
+    var lang: LangCode! {
         didSet {
-            guard let lang = lang, Variables.lang != lang else {
+            guard let lang = lang, LangCode.currentLanguage != lang else {
                 return
             }
             print("Updating lang to \(lang)")
             
-            Variables.lang = lang
+            LangCode.currentLanguage = lang
                         
             print("Resetting data.")
             self._words = nil
             self._articles = nil
             
-            self.wordMetaData = Word.loadMetaData(for: lang)
-            self.articleMetaData = Article.loadMetaData(for: lang)
+            self.wordMetaData = Word.loadMetaData(for: lang.rawValue)
+            self.articleMetaData = Article.loadMetaData(for: lang.rawValue)
             
             self.updateTexts()
         }
@@ -79,16 +77,16 @@ class HomeViewController: UIViewController {
     let languageItems = LangCode.loadLearningLanguages().map { langCode in
         return HomeItem(
             image: Images.langImages[langCode], 
-            text: LangCode.toFlagIcon(langCode: langCode)
+            text: langCode.flagIcon
         )
     }
     
-    var languageOfTextToDisplay: String {
+    var languageOfTextToDisplay: LangCode {
         if self.lang != nil {
             return self.lang
         } else {
-            if !learningLangs.isEmpty {
-                return learningLangs[0]
+            if !LangCode.learningLanguages.isEmpty {
+                return LangCode.learningLanguages[0]
             } else {
                 // Default val.
                 return LangCode.en
@@ -131,7 +129,7 @@ class HomeViewController: UIViewController {
         get {
             if self._words == nil {
                 print("Reading words.")
-                self._words = Word.load(for: self.lang)
+                self._words = Word.load(for: self.lang.rawValue)
                 self._wordCount = self._words.count
             }
             
@@ -149,7 +147,7 @@ class HomeViewController: UIViewController {
             print("Word count: \(_wordCount ?? -1) -> \(newValue.count)")
             _wordCount = newValue.count
             
-            Word.save(&newValue, for: self.lang)
+            Word.save(&newValue, for: self.lang.rawValue)
             
             wordMetaData["count"] = String(newValue.count)
             DispatchQueue.main.async {  // May be called by the accent retrieving in a closure.
@@ -164,7 +162,7 @@ class HomeViewController: UIViewController {
         get {
             if self._articles == nil {
                 print("Reading articles.")
-                self._articles = Article.load(for: self.lang)
+                self._articles = Article.load(for: self.lang.rawValue)
                 self._articleCount = self._articles.count
             }
             
@@ -182,7 +180,7 @@ class HomeViewController: UIViewController {
             print("Article count: \(_articleCount ?? -1) -> \(newValue.count)")
             _articleCount = newValue.count
             
-            Article.save(&newValue, for: self.lang)
+            Article.save(&newValue, for: self.lang.rawValue)
             
             articleMetaData["count"] = String(newValue.count)
             DispatchQueue.main.async {  // May be called by the accent retrieving in a closure.
@@ -193,12 +191,12 @@ class HomeViewController: UIViewController {
     
     var wordMetaData: [String:String]! {
         didSet {
-            Word.saveMetaData(&wordMetaData, for: self.lang)
+            Word.saveMetaData(&wordMetaData, for: self.lang.rawValue)
         }
     }
     var articleMetaData: [String:String]! {
         didSet {
-            Article.saveMetaData(&articleMetaData, for: self.lang)
+            Article.saveMetaData(&articleMetaData, for: self.lang.rawValue)
         }
     }
     
@@ -264,7 +262,7 @@ class HomeViewController: UIViewController {
     private func updateViews() {
         navigationController?.navigationBar.prefersLargeTitles = true
         
-        navigationItem.title = Strings._homeTitles[learningLangs[0]]
+        navigationItem.title = Strings._homeTitles[LangCode.learningLanguages[0]]
         navigationItem.largeTitleDisplayMode = .always
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             image: UIImage.init(systemName: "square.and.arrow.up"),
@@ -343,8 +341,8 @@ extension HomeViewController {
         for hour in 0...23 {
             
             var sentenceItems:[HomeItem] = []
-            for lang in learningLangs {
-                guard let entry = contentCards.sentences[hour]?[lang] else {
+            for lang in LangCode.learningLanguages {
+                guard let entry = contentCards.sentences[hour]?[lang.rawValue] else {
                     continue
                 }
                 guard let content = entry.content, !content.isEmpty else {
@@ -367,8 +365,8 @@ extension HomeViewController {
             }
             
             var paragraphItems: [HomeItem] = []
-            for lang in learningLangs {
-                guard let entry = contentCards.paragraphs[hour]?[lang] else {
+            for lang in LangCode.learningLanguages {
+                guard let entry = contentCards.paragraphs[hour]?[lang.rawValue] else {
                     continue
                 }
                 guard let content = entry.content, !content.isEmpty else {
@@ -379,7 +377,7 @@ extension HomeViewController {
                 var allMeanings: [String] = []
                 var allPronunciations: [String] = []
                 for (wordLang, wordEntries) in contentCards.words {
-                    if wordLang != lang {
+                    if wordLang != lang.rawValue {
                         continue
                     }
                     for wordEntry in wordEntries {
@@ -498,9 +496,9 @@ extension HomeViewController {
     
     private var fileNamesToUpload: [String] {
         var fileNames: [String] = []
-        for learningLang in self.learningLangs {
-            fileNames.append(Word.fileName(for: learningLang))
-            fileNames.append(Article.fileName(for: learningLang))
+        for learningLang in LangCode.learningLanguages {
+            fileNames.append(Word.fileName(for: learningLang.rawValue))
+            fileNames.append(Article.fileName(for: learningLang.rawValue))
         }
         return fileNames
     }
@@ -679,7 +677,7 @@ extension HomeViewController {
                 return .white
             }
 
-            if self.learningLangs[indexPath.row] == self.lang {
+            if LangCode.learningLanguages[indexPath.row] == self.lang {
                 background.strokeColor = .black
                 background.strokeWidth = 2
             } else {
@@ -877,7 +875,7 @@ extension HomeViewController: UICollectionViewDelegate {
             // because doing so will deselect the selected
             // language cell if a cell in other lists
             // is selected, which is not expected.
-            for i in 0..<learningLangs.count {
+            for i in 0..<LangCode.learningLanguages.count {
                 if i == indexPath.row {
                     continue
                 }
@@ -889,7 +887,7 @@ extension HomeViewController: UICollectionViewDelegate {
             }
             
             // Update the current language.
-            self.lang = self.learningLangs[indexPath.row]
+            self.lang = LangCode.learningLanguages[indexPath.row]
             
         } else if section == HomeViewController.listSection {
                     

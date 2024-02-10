@@ -251,17 +251,17 @@ extension WordsPracticeViewController {
                 continue
             }
             
-            if Variables.lang == LangCode.ja && (word.tokens == nil || JapaneseAccentAnalyzer.isOldAccents(word)) {
+            if LangCode.currentLanguage == LangCode.ja && (word.tokens == nil || JapaneseAccentAnalyzer.isOldAccents(word)) {
                 JapaneseAccentAnalyzer.makeTokens(for: word) { tokens in
-                    guard Variables.lang == LangCode.ja else {
+                    guard LangCode.currentLanguage == LangCode.ja else {
                         return
                     }
                     self.words.updateWord(of: word.id, newTokens: tokens)
                 }
             }
-            if Variables.lang == LangCode.ru && word.tokens == nil {
+            if LangCode.currentLanguage == LangCode.ru && word.tokens == nil {
                 RussianAccentAnalyzer.makeTokens(for: word) { tokens in
-                    guard Variables.lang == LangCode.ru else {
+                    guard LangCode.currentLanguage == LangCode.ru else {
                         return
                     }
                     self.words.updateWord(of: word.id, newTokens: tokens)

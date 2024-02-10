@@ -10,9 +10,9 @@ import Foundation
 
 struct ContentCreator {
 
-    let lang: String!
+    let lang: LangCode
     
-    init(lang: String!) {
+    init(lang: LangCode) {
         self.lang = lang
     }
     

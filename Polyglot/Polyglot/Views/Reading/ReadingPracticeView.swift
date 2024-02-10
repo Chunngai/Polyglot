@@ -35,7 +35,7 @@ class ReadingPracticeView: UIView, PracticeViewDelegate {
     
     // MARK: - Init
     
-    init(frame: CGRect = .zero, text: String, textLang: String, meaning: String?, meaningLang: String) {
+    init(frame: CGRect = .zero, text: String, textLang: LangCode, meaning: String?, meaningLang: LangCode) {
         super.init(frame: frame)
         
         self.text = text
@@ -134,8 +134,8 @@ extension ReadingPracticeView {
             }
             
             GoogleTranslator(
-                srcLang: Variables.lang,
-                trgLang: Variables.pairedLang
+                srcLang: LangCode.currentLanguage,
+                trgLang: LangCode.pairedLanguage
             ).translate(
                 query: self.text,
                 completion: completion

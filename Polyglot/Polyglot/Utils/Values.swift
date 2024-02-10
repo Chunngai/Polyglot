@@ -12,29 +12,15 @@ import NaturalLanguage
 
 struct Variables {
     
-    static var lang: String = ""
-    
-    private static let _pairedLangs: [String : String] = [
-        LangCode.en: LangCode.zh,
-        LangCode.ja: LangCode.zh,
-        LangCode.es: LangCode.en,
-        LangCode.ru: LangCode.en,
-        LangCode.ko: LangCode.ja,
-        LangCode.de: LangCode.ru,
-    ]
-    static var pairedLang: String {
-        return Variables._pairedLangs[Variables.lang]!
-    }
-    
     static func tokenizerOfLang(of unit: NLTokenUnit = .word) -> NLTokenizer {
         let tokenizer = NLTokenizer(unit: unit)
-        tokenizer.setLanguage(LangCode.toNLLanguage(langCode: Variables.lang))
+        tokenizer.setLanguage(LangCode.currentLanguage.NLLanguage)
         return tokenizer
     }
     
     static func tokenizerOfPairedLang(of unit: NLTokenUnit = .word) -> NLTokenizer {
         let tokenizer = NLTokenizer(unit: unit)
-        tokenizer.setLanguage(LangCode.toNLLanguage(langCode: Variables.pairedLang))
+        tokenizer.setLanguage(LangCode.pairedLanguage.NLLanguage)
         return tokenizer
     }
     

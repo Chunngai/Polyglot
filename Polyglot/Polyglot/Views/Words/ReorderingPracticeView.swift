@@ -151,8 +151,8 @@ class ReorderingPracticeView: UIView {
     func updateValues(words: [String]) {
         
         GoogleTranslator(
-            srcLang: Variables.lang,
-            trgLang: Variables.pairedLang
+            srcLang: LangCode.currentLanguage,
+            trgLang: LangCode.pairedLanguage
         ).translate(query: words.joined(separator: Strings.wordSeparator)) { (res) in
             if let translation = res.first {
                 DispatchQueue.main.async {

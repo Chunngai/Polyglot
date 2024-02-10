@@ -51,14 +51,14 @@ struct Images {
     
     // Lang images.
     
-    static let enImage: UIImage = UIImage(imageLiteralResourceName: LangCode.en).scale(to: Sizes.langImageScalingFactor)
-    static let jaImage: UIImage = UIImage(imageLiteralResourceName: LangCode.ja).scale(to: Sizes.langImageScalingFactor)
-    static let esImage: UIImage = UIImage(imageLiteralResourceName: LangCode.es).scale(to: Sizes.langImageScalingFactor)
-    static let ruImage: UIImage = UIImage(imageLiteralResourceName: LangCode.ru).scale(to: Sizes.langImageScalingFactor)
-    static let koImage: UIImage = UIImage(imageLiteralResourceName: LangCode.ko).scale(to: Sizes.langImageScalingFactor)
-    static let deImage: UIImage = UIImage(imageLiteralResourceName: LangCode.de).scale(to: Sizes.langImageScalingFactor)
+    static let enImage: UIImage = UIImage(imageLiteralResourceName: LangCode.en.rawValue).scale(to: Sizes.langImageScalingFactor)
+    static let jaImage: UIImage = UIImage(imageLiteralResourceName: LangCode.ja.rawValue).scale(to: Sizes.langImageScalingFactor)
+    static let esImage: UIImage = UIImage(imageLiteralResourceName: LangCode.es.rawValue).scale(to: Sizes.langImageScalingFactor)
+    static let ruImage: UIImage = UIImage(imageLiteralResourceName: LangCode.ru.rawValue).scale(to: Sizes.langImageScalingFactor)
+    static let koImage: UIImage = UIImage(imageLiteralResourceName: LangCode.ko.rawValue).scale(to: Sizes.langImageScalingFactor)
+    static let deImage: UIImage = UIImage(imageLiteralResourceName: LangCode.de.rawValue).scale(to: Sizes.langImageScalingFactor)
     
-    static let langImages: [String : UIImage] = [
+    static let langImages: [LangCode : UIImage] = [
         LangCode.en: Images.enImage,
         LangCode.ja: Images.jaImage,
         LangCode.es: Images.esImage,
@@ -67,7 +67,7 @@ struct Images {
         LangCode.de: Images.deImage,
     ]
     static var langImage: UIImage {
-        return Images.langImages[Variables.lang]!
+        return Images.langImages[LangCode.currentLanguage]!
     }
     
     // Cell images.

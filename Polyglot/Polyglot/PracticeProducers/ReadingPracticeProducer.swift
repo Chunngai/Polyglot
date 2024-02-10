@@ -69,8 +69,8 @@ class ReadingPracticeProducer: PracticeProducerDelegate {
                 ),
                 text: para.text,
                 meaning: para.meaning,
-                textLang: Variables.lang,
-                meaningLang: Variables.pairedLang
+                textLang: LangCode.currentLanguage,
+                meaningLang: LangCode.pairedLanguage
             ))
             
         }
@@ -88,8 +88,8 @@ extension ReadingPracticeProducer {
         var text: String
         var meaning: String?
         
-        var textLang: String
-        var meaningLang: String
+        var textLang: LangCode
+        var meaningLang: LangCode
     }
     
 }

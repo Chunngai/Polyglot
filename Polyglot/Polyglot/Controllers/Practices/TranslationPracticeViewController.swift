@@ -81,7 +81,7 @@ class TranslationPracticeViewController: PracticeViewController {
         // WHOSE TOP DEPENDS ON THE BOTTOM OF THE PROMPT VIEW.
         // OTHERWISE, THE LOCATIONS OF THE DRAGGABLE LABELS MAY BE WEIRD.
         let promptAttributes = NSMutableAttributedString(
-            string: "\(Strings.interpretationPracticePrompt): \(LangCode.toFlagIcon(langCode: practiceProducer.currentPractice.textLang)) ⇒ \(LangCode.toFlagIcon(langCode: practiceProducer.currentPractice.meaningLang))",
+            string: "\(Strings.interpretationPracticePrompt): \(practiceProducer.currentPractice.textLang.flagIcon) ⇒ \(practiceProducer.currentPractice.meaningLang.flagIcon)",
             attributes: Attributes.practicePromptAttributes
         )
         promptLabel.attributedText = promptAttributes

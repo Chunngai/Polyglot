@@ -251,10 +251,10 @@ class ListeningPracticeViewController: PracticeViewController {
         
         // Update the speech synthesizer.
         utterance = AVSpeechUtterance(string: practiceProducer.currentPractice.text)
-        utterance.voice = AVSpeechSynthesisVoice(identifier: LangCode.toVoiceIdentifier(langCode: practiceProducer.currentPractice.textLang))
+        utterance.voice = AVSpeechSynthesisVoice(identifier: practiceProducer.currentPractice.textLang.voiceIdentifier)
         
         // Update the speech recognizer.
-        speechRecognizer = SFSpeechRecognizer(locale: LangCode.toLocale(langCode: practiceProducer.currentPractice.textLang))
+        speechRecognizer = SFSpeechRecognizer(locale: practiceProducer.currentPractice.textLang.locale)
     }
 }
 

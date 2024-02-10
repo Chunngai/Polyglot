@@ -9,69 +9,84 @@
 import Foundation
 import NaturalLanguage
 
-struct LangCode {  // TODO: - Convert to enum
+enum LangCode: String {
         
-    static let zh: String = "zh"
-    static let en: String = "en"
-    static let ja: String = "ja"
-    static let es: String = "es"
-    static let ru: String = "ru"
-    static let ko: String = "ko"
-    static let de: String = "de"
+    case zh
+    case en
+    case ja
+    case es
+    case ru
+    case ko
+    case de
     
 }
 
 extension LangCode {
     
-    static func toNLLanguage(langCode: String) -> NLLanguage {
-        switch langCode {
-        case LangCode.zh: return .simplifiedChinese
-        case LangCode.en: return .english
-        case LangCode.ja: return .japanese
-        case LangCode.es: return .spanish
-        case LangCode.ru: return .russian
-        case LangCode.ko: return .korean
-        case LangCode.de: return .german
-        default: return .english
+    static var currentLanguage: LangCode = .en
+    static var pairedLanguage: LangCode {
+        switch LangCode.currentLanguage {
+        case .zh: return .zh
+        case .en: return .zh
+        case .ja: return .zh
+        case .es: return .en
+        case .ru: return .es
+        case .ko: return .ja
+        case .de: return .ru
         }
     }
     
-    static func toFlagIcon(langCode: String) -> String {
-        switch langCode {
-        case LangCode.zh: return "🇨🇳"
-        case LangCode.en: return "🇬🇧"
-        case LangCode.ja: return "🇯🇵"
-        case LangCode.es: return "🇪🇸"
-        case LangCode.ru: return "🇷🇺"
-        case LangCode.ko: return "🇰🇷"
-        case LangCode.de: return "🇩🇪"
-        default: return ""
+    static let learningLanguages: [LangCode] = LangCode.loadLearningLanguages()
+    
+}
+
+extension LangCode {
+    
+    var NLLanguage: NLLanguage {
+        switch self {
+        case .zh: return .simplifiedChinese
+        case .en: return .english
+        case .ja: return .japanese
+        case .es: return .spanish
+        case .ru: return .russian
+        case .ko: return .korean
+        case .de: return .german
         }
     }
     
-    static func toVoiceIdentifier(langCode: String) -> String {
-        switch langCode {
-        case LangCode.zh: return "com.apple.ttsbundle.siri_Li-mu_zh-CN_compact"
-        case LangCode.en: return "com.apple.voice.compact.en-GB.Daniel"
-        case LangCode.ja: return "com.apple.ttsbundle.siri_Hattori_ja-JP_compact"
-        case LangCode.es: return "com.apple.voice.compact.es-ES.Monica"
-        case LangCode.ru: return "com.apple.voice.compact.ru-RU.Milena"
-        case LangCode.ko: return "com.apple.voice.enhanced.ko-KR.Yuna"
-        case LangCode.de: return "com.apple.ttsbundle.siri_Martin_de-DE_compact"
-        default: return LangCode.toVoiceIdentifier(langCode: LangCode.en)
+    var flagIcon: String {
+        switch self {
+        case .zh: return "🇨🇳"
+        case .en: return "🇬🇧"
+        case .ja: return "🇯🇵"
+        case .es: return "🇪🇸"
+        case .ru: return "🇷🇺"
+        case .ko: return "🇰🇷"
+        case .de: return "🇩🇪"
         }
     }
     
-    static func toLocale(langCode: String) -> Locale {
-        switch langCode {
-        case LangCode.zh: return Locale(identifier: "zh-CN")
-        case LangCode.en: return Locale(identifier: "en-GB")
-        case LangCode.ja: return Locale(identifier: "ja-JP")
-        case LangCode.es: return Locale(identifier: "es-ES")
-        case LangCode.ru: return Locale(identifier: "ru-RU")
-        case LangCode.ko: return Locale(identifier: "ko-KR")
-        case LangCode.de: return Locale(identifier: "de-DE")
-        default: return LangCode.toLocale(langCode: LangCode.en)
+    var voiceIdentifier: String {
+        switch self {
+        case .zh: return "com.apple.ttsbundle.siri_Li-mu_zh-CN_compact"
+        case .en: return "com.apple.voice.compact.en-GB.Daniel"
+        case .ja: return "com.apple.ttsbundle.siri_Hattori_ja-JP_compact"
+        case .es: return "com.apple.voice.compact.es-ES.Monica"
+        case .ru: return "com.apple.voice.compact.ru-RU.Milena"
+        case .ko: return "com.apple.voice.enhanced.ko-KR.Yuna"
+        case .de: return "com.apple.ttsbundle.siri_Martin_de-DE_compact"
+        }
+    }
+    
+    var locale: Locale {
+        switch self {
+        case .zh: return Locale(identifier: "zh-CN")
+        case .en: return Locale(identifier: "en-GB")
+        case .ja: return Locale(identifier: "ja-JP")
+        case .es: return Locale(identifier: "es-ES")
+        case .ru: return Locale(identifier: "ru-RU")
+        case .ko: return Locale(identifier: "ko-KR")
+        case .de: return Locale(identifier: "de-DE")
         }
     }
 }
@@ -84,24 +99,28 @@ extension LangCode {
         return "learningLanguages.json"
     }
     
-    static func loadLearningLanguages() -> [String] {
+    static func loadLearningLanguages() -> [LangCode] {
         do {
             let langCodes = try readDataFromJson(
                 fileName: LangCode.fileName,
                 type: [String].self
             ) as! [String]
-            return langCodes
+            return langCodes.map { langCode in
+                LangCode(rawValue: langCode)!
+            }
         } catch {
             print(error)
             exit(1)
         }
     }
     
-    static func saveLearningLanguages(_ langCodes: inout [String]) {
+    static func saveLearningLanguages(_ langCodes: inout [LangCode]) {
         do {
             try writeDataToJson(
                 fileName: LangCode.fileName,
-                data: langCodes
+                data: langCodes.map({ langCode in
+                    langCode.rawValue
+                })
             )
         } catch {
             print(error)
