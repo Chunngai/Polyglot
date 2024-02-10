@@ -358,7 +358,7 @@ extension ListeningPracticeViewController {
             
             if let result = result {
                 if let practiceView = self.practiceView as? ListeningPracticeViewControllerDelegate {
-                    practiceView.processRecognizedText(text: result.bestTranscription.formattedString)
+                    practiceView.processRecognizedSpeech(result.bestTranscription.formattedString)
                 }
                 isFinal = result.isFinal
             }
@@ -431,6 +431,6 @@ extension ListeningPracticeViewController {
 
 protocol ListeningPracticeViewControllerDelegate {
     
-    func processRecognizedText(text: String)
+    func processRecognizedSpeech(_ text: String)
     
 }
