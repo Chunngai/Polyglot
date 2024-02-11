@@ -39,8 +39,8 @@ class ListenAndCompletePracticeView: PracticeViewWithNewWordAddingTextView {
 
 extension ListenAndCompletePracticeView: ListeningPracticeViewDelegate {
     
-    func submit() {
-        
+    func submit() -> Any {
+        return []
     }
     
     func updateViewsAfterSubmission() {

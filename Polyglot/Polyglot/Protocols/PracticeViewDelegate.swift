@@ -23,7 +23,7 @@ protocol WordPracticeViewDelegate: PracticeViewDelegate {
 
 protocol ListeningPracticeViewDelegate: PracticeViewDelegate {
     
-    func submit()
+    func submit() -> Any
     func updateViewsAfterSubmission()
     
 }

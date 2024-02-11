@@ -280,7 +280,8 @@ extension ListeningPracticeViewController {
         
         practiceStatus = .finished
                 
-        (practiceView as! ListeningPracticeViewDelegate).submit()
+        let submission = (practiceView as! ListeningPracticeViewDelegate).submit()
+        practiceProducer.checkCorrectness(of: submission)
         (practiceView as! ListeningPracticeViewDelegate).updateViewsAfterSubmission()
         
         isRecordingSpeech = false

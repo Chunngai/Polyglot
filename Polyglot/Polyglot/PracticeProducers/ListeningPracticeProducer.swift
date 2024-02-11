@@ -149,40 +149,6 @@ extension ListeningPracticeProducer {
     }
     
     private func generateRanges(for text: String) -> [NSRange] {
-        
-//        var clozeRanges: [NSRange] = []
-//
-//        var location: Int? = nil
-//        var length: Int = 0
-//        for (i, character) in text.enumerated() {
-//            if character == " " || character.isPunctuation || i == text.count - 1 {
-//                
-//                if let location = location {
-//        //            print(
-//        //                location,
-//        //                length,
-//        //                (text as NSString).substring(with: NSRange(location: location, length: length))
-//        //            )
-//                    clozeRanges.append(NSRange(
-//                        location: location,
-//                        length: length
-//                    ))
-//                }
-//                
-//                location = nil
-//                length = 0
-//                continue
-//            }
-//            
-//            if location == nil {
-//                location = i
-//                length = 1
-//            } else {
-//                length += 1
-//            }
-//        }
-//        
-//        return clozeRanges
                 
         var clozeRanges: [NSRange] = []
 
@@ -304,6 +270,21 @@ extension ListeningPracticeProducer {
 
 extension ListeningPracticeProducer {
     
+    func checkCorrectness(of submission: Any) {
+        if currentPractice.type == .listenAndRepeat {
+            guard let matchedClozeRanges = submission as? [NSRange] else {
+                return
+            }
+            if Double(matchedClozeRanges.count) / Double(currentPractice.clozeRanges.count) <= ListeningPracticeProducer.listenAndRepeatRedoThredshold {
+                practiceList.append(Item(from: currentPractice))
+            }
+        }
+    }
+    
+}
+
+extension ListeningPracticeProducer {
+    
     struct Item: PracticeItemDelegate {
         
         enum PracticeType {
@@ -311,6 +292,7 @@ extension ListeningPracticeProducer {
             case listenAndComplete
         }
         
+        var id: UUID
         var type: PracticeType
         var prompt: String
         var text: String
@@ -319,6 +301,29 @@ extension ListeningPracticeProducer {
         var meaningLang: LangCode
         var articleId: String? = nil  // nil: chatgpt
         var clozeRanges: [NSRange]
+        
+        init(type: PracticeType, prompt: String, text: String, meaning: String? = nil, textLang: LangCode, meaningLang: LangCode, articleId: String? = nil, clozeRanges: [NSRange]) {
+            self.id = UUID()
+            self.type = type
+            self.prompt = prompt
+            self.text = text
+            self.meaning = meaning
+            self.textLang = textLang
+            self.meaningLang = meaningLang
+            self.articleId = articleId
+            self.clozeRanges = clozeRanges
+        }
+        
+        init(from another: Item) {
+            self.init(
+                type: another.type,
+                prompt: another.prompt,
+                text: another.text,
+                textLang: another.textLang,
+                meaningLang: another.meaningLang,
+                clozeRanges: another.clozeRanges
+            )
+        }
         
     }
     
@@ -329,5 +334,6 @@ extension ListeningPracticeProducer {
     // MARK: - Constants
     
     static let maxClozeNumForListenAndComplete: Int = 10
+    static let listenAndRepeatRedoThredshold: Double = 0.6
     
 }

@@ -79,8 +79,8 @@ class ListenAndRepeatPracticeView: PracticeViewWithNewWordAddingTextView {
 
 extension ListenAndRepeatPracticeView: ListeningPracticeViewDelegate {
     
-    func submit() {
-        
+    func submit() -> Any {
+        return Array<NSRange>(matchedClozeRanges)
     }
     
     func updateViewsAfterSubmission() {
