@@ -105,6 +105,7 @@ struct Icons {
     static let startIcon = UIImage(imageLiteralResourceName: "start")
     static let pauseIcon = UIImage(imageLiteralResourceName: "pause")
     static let chatgptIcon = UIImage(imageLiteralResourceName: "chatgpt")
+    static let googleTranslateIcon = UIImage(imageLiteralResourceName: "google-translate")
     
 }
 

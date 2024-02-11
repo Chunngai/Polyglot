@@ -33,6 +33,12 @@ class ListeningPracticeProducer: PracticeProducerDelegate {
         }
     }
     
+    var translator: GoogleTranslator = GoogleTranslator(
+        srcLang: LangCode.currentLanguage,
+        trgLang: LangCode.pairedLanguage
+    )
+    var contentGenerator: ContentCreator = ContentCreator(lang: LangCode.currentLanguage)
+    
     init(words: [Word], articles: [Article]) {
         self.words = words
         self.articles = articles
@@ -109,20 +115,22 @@ class ListeningPracticeProducer: PracticeProducerDelegate {
                 if let listenAndRepeatPractice = makePractice(
                     of: .listenAndRepeat,
                     for: self.words.randomElement()!,
-                    callBackWhenTextGeneratedWithContentCreator: { listenAndRepeatPractice in
+                    callBack: { listenAndRepeatPractice in
                         self.practiceList.append(listenAndRepeatPractice)
                     }
                 ) {
                     practiceList.append(listenAndRepeatPractice)
+                    practiceList.shuffle()
                 }
             } else if p >= 0.8 && p <= 1.0 {
                 if let listenAndRepeatPractice = makePractice(
                     of: .listenAndRepeat,
-                    callBackWhenTextGeneratedWithContentCreator: { listenAndRepeatPractice in
+                    callBack: { listenAndRepeatPractice in
                         self.practiceList.append(listenAndRepeatPractice)
                     }
                 ) {
                     practiceList.append(listenAndRepeatPractice)
+                    practiceList.shuffle()
                 }
             }
             
@@ -211,10 +219,10 @@ extension ListeningPracticeProducer {
     private func makePractice(
         of type: ListeningPracticeProducer.Item.PracticeType,
         for randomWord: Word? = nil,
-        callBackWhenTextGeneratedWithContentCreator: @escaping (ListeningPracticeProducer.Item) -> Void
+        callBack: @escaping (ListeningPracticeProducer.Item) -> Void
     ) -> ListeningPracticeProducer.Item? {
         
-        func makePractice(text: String, meaning: String? = nil, articleId: String? = nil) -> ListeningPracticeProducer.Item {
+        func makePractice(text: String, meaning: String, textSource: String? = nil, isTextMachineTranslated: Bool) -> ListeningPracticeProducer.Item {
                         
             var clozeRanges: [NSRange] = generateRanges(for: text)
             if type == .listenAndComplete && clozeRanges.count >= ListeningPracticeProducer.maxClozeNumForListenAndComplete {
@@ -228,7 +236,8 @@ extension ListeningPracticeProducer {
                 meaning: meaning,
                 textLang: LangCode.currentLanguage,
                 meaningLang: LangCode.pairedLanguage,
-                articleId: articleId,
+                textSource: textSource,
+                isTextMachineTranslated: isTextMachineTranslated,
                 clozeRanges: clozeRanges
             )
         }
@@ -240,18 +249,32 @@ extension ListeningPracticeProducer {
                let targetSentence = paraCandidate.text.tokenized(with: LangCode.currentLanguage.sentenceTokenizer).first(where: { sentence in
                    sentence.lowercased().contains(randomWord.text.lowercased())  // Case-insensitive.
                }) {
-                return makePractice(
-                    text: targetSentence,
-                    articleId: paraCandidate.articleId
-                )
+                translator.translate(query: targetSentence) { translations in
+                    guard let targetSentenceTranslation = translations.first else {
+                        return
+                    }
+                    callBack(makePractice(
+                        text: targetSentence,
+                        meaning: targetSentenceTranslation,
+                        textSource: paraCandidate.articleId,
+                        isTextMachineTranslated: true
+                    ))
+                }
             } else {
                 ContentCreator(lang: LangCode.currentLanguage).createContent(for: [randomWord.text]) { content in
                     guard let content = content else {
                         return
                     }
-                    callBackWhenTextGeneratedWithContentCreator(makePractice(
-                        text: content
-                    ))
+                    self.translator.translate(query: content) { translations in
+                        guard let contentTranslation = translations.first else {
+                            return
+                        }
+                        callBack(makePractice(
+                            text: content,
+                            meaning: contentTranslation, 
+                            isTextMachineTranslated: true
+                        ))
+                    }
                 }
                 return nil
             }
@@ -259,12 +282,30 @@ extension ListeningPracticeProducer {
             // Randomly choose a paragraph.
             let randomArticle = self.articles.randomElement()!
             let randomParagraph = randomArticle.paras.randomElement()!
-            return makePractice(
-                text: randomParagraph.text,
-                meaning: randomParagraph.meaning,
-                articleId: randomArticle.id
-            )
+            if let meaning = randomParagraph.meaning {
+                return makePractice(
+                    text: randomParagraph.text,
+                    meaning: meaning,
+                    textSource: randomArticle.id, 
+                    isTextMachineTranslated: false
+                )
+            } else {
+                translator.translate(query: randomParagraph.text) { translations in
+                    guard let meaning = translations.first else {
+                        return
+                    }
+                    callBack(makePractice(
+                        text: randomParagraph.text,
+                        meaning: meaning,
+                        textSource: randomArticle.id, 
+                        isTextMachineTranslated: true
+                    ))
+                }
+            }
         }
+        
+        // Should not reach here.
+        return nil
     }
 }
 
@@ -296,13 +337,14 @@ extension ListeningPracticeProducer {
         var type: PracticeType
         var prompt: String
         var text: String
-        var meaning: String? = nil
+        var meaning: String
         var textLang: LangCode
         var meaningLang: LangCode
-        var articleId: String? = nil  // nil: chatgpt
+        var textSource: String? = nil  // nil: chatgpt
+        var isTextMachineTranslated: Bool
         var clozeRanges: [NSRange]
         
-        init(type: PracticeType, prompt: String, text: String, meaning: String? = nil, textLang: LangCode, meaningLang: LangCode, articleId: String? = nil, clozeRanges: [NSRange]) {
+        init(type: PracticeType, prompt: String, text: String, meaning: String, textLang: LangCode, meaningLang: LangCode, textSource: String? = nil, isTextMachineTranslated: Bool, clozeRanges: [NSRange]) {
             self.id = UUID()
             self.type = type
             self.prompt = prompt
@@ -310,7 +352,8 @@ extension ListeningPracticeProducer {
             self.meaning = meaning
             self.textLang = textLang
             self.meaningLang = meaningLang
-            self.articleId = articleId
+            self.textSource = textSource
+            self.isTextMachineTranslated = isTextMachineTranslated
             self.clozeRanges = clozeRanges
         }
         
@@ -319,8 +362,11 @@ extension ListeningPracticeProducer {
                 type: another.type,
                 prompt: another.prompt,
                 text: another.text,
+                meaning: another.meaning,
                 textLang: another.textLang,
                 meaningLang: another.meaningLang,
+                textSource: another.textSource,
+                isTextMachineTranslated: another.isTextMachineTranslated,
                 clozeRanges: another.clozeRanges
             )
         }

@@ -23,7 +23,7 @@ enum LangCode: String {
 
 extension LangCode {
     
-    static var currentLanguage: LangCode = .en
+    static var currentLanguage: LangCode = .zh
     static var pairedLanguage: LangCode {
         switch LangCode.currentLanguage {
         case .zh: return .zh

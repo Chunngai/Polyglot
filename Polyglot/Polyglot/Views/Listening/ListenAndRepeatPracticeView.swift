@@ -22,10 +22,10 @@ class ListenAndRepeatPracticeView: PracticeViewWithNewWordAddingTextView {
     
     var practice: ListeningPracticeProducer.Item!
     
-    var clozeBiGram2BiRanges: [BiGram: [BiRange]] = [:]  // A bi-gram may correspond to multiple bi-ranges.
+    private var clozeBiGram2BiRanges: [BiGram: [BiRange]] = [:]  // A bi-gram may correspond to multiple bi-ranges.
     
-    var matchedClozeRanges: Set<NSRange> = []
-    var unmatchedClozeRanges: Set<NSRange> {
+    private var matchedClozeRanges: Set<NSRange> = []
+    private var unmatchedClozeRanges: Set<NSRange> {
         Set(practice.clozeRanges).subtracting(matchedClozeRanges)
     }
     
@@ -57,21 +57,8 @@ class ListenAndRepeatPracticeView: PracticeViewWithNewWordAddingTextView {
     override func updateViews() {
         super.updateViews()
         
-        let attributedText = NSMutableAttributedString(
-            string: practice.text,
-            attributes: Attributes.leftAlignedLongTextAttributes
-        )
-        for clozeRange in practice.clozeRanges {
-            attributedText.setTextColor(
-                for: clozeRange,
-                with: Colors.clozeMaskColor
-            )
-            attributedText.setBackgroundColor(
-                for: clozeRange,
-                with: Colors.clozeMaskColor
-            )
-        }
-        textView.attributedText = attributedText
+        displayText()
+        makeClozes()
     }
 }
 
@@ -103,7 +90,7 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewDelegate {
 
 extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
     
-    func generateBiGram2BiRanges(from ranges: [NSRange], of text: String) -> [BiGram: [BiRange]] {
+    private func generateBiGram2BiRanges(from ranges: [NSRange], of text: String) -> [BiGram: [BiRange]] {
         guard ranges.count > 1 else {
             if ranges.count == 0 {
                 return [BiGram(): []]
@@ -143,7 +130,7 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
         return biGram2BiRanges
     }
     
-    func generateBiGrams(from tokens: [String]) -> Set<BiGram> {
+    private func generateBiGrams(from tokens: [String]) -> Set<BiGram> {
         guard tokens.count > 1 else {
             if tokens.count == 0 {
                 return [BiGram()]
@@ -169,7 +156,7 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
         return biGrams
     }
     
-    func preprocess(_ text: String) -> String {
+    private func preprocess(_ text: String) -> String {
         var text = text
         if practice.textLang == LangCode.ja {
             text = convertJapaneseToRomaji(text: text)
@@ -214,36 +201,60 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
 
 extension ListenAndRepeatPracticeView {
     
-    func displayTranslation() {  // TODO: - Merge with the translation counterpart.
+    private func displayText() {
+        textView.attributedText = NSMutableAttributedString(
+            string: practice.text,
+            attributes: Attributes.leftAlignedLongTextAttributes
+        )
+    }
+    
+    private func makeClozes() {
+        let attributedText = NSMutableAttributedString(attributedString: textView.attributedText!)
+        for clozeRange in practice.clozeRanges {
+            attributedText.setTextColor(
+                for: clozeRange,
+                with: Colors.clozeMaskColor
+            )
+            attributedText.setBackgroundColor(
+                for: clozeRange,
+                with: Colors.clozeMaskColor
+            )
+        }
+        textView.attributedText = attributedText
+    }
+    
+    private func displayTranslation() {  // TODO: - Merge with the translation counterpart.
+        let attributedText = NSMutableAttributedString(attributedString: textView.attributedText!)
+
+        attributedText.append(NSAttributedString(
+            string: "\n\n",
+            attributes: Attributes.leftAlignedLongTextAttributes
+        ))
         
-        if let meaning = practice.meaning {
-            let attributedText = NSMutableAttributedString(attributedString: textView.attributedText!)
+        if practice.isTextMachineTranslated {
+            let textAttachment = NSTextAttachment()
+            textAttachment.image = Icons.googleTranslateIcon
+            let imageSize = (Attributes.leftAlignedLongTextAttributes[.font] as? UIFont)?.pointSize ?? Sizes.smallFontSize
+            textAttachment.bounds = CGRect(
+                x: 0,
+                y: 0,
+                width: imageSize,
+                height: imageSize
+            )
+            let imageAttrString = NSAttributedString(attachment: textAttachment)
+            attributedText.append(imageAttrString)
             attributedText.append(NSAttributedString(
-                string: "\n\n" + meaning,
+                string: " ",
                 attributes: Attributes.leftAlignedLongTextAttributes
             ))
-            textView.attributedText = attributedText
-        } else {
-            GoogleTranslator(
-                srcLang: practice.textLang,
-                trgLang: practice.meaningLang
-            ).translate(query: practice.text) { (res) in
-                var meaningToDisplay: String
-                if let translation = res.first {
-                    meaningToDisplay = "(\(Strings.machineTranslationToken)) \(translation)"
-                } else {
-                    meaningToDisplay = Strings.machineTranslationErrorToken
-                }
-                DispatchQueue.main.async {
-                    let attributedText = NSMutableAttributedString(attributedString: self.textView.attributedText!)
-                    attributedText.append(NSAttributedString(
-                        string: "\n\n" + meaningToDisplay,
-                        attributes: Attributes.leftAlignedLongTextAttributes
-                    ))
-                    self.textView.attributedText = attributedText
-                }
-            }
         }
+        
+        attributedText.append(NSAttributedString(
+            string: practice.meaning,
+            attributes: Attributes.leftAlignedLongTextAttributes
+        ))
+        
+        textView.attributedText = attributedText
         
         // Restore the highlights.
         textView.highlightAll()
