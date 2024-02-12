@@ -35,7 +35,10 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
     init(frame: CGRect = .zero, textContainer: NSTextContainer? = nil, textLang: LangCode, meaningLang: LangCode) {
         super.init(frame: frame, textContainer: textContainer)
         
-        newWordBottomView = NewWordAddingBottomView(wordLang: textLang, meaningLang: meaningLang)
+        newWordBottomView = NewWordAddingBottomView(
+            wordLang: textLang,
+            meaningLang: meaningLang
+        )
         
         updateConfigs()
         updateViews()
@@ -53,7 +56,10 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
         newWordBottomView.delegate = self
                 
         // Display the new word menu item at the beginning.
-        newWordMenuItem = UIMenuItem(title: Strings.newWordMenuItemString, action: #selector(newWordMenuItemTapped))
+        newWordMenuItem = UIMenuItem(
+            title: Strings.newWordMenuItemString,
+            action: #selector(newWordMenuItemTapped)
+        )
         isAddingNewWord = false
         
         isEditable = false
@@ -111,6 +117,11 @@ extension NewWordAddingTextView {
                 meaning: ""  // Added later.
             )
             
+            if newWordBottomView.isFloatingUp {
+                // Float down the presenting bottom view, if any.
+                newWordBottomView.floatDown()
+                newWordBottomView.clear()
+            }
             newWordBottomView.word = word
             newWordBottomView.floatUp()
             
