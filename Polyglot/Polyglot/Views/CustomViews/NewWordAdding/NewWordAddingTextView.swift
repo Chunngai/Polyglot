@@ -210,6 +210,18 @@ extension NewWordAddingTextView {
         }
     }
     
+    override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
+        
+        if action == #selector(copy(_:)) {
+            return true
+        }
+        if action == #selector(newWordMenuItemTapped) {
+            return true
+        }
+        return false
+      
+    }
+    
 }
 
 extension NewWordAddingTextView: NewWordBottomViewDelegate {
