@@ -201,11 +201,57 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
 
 extension ListenAndRepeatPracticeView {
     
+    private func makeImageAttributedString(with icon: UIImage) -> NSAttributedString {
+        let textAttachment = NSTextAttachment()
+        textAttachment.image = icon
+        
+        // Use the line height of the font for the image height to align with the text height
+        let font = (Attributes.leftAlignedLongTextAttributes[.font] as? UIFont) ?? UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        let lineHeight = font.lineHeight
+        // Adjust the width of the image to maintain the aspect ratio, if necessary
+        let aspectRatio = textAttachment.image!.size.width / textAttachment.image!.size.height
+        let imageWidth = lineHeight * aspectRatio
+        textAttachment.bounds = CGRect(
+            x: 0,
+            y: (font.capHeight - lineHeight) / 2,
+            width: imageWidth,
+            height: lineHeight
+        )
+        
+        return NSAttributedString(attachment: textAttachment)
+    }
+    
     private func displayText() {
-        textView.attributedText = NSMutableAttributedString(
+        let attributedText = NSMutableAttributedString(
             string: practice.text,
             attributes: Attributes.leftAlignedLongTextAttributes
         )
+        
+        if practice.textSource == nil {
+            let imageAttrString = makeImageAttributedString(with: Icons.chatgptIcon)
+            attributedText.insert(imageAttrString, at: 0)
+            attributedText.insert(
+                NSAttributedString(
+                    string: " ",
+                    attributes: Attributes.leftAlignedLongTextAttributes
+                ), 
+                at: 1
+            )
+            // Without this the text attributes are cleared after attaching the icon.
+            attributedText.addAttributes(
+                Attributes.leftAlignedLongTextAttributes,
+                range: NSRange(
+                    location: 0,
+                    length: 2  // One for the icon and one for the space.
+                )
+            )
+            
+            for i in 0..<practice.clozeRanges.count {
+                practice.clozeRanges[i].location += 2  // One for the icon and one for the space.
+            }
+        }
+        
+        textView.attributedText = attributedText
     }
     
     private func makeClozes() {
@@ -232,21 +278,20 @@ extension ListenAndRepeatPracticeView {
         ))
         
         if practice.isTextMachineTranslated {
-            let textAttachment = NSTextAttachment()
-            textAttachment.image = Icons.googleTranslateIcon
-            let imageSize = (Attributes.leftAlignedLongTextAttributes[.font] as? UIFont)?.pointSize ?? Sizes.smallFontSize
-            textAttachment.bounds = CGRect(
-                x: 0,
-                y: 0,
-                width: imageSize,
-                height: imageSize
-            )
-            let imageAttrString = NSAttributedString(attachment: textAttachment)
+            let imageAttrString = makeImageAttributedString(with: Icons.googleTranslateIcon)
             attributedText.append(imageAttrString)
             attributedText.append(NSAttributedString(
                 string: " ",
                 attributes: Attributes.leftAlignedLongTextAttributes
             ))
+            // Without this the text attributes are cleared after attaching the icon.
+            attributedText.addAttributes(
+                Attributes.leftAlignedLongTextAttributes,
+                range: NSRange(
+                    location: attributedText.length - 2,
+                    length: 2  // One for the icon and one for the space.
+                )
+            )
         }
         
         attributedText.append(NSAttributedString(
