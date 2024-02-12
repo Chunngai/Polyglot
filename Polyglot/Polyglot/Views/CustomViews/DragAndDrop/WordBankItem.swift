@@ -61,5 +61,5 @@ extension WordBankItem {
     
     // MARK: - Constants
     
-    static let labelFont: UIFont = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
+    static let labelFont: UIFont = UIFont.systemFont(ofSize: Sizes.practiceFontSize)
 }

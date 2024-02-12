@@ -84,15 +84,23 @@ extension NewWordAddingTextView {
     
     // MARK: - Utils
     
-    func hightlight(_ range: NSRange, with color: UIColor) {
+    func nsRange(from textRange: UITextRange) -> NSRange {
+        // Ref: https://stackoverflow.com/questions/21149767/convert-selectedtextrange-uitextrange-to-nsrange
+        let location = offset(from: beginningOfDocument, to: textRange.start)
+        let length = offset(from: textRange.start, to: textRange.end)
+        return NSRange(location: location, length: length)
+    }
+    
+    
+    func hightlight(_ textRange: UITextRange, with color: UIColor) {
         let newAttributedText = NSMutableAttributedString(attributedString: attributedText)
-        newAttributedText.addAttributes([NSAttributedString.Key.backgroundColor : color], range: range)
+        newAttributedText.addAttributes([NSAttributedString.Key.backgroundColor : color], range: nsRange(from: textRange))
         attributedText = newAttributedText
     }
     
     func highlightAll() {
         for newWordInfo in newWordsInfo {
-            hightlight(newWordInfo.range, with: Colors.lightBlue)
+            hightlight(newWordInfo.textRange, with: Colors.lightBlue)
         }
     }
 }
@@ -110,7 +118,6 @@ extension NewWordAddingTextView {
             
             // Store the info of the new word.
             currentNewWordInfo = NewWordInfo(
-                range: selectedRange,
                 textRange: selectedTextRange,
                 word: word,
                 meaning: ""  // Added later.
@@ -229,7 +236,7 @@ extension NewWordAddingTextView: NewWordBottomViewDelegate {
         isAddingNewWord = false
         
         // Highlight the new word.
-        let selectedRange = currentNewWordInfo.range
+        let selectedRange = currentNewWordInfo.textRange
         hightlight(selectedRange, with: Colors.lightBlue)
     }
     
@@ -252,7 +259,7 @@ extension NewWordAddingTextView: NewWordBottomViewDelegate {
         newWordBottomView.clear()
         
         // Remove the highlight.
-        let selectedRange = removedNewWordInfo.range
+        let selectedRange = removedNewWordInfo.textRange
         hightlight(selectedRange, with: Colors.lightGrayBackgroundColor)
     }
     
@@ -268,7 +275,6 @@ protocol NewWordAddingTextViewDelegate {
 struct NewWordInfo {
     // For storing the info of a newly added word.
     
-    var range: NSRange
     var textRange: UITextRange
     
     var word: String
