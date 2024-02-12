@@ -382,6 +382,18 @@ extension Strings {
         return Strings._newWordMenuItemStrings[LangCode.currentLanguage]!
     }
     
+    private static let _wordMeaningMenuItemStrings: [LangCode : String] = [
+        LangCode.en : "Word Meaning",
+        LangCode.ja : "言葉の意味",
+        LangCode.es : "Significado de la Palabra",
+        LangCode.ru : "Значение Слова",
+        LangCode.ko : "단어 뜻",
+        LangCode.de : "Bedeutung des Wortes",
+    ]
+    static var wordMeaningMenuItemString: String {
+        return Strings._wordMeaningMenuItemStrings[LangCode.currentLanguage]!
+    }
+    
     private static let _newWordBottomViewMeaningPrompts: [LangCode : String] = [
         LangCode.en : "Also select/type the corresponding meaning",
         LangCode.ja : "相応する意味も選択/入力してください",

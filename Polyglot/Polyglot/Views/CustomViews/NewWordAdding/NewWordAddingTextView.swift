@@ -12,21 +12,15 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
 
     var currentNewWordInfo: NewWordInfo!  // Store the info of the new word being added.
     var newWordsInfo: [NewWordInfo] = []
+    
     var currentSelectedTextRange: UITextRange!  // For deleting new words.
     
-    var isAddingNewWord: Bool! {
-        didSet {
-            if !isAddingNewWord {
-                UIMenuController.shared.menuItems = [newWordMenuItem]
-            } else {
-                UIMenuController.shared.menuItems = []
-            }
-        }
-    }
+    var isAddingNewWord: Bool = false
     
     // MARK: - Views
     
     private var newWordMenuItem: UIMenuItem!  // https://www.youtube.com/watch?v=s-LW_4ypwZo
+    private var wordMeaningMenuItem: UIMenuItem!
     
     var newWordBottomView: NewWordAddingBottomView!
     
@@ -50,6 +44,8 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
     }
 
     private func updateConfigs() {
+        
+        isEditable = false
         // Important! Do not set the delegate as a view controller.
         delegate = self
         
@@ -60,9 +56,12 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
             title: Strings.newWordMenuItemString,
             action: #selector(newWordMenuItemTapped)
         )
-        isAddingNewWord = false
-        
-        isEditable = false
+        wordMeaningMenuItem = UIMenuItem(
+            title: Strings.wordMeaningMenuItemString,
+            action: #selector(wordMeaningMenuItemTapped)
+        )
+        UIMenuController.shared.menuItems = [newWordMenuItem, wordMeaningMenuItem]
+                
         
         addGestureRecognizer(UITapGestureRecognizer(
             target: self,
@@ -129,6 +128,17 @@ extension NewWordAddingTextView {
         }
     }
     
+    @objc private func wordMeaningMenuItemTapped() {
+        // Obtain the meaning of the selected word.
+        if let selectedTextRange = selectedTextRange,
+            !selectedTextRange.isEmpty,
+            let meaning = text(in: selectedTextRange) {
+            
+            currentNewWordInfo.meaning = meaning
+            newWordBottomView.meaning = meaning
+        }
+    }
+    
     @objc private func somewhereInTextViewTapped(recognizer: UITapGestureRecognizer) {
         
         newWordBottomView.meaningTextField.resignFirstResponder()
@@ -187,35 +197,15 @@ extension NewWordAddingTextView {
     
     // MARK: - UITextView Delegate
     
-    func textViewDidChangeSelection(_ textView: UITextView) {
-        
-        if !isAddingNewWord {
-            // Update the meaning only if a new word is being added.
-            // In other situations, e.g., an added word is selected, do nothing.
-            return
-        }
-        
-        if !newWordBottomView.isFloatingUp {
-            // No new word selected.
-            return
-        }
-        
-        // Obtain the meaning of the selected word.
-        if let selectedTextRange = textView.selectedTextRange,
-            !selectedTextRange.isEmpty,
-            let meaning = textView.text(in: selectedTextRange) {
-            
-            currentNewWordInfo.meaning = meaning
-            newWordBottomView.meaning = meaning
-        }
-    }
-    
     override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
         
         if action == #selector(copy(_:)) {
             return true
         }
-        if action == #selector(newWordMenuItemTapped) {
+        if !isAddingNewWord && action == #selector(newWordMenuItemTapped) {
+            return true
+        }
+        if isAddingNewWord && action == #selector(wordMeaningMenuItemTapped) {
             return true
         }
         return false
