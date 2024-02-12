@@ -33,14 +33,26 @@ struct ContentCreator {
         case LangCode.en: return "Please write a sentence containing the phrase: \(word). Note that you cannot change the form of the given phrase."
         case LangCode.ja: return "「\(word)」というフレーズを含む文を書いてください。指定されたフレーズの形式を変更することはできないことに注意してください。"
         case LangCode.es: return "Por favor escribe una oración que contenga la frase: \(word). Tenga en cuenta que no puede cambiar la forma de la frase dada."
-        case LangCode.ru: return "Напишите, пожалуйста, предложение, содержащее словосочетание: \(word). Обратите внимание, что вы не можете изменить форму данной фразы."
+        case LangCode.ru: return "Напишите, пожалуйста, предложение, содержащее фразу: \(word). Обратите внимание, что вы не можете изменить форму данной фразы."
         case LangCode.ko: return "\(word)이라는 문구를 포함하는 문장을 작성해주세요. 주어진 문구의 형태는 변경할 수 없습니다."
         case LangCode.de: return "Bitte schreiben Sie einen Satz mit der Phrase: \(word). Beachten Sie, dass Sie die Form der angegebenen Phrase nicht ändern können."
         default: return ""
         }
     }
     
-    func createContent(for words: [String], completion: @escaping (String?) -> Void) {
+    private func makeParagraphGenerationPrompt(for word: String) -> String {
+        switch self.lang {
+        case LangCode.en: return "Please write a paragraph containing the phrase: \(word). Note that you cannot change the form of the given phrase."
+        case LangCode.ja: return "「\(word)」というフレーズを含む段落を書いてください。指定されたフレーズの形式を変更することはできないことに注意してください。"
+        case LangCode.es: return "Por favor escribe un párrafo que contenga la frase: \(word). Tenga en cuenta que no puede cambiar la forma de la frase dada."
+        case LangCode.ru: return "Напишите, пожалуйста, абзац, содержащее фразу: \(word). Обратите внимание, что вы не можете изменить форму данной фразы."
+        case LangCode.ko: return "\(word)이라는 문구를 포함하는 단락을 작성해주세요. 주어진 문구의 형태는 변경할 수 없습니다."
+        case LangCode.de: return "Bitte schreiben Sie einen Absatz mit der Phrase: \(word). Beachten Sie, dass Sie die Form der angegebenen Phrase nicht ändern können."
+        default: return ""
+        }
+    }
+    
+    func createContent(for words: [String], in granularity: TextGranularity, completion: @escaping (String?) -> Void) {
         
         guard !words.isEmpty else {
             completion(nil)
@@ -55,7 +67,14 @@ struct ContentCreator {
         
         var prompt: String
         if words.count == 1 {
-            prompt = makeSentenceGenerationPrompt(for: words[0])
+            if granularity == .sentence {
+                prompt = makeSentenceGenerationPrompt(for: words[0])
+            } else if granularity == .paragraph {
+                prompt = makeParagraphGenerationPrompt(for: words[0])
+            } else {
+                completion(nil)
+                return
+            }
         } else {
             // Not implemented.
             completion(nil)

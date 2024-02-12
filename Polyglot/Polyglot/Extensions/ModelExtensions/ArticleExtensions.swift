@@ -135,7 +135,8 @@ extension Array where Iterator.Element == Article {
     func paraCandidates(for word: String, maxCandidateNumber: Int = 10) -> [(
         articleId: String,
         paraId: String,
-        text: String
+        text: String,
+        meaning: String?
     )] {  // TODO: - Move elsewhere.
         
         let wordText: String = word.normalized(
@@ -146,7 +147,8 @@ extension Array where Iterator.Element == Article {
         var candidates: [(
             articleId: String,
             paraId: String,
-            text: String
+            text: String,
+            meaning: String?
         )] = []
         var candidateCounter: Int = 0
         for article in self {
@@ -163,7 +165,8 @@ extension Array where Iterator.Element == Article {
                 candidates.append((
                     articleId: article.id,
                     paraId: para.id,
-                    text: para.text
+                    text: para.text,
+                    meaning: para.meaning
                 ))
                 
                 candidateCounter += 1

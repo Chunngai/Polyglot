@@ -61,3 +61,8 @@ func convertJapaneseToRomaji(text: String) -> String {
 func convertUSSpellingToUKSpelling(text: String) -> String {
     return us2ukSpellingMapping[text] ?? us2ukSpellingMapping2[text] ?? text
 }
+
+enum TextGranularity: String {
+    case sentence
+    case paragraph
+}

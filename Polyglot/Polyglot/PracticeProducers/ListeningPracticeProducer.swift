@@ -46,91 +46,61 @@ class ListeningPracticeProducer: PracticeProducerDelegate {
             ListeningPracticeProducer.defaultBatchSize :
             self.articles.count
         
-        self.practiceList.append(contentsOf: make())
+        let cachedListeningPractices = ListeningPracticeProducer.loadCachedPractices(for: LangCode.currentLanguage)
+        if !cachedListeningPractices.isEmpty {
+            self.practiceList.append(contentsOf: cachedListeningPractices)
+        } else {
+            self.practiceList.append(contentsOf: make())
+        }
+        
+        DispatchQueue.global(qos: .userInitiated).async {
+            // Create new cached practices for the use of next time.
+            var listeningPracticesToCache = self.make()
+            
+            // Save the newly created ones.
+            ListeningPracticeProducer.save(
+                &listeningPracticesToCache,
+                for: LangCode.currentLanguage
+            )
+        }
     }
     
     func make() -> [ListeningPracticeProducer.Item] {
         
-        // 0.6 prob: listen and repeat (sentence);
-        // 0.2 prob: listen and complete (sentence);
-        // 0.1 prob: listen and repeat (paragraph);
-        // 0.1 prob: listen and complete (paragraph).
-        
         var practiceList: [ListeningPracticeProducer.Item] = []
         while true {
             
-//            let p = Double.random(in: 0..<1)
-//            if p >= 0 && p < 0.6 {
-//                if let listenAndRepeatPractice = makePractice(
-//                    of: .listenAndRepeat,
-//                    for: self.words.randomElement()!,
-//                    callBackWhenTextGeneratedWithContentCreator: { listenAndRepeatPractice in
-//                        self.practiceList.append(listenAndRepeatPractice)
-//                    }
-//                ) {
-//                    practiceList.append(listenAndRepeatPractice)
-//                }
-//            } else if p >= 0.6 && p < 0.8 {
-//                if let listenAndCompletePractice = makePractice(
-//                    of: .listenAndComplete,
-//                    for: self.words.randomElement()!,
-//                    callBackWhenTextGeneratedWithContentCreator: { listenAndCompletePractice in
-//                        self.practiceList.append(listenAndCompletePractice)
-//                    }
-//                ) {
-//                    practiceList.append(listenAndCompletePractice)
-//                }
-//            } else if p >= 0.8 && p < 0.9 {
-//                if let listenAndRepeatPractice = makePractice(
-//                    of: .listenAndRepeat,
-//                    callBackWhenTextGeneratedWithContentCreator: { listenAndRepeatPractice in
-//                        self.practiceList.append(listenAndRepeatPractice)
-//                    }
-//                ) {
-//                    practiceList.append(listenAndRepeatPractice)
-//                }
-//            } else if p >= 0.9 && p < 1.0 {
-//                if let listenAndCompletePractice = makePractice(
-//                    of: .listenAndComplete,
-//                    callBackWhenTextGeneratedWithContentCreator: { listenAndCompletePractice in
-//                        self.practiceList.append(listenAndCompletePractice)
-//                    }
-//                ) {
-//                    practiceList.append(listenAndCompletePractice)
-//                }
-//            }
-            
-//            if let listenAndRepeatPractice = makePractice(
-//                of: .listenAndRepeat,
-//                for: self.words.randomElement()!,
-//                callBackWhenTextGeneratedWithContentCreator: { listenAndRepeatPractice in
-//                    self.practiceList.append(listenAndRepeatPractice)
-//                }
-//            ) {
-//                practiceList.append(listenAndRepeatPractice)
-//            }
-            
             let p = Double.random(in: 0...1)
-            if p >= 0 && p < 0.8 {
+            if p >= 0 && p < 0.45 {  // 45%.
                 if let listenAndRepeatPractice = makePractice(
-                    of: .listenAndRepeat,
+                    ofType: .listenAndRepeat,
                     for: self.words.randomElement()!,
+                    inGranularity: TextGranularity.sentence,
                     callBack: { listenAndRepeatPractice in
-                        self.practiceList.append(listenAndRepeatPractice)
+                        practiceList.append(listenAndRepeatPractice)
                     }
                 ) {
                     practiceList.append(listenAndRepeatPractice)
-                    practiceList.shuffle()
                 }
-            } else if p >= 0.8 && p <= 1.0 {
+            } else if p >= 0.45 && p < 0.9 {  // 45%
                 if let listenAndRepeatPractice = makePractice(
-                    of: .listenAndRepeat,
+                    ofType: .listenAndRepeat,
+                    inGranularity: TextGranularity.sentence,
                     callBack: { listenAndRepeatPractice in
-                        self.practiceList.append(listenAndRepeatPractice)
+                        practiceList.append(listenAndRepeatPractice)
                     }
                 ) {
                     practiceList.append(listenAndRepeatPractice)
-                    practiceList.shuffle()
+                }
+            } else if p >= 0.9 && p <= 1.0 {  // 10%
+                if let listenAndRepeatPractice = makePractice(
+                    ofType: .listenAndRepeat,
+                    inGranularity: TextGranularity.paragraph,
+                    callBack: { listenAndRepeatPractice in
+                        practiceList.append(listenAndRepeatPractice)
+                    }
+                ) {
+                    practiceList.append(listenAndRepeatPractice)
                 }
             }
             
@@ -162,6 +132,9 @@ extension ListeningPracticeProducer {
 
         // For Japanese and some languages, tokenization is crucial.
         var tokens = text.tokenized(with: LangCode.currentLanguage.wordTokenizer)
+        guard !tokens.isEmpty else {
+            return []
+        }
         
         var tokenBuffer: String = ""
         var location: Int = 0
@@ -217,14 +190,18 @@ extension ListeningPracticeProducer {
     }
     
     private func makePractice(
-        of type: ListeningPracticeProducer.Item.PracticeType,
+        ofType type: ListeningPracticeProducer.Item.PracticeType,
         for randomWord: Word? = nil,
+        inGranularity granularity: TextGranularity,
         callBack: @escaping (ListeningPracticeProducer.Item) -> Void
     ) -> ListeningPracticeProducer.Item? {
         
-        func makePractice(text: String, meaning: String, textSource: String? = nil, isTextMachineTranslated: Bool) -> ListeningPracticeProducer.Item {
+        func makePractice(text: String, meaning: String, textSource: Item.TextSource, isTextMachineTranslated: Bool) -> ListeningPracticeProducer.Item? {
                         
             var clozeRanges: [NSRange] = generateRanges(for: text)
+            if clozeRanges.isEmpty {
+                return nil
+            }
             if type == .listenAndComplete && clozeRanges.count >= ListeningPracticeProducer.maxClozeNumForListenAndComplete {
                 clozeRanges = clozeRanges.randomElements(of: ListeningPracticeProducer.maxClozeNumForListenAndComplete)
             }
@@ -242,64 +219,117 @@ extension ListeningPracticeProducer {
             )
         }
         
+        var text: String?
+        var meaning: String?
+        var articleId: String?
+        var paragraphId: String?
+        var sentenceIndex: Int?
+        
         if let randomWord = randomWord {
             let paraCandidates = self.articles.paraCandidates(for: randomWord.text)
-            if paraCandidates.count != 0,
-               let paraCandidate = paraCandidates.randomElement(),
-               let targetSentence = paraCandidate.text.tokenized(with: LangCode.currentLanguage.sentenceTokenizer).first(where: { sentence in
-                   sentence.lowercased().contains(randomWord.text.lowercased())  // Case-insensitive.
-               }) {
-                translator.translate(query: targetSentence) { translations in
-                    guard let targetSentenceTranslation = translations.first else {
-                        return
-                    }
-                    callBack(makePractice(
-                        text: targetSentence,
-                        meaning: targetSentenceTranslation,
-                        textSource: paraCandidate.articleId,
-                        isTextMachineTranslated: true
-                    ))
-                }
-            } else {
-                ContentCreator(lang: LangCode.currentLanguage).createContent(for: [randomWord.text]) { content in
-                    guard let content = content else {
-                        return
-                    }
-                    self.translator.translate(query: content) { translations in
-                        guard let contentTranslation = translations.first else {
-                            return
+            if paraCandidates.count != 0, let paraCandidate = paraCandidates.randomElement() {
+                let paragraphText = paraCandidate.text
+                let paragraphMeaning = paraCandidate.meaning
+                articleId = paraCandidate.articleId
+                paragraphId = paraCandidate.paraId
+                
+                if granularity == .sentence {
+                    let sentences = paragraphText.tokenized(with: LangCode.currentLanguage.sentenceTokenizer)
+                    if sentences.count == 1 {
+                        text = paragraphText
+                        meaning = paragraphMeaning
+                    } else {
+                        let matchedSentenceIndex = sentences.firstIndex { sentence in
+                            sentence.lowercased().contains(randomWord.text.lowercased())
                         }
-                        callBack(makePractice(
-                            text: content,
-                            meaning: contentTranslation, 
-                            isTextMachineTranslated: true
-                        ))
+                        sentenceIndex = matchedSentenceIndex
+                        text = sentences[matchedSentenceIndex!]
                     }
+                } else {
+                    text = paragraphText
+                    meaning = paragraphMeaning
                 }
-                return nil
             }
         } else {
-            // Randomly choose a paragraph.
             let randomArticle = self.articles.randomElement()!
             let randomParagraph = randomArticle.paras.randomElement()!
-            if let meaning = randomParagraph.meaning {
-                return makePractice(
-                    text: randomParagraph.text,
-                    meaning: meaning,
-                    textSource: randomArticle.id, 
-                    isTextMachineTranslated: false
-                )
+            
+            let paragraphText = randomParagraph.text
+            let paragraphMeaning = randomParagraph.meaning
+            articleId = randomArticle.id
+            paragraphId = randomParagraph.id
+            
+            if granularity == .sentence {
+                let sentences = paragraphText.tokenized(with: LangCode.currentLanguage.sentenceTokenizer)
+                if sentences.count == 1 {
+                    text = paragraphText
+                    meaning = paragraphMeaning
+                } else {
+                    sentenceIndex = Int.random(in: 0..<sentences.count)
+                    text = sentences[sentenceIndex!]
+                }
             } else {
-                translator.translate(query: randomParagraph.text) { translations in
+                text = paragraphText
+                meaning = paragraphMeaning
+            }
+        }
+        
+        if let text = text, let meaning = meaning {
+            return makePractice(
+                text: text,
+                meaning: meaning,
+                textSource: Item.TextSource.article(
+                    articleId: articleId!,
+                    paragraphId: paragraphId!,
+                    sentenceId: sentenceIndex
+                ),
+                isTextMachineTranslated: false
+            )
+        } else if let text = text, meaning == nil {
+            translator.translate(query: text) { translations in
+                guard let meaning = translations.first else {
+                    return
+                }
+                guard let practice = makePractice(
+                    text: text,
+                    meaning: meaning,
+                    textSource: Item.TextSource.article(
+                        articleId: articleId!,
+                        paragraphId: paragraphId!,
+                        sentenceId: sentenceIndex
+                    ),
+                    isTextMachineTranslated: true
+                ) else {
+                    return
+                }
+                callBack(practice)
+            }
+        } else if text == nil && meaning == nil {
+            guard let randomWord = randomWord else {
+                return nil
+            }
+            contentGenerator.createContent(
+                for: [randomWord.text],
+                in: granularity
+            ) { content in
+                guard let content = content else {
+                    return
+                }
+                self.translator.translate(
+                    query: content
+                ) { translations in
                     guard let meaning = translations.first else {
                         return
                     }
-                    callBack(makePractice(
-                        text: randomParagraph.text,
+                    guard let practice = makePractice(
+                        text: content,
                         meaning: meaning,
-                        textSource: randomArticle.id, 
+                        textSource: Item.TextSource.chatGpt,
                         isTextMachineTranslated: true
-                    ))
+                    ) else {
+                        return
+                    }
+                    callBack(practice)
                 }
             }
         }
@@ -326,11 +356,20 @@ extension ListeningPracticeProducer {
 
 extension ListeningPracticeProducer {
     
-    struct Item: PracticeItemDelegate {
+    struct Item: PracticeItemDelegate, Codable {
         
-        enum PracticeType {
+        enum PracticeType: String, Codable {
             case listenAndRepeat
             case listenAndComplete
+        }
+        
+        enum TextSource: Codable {
+            case article(
+                articleId: String,
+                paragraphId: String,
+                sentenceId: Int?
+            )
+            case chatGpt
         }
         
         var id: UUID
@@ -340,11 +379,11 @@ extension ListeningPracticeProducer {
         var meaning: String
         var textLang: LangCode
         var meaningLang: LangCode
-        var textSource: String? = nil  // nil: chatgpt
+        var textSource: TextSource
         var isTextMachineTranslated: Bool
         var clozeRanges: [NSRange]
         
-        init(type: PracticeType, prompt: String, text: String, meaning: String, textLang: LangCode, meaningLang: LangCode, textSource: String? = nil, isTextMachineTranslated: Bool, clozeRanges: [NSRange]) {
+        init(type: PracticeType, prompt: String, text: String, meaning: String, textLang: LangCode, meaningLang: LangCode, textSource: TextSource, isTextMachineTranslated: Bool, clozeRanges: [NSRange]) {
             self.id = UUID()
             self.type = type
             self.prompt = prompt
@@ -371,6 +410,138 @@ extension ListeningPracticeProducer {
             )
         }
         
+    }
+}
+
+extension ListeningPracticeProducer.Item.TextSource {
+    
+    private enum CodingKeys: String, CodingKey {
+        case type
+        case articleId
+        case paragraphId
+        case sentenceId
+    }
+    
+    // Custom encoding
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        switch self {
+        case .article(let articleId, let paragraphId, let sentenceId):
+            try container.encode("article", forKey: .type)
+            try container.encode(articleId, forKey: .articleId)
+            try container.encode(paragraphId, forKey: .paragraphId)
+            try container.encode(sentenceId, forKey: .sentenceId)
+        case .chatGpt:
+            try container.encode("chatGpt", forKey: .type)
+        }
+    }
+    
+    // Custom decoding
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let type = try container.decode(String.self, forKey: .type)
+        switch type {
+        case "article":
+            let articleId = try container.decode(String.self, forKey: .articleId)
+            let paragraphId = try container.decode(String.self, forKey: .paragraphId)
+            let sentenceId = try container.decode(Int?.self, forKey: .sentenceId)
+            self = .article(
+                articleId: articleId,
+                paragraphId: paragraphId,
+                sentenceId: sentenceId
+            )
+        case "chatGpt":
+            self = .chatGpt
+        default:
+            throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Invalid type")
+        }
+    }
+    
+}
+
+extension ListeningPracticeProducer.Item {
+    
+    private struct CodableRange: Codable {
+        var location: Int
+        var length: Int
+        
+        init(from range: NSRange) {
+            self.location = range.location
+            self.length = range.length
+        }
+        
+        var nsRange: NSRange {
+            return NSRange(location: self.location, length: self.length)
+        }
+    }
+    
+    private enum CodingKeys: String, CodingKey {
+        case id, type, prompt, text, meaning, textLang, meaningLang, textSource, isTextMachineTranslated, clozeRanges
+    }
+    
+    // Custom encoding
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(type, forKey: .type)
+        try container.encode(prompt, forKey: .prompt)
+        try container.encode(text, forKey: .text)
+        try container.encode(meaning, forKey: .meaning)
+        try container.encode(textLang, forKey: .textLang)
+        try container.encode(meaningLang, forKey: .meaningLang)
+        try container.encode(textSource, forKey: .textSource)
+        try container.encode(isTextMachineTranslated, forKey: .isTextMachineTranslated)
+        let codableRanges = clozeRanges.map(CodableRange.init(from:))
+        try container.encode(codableRanges, forKey: .clozeRanges)
+    }
+    
+    // Custom decoding
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decode(UUID.self, forKey: .id)
+        type = try container.decode(PracticeType.self, forKey: .type)
+        prompt = try container.decode(String.self, forKey: .prompt)
+        text = try container.decode(String.self, forKey: .text)
+        meaning = try container.decode(String.self, forKey: .meaning)
+        textLang = try container.decode(LangCode.self, forKey: .textLang)
+        meaningLang = try container.decode(LangCode.self, forKey: .meaningLang)
+        textSource = try container.decode(TextSource.self, forKey: .textSource)
+        isTextMachineTranslated = try container.decode(Bool.self, forKey: .isTextMachineTranslated)
+        let codableRanges = try container.decode([CodableRange].self, forKey: .clozeRanges)
+        clozeRanges = codableRanges.map { $0.nsRange }
+    }
+    
+}
+
+extension ListeningPracticeProducer {
+    
+    // MARK: - IO
+    
+    static func fileName(for lang: String) -> String {
+        return "cachedListeningPractices.\(lang).json"
+    }
+    
+    static func loadCachedPractices(for lang: LangCode) -> [Item] {
+        do {
+            let practices = try readDataFromJson(
+                fileName: ListeningPracticeProducer.fileName(for: lang.rawValue),
+                type: [ListeningPracticeProducer.Item].self
+            ) as! [ListeningPracticeProducer.Item]
+            return practices
+        } catch {
+            return []
+        }
+    }
+    
+    static func save(_ practicesToCache: inout [ListeningPracticeProducer.Item], for lang: LangCode) {
+        do {
+            try writeDataToJson(
+                fileName: ListeningPracticeProducer.fileName(for: lang.rawValue),
+                data: practicesToCache
+            )
+        } catch {
+            print(error.localizedDescription)
+        }
     }
     
 }

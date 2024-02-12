@@ -404,7 +404,7 @@ extension ListeningPracticeViewController {
                 
                 // TODO: - Simplify this block.
                 var articleTitle: String? = nil
-                if let articleId = practiceProducer.practiceList[practiceItemIndex].textSource,
+                if case .article(let articleId, _, _) = practiceProducer.practiceList[practiceItemIndex].textSource,
                    let article = practiceProducer.articles.getArticle(from: articleId) {
                     articleTitle = article.title
                 }

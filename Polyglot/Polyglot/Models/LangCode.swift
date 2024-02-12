@@ -9,7 +9,7 @@
 import Foundation
 import NaturalLanguage
 
-enum LangCode: String {
+enum LangCode: String, Codable {
         
     case zh
     case en
