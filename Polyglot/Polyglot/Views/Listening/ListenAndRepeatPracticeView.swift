@@ -76,7 +76,7 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewDelegate {
         for clozeRange in unmatchedClozeRanges {
             newAttributes.setTextColor(
                 for: clozeRange,
-                with: Colors.strongIncorrectColor
+                with: Colors.incorrectColor
             )
             newAttributes.setBackgroundColor(
                 for: clozeRange,

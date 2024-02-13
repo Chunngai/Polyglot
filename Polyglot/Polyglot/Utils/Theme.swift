@@ -23,16 +23,14 @@ struct Colors {
     static let activeSystemButtonColor: UIColor = .systemBlue
     static let inactiveSystemButtonColor: UIColor = .lightGray
     
-    static let lightBlue: UIColor = UIColor.intRGB2UIColor(red: 206, green: 238, blue: 255)
-    static let strongLightBlue: UIColor = UIColor.intRGB2UIColor(red: 135, green: 211, blue: 255)
+    static let lightBlue: UIColor = UIColor.intRGB2UIColor(red: 213, green: 236, blue: 248)
+    static let strongLightBlue: UIColor = UIColor.intRGB2UIColor(red: 154, green: 207, blue: 238)
     
     static let inactivateSelectionButtonBackgroundColor: UIColor = Colors.lightBlue
     static let activateSelectionButtonBackgroundColor: UIColor = Colors.strongLightBlue
         
-    static let lightCorrectColor: UIColor = UIColor.intRGB2UIColor(red: 196, green: 245, blue: 177)
-    static let lightInorrectColor: UIColor = UIColor.intRGB2UIColor(red: 251, green: 125, blue: 130)
-    static let strongCorrectColor: UIColor = UIColor.intRGB2UIColor(red: 176, green: 225, blue: 157)
-    static let strongIncorrectColor: UIColor = UIColor.intRGB2UIColor(red: 231, green: 105, blue: 110)
+    static let correctColor: UIColor = UIColor.intRGB2UIColor(red: 186, green: 220, blue: 173)
+    static let incorrectColor: UIColor = UIColor.intRGB2UIColor(red: 201, green: 113, blue: 117)
     
     static let timingBarTintColor: UIColor = .systemGray5
     
@@ -139,6 +137,10 @@ struct Sizes {
     static let smallLineSpacing: CGFloat = 5
     static let defaultCollectionLayoutMinimumLineSpacing: CGFloat = 0
     static let defaultCollectionLayoutMinimumInteritemSpacing: CGFloat = 0
+    
+    // MARK: - Widths.
+    
+    static let defaultBorderWidth: CGFloat = 2
     
 }
 

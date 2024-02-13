@@ -17,7 +17,7 @@ class PracticeViewWithNewWordAddingTextView: UIView, PracticeViewDelegate {
         view.backgroundColor = Colors.lightGrayBackgroundColor
         view.layer.masksToBounds = true
         view.layer.cornerRadius = Sizes.defaultCornerRadius
-        view.layer.borderWidth = PracticeViewWithNewWordAddingTextView.mainViewBorderWidth
+        view.layer.borderWidth = Sizes.defaultBorderWidth
         view.layer.borderColor = Colors.borderColor.cgColor
         return view
     }()
@@ -63,12 +63,4 @@ class PracticeViewWithNewWordAddingTextView: UIView, PracticeViewDelegate {
             make.top.bottom.leading.trailing.equalToSuperview().inset(inset)
         }
     }
-}
-
-extension PracticeViewWithNewWordAddingTextView {
-    
-    // MARK: - Constants
-    
-    static let mainViewBorderWidth: CGFloat = 2
-    
 }

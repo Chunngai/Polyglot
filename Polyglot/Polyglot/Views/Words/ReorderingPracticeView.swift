@@ -197,7 +197,7 @@ extension ReorderingPracticeView: WordPracticeViewDelegate {
         
         if correctness == .correct {
             for item in itemsInRowStack {
-                item.backgroundColor = Colors.lightCorrectColor
+                item.backgroundColor = Colors.correctColor
             }
         } else {
             wordBank.isHidden = true

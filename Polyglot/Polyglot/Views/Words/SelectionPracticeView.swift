@@ -26,6 +26,8 @@ class SelectionPracticeView: UIView {
         view.backgroundColor = Colors.lightGrayBackgroundColor
         view.layer.masksToBounds = true
         view.layer.cornerRadius = Sizes.smallCornerRadius
+        view.layer.borderWidth = Sizes.defaultBorderWidth
+        view.layer.borderColor = Colors.borderColor.cgColor
         return view
     }()
     
@@ -153,14 +155,14 @@ extension SelectionPracticeView: WordPracticeViewDelegate {
     
     func updateViewsAfterSubmission(for correctness: WordPractice.Correctness, key: String, tokenizer: NLTokenizer) {
         if correctness == .correct {
-            selectionStack.selectedButton!.backgroundColor = Colors.lightCorrectColor
+            selectionStack.selectedButton!.backgroundColor = Colors.correctColor
         } else {
-            selectionStack.selectedButton!.backgroundColor = Colors.lightInorrectColor
+            selectionStack.selectedButton!.backgroundColor = Colors.incorrectColor
             
             // Also highlight the correct answer.
             for button in selectionStack.buttons {
                 if button.titleLabel!.text == key {
-                    button.backgroundColor = Colors.lightCorrectColor
+                    button.backgroundColor = Colors.correctColor
                     break
                 }
             }

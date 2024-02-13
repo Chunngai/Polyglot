@@ -121,7 +121,7 @@ extension FillingPracticeView: WordPracticeViewDelegate {
             if answerComponents.contains(keyComponent) {
                 attributedAnswer.setTextColor(
                     for: keyComponent,
-                    with: Colors.strongCorrectColor,
+                    with: Colors.correctColor,
                     ignoreCasing: true,
                     ignoreAccents: true
                 )
