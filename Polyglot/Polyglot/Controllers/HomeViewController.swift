@@ -63,12 +63,12 @@ class HomeViewController: UIViewController {
         HomeItem(
             image: Images.wordsImage,
             text: Strings.phrases,
-            secondaryText: wordMetaData?["count"]
+            secondaryText: wordMetaData["count"]
         ),
         HomeItem(
             image: Images.articlesImage,
             text: Strings.articles,
-            secondaryText: articleMetaData?["count"]
+            secondaryText: articleMetaData["count"]
         )
     ]}
     
@@ -87,16 +87,23 @@ class HomeViewController: UIViewController {
         )
     ]}
     
+    var isPracticeEnabled: Bool {
+        let wordCount = Int(wordMetaData["count"] ?? "0")
+        let articleCount = Int(articleMetaData["count"] ?? "0")
+        if wordCount == 0 || articleCount == 0 {
+            return false
+        }
+        return true
+    }
+    
     // MARK: - Models
     
     private var _words: [Word]!
-    private var _wordCount: Int!
     var words: [Word]! {
         get {
             if self._words == nil {
                 print("Reading words.")
                 self._words = Word.load(for: LangCode.currentLanguage)
-                self._wordCount = self._words.count
             }
             
             return self._words
@@ -108,23 +115,19 @@ class HomeViewController: UIViewController {
             self._words = newValue
             Word.save(&newValue, for: LangCode.currentLanguage)
             
-            print("Word count: \(_wordCount) -> \(newValue.count)")
-            _wordCount = newValue.count
             wordMetaData["count"] = String(newValue.count)
             DispatchQueue.main.async {  // May be called by the accent retrieving in a closure.
-                self.updateTexts()
+                self.applySnapShots()
             }
         }
     }
     
     private var _articles: [Article]!
-    private var _articleCount: Int!
     var articles: [Article]! {
         get {
             if self._articles == nil {
                 print("Reading articles.")
                 self._articles = Article.load(for: LangCode.currentLanguage)
-                self._articleCount = self._articles.count
             }
             
             return self._articles
@@ -136,21 +139,19 @@ class HomeViewController: UIViewController {
             self._articles = newValue
             Article.save(&newValue, for: LangCode.currentLanguage)
             
-            print("Article count: \(_articleCount ?? -1) -> \(newValue.count)")
-            _articleCount = newValue.count
             articleMetaData["count"] = String(newValue.count)
             DispatchQueue.main.async {  // May be called by the accent retrieving in a closure.
-                self.updateTexts()
+                self.applySnapShots()
             }
         }
     }
     
-    var wordMetaData: [String:String]! {
+    var wordMetaData: [String:String] = Word.loadMetaData(for: LangCode.currentLanguage) {
         didSet {
             Word.saveMetaData(&wordMetaData, for: LangCode.currentLanguage)
         }
     }
-    var articleMetaData: [String:String]! {
+    var articleMetaData: [String:String] = Article.loadMetaData(for: LangCode.currentLanguage) {
         didSet {
             Article.saveMetaData(&articleMetaData, for: LangCode.currentLanguage)
         }
@@ -426,32 +427,6 @@ extension HomeViewController {
     
     // MARK: - Utils
     
-    private func updateTexts() {
-        navigationItem.title = Strings.homeTitle
-        
-        for (section, items) in zip(
-            [
-                HomeViewController.languageSection,
-                HomeViewController.listSection,
-                HomeViewController.practiceSection
-            ],
-            [
-                [languageItem],
-                listItems,
-                practiceItems
-            ]
-        ) {
-            var snapshot = dataSource.snapshot(for: section)
-            snapshot.deleteAll()
-            snapshot.append(items)
-            dataSource.apply(
-                snapshot,
-                to: section,
-                animatingDifferences: false
-            )
-        }
-    }
-    
     private var fileNamesToUpload: [String] {
         var fileNames: [String] = []
         for learningLang in LangCode.learningLanguages {
@@ -506,7 +481,7 @@ extension HomeViewController: LanguageSelectionViewControllerDelegate {
         guard language != LangCode.currentLanguage else {
             return
         }
-        print("Updating lang to \(language)")
+        print("Updating lang to \(language).")
         LangCode.currentLanguage = language
         
         print("Resetting data.")
@@ -515,7 +490,8 @@ extension HomeViewController: LanguageSelectionViewControllerDelegate {
         self.wordMetaData = Word.loadMetaData(for: LangCode.currentLanguage)
         self.articleMetaData = Article.loadMetaData(for: LangCode.currentLanguage)
         
-        self.updateTexts()
+        navigationItem.title = Strings.homeTitle
+        applySnapShots()
     }
     
 }
@@ -626,6 +602,9 @@ extension HomeViewController {
             content.text = item.text
             content.secondaryText = item.secondaryText
             content.textProperties.color = Colors.normalTextColor
+            if indexPath.section == HomeViewController.practiceSection {
+                content.textProperties.color = self.isPracticeEnabled ? Colors.normalTextColor : Colors.weakTextColor
+            }
             cell.contentConfiguration = content
             
             var background = UIBackgroundConfiguration.listPlainCell()
@@ -748,29 +727,31 @@ extension HomeViewController {
         snapshot.appendSections(sections)
         dataSource.apply(snapshot, animatingDifferences: false)
             
-        var languagesSnapShot = NSDiffableDataSourceSectionSnapshot<HomeItem>()
-        languagesSnapShot.append([languageItem])
-        dataSource.apply(
-            languagesSnapShot,
-            to: HomeViewController.languageSection,
-            animatingDifferences: false
-        )
-        
-        var listsSnapshot = NSDiffableDataSourceSectionSnapshot<HomeItem>()
-        listsSnapshot.append(listItems)
-        dataSource.apply(
-            listsSnapshot,
-            to: HomeViewController.listSection,
-            animatingDifferences: false
-        )
-        
-        var practicesSnapShot = NSDiffableDataSourceSectionSnapshot<HomeItem>()
-        practicesSnapShot.append(practiceItems)
-        dataSource.apply(
-            practicesSnapShot,
-            to: HomeViewController.practiceSection,
-            animatingDifferences: false
-        )
+        applySnapShots()
+    }
+    
+    func applySnapShots() {
+        for (section, items) in zip(
+            [
+                HomeViewController.languageSection,
+                HomeViewController.listSection,
+                HomeViewController.practiceSection
+            ],
+            [
+                [languageItem],
+                listItems,
+                practiceItems
+            ]
+        ) {
+            var snapshot = dataSource.snapshot(for: section)
+            snapshot.deleteAll()
+            snapshot.append(items)
+            dataSource.apply(
+                snapshot,
+                to: section,
+                animatingDifferences: false
+            )
+        }
     }
 }
 
@@ -779,10 +760,6 @@ extension HomeViewController: UICollectionViewDelegate {
     // MARK: - UICollectionView Delegate
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        
-        guard let cell = collectionView.cellForItem(at: indexPath) else {
-            return
-        }
         
         let section = indexPath.section
         let row = indexPath.row
@@ -814,7 +791,11 @@ extension HomeViewController: UICollectionViewDelegate {
             )
             
         } else if section == HomeViewController.practiceSection {
-                        
+            
+            guard isPracticeEnabled else {
+                return
+            }
+            
             let vc: PracticeViewController
             if row == 0 {
                 vc = WordsPracticeViewController()

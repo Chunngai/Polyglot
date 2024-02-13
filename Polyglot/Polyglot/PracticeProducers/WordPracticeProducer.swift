@@ -141,14 +141,14 @@ class WordPracticeProducer: PracticeProducerDelegate {
         
         var practiceList: [WordPracticeProducer.Item] = []
         for randomWord in randomWords {
-            
-            // TODO: - selection practices may suffer from selection insufficiency problems.
-            
-            practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .textToMeaning))
-//            practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .meaningToText))
+                        
+            if batchSize >= WordPracticeProducer.defaultChoiceNumber {
+                practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .textToMeaning))
+            }
             practiceList.append(makeMeaningFillingPractice(for: randomWord, in: .meaningToText))
 
-            if let contextSelectionPractice = makeContextSelectionPractice(for: randomWord) {
+            if batchSize >= WordPracticeProducer.defaultChoiceNumber,
+                let contextSelectionPractice = makeContextSelectionPractice(for: randomWord) {
                 practiceList.append(contextSelectionPractice)
             }
 

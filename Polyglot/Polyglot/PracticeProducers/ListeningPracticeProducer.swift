@@ -526,7 +526,7 @@ extension ListeningPracticeProducer {
             let practices = try readDataFromJson(
                 fileName: ListeningPracticeProducer.fileName(for: lang.rawValue),
                 type: [ListeningPracticeProducer.Item].self
-            ) as! [ListeningPracticeProducer.Item]
+            ) as? [ListeningPracticeProducer.Item] ?? []
             return practices
         } catch {
             return []

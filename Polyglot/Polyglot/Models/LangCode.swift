@@ -120,10 +120,8 @@ extension LangCode {
             let langCodes = try readDataFromJson(
                 fileName: LangCode.fileName,
                 type: [String].self
-            ) as? [String] ?? []
-            return langCodes.map { langCode in
-                LangCode(rawValue: langCode)!
-            }
+            ) as? [LangCode] ?? [.en, .ja, .es, .ru, .ko, .de]
+            return langCodes
         } catch {
             print(error)
             exit(1)
