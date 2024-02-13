@@ -35,3 +35,17 @@ extension UIImage {
         return resize(widthRatio: ratio, heightRatio: ratio)
     }
 }
+
+extension UIImage {
+    
+    func scaledToListIconSize() -> UIImage {
+        // https://stackoverflow.com/questions/72082141/how-to-get-default-system-size-of-symbol-image-in-uilistcontentconfiguration
+        let font = UIFont.preferredFont(forTextStyle: .body)
+        let currentFontHeight = font.lineHeight
+        let scaleFactor = currentFontHeight / self.size.height
+        let scaledImage = self.resize(widthRatio: scaleFactor, heightRatio: scaleFactor)
+        return scaledImage
+        
+    }
+    
+}

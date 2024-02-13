@@ -229,16 +229,16 @@ extension Article {
     
     // MARK: - IO
     
-    static func fileName(for lang: String) -> String {
-        return "articles.\(lang).json"
+    static func fileName(for lang: LangCode) -> String {
+        return "articles.\(lang.rawValue).json"
     }
     
-    static func load(for lang: String) -> [Article] {
+    static func load(for lang: LangCode) -> [Article] {
         do {
             let articles = try readDataFromJson(
                 fileName: Article.fileName(for: lang),
                 type: [Article].self
-            ) as! [Article]
+            ) as? [Article] ?? []
             return articles
         } catch {
             print(error)
@@ -246,7 +246,7 @@ extension Article {
         }
     }
     
-    static func save(_ articles: inout [Article], for lang: String) {
+    static func save(_ articles: inout [Article], for lang: LangCode) {
         do {
             try writeDataToJson(
                 fileName: Article.fileName(for: lang),
@@ -262,16 +262,16 @@ extension Article {
 
 extension Article {
     
-    static func metaDataFileName(for lang: String) -> String {
-        return "articles.meta.\(lang).json"
+    static func metaDataFileName(for lang: LangCode) -> String {
+        return "articles.meta.\(lang.rawValue).json"
     }
     
-    static func loadMetaData(for lang: String) -> [String:String] {
+    static func loadMetaData(for lang: LangCode) -> [String:String] {
         do {
             let metaData = try readDataFromJson(
                 fileName: Article.metaDataFileName(for: lang),
                 type: [String: String].self
-            ) as! [String:String]
+            ) as? [String:String] ?? [:]
             return metaData
         } catch {
             print(error)
@@ -279,7 +279,7 @@ extension Article {
         }
     }
     
-    static func saveMetaData(_ metaData: inout [String:String], for lang: String) {
+    static func saveMetaData(_ metaData: inout [String:String], for lang: LangCode) {
         do {
             try writeDataToJson(
                 fileName: Article.metaDataFileName(for: lang),

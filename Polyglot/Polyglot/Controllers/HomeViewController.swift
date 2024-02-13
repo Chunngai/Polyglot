@@ -48,60 +48,26 @@ struct HomeItem: Hashable {
 
 class HomeViewController: UIViewController {
     
-    // Langauges.
-        
-    var lang: LangCode! {
-        didSet {
-            guard let lang = lang, LangCode.currentLanguage != lang else {
-                return
-            }
-            print("Updating lang to \(lang)")
-            
-            LangCode.currentLanguage = lang
-                        
-            print("Resetting data.")
-            self._words = nil
-            self._articles = nil
-            
-            self.wordMetaData = Word.loadMetaData(for: lang.rawValue)
-            self.articleMetaData = Article.loadMetaData(for: lang.rawValue)
-            
-            self.updateTexts()
-        }
-    }
-    
     // Collection view.
     
     var dataSource: UICollectionViewDiffableDataSource<Int, HomeItem>!
     
-    let languageItems = LangCode.loadLearningLanguages().map { langCode in
-        return HomeItem(
-            image: Images.langImages[langCode], 
-            text: langCode.flagIcon
+    var languageItem: HomeItem {
+        HomeItem(
+            image: Images.langImage.scaledToListIconSize(),
+            text: Strings.languageNamesOfAllLanguages[LangCode.currentLanguage]![LangCode.currentLanguage]!
         )
     }
     
-    var languageOfTextToDisplay: LangCode {
-        if self.lang != nil {
-            return self.lang
-        } else {
-            if !LangCode.learningLanguages.isEmpty {
-                return LangCode.learningLanguages[0]
-            } else {
-                // Default val.
-                return LangCode.en
-            }
-        }
-    }
     var listItems: [HomeItem] {[
         HomeItem(
             image: Images.wordsImage,
-            text: Strings._phrases[languageOfTextToDisplay],
+            text: Strings.phrases,
             secondaryText: wordMetaData?["count"]
         ),
         HomeItem(
             image: Images.articlesImage,
-            text: Strings._articles[languageOfTextToDisplay],
+            text: Strings.articles,
             secondaryText: articleMetaData?["count"]
         )
     ]}
@@ -109,15 +75,15 @@ class HomeViewController: UIViewController {
     var practiceItems: [HomeItem] {[
         HomeItem(
             image: Images.wordPracticeImage,
-            text: Strings._phraseReview[languageOfTextToDisplay]
+            text: Strings.phraseReview
         ),
         HomeItem(
             image: Images.listeningPracticeImage,
-            text: Strings._listening[languageOfTextToDisplay]
+            text: Strings.listening
         ),
         HomeItem(
             image: Images.translationPracticeImage,
-            text: Strings._speaking[languageOfTextToDisplay]
+            text: Strings.speaking
         )
     ]}
     
@@ -129,7 +95,7 @@ class HomeViewController: UIViewController {
         get {
             if self._words == nil {
                 print("Reading words.")
-                self._words = Word.load(for: self.lang.rawValue)
+                self._words = Word.load(for: LangCode.currentLanguage)
                 self._wordCount = self._words.count
             }
             
@@ -139,16 +105,11 @@ class HomeViewController: UIViewController {
             guard var newValue = newValue else {
                 return
             }
-            self._words = newValue  // !
+            self._words = newValue
+            Word.save(&newValue, for: LangCode.currentLanguage)
             
-            guard abs(newValue.count - _wordCount) <= 30 else {
-                return
-            }
-            print("Word count: \(_wordCount ?? -1) -> \(newValue.count)")
+            print("Word count: \(_wordCount) -> \(newValue.count)")
             _wordCount = newValue.count
-            
-            Word.save(&newValue, for: self.lang.rawValue)
-            
             wordMetaData["count"] = String(newValue.count)
             DispatchQueue.main.async {  // May be called by the accent retrieving in a closure.
                 self.updateTexts()
@@ -162,7 +123,7 @@ class HomeViewController: UIViewController {
         get {
             if self._articles == nil {
                 print("Reading articles.")
-                self._articles = Article.load(for: self.lang.rawValue)
+                self._articles = Article.load(for: LangCode.currentLanguage)
                 self._articleCount = self._articles.count
             }
             
@@ -172,16 +133,11 @@ class HomeViewController: UIViewController {
             guard var newValue = newValue else {
                 return
             }
-            self._articles = newValue  // !
+            self._articles = newValue
+            Article.save(&newValue, for: LangCode.currentLanguage)
             
-            guard abs(newValue.count - _articleCount) <= 3 else {
-                return
-            }
             print("Article count: \(_articleCount ?? -1) -> \(newValue.count)")
             _articleCount = newValue.count
-            
-            Article.save(&newValue, for: self.lang.rawValue)
-            
             articleMetaData["count"] = String(newValue.count)
             DispatchQueue.main.async {  // May be called by the accent retrieving in a closure.
                 self.updateTexts()
@@ -191,12 +147,12 @@ class HomeViewController: UIViewController {
     
     var wordMetaData: [String:String]! {
         didSet {
-            Word.saveMetaData(&wordMetaData, for: self.lang.rawValue)
+            Word.saveMetaData(&wordMetaData, for: LangCode.currentLanguage)
         }
     }
     var articleMetaData: [String:String]! {
         didSet {
-            Article.saveMetaData(&articleMetaData, for: self.lang.rawValue)
+            Article.saveMetaData(&articleMetaData, for: LangCode.currentLanguage)
         }
     }
     
@@ -215,9 +171,7 @@ class HomeViewController: UIViewController {
     
     var indexPath2TranslationForCellsThatAreDisplayingMeanings: [IndexPath: String] = [:]
     var indexPathForCellThatIsProcudingVoice: IndexPath? = nil
-        
-    // MARK: - Controllers
-    
+            
     // MARK: - Views
     
     var collectionView: UICollectionView!
@@ -262,7 +216,7 @@ class HomeViewController: UIViewController {
     private func updateViews() {
         navigationController?.navigationBar.prefersLargeTitles = true
         
-        navigationItem.title = Strings._homeTitles[LangCode.learningLanguages[0]]
+        navigationItem.title = Strings.homeTitle
         navigationItem.largeTitleDisplayMode = .always
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             image: UIImage.init(systemName: "square.and.arrow.up"),
@@ -475,30 +429,34 @@ extension HomeViewController {
     private func updateTexts() {
         navigationItem.title = Strings.homeTitle
         
-        var listsSnapshot = dataSource.snapshot(for: HomeViewController.listSection)
-        listsSnapshot.deleteAll()
-        listsSnapshot.append(listItems)
-        dataSource.apply(
-            listsSnapshot,
-            to: HomeViewController.listSection,
-            animatingDifferences: false
-        )
-        
-        var practicesSnapShot = dataSource.snapshot(for: HomeViewController.practiceSection)
-        practicesSnapShot.deleteAll()
-        practicesSnapShot.append(practiceItems)
-        dataSource.apply(
-            practicesSnapShot,
-            to: HomeViewController.practiceSection,
-            animatingDifferences: false
-        )
+        for (section, items) in zip(
+            [
+                HomeViewController.languageSection,
+                HomeViewController.listSection,
+                HomeViewController.practiceSection
+            ],
+            [
+                [languageItem],
+                listItems,
+                practiceItems
+            ]
+        ) {
+            var snapshot = dataSource.snapshot(for: section)
+            snapshot.deleteAll()
+            snapshot.append(items)
+            dataSource.apply(
+                snapshot,
+                to: section,
+                animatingDifferences: false
+            )
+        }
     }
     
     private var fileNamesToUpload: [String] {
         var fileNames: [String] = []
         for learningLang in LangCode.learningLanguages {
-            fileNames.append(Word.fileName(for: learningLang.rawValue))
-            fileNames.append(Article.fileName(for: learningLang.rawValue))
+            fileNames.append(Word.fileName(for: learningLang))
+            fileNames.append(Article.fileName(for: learningLang))
         }
         return fileNames
     }
@@ -538,6 +496,28 @@ extension HomeViewController {
             }
         }
     }
+}
+
+extension HomeViewController: LanguageSelectionViewControllerDelegate {
+    
+    // MARK: - LanguageSelectionViewController Delegate
+    
+    func updateLanguage(as language: LangCode) {
+        guard language != LangCode.currentLanguage else {
+            return
+        }
+        print("Updating lang to \(language)")
+        LangCode.currentLanguage = language
+        
+        print("Resetting data.")
+        self._words = nil
+        self._articles = nil
+        self.wordMetaData = Word.loadMetaData(for: LangCode.currentLanguage)
+        self.articleMetaData = Article.loadMetaData(for: LangCode.currentLanguage)
+        
+        self.updateTexts()
+    }
+    
 }
 
 extension HomeViewController: MFMailComposeViewControllerDelegate {
@@ -596,34 +576,10 @@ extension HomeViewController {
             
             let section: NSCollectionLayoutSection
             
-            if sectionIndex == HomeViewController.languageSection {
+            if sectionIndex == HomeViewController.languageSection ||
+                sectionIndex == HomeViewController.listSection ||
+                sectionIndex == HomeViewController.practiceSection {
                 
-                let itemSize = NSCollectionLayoutSize(
-                    widthDimension: .fractionalWidth(1.0 / 3.0),
-                    heightDimension: .fractionalHeight(1.0)
-                )
-                let item = NSCollectionLayoutItem(layoutSize: itemSize)
-                
-                let groupSize = NSCollectionLayoutSize(
-                    widthDimension: .fractionalWidth(1.0),
-                    heightDimension: .fractionalWidth(0.23)
-                )
-                let group = NSCollectionLayoutGroup.horizontal(
-                    layoutSize: groupSize,
-                    repeatingSubitem: item,
-                    count: 3
-                )
-                group.interItemSpacing = .flexible(10)
-                
-                section = NSCollectionLayoutSection(group: group)
-                section.interGroupSpacing = 10
-                section.contentInsets = NSDirectionalEdgeInsets(
-                    top: 20,
-                    leading: 20,
-                    bottom: 0,
-                    trailing: 20
-                )
-            } else if sectionIndex == HomeViewController.listSection || sectionIndex == HomeViewController.practiceSection {
                 let configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
                 
                 section = NSCollectionLayoutSection.list(
@@ -658,37 +614,6 @@ extension HomeViewController {
         }
     }
     
-    func createGridCellRegistration() -> UICollectionView.CellRegistration<LangCell, HomeItem> {
-        return UICollectionView.CellRegistration<LangCell, HomeItem> { (
-            cell: LangCell,
-            indexPath: IndexPath,
-            item: HomeItem
-        ) in
-            
-            let content = LangCellContentConfiguration()
-            content.langImage = item.image
-            cell.contentConfiguration = content
-            
-            var background = UIBackgroundConfiguration.listPlainCell()
-            background.cornerRadius = 8
-            // https://www.appsloveworld.com/swift/100/44/how-change-the-selection-color-in-compositional-layouts-in-collectionview
-            background.backgroundColorTransformer = UIConfigurationColorTransformer { color in
-                // Set the selection color to white.
-                return .white
-            }
-
-            if LangCode.learningLanguages[indexPath.row] == self.lang {
-                background.strokeColor = .black
-                background.strokeWidth = 2
-            } else {
-                background.strokeColor = .clear
-                background.strokeWidth = .zero
-            }
-            
-            cell.backgroundConfiguration = background
-        }
-    }
-    
     func createListCellRegistration() -> UICollectionView.CellRegistration<UICollectionViewListCell, HomeItem> {
         return UICollectionView.CellRegistration<UICollectionViewListCell, HomeItem> { (
             cell: UICollectionViewListCell,
@@ -700,7 +625,7 @@ extension HomeViewController {
             content.image = item.image
             content.text = item.text
             content.secondaryText = item.secondaryText
-            content.textProperties.color = self.lang != nil ? Colors.normalTextColor : Colors.inactiveTextColor
+            content.textProperties.color = Colors.normalTextColor
             cell.contentConfiguration = content
             
             var background = UIBackgroundConfiguration.listPlainCell()
@@ -711,7 +636,7 @@ extension HomeViewController {
             }
             cell.backgroundConfiguration = background
             
-            if indexPath.section == HomeViewController.listSection {
+            if indexPath.section == HomeViewController.languageSection || indexPath.section == HomeViewController.listSection {
                 cell.accessories = [UICellAccessory.disclosureIndicator()]
             } else {
                 cell.accessories = []
@@ -769,7 +694,6 @@ extension HomeViewController {
     }
     
     func configureDataSource() {
-        let gridCellRegistration = createGridCellRegistration()
         let listCellRegistration = createListCellRegistration()
         let cardHeaderRegistration = createCardHeaderRegistration()
         let cardCellRegistration = createCardCellRegistration()
@@ -781,7 +705,7 @@ extension HomeViewController {
             
             if section == HomeViewController.languageSection {
                 return collectionView.dequeueConfiguredReusableCell(
-                    using: gridCellRegistration,
+                    using: listCellRegistration,
                     for: indexPath,
                     item: item
                 )
@@ -825,7 +749,7 @@ extension HomeViewController {
         dataSource.apply(snapshot, animatingDifferences: false)
             
         var languagesSnapShot = NSDiffableDataSourceSectionSnapshot<HomeItem>()
-        languagesSnapShot.append(languageItems)
+        languagesSnapShot.append([languageItem])
         dataSource.apply(
             languagesSnapShot,
             to: HomeViewController.languageSection,
@@ -862,38 +786,17 @@ extension HomeViewController: UICollectionViewDelegate {
         
         let section = indexPath.section
         let row = indexPath.row
-        
-//        Feedbacks.defaultFeedbackGenerator.selectionChanged()
-        
+                
         if section == HomeViewController.languageSection {
             
-            cell.backgroundConfiguration?.strokeColor = .black
-            cell.backgroundConfiguration?.strokeWidth = 2
-            // Change the view of other language cells
-            // into the deselected status.
-            // Cannot do this in collectionView(didDeselectItemAt:)
-            // because doing so will deselect the selected
-            // language cell if a cell in other lists
-            // is selected, which is not expected.
-            for i in 0..<LangCode.learningLanguages.count {
-                if i == indexPath.row {
-                    continue
-                }
-                let indexPathToDeselect = IndexPath(row: i, section: 0)
-                if let cell = collectionView.cellForItem(at: indexPathToDeselect) {
-                    cell.backgroundConfiguration?.strokeColor = .clear
-                    cell.backgroundConfiguration?.strokeWidth = .zero
-                }
-            }
-            
-            // Update the current language.
-            self.lang = LangCode.learningLanguages[indexPath.row]
+            let vc = LanguageSelectionViewController()
+            vc.delegate = self
+            navigationController?.pushViewController(
+                vc,
+                animated: true
+            )
             
         } else if section == HomeViewController.listSection {
-                    
-            guard self.lang != nil else {
-                return
-            }
             
             let vc: ListViewController
             if row == 0 {
@@ -909,12 +812,9 @@ extension HomeViewController: UICollectionViewDelegate {
                 vc,
                 animated: true
             )
+            
         } else if section == HomeViewController.practiceSection {
-            
-            guard self.lang != nil else {
-                return
-            }
-            
+                        
             let vc: PracticeViewController
             if row == 0 {
                 vc = WordsPracticeViewController()
@@ -932,6 +832,7 @@ extension HomeViewController: UICollectionViewDelegate {
                 animated: true,
                 completion: nil
             )
+            
         }
     }
 }

@@ -23,7 +23,7 @@ enum LangCode: String, Codable {
 
 extension LangCode {
     
-    static var currentLanguage: LangCode = .zh
+    static var currentLanguage: LangCode = .en
     static var pairedLanguage: LangCode {
         switch LangCode.currentLanguage {
         case .zh: return .zh
@@ -120,7 +120,7 @@ extension LangCode {
             let langCodes = try readDataFromJson(
                 fileName: LangCode.fileName,
                 type: [String].self
-            ) as! [String]
+            ) as? [String] ?? []
             return langCodes.map { langCode in
                 LangCode(rawValue: langCode)!
             }

@@ -163,16 +163,16 @@ extension Word {
     
     // MARK: - IO
     
-    static func fileName(for lang: String) -> String {
-        return "words.\(lang).json"
+    static func fileName(for lang: LangCode) -> String {
+        return "words.\(lang.rawValue).json"
     }
     
-    static func load(for lang: String) -> [Word] {
+    static func load(for lang: LangCode) -> [Word] {
         do {
             let words = try readDataFromJson(
                 fileName: Word.fileName(for: lang),
                 type: [Word].self
-            ) as! [Word]
+            ) as? [Word] ?? []
             return words
         } catch {
             print(error)
@@ -180,7 +180,7 @@ extension Word {
         }
     }
     
-    static func save(_ words: inout [Word], for lang: String) {
+    static func save(_ words: inout [Word], for lang: LangCode) {
         do {
             try writeDataToJson(
                 fileName: Word.fileName(for: lang),
@@ -195,16 +195,16 @@ extension Word {
 
 extension Word {
     
-    static func metaDataFileName(for lang: String) -> String {
-        return "words.meta.\(lang).json"
+    static func metaDataFileName(for lang: LangCode) -> String {
+        return "words.meta.\(lang.rawValue).json"
     }
     
-    static func loadMetaData(for lang: String) -> [String: String] {
+    static func loadMetaData(for lang: LangCode) -> [String: String] {
         do {
             let metaData = try readDataFromJson(
                 fileName: Word.metaDataFileName(for: lang),
                 type: [String: String].self
-            ) as! [String:String]
+            ) as? [String:String] ?? [:]
             return metaData
         } catch {
             print(error)
@@ -212,7 +212,7 @@ extension Word {
         }
     }
     
-    static func saveMetaData(_ metaData: inout [String:String], for lang: String) {
+    static func saveMetaData(_ metaData: inout [String:String], for lang: LangCode) {
         do {
             try writeDataToJson(
                 fileName: Word.metaDataFileName(for: lang),

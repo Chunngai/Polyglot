@@ -16,8 +16,8 @@ struct Strings {
     static let _enStrings: [LangCode : String] = [
         LangCode.en : "English",
         LangCode.ja : "英語",
-        LangCode.es : "inglés",
-        LangCode.ru : "английский",
+        LangCode.es : "Inglés",
+        LangCode.ru : "Английский",
         LangCode.ko : "영어",
         LangCode.de : "Englisch",
     ]
@@ -28,8 +28,8 @@ struct Strings {
     static let _jaStrings: [LangCode : String] = [
         LangCode.en : "Japanese",
         LangCode.ja : "日本語",
-        LangCode.es : "japonés",
-        LangCode.ru : "японский",
+        LangCode.es : "Japonés",
+        LangCode.ru : "Японский",
         LangCode.ko : "일본어",
         LangCode.de : "Japanisch",
     ]
@@ -40,8 +40,8 @@ struct Strings {
     static let _esStrings: [LangCode : String] = [
         LangCode.en : "Spanish",
         LangCode.ja : "スペイン語",
-        LangCode.es : "español",
-        LangCode.ru : "испанский",
+        LangCode.es : "Español",
+        LangCode.ru : "Испанский",
         LangCode.ko : "스페인어",
         LangCode.de : "Spanisch",
     ]
@@ -52,8 +52,8 @@ struct Strings {
     static let _ruStrings: [LangCode : String] = [
         LangCode.en : "Russian",
         LangCode.ja : "ロシア語",
-        LangCode.es : "ruso",
-        LangCode.ru : "русский",
+        LangCode.es : "Ruso",
+        LangCode.ru : "Русский",
         LangCode.ko : "러시아어",
         LangCode.de : "Russisch",
     ]
@@ -64,8 +64,8 @@ struct Strings {
     static let _koStrings: [LangCode : String] = [
         LangCode.en : "Korean",
         LangCode.ja : "韓国語",
-        LangCode.es : "coreano",
-        LangCode.ru : "корейский",
+        LangCode.es : "Coreano",
+        LangCode.ru : "Корейский",
         LangCode.ko : "한국어",
         LangCode.de : "Koreanisch",
     ]
@@ -76,8 +76,8 @@ struct Strings {
     static let _deStrings: [LangCode : String] = [
         LangCode.en : "German",
         LangCode.ja : "ドイツ語",
-        LangCode.es : "alemán",
-        LangCode.ru : "немецкий",
+        LangCode.es : "Alemán",
+        LangCode.ru : "Немецкий",
         LangCode.ko : "독일어",
         LangCode.de : "Deutsch",
     ]
@@ -85,6 +85,14 @@ struct Strings {
         return Strings._deStrings[LangCode.currentLanguage]!
     }
 
+    static var languageNamesOfAllLanguages: [LangCode: [LangCode: String]] = [
+        LangCode.en : Strings._enStrings,
+        LangCode.ja : Strings._jaStrings,
+        LangCode.es : Strings._esStrings,
+        LangCode.ru : Strings._ruStrings,
+        LangCode.ko : Strings._koStrings,
+        LangCode.de : Strings._deStrings,
+    ]
 }
 
 extension Strings {
@@ -103,41 +111,17 @@ extension Strings {
         return Strings._homeTitles[LangCode.currentLanguage]!
     }
     
-//    static let _mainPrimaryPrompts: [LangCode : String] = [
-//        LangCode.en : "Hello!",
-//        LangCode.ja : "こんにちは！",
-//        LangCode.es : "Hola!",
-//        LangCode.ru : "Привет!",
-//        LangCode.ko : "안녕하세요",
-//        LangCode.de : "Hallo!",
-//    ]
-//    static var mainPrimaryPrompt: String {
-//        return Strings._mainPrimaryPrompts[LangCode.currentLanguage]!
-//    }
-            
-//    private static let _menuPrimaryPrompts: [LangCode : String] = [
-//        LangCode.en : "English",
-//        LangCode.ja : "日本語",
-//        LangCode.es : "Español",
-//        LangCode.ru : "Русский",
-//        LangCode.ko : "한국어",
-//        LangCode.de : "Deutsch",
-//    ]
-//    static var menuPrimaryPrompt: String {
-//        return Strings._menuPrimaryPrompts[LangCode.currentLanguage]!
-//    }
-        
-//    static let _wordListNavItemTitles: [LangCode : String] = [
-//        LangCode.en : "Words and Phrases",
-//        LangCode.ja : "単語とフレーズ",
-//        LangCode.es : "Palabras y Frases",
-//        LangCode.ru : "Слова и Фразы",
-//        LangCode.ko : "단어와 문구",
-//        LangCode.de : "Wörter und Sätze",
-//    ]
-//    static var wordListNavItemTitle: String {
-//        return Strings._wordListNavItemTitles[LangCode.currentLanguage]!
-//    }
+    static let _languageSelectionViewControllerTitle: [LangCode: String] = [
+        LangCode.en : "Languages",
+        LangCode.ja : "言語",
+        LangCode.es : "Idiomas",
+        LangCode.ru : "Языки",
+        LangCode.ko : "언어",
+        LangCode.de : "Sprachen",
+    ]
+    static var languageSelectionViewControllerTitle: String {
+        return Strings._languageSelectionViewControllerTitle[LangCode.currentLanguage]!
+    }
     
     static let _phrases: [LangCode : String] = [
         LangCode.en : "Phrases",
@@ -344,30 +328,6 @@ extension Strings {
         return Strings._addingNewWordAlertTextFieldPlaceHolderForNotes[LangCode.currentLanguage]!
     }
     
-    // MARK: - Batch Adding
-    
-//    private static let _wordEditTextViewPrompts: [LangCode : String] = [
-//        LangCode.en : "Format：\nDate - Notes\n1. Word １\n2. Word 2\n\nDate - Notes\n1. Word １\n2. Word 2\n\n",
-//        LangCode.ja : "フォーマット：\n日付 - ノート\n1. 単語１\n2. 単語2\n\n日付 - ノート\n1. 単語１\n2. 単語2\n\n",
-//        LangCode.es : "Formato：\nFecha - ノート\n1. Palabra １\n2. Palabra 2\n\nFecha - ノート\n1. Palabra １\n2. Palabra 2\n\n",
-//        LangCode.ru : "Формат：\nДата - ノート\n1. Слово １\n2. Слово 2\n\nДата - ノート\n1. Слово １\n2. Слово 2\n\n",
-//        LangCode.ko : "형식: \n날짜 - 노트\n1. 단어 1\n2. 단어 2\n\n날짜 - 노트\n1. 단어 1\n2. 단어 2\n\n",
-//    ]
-//    static var wordEditTextViewPrompt: String {
-//        return Strings._wordEditTextViewPrompts[LangCode.currentLanguage]!
-//    }
-//
-//    private static let _wordMeaningSeparators: [LangCode : Substring.Element] = [
-//        LangCode.en : ":",
-//        LangCode.ja : " ",
-//        LangCode.es : ":",
-//        LangCode.ru : ":",
-//        LangCode.ko : ":",
-//    ]
-//    static var wordMeaningSeparator: Substring.Element {
-//        return Strings._wordMeaningSeparators[LangCode.currentLanguage]!
-//    }
-//
     // MARK: - Bottom View / Text View
     
     private static let _newWordMenuItemStrings: [LangCode : String] = [
