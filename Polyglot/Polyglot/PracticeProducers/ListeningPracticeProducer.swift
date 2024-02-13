@@ -206,6 +206,19 @@ extension ListeningPracticeProducer {
                 clozeRanges = clozeRanges.randomElements(of: ListeningPracticeProducer.maxClozeNumForListenAndComplete)
             }
             
+            var existingPhraseRanges: [NSRange] = []
+            var existingPhraseMeanings: [String] = []
+            let textUniqueTokens = Set(text.tokenized(with: LangCode.currentLanguage.wordTokenizer))
+            for word in self.words {
+                let wordUniqueTokens = Set(word.text.tokenized(with: LangCode.currentLanguage.wordTokenizer))
+                if !textUniqueTokens.intersection(wordUniqueTokens).isEmpty  // Avoid cases like "wit" in "with".
+                    && text.contains(word.text) {
+                    let range = (text as NSString).range(of: word.text)
+                    existingPhraseRanges.append(range)
+                    existingPhraseMeanings.append(word.meaning)
+                }
+            }
+            
             return ListeningPracticeProducer.Item(
                 type: type,
                 prompt: makePrompt(for: type),
@@ -215,7 +228,9 @@ extension ListeningPracticeProducer {
                 meaningLang: LangCode.pairedLanguage,
                 textSource: textSource,
                 isTextMachineTranslated: isTextMachineTranslated,
-                clozeRanges: clozeRanges
+                clozeRanges: clozeRanges,
+                existingPhraseRanges: existingPhraseRanges,
+                existingPhraseMeanings: existingPhraseMeanings
             )
         }
         
@@ -382,8 +397,10 @@ extension ListeningPracticeProducer {
         var textSource: TextSource
         var isTextMachineTranslated: Bool
         var clozeRanges: [NSRange]
+        var existingPhraseRanges: [NSRange]
+        var existingPhraseMeanings: [String]
         
-        init(type: PracticeType, prompt: String, text: String, meaning: String, textLang: LangCode, meaningLang: LangCode, textSource: TextSource, isTextMachineTranslated: Bool, clozeRanges: [NSRange]) {
+        init(type: PracticeType, prompt: String, text: String, meaning: String, textLang: LangCode, meaningLang: LangCode, textSource: TextSource, isTextMachineTranslated: Bool, clozeRanges: [NSRange], existingPhraseRanges: [NSRange], existingPhraseMeanings: [String]) {
             self.id = UUID()
             self.type = type
             self.prompt = prompt
@@ -394,6 +411,8 @@ extension ListeningPracticeProducer {
             self.textSource = textSource
             self.isTextMachineTranslated = isTextMachineTranslated
             self.clozeRanges = clozeRanges
+            self.existingPhraseRanges = existingPhraseRanges
+            self.existingPhraseMeanings = existingPhraseMeanings
         }
         
         init(from another: Item) {
@@ -406,7 +425,9 @@ extension ListeningPracticeProducer {
                 meaningLang: another.meaningLang,
                 textSource: another.textSource,
                 isTextMachineTranslated: another.isTextMachineTranslated,
-                clozeRanges: another.clozeRanges
+                clozeRanges: another.clozeRanges,
+                existingPhraseRanges: another.existingPhraseRanges,
+                existingPhraseMeanings: another.existingPhraseMeanings
             )
         }
         
@@ -476,7 +497,7 @@ extension ListeningPracticeProducer.Item {
     }
     
     private enum CodingKeys: String, CodingKey {
-        case id, type, prompt, text, meaning, textLang, meaningLang, textSource, isTextMachineTranslated, clozeRanges
+        case id, type, prompt, text, meaning, textLang, meaningLang, textSource, isTextMachineTranslated, clozeRanges, existingPhraseRanges, existingPhraseMeanings
     }
     
     // Custom encoding
@@ -491,8 +512,11 @@ extension ListeningPracticeProducer.Item {
         try container.encode(meaningLang, forKey: .meaningLang)
         try container.encode(textSource, forKey: .textSource)
         try container.encode(isTextMachineTranslated, forKey: .isTextMachineTranslated)
-        let codableRanges = clozeRanges.map(CodableRange.init(from:))
-        try container.encode(codableRanges, forKey: .clozeRanges)
+        let codableClozeRanges = clozeRanges.map(CodableRange.init(from:))
+        try container.encode(codableClozeRanges, forKey: .clozeRanges)
+        let codableExistingPhraseRanges = existingPhraseRanges.map(CodableRange.init(from:))
+        try container.encode(codableExistingPhraseRanges, forKey: .existingPhraseRanges)
+        try container.encode(existingPhraseMeanings, forKey: .existingPhraseMeanings)
     }
     
     // Custom decoding
@@ -507,8 +531,11 @@ extension ListeningPracticeProducer.Item {
         meaningLang = try container.decode(LangCode.self, forKey: .meaningLang)
         textSource = try container.decode(TextSource.self, forKey: .textSource)
         isTextMachineTranslated = try container.decode(Bool.self, forKey: .isTextMachineTranslated)
-        let codableRanges = try container.decode([CodableRange].self, forKey: .clozeRanges)
-        clozeRanges = codableRanges.map { $0.nsRange }
+        let codableClozeRanges = try container.decode([CodableRange].self, forKey: .clozeRanges)
+        clozeRanges = codableClozeRanges.map { $0.nsRange }
+        let codableExistingPhraseRanges = try container.decode([CodableRange].self, forKey: .existingPhraseRanges)
+        existingPhraseRanges = codableExistingPhraseRanges.map { $0.nsRange }
+        existingPhraseMeanings = try container.decode([String].self, forKey: .existingPhraseMeanings)
     }
     
 }

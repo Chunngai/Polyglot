@@ -10,7 +10,11 @@ import UIKit
 
 class NewWordAddingTextView: UITextView, UITextViewDelegate {
 
-    var currentNewWordInfo: NewWordInfo!  // Store the info of the new word being added.
+    var currentNewWordInfo: NewWordInfo = NewWordInfo(
+        textRange: UITextRange(),
+        word: "",
+        meaning: ""
+    )  // Store the info of the new word being added.
     var newWordsInfo: [NewWordInfo] = []
     
     var currentSelectedTextRange: UITextRange!  // For deleting new words.
@@ -91,6 +95,14 @@ extension NewWordAddingTextView {
         return NSRange(location: location, length: length)
     }
     
+    func textRange(from nsRange: NSRange) -> UITextRange? {
+        // Ref: https://stackoverflow.com/questions/9126709/create-uitextrange-from-nsrange
+        if let rangeStart = position(from: beginningOfDocument, offset: nsRange.location),
+           let rangeEnd = position(from: rangeStart, offset: nsRange.length) {
+            return textRange(from: rangeStart, to: rangeEnd)
+        }
+        return nil
+    }
     
     func hightlight(_ textRange: UITextRange, with color: UIColor) {
         let newAttributedText = NSMutableAttributedString(attributedString: attributedText)
@@ -195,6 +207,8 @@ extension NewWordAddingTextView {
                 newWordBottomView.floatUp()
                 
                 currentSelectedTextRange = wordTextRange  // For deleting the word later.
+                
+                break  // Avoid overlapped highlighting.
             }
         }
     }

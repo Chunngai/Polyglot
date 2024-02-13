@@ -58,6 +58,7 @@ class ListenAndRepeatPracticeView: PracticeViewWithNewWordAddingTextView {
         super.updateViews()
         
         displayText()
+        highlightExistingPhrases()
         makeClozes()
     }
 }
@@ -247,11 +248,28 @@ extension ListenAndRepeatPracticeView {
             )
             
             for i in 0..<practice.clozeRanges.count {
-                practice.clozeRanges[i].location += 2  // One for the icon and one for the space.
+                // One for the icon and one for the space.
+                practice.clozeRanges[i].location += 2
+                practice.existingPhraseRanges[i].location += 2
             }
         }
         
         textView.attributedText = attributedText
+    }
+    
+    private func highlightExistingPhrases() {
+        for (range, meaning) in zip(practice.existingPhraseRanges, practice.existingPhraseMeanings) {
+            guard let textRange = textView.textRange(from: range) else {
+                continue
+            }
+            let text = (textView.text as NSString).substring(with: range)
+            textView.newWordsInfo.append(NewWordInfo(
+                textRange: textRange,
+                word: text,
+                meaning: meaning
+            ))
+        }
+        textView.highlightAll()
     }
     
     private func makeClozes() {

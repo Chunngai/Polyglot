@@ -48,3 +48,8 @@ extension PracticeProducerDelegate {
     }
     
 }
+
+enum TextGranularity: String {
+    case sentence
+    case paragraph
+}
