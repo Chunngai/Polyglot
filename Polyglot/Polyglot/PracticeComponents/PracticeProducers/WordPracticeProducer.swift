@@ -485,7 +485,7 @@ extension WordPracticeProducer {
 
 extension WordPracticeProducer {
     
-    struct Item: PracticeItemDelegate {
+    struct Item: PracticeDelegate {
         
         typealias T = WordPractice
         var practice: WordPractice

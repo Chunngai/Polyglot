@@ -10,11 +10,11 @@ import UIKit
 
 class ListenAndCompletePracticeView: PracticeViewWithNewWordAddingTextView {
     
-    var practice: ListeningPracticeProducer.Item!
+    var practice: ListeningPractice!
     
     // MARK: - Init
     
-    init(frame: CGRect = .zero, practice: ListeningPracticeProducer.Item) {
+    init(frame: CGRect = .zero, practice: ListeningPractice) {
         super.init(frame: frame)
         
         updateSetups()

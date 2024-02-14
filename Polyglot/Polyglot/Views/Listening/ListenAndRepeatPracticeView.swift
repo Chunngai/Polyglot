@@ -20,7 +20,7 @@ struct BiRange: Codable {
 
 class ListenAndRepeatPracticeView: PracticeViewWithNewWordAddingTextView {
     
-    var practice: ListeningPracticeProducer.Item!
+    var practice: ListeningPractice!
     
     private var clozeBiGram2BiRanges: [BiGram: [BiRange]] = [:]  // A bi-gram may correspond to multiple bi-ranges.
     
@@ -31,7 +31,7 @@ class ListenAndRepeatPracticeView: PracticeViewWithNewWordAddingTextView {
     
     // MARK: - Init
     
-    init(frame: CGRect = .zero, practice: ListeningPracticeProducer.Item!) {
+    init(frame: CGRect = .zero, practice: ListeningPractice!) {
         super.init(frame: frame)
         
         self.practice = practice
@@ -58,12 +58,9 @@ class ListenAndRepeatPracticeView: PracticeViewWithNewWordAddingTextView {
         super.updateViews()
         
         displayText()
-        highlightExistingPhrases()
         makeClozes()
     }
 }
-
-
 
 extension ListenAndRepeatPracticeView: ListeningPracticeViewDelegate {
     
@@ -72,20 +69,9 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewDelegate {
     }
     
     func updateViewsAfterSubmission() {
-        let newAttributes = NSMutableAttributedString(attributedString: textView.attributedText!)
-        for clozeRange in unmatchedClozeRanges {
-            newAttributes.setTextColor(
-                for: clozeRange,
-                with: Colors.incorrectColor
-            )
-            newAttributes.setBackgroundColor(
-                for: clozeRange,
-                with: mainView.backgroundColor!
-            )
-        }
-        textView.attributedText = newAttributes
-        
+        displayUnmatchedText()
         displayTranslation()
+        highlightExistingPhrases()
     }
 }
 
@@ -258,21 +244,6 @@ extension ListenAndRepeatPracticeView {
         textView.attributedText = attributedText
     }
     
-    private func highlightExistingPhrases() {
-        for (range, meaning) in zip(practice.existingPhraseRanges, practice.existingPhraseMeanings) {
-            guard let textRange = textView.textRange(from: range) else {
-                continue
-            }
-            let text = (textView.text as NSString).substring(with: range)
-            textView.newWordsInfo.append(NewWordInfo(
-                textRange: textRange,
-                word: text,
-                meaning: meaning
-            ))
-        }
-        textView.highlightAll()
-    }
-    
     private func makeClozes() {
         let attributedText = NSMutableAttributedString(attributedString: textView.attributedText!)
         for clozeRange in practice.clozeRanges {
@@ -286,6 +257,21 @@ extension ListenAndRepeatPracticeView {
             )
         }
         textView.attributedText = attributedText
+    }
+    
+    private func displayUnmatchedText() {
+        let newAttributes = NSMutableAttributedString(attributedString: textView.attributedText!)
+        for clozeRange in unmatchedClozeRanges {
+            newAttributes.setTextColor(
+                for: clozeRange,
+                with: Colors.incorrectColor
+            )
+            newAttributes.setBackgroundColor(
+                for: clozeRange,
+                with: mainView.backgroundColor!
+            )
+        }
+        textView.attributedText = newAttributes
     }
     
     private func displayTranslation() {  // TODO: - Merge with the translation counterpart.
@@ -321,6 +307,21 @@ extension ListenAndRepeatPracticeView {
         textView.attributedText = attributedText
         
         // Restore the highlights.
+        textView.highlightAll()
+    }
+    
+    private func highlightExistingPhrases() {
+        for (range, meaning) in zip(practice.existingPhraseRanges, practice.existingPhraseMeanings) {
+            guard let textRange = textView.textRange(from: range) else {
+                continue
+            }
+            let text = (textView.text as NSString).substring(with: range)
+            textView.newWordsInfo.append(NewWordInfo(
+                textRange: textRange,
+                word: text,
+                meaning: meaning
+            ))
+        }
         textView.highlightAll()
     }
 }

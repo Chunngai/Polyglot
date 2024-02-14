@@ -194,7 +194,7 @@ class ListeningPracticeViewController: PracticeViewController {
     
     override func updatePracticeView() {
         func makePracticeView() -> PracticeViewDelegate {
-            switch practiceProducer.currentPractice.type {
+            switch practiceProducer.currentPractice.practiceType {
             case .listenAndRepeat:
                 return ListenAndRepeatPracticeView(practice: practiceProducer.currentPractice)
             case .listenAndComplete:

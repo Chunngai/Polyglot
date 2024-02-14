@@ -20,6 +20,8 @@
 		C69DB5EC2B73C05700B3BC66 /* ListenAndRepeatPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69DB5EB2B73C05700B3BC66 /* ListenAndRepeatPracticeView.swift */; };
 		C69DB5EE2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69DB5ED2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift */; };
 		C69DB5F02B73D3A800B3BC66 /* SpeechRecognitionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69DB5EF2B73D3A800B3BC66 /* SpeechRecognitionViewController.swift */; };
+		C69F76662B7D198F0006828A /* TextMeaningPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69F76652B7D198F0006828A /* TextMeaningPractice.swift */; };
+		C69F76682B7D1F9F0006828A /* ListeningPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69F76672B7D1F9F0006828A /* ListeningPractice.swift */; };
 		C6A1F1142ACB91F600EAD9A2 /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A1F1132ACB91F600EAD9A2 /* Config.swift */; };
 		C6A666F72B75EC03002B4DEE /* US2UKSpellingMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A666F62B75EC03002B4DEE /* US2UKSpellingMapping.swift */; };
 		C6B5187C2AF2C19C00451B90 /* TextViewWithPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B5187B2AF2C19C00451B90 /* TextViewWithPrompt.swift */; };
@@ -174,6 +176,8 @@
 		C69DB5EB2B73C05700B3BC66 /* ListenAndRepeatPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListenAndRepeatPracticeView.swift; sourceTree = "<group>"; };
 		C69DB5ED2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListenAndCompletePracticeView.swift; sourceTree = "<group>"; };
 		C69DB5EF2B73D3A800B3BC66 /* SpeechRecognitionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionViewController.swift; sourceTree = "<group>"; };
+		C69F76652B7D198F0006828A /* TextMeaningPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextMeaningPractice.swift; sourceTree = "<group>"; };
+		C69F76672B7D1F9F0006828A /* ListeningPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningPractice.swift; sourceTree = "<group>"; };
 		C6A1F1132ACB91F600EAD9A2 /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		C6A666F62B75EC03002B4DEE /* US2UKSpellingMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = US2UKSpellingMapping.swift; sourceTree = "<group>"; };
 		C6B5187B2AF2C19C00451B90 /* TextViewWithPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewWithPrompt.swift; sourceTree = "<group>"; };
@@ -348,6 +352,24 @@
 				C69DB5ED2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift */,
 			);
 			path = Listening;
+			sourceTree = "<group>";
+		};
+		C69F76612B7D19360006828A /* PracticeItems */ = {
+			isa = PBXGroup;
+			children = (
+				C69F76652B7D198F0006828A /* TextMeaningPractice.swift */,
+				C69F76672B7D1F9F0006828A /* ListeningPractice.swift */,
+			);
+			path = PracticeItems;
+			sourceTree = "<group>";
+		};
+		C69F76642B7D195E0006828A /* PracticeComponents */ = {
+			isa = PBXGroup;
+			children = (
+				FF69103229956F65003A925A /* PracticeProducers */,
+				C69F76612B7D19360006828A /* PracticeItems */,
+			);
+			path = PracticeComponents;
 			sourceTree = "<group>";
 		};
 		C6A666F32B75EBE6002B4DEE /* Resource */ = {
@@ -539,7 +561,7 @@
 				FF62C9A629513A2800D41797 /* Controllers */,
 				FF62C9A729513A3700D41797 /* Views */,
 				FF491E6F2959C2DF0088FD13 /* Protocols */,
-				FF69103229956F65003A925A /* PracticeProducers */,
+				C69F76642B7D195E0006828A /* PracticeComponents */,
 				FF706DF3295144A000DBCF8E /* Extensions */,
 				FF4CA732295E888000423946 /* Utils */,
 				FF8E5BB1298DB68F003B6FB1 /* APIs */,
@@ -994,11 +1016,13 @@
 				C642A6082B7B8008003893B8 /* LanguageSelectionViewController.swift in Sources */,
 				FF793A482968A7D60026B8C7 /* UIApplicationExtensions.swift in Sources */,
 				FF4B382B29525A4300BB3FFD /* ReadingEditViewController.swift in Sources */,
+				C69F76662B7D198F0006828A /* TextMeaningPractice.swift in Sources */,
 				FF4B382F29525BD400BB3FFD /* ReadingEditTableCell.swift in Sources */,
 				FF63DE00299AD2F90088C10B /* WordBankItem.swift in Sources */,
 				C6E1E0312AC5C2F600E4AF72 /* HomeViewController.swift in Sources */,
 				FF50251429524D100097C2CB /* ReadingTableCell.swift in Sources */,
 				FF491E802959ED730088FD13 /* Separator.swift in Sources */,
+				C69F76682B7D1F9F0006828A /* ListeningPractice.swift in Sources */,
 				FF8CDE812952995F00B36CA3 /* NewWordAddingBottomView.swift in Sources */,
 				FF5B182C2961E55F00C80DC3 /* IO.swift in Sources */,
 				FF591EDA296796200004CB80 /* TranslationPractice.swift in Sources */,

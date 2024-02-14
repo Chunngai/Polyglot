@@ -101,7 +101,7 @@ class TranslationPracticeProducer: PracticeProducerDelegate {
 
 extension TranslationPracticeProducer {
     
-    struct Item: PracticeItemDelegate {
+    struct Item: PracticeDelegate {
         
         typealias T = TranslationPractice
         var practice: TranslationPractice

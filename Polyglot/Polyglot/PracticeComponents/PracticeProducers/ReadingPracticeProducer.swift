@@ -80,7 +80,7 @@ class ReadingPracticeProducer: PracticeProducerDelegate {
 
 extension ReadingPracticeProducer {
     
-    struct Item: PracticeItemDelegate {
+    struct Item: PracticeDelegate {
         
         typealias T = ReadingPractice
         var practice: ReadingPractice
