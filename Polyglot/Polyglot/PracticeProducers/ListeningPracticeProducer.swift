@@ -10,41 +10,30 @@ import Foundation
 
 class ListeningPracticeProducer: PracticeProducerDelegate {
     
-    typealias U = ListeningPracticeProducer.Item
-    
-    var words: [Word]
-    var articles: [Article]
-    var batchSize: Int
-    
-    var practiceList: [ListeningPracticeProducer.Item] = []
-    var currentPracticeIndex: Int = 0 {
-        didSet {
-            if currentPracticeIndex >= practiceList.count {
-                practiceList.append(contentsOf: make())
-            }
-        }
-    }
-    var currentPractice: ListeningPracticeProducer.Item {
-        get {
-            return practiceList[currentPracticeIndex]
-        }
-        set {
-            practiceList[currentPracticeIndex] = newValue
-        }
-    }
-    
     var translator: GoogleTranslator = GoogleTranslator(
         srcLang: LangCode.currentLanguage,
         trgLang: LangCode.pairedLanguage
     )
     var contentGenerator: ContentCreator = ContentCreator(lang: LangCode.currentLanguage)
     
+    // MARK: - PracticeProducer Delegate
+    
+    typealias U = ListeningPracticeProducer.Item
+    
+    var words: [Word]
+    var articles: [Article]
+    
+    var practiceList: [ListeningPracticeProducer.Item] = []
+    var currentPracticeIndex: Int = 0
+    var currentPractice: ListeningPracticeProducer.Item!
+    
+    var batchSize: Int = ListeningPracticeProducer.defaultBatchSize
+    
+    // MARK: - Init
+    
     init(words: [Word], articles: [Article]) {
         self.words = words
         self.articles = articles
-        self.batchSize = self.articles.count >= ListeningPracticeProducer.defaultBatchSize ?
-            ListeningPracticeProducer.defaultBatchSize :
-            self.articles.count
         
         let cachedListeningPractices = ListeningPracticeProducer.loadCachedPractices(for: LangCode.currentLanguage)
         if !cachedListeningPractices.isEmpty {
@@ -52,12 +41,9 @@ class ListeningPracticeProducer: PracticeProducerDelegate {
         } else {
             self.practiceList.append(contentsOf: make())
         }
-        
+        // Create and save new cached practices for the use of next time.
         DispatchQueue.global(qos: .userInitiated).async {
-            // Create new cached practices for the use of next time.
             var listeningPracticesToCache = self.make()
-            
-            // Save the newly created ones.
             ListeningPracticeProducer.save(
                 &listeningPracticesToCache,
                 for: LangCode.currentLanguage
@@ -68,7 +54,7 @@ class ListeningPracticeProducer: PracticeProducerDelegate {
     func make() -> [ListeningPracticeProducer.Item] {
         
         var practiceList: [ListeningPracticeProducer.Item] = []
-        for _ in 0..<ListeningPracticeProducer.defaultBatchSize {
+        for _ in 0..<batchSize {
             
             let p = Double.random(in: 0...1)
             if p >= 0 && p < 0.45 {  // 45%.
@@ -107,7 +93,7 @@ class ListeningPracticeProducer: PracticeProducerDelegate {
         
         let startTime = Date()
         while true {
-            if practiceList.count >= ListeningPracticeProducer.defaultBatchSize {
+            if practiceList.count >= batchSize {
                 break
             }
             
@@ -197,50 +183,50 @@ extension ListeningPracticeProducer {
         return clozeRanges
     }
     
+    private func makePractice(type: Item.PracticeType, text: String, meaning: String, textSource: Item.TextSource, isTextMachineTranslated: Bool) -> ListeningPracticeProducer.Item? {
+                    
+        var clozeRanges: [NSRange] = generateRanges(for: text)
+        if clozeRanges.isEmpty {
+            return nil
+        }
+        if type == .listenAndComplete && clozeRanges.count >= ListeningPracticeProducer.maxClozeNumForListenAndComplete {
+            clozeRanges = clozeRanges.randomElements(of: ListeningPracticeProducer.maxClozeNumForListenAndComplete)
+        }
+        
+        var existingPhraseRanges: [NSRange] = []
+        var existingPhraseMeanings: [String] = []
+        let textUniqueTokens = Set(text.tokenized(with: LangCode.currentLanguage.wordTokenizer))
+        for word in self.words {
+            let wordUniqueTokens = Set(word.text.tokenized(with: LangCode.currentLanguage.wordTokenizer))
+            if !textUniqueTokens.intersection(wordUniqueTokens).isEmpty  // Avoid cases like "wit" in "with".
+                && text.contains(word.text) {
+                let range = (text as NSString).range(of: word.text)
+                existingPhraseRanges.append(range)
+                existingPhraseMeanings.append(word.meaning)
+            }
+        }
+        
+        return ListeningPracticeProducer.Item(
+            type: type,
+            prompt: makePrompt(for: type),
+            text: text,
+            meaning: meaning,
+            textLang: LangCode.currentLanguage,
+            meaningLang: LangCode.pairedLanguage,
+            textSource: textSource,
+            isTextMachineTranslated: isTextMachineTranslated,
+            clozeRanges: clozeRanges,
+            existingPhraseRanges: existingPhraseRanges,
+            existingPhraseMeanings: existingPhraseMeanings
+        )
+    }
+    
     private func makePractice(
         ofType type: ListeningPracticeProducer.Item.PracticeType,
         for randomWord: Word? = nil,
         inGranularity granularity: TextGranularity,
         callBack: @escaping (ListeningPracticeProducer.Item) -> Void
     ) -> ListeningPracticeProducer.Item? {
-        
-        func makePractice(text: String, meaning: String, textSource: Item.TextSource, isTextMachineTranslated: Bool) -> ListeningPracticeProducer.Item? {
-                        
-            var clozeRanges: [NSRange] = generateRanges(for: text)
-            if clozeRanges.isEmpty {
-                return nil
-            }
-            if type == .listenAndComplete && clozeRanges.count >= ListeningPracticeProducer.maxClozeNumForListenAndComplete {
-                clozeRanges = clozeRanges.randomElements(of: ListeningPracticeProducer.maxClozeNumForListenAndComplete)
-            }
-            
-            var existingPhraseRanges: [NSRange] = []
-            var existingPhraseMeanings: [String] = []
-            let textUniqueTokens = Set(text.tokenized(with: LangCode.currentLanguage.wordTokenizer))
-            for word in self.words {
-                let wordUniqueTokens = Set(word.text.tokenized(with: LangCode.currentLanguage.wordTokenizer))
-                if !textUniqueTokens.intersection(wordUniqueTokens).isEmpty  // Avoid cases like "wit" in "with".
-                    && text.contains(word.text) {
-                    let range = (text as NSString).range(of: word.text)
-                    existingPhraseRanges.append(range)
-                    existingPhraseMeanings.append(word.meaning)
-                }
-            }
-            
-            return ListeningPracticeProducer.Item(
-                type: type,
-                prompt: makePrompt(for: type),
-                text: text,
-                meaning: meaning,
-                textLang: LangCode.currentLanguage,
-                meaningLang: LangCode.pairedLanguage,
-                textSource: textSource,
-                isTextMachineTranslated: isTextMachineTranslated,
-                clozeRanges: clozeRanges,
-                existingPhraseRanges: existingPhraseRanges,
-                existingPhraseMeanings: existingPhraseMeanings
-            )
-        }
         
         var text: String?
         var meaning: String?
@@ -299,6 +285,7 @@ extension ListeningPracticeProducer {
         
         if let text = text, let meaning = meaning {
             return makePractice(
+                type: type,
                 text: text,
                 meaning: meaning,
                 textSource: Item.TextSource.article(
@@ -313,7 +300,8 @@ extension ListeningPracticeProducer {
                 guard let meaning = translations.first else {
                     return
                 }
-                guard let practice = makePractice(
+                guard let practice = self.makePractice(
+                    type: type,
                     text: text,
                     meaning: meaning,
                     textSource: Item.TextSource.article(
@@ -344,7 +332,8 @@ extension ListeningPracticeProducer {
                     guard let meaning = translations.first else {
                         return
                     }
-                    guard let practice = makePractice(
+                    guard let practice = self.makePractice(
+                        type: type,
                         text: content,
                         meaning: meaning,
                         textSource: Item.TextSource.chatGpt,

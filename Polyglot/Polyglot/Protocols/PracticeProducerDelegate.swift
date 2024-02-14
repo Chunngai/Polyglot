@@ -33,8 +33,20 @@ protocol PracticeProducerDelegate {
 
 extension PracticeProducerDelegate {
     
+    var currentPractice: U {
+        get {
+            return practiceList[currentPracticeIndex]
+        }
+        set {
+            practiceList[currentPracticeIndex] = newValue
+        }
+    }
+    
     mutating func next() {
         currentPracticeIndex += 1
+        if currentPracticeIndex >= practiceList.count {
+            practiceList.append(contentsOf: make())
+        }
     }
     
 }
