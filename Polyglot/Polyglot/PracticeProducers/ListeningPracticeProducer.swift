@@ -68,7 +68,7 @@ class ListeningPracticeProducer: PracticeProducerDelegate {
     func make() -> [ListeningPracticeProducer.Item] {
         
         var practiceList: [ListeningPracticeProducer.Item] = []
-        while true {
+        for _ in 0..<ListeningPracticeProducer.defaultBatchSize {
             
             let p = Double.random(in: 0...1)
             if p >= 0 && p < 0.45 {  // 45%.
@@ -103,13 +103,21 @@ class ListeningPracticeProducer: PracticeProducerDelegate {
                     practiceList.append(listenAndRepeatPractice)
                 }
             }
-            
+        }
+        
+        let startTime = Date()
+        while true {
             if practiceList.count >= ListeningPracticeProducer.defaultBatchSize {
                 break
             }
+            
+            if Date().timeIntervalSince(startTime) >= ListeningPracticeProducer.practiceMakingTimeThredshold {
+                break
+            }
+            Thread.sleep(forTimeInterval: 0.1)  // For avoiding high CPU usage.
         }
+        
         practiceList.shuffle()
-
         return practiceList
     }
 }
@@ -378,7 +386,7 @@ extension ListeningPracticeProducer {
             case listenAndComplete
         }
         
-        enum TextSource: Codable {
+        enum TextSource: Codable, Equatable {
             case article(
                 articleId: String,
                 paragraphId: String,
@@ -579,5 +587,6 @@ extension ListeningPracticeProducer {
     
     static let maxClozeNumForListenAndComplete: Int = 10
     static let listenAndRepeatRedoThredshold: Double = 0.6
+    static let practiceMakingTimeThredshold: TimeInterval = 5
     
 }

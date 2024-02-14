@@ -228,7 +228,7 @@ extension ListenAndRepeatPracticeView {
             attributes: Attributes.leftAlignedLongTextAttributes
         )
         
-        if practice.textSource == nil {
+        if practice.textSource == .chatGpt {
             let imageAttrString = makeImageAttributedString(with: Icons.chatgptIcon)
             attributedText.insert(imageAttrString, at: 0)
             attributedText.insert(
@@ -248,8 +248,9 @@ extension ListenAndRepeatPracticeView {
             )
             
             for i in 0..<practice.clozeRanges.count {
-                // One for the icon and one for the space.
-                practice.clozeRanges[i].location += 2
+                practice.clozeRanges[i].location += 2  // One for the icon and one for the space.
+            }
+            for i in 0..<practice.existingPhraseRanges.count {
                 practice.existingPhraseRanges[i].location += 2
             }
         }
