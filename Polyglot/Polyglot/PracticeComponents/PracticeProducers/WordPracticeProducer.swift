@@ -16,12 +16,12 @@ class WordPracticeProducer: PracticeProducerDelegate {
     
     var words: [Word]
     var articles: [Article]
-    var batchSize: Int
+    var batchSize: Int = 6
     
     var practiceList: [WordPracticeProducer.Item] = []
     var currentPracticeIndex: Int = 0 {
         didSet {
-            if currentPracticeIndex >= practiceList.count - WordPracticeProducer.defaultBatchSize {  // For saving time.
+            if currentPracticeIndex >= practiceList.count - batchSize {  // For saving time.
                 DispatchQueue.global(qos: .userInitiated).async {
                     DispatchQueue.main.async {
                         self.practiceList.append(contentsOf: self.make())
@@ -46,8 +46,8 @@ class WordPracticeProducer: PracticeProducerDelegate {
     init(words: [Word], articles: [Article]) {
         self.words = words
         self.articles = articles
-        self.batchSize = self.words.count >= WordPracticeProducer.defaultBatchSize ?
-            WordPracticeProducer.defaultBatchSize :
+        self.batchSize = self.words.count >= batchSize ?
+            batchSize :
             self.words.count
         
         self.practiceList.append(contentsOf: make())

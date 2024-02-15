@@ -25,9 +25,7 @@ class ListeningPracticeProducer: PracticeProducerDelegate {
     
     var practiceList: [ListeningPractice] = []
     var currentPracticeIndex: Int = 0
-    
-    var batchSize: Int = ListeningPracticeProducer.defaultBatchSize
-    
+        
     // MARK: - Init
     
     init(words: [Word], articles: [Article]) {
@@ -291,6 +289,5 @@ extension ListeningPracticeProducer {
     
     static let maxClozeNumForListenAndComplete: Int = 10
     static let listenAndRepeatRedoThredshold: Double = 0.6
-    static let practiceMakingTimeThredshold: TimeInterval = 5
     
 }

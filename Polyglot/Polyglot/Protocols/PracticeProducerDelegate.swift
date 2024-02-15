@@ -20,12 +20,13 @@ protocol PracticeProducerDelegate {
     
     var words: [Word] { get set }
     var articles: [Article] { get set }
-    var batchSize: Int { get set }
     
     var practiceList: [U] { get set }
     var currentPracticeIndex: Int { get set }
     var currentPractice: U { get set }
     
+    var batchSize: Int { get }
+
     func make() -> [U]
     mutating func next()
     
@@ -42,6 +43,10 @@ extension PracticeProducerDelegate {
         }
     }
     
+    var batchSize: Int {
+        6
+    }
+    
     mutating func next() {
         currentPracticeIndex += 1
         if currentPracticeIndex >= practiceList.count {
@@ -55,10 +60,10 @@ extension PracticeProducerDelegate {
     
     // MARK: - Constants
     
-    static var defaultBatchSize: Int {
-        6
+    static var practiceMakingTimeThredshold: TimeInterval {
+        5
     }
-    
+
 }
 
 enum TextGranularity: String {

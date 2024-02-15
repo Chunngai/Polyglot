@@ -10,7 +10,10 @@ import UIKit
 
 class TranslationPracticeViewController: PracticeViewController {
     
-    private lazy var practiceProducer: TranslationPracticeProducer = TranslationPracticeProducer(articles: articles)
+    private lazy var practiceProducer: SpeakingPracticeProducer = SpeakingPracticeProducer(
+        words: words,
+        articles: articles
+    )
 
     private var allNewWordsInfo: [Int : [NewWordInfo]] = [:]
     
@@ -81,7 +84,7 @@ class TranslationPracticeViewController: PracticeViewController {
         // WHOSE TOP DEPENDS ON THE BOTTOM OF THE PROMPT VIEW.
         // OTHERWISE, THE LOCATIONS OF THE DRAGGABLE LABELS MAY BE WEIRD.
         let promptAttributes = NSMutableAttributedString(
-            string: "\(Strings.interpretationPracticePrompt): \(practiceProducer.currentPractice.textLang.flagIcon) ⇒ \(practiceProducer.currentPractice.meaningLang.flagIcon)",
+            string: Strings.interpretationPracticePrompt,
             attributes: Attributes.practicePromptAttributes
         )
         promptLabel.attributedText = promptAttributes
@@ -91,7 +94,17 @@ class TranslationPracticeViewController: PracticeViewController {
             practiceView.removeFromSuperview()
         }
         // Make a new one.
-        practiceView = TranslationPracticeView(practice: practiceProducer.currentPractice)
+        let practice = practiceProducer.currentPractice
+        practiceView = TranslationPracticeView(
+            text: practice.text,
+            meaning: practice.meaning,
+            textLang: practice.textLang,
+            meaningLang: practice.meaningLang,
+            textSource: practice.textSource,
+            isTextMachineTranslated: practice.isTextMachineTranslated,
+            existingPhraseRanges: practice.existingPhraseRanges,
+            existingPhraseMeanings: practice.existingPhraseMeanings
+        )
         // Add to the main view and update layouts.
         mainView.addSubview(practiceView)
         practiceView.snp.makeConstraints { (make) in
@@ -135,8 +148,8 @@ extension TranslationPracticeViewController {
     @objc override func doneButtonTapped() {
         
         practiceStatus = .finished
-                
-        (practiceView as! TranslationPracticeView).displayTranslation()
+            
+        (practiceView as! TranslationPracticeView).updateViewsAfterSubmission()
     }
     
     @objc override func nextButtonTapped() {
@@ -167,15 +180,19 @@ extension TranslationPracticeViewController {
             for (practiceItemIndex, newWordsInfo) in allNewWordsInfo {
                 
                 // TODO: - Simplify this block.
-                let articleId = practiceProducer.practiceList[practiceItemIndex].practice.articleId
-                let article = practiceProducer.articles.getArticle(from: articleId)
-                let articleTitle = article?.title
+                var articleTitle: String? = nil
+                if case .article(let articleId, _, _) = practiceProducer.practiceList[practiceItemIndex].textSource,
+                   let article = practiceProducer.articles.getArticle(from: articleId) {
+                    articleTitle = article.title
+                } else if practiceProducer.practiceList[practiceItemIndex].textSource == .chatGpt {
+                    articleTitle = Strings.GPTGeneratedContent
+                }
                 
                 for newWordInfo in newWordsInfo {
                     newWords.append(Word(
                         text: newWordInfo.word,
                         meaning: newWordInfo.meaning,
-                        note: articleTitle ?? nil
+                        note: articleTitle
                     ))
                 }
             }

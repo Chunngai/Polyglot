@@ -89,6 +89,66 @@ class ListenAndRepeatPracticeView: PracticeViewWithNewWordAddingTextView {
         displayText()
         makeClozes()
     }
+    
+    override func displayText() {
+        let attributedText = NSMutableAttributedString(string: "")
+        if textSource == .chatGpt {
+            let imageAttrString = makeImageAttributedString(with: Icons.chatgptIcon)
+            attributedText.append(imageAttrString)
+            attributedText.append(NSAttributedString(string: " "))
+            
+            for i in 0..<clozeRanges.count {
+                clozeRanges[i].location += 2  // One for the icon and one for the space.
+            }
+            for (biGram, biRanges) in clozeBiGram2BiRanges {
+                for i in 0..<biRanges.count {
+                    clozeBiGram2BiRanges[biGram]![i].leftRange.location += 2
+                    clozeBiGram2BiRanges[biGram]![i].rightRange.location += 2
+                }
+            }
+            for i in 0..<existingPhraseRanges.count {
+                existingPhraseRanges[i].location += 2
+            }
+        }
+        attributedText.append(NSAttributedString(string: text))
+        // Without this the text attributes are cleared after attaching the icon.
+        attributedText.addAttributes(
+            Attributes.leftAlignedLongTextAttributes,
+            range: NSRange(
+                location: 0,
+                length: attributedText.string.count
+            )
+        )
+        
+        textView.attributedText = attributedText
+    }
+    
+    override func displayMeaning() {  // TODO: - Merge with the translation counterpart.
+        let attributedText = NSMutableAttributedString(attributedString: textView.attributedText!)
+
+        attributedText.append(NSAttributedString(string: "\n"))
+        if isTextMachineTranslated {
+            let imageAttrString = makeImageAttributedString(with: Icons.googleTranslateIcon)
+            attributedText.append(imageAttrString)
+            attributedText.append(NSAttributedString(
+                string: " ",
+                attributes: Attributes.leftAlignedLongTextAttributes
+            ))
+        }
+        attributedText.append(NSAttributedString(
+            string: meaning,
+            attributes: Attributes.leftAlignedLongTextAttributes
+        ))
+        attributedText.addAttributes(
+            Attributes.leftAlignedLongTextAttributes,
+            range: NSRange(
+                location: 0,
+                length: attributedText.string.count
+            )
+        )
+        
+        textView.attributedText = attributedText
+    }
 }
 
 extension ListenAndRepeatPracticeView: ListeningPracticeViewDelegate {
@@ -105,8 +165,11 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewDelegate {
         shouldProcessRecognizedSpeech = false
         
         displayUnmatchedText()
-        displayTranslation()
-        highlightExistingPhrases()
+        displayMeaning()
+        highlightExistingPhrases(
+            existingPhraseRanges: existingPhraseRanges,
+            existingPhraseMeanings: existingPhraseMeanings
+        )
     }
 }
 
@@ -227,68 +290,6 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
 
 extension ListenAndRepeatPracticeView {
     
-    private func makeImageAttributedString(with icon: UIImage) -> NSAttributedString {
-        let textAttachment = NSTextAttachment()
-        textAttachment.image = icon
-        
-        // Use the line height of the font for the image height to align with the text height
-        let font = (Attributes.leftAlignedLongTextAttributes[.font] as? UIFont) ?? UIFont.systemFont(ofSize: Sizes.smallFontSize)
-        let lineHeight = font.lineHeight
-        // Adjust the width of the image to maintain the aspect ratio, if necessary
-        let aspectRatio = textAttachment.image!.size.width / textAttachment.image!.size.height
-        let imageWidth = lineHeight * aspectRatio
-        textAttachment.bounds = CGRect(
-            x: 0,
-            y: (font.capHeight - lineHeight) / 2,
-            width: imageWidth,
-            height: lineHeight
-        )
-        
-        return NSAttributedString(attachment: textAttachment)
-    }
-    
-    private func displayText() {
-        let attributedText = NSMutableAttributedString(
-            string: text,
-            attributes: Attributes.leftAlignedLongTextAttributes
-        )
-        
-        if textSource == .chatGpt {
-            let imageAttrString = makeImageAttributedString(with: Icons.chatgptIcon)
-            attributedText.insert(imageAttrString, at: 0)
-            attributedText.insert(
-                NSAttributedString(
-                    string: " ",
-                    attributes: Attributes.leftAlignedLongTextAttributes
-                ), 
-                at: 1
-            )
-            // Without this the text attributes are cleared after attaching the icon.
-            attributedText.addAttributes(
-                Attributes.leftAlignedLongTextAttributes,
-                range: NSRange(
-                    location: 0,
-                    length: 2  // One for the icon and one for the space.
-                )
-            )
-            
-            for i in 0..<clozeRanges.count {
-                clozeRanges[i].location += 2  // One for the icon and one for the space.
-            }
-            for (biGram, biRanges) in clozeBiGram2BiRanges {
-                for i in 0..<biRanges.count {
-                    clozeBiGram2BiRanges[biGram]![i].leftRange.location += 2
-                    clozeBiGram2BiRanges[biGram]![i].rightRange.location += 2
-                }
-            }
-            for i in 0..<existingPhraseRanges.count {
-                existingPhraseRanges[i].location += 2
-            }
-        }
-        
-        textView.attributedText = attributedText
-    }
-    
     private func makeClozes() {
         let attributedText = NSMutableAttributedString(attributedString: textView.attributedText!)
         for clozeRange in clozeRanges {
@@ -317,56 +318,5 @@ extension ListenAndRepeatPracticeView {
             )
         }
         textView.attributedText = newAttributes
-    }
-    
-    private func displayTranslation() {  // TODO: - Merge with the translation counterpart.
-        let attributedText = NSMutableAttributedString(attributedString: textView.attributedText!)
-
-        attributedText.append(NSAttributedString(
-            string: "\n\n",
-            attributes: Attributes.leftAlignedLongTextAttributes
-        ))
-        
-        if isTextMachineTranslated {
-            let imageAttrString = makeImageAttributedString(with: Icons.googleTranslateIcon)
-            attributedText.append(imageAttrString)
-            attributedText.append(NSAttributedString(
-                string: " ",
-                attributes: Attributes.leftAlignedLongTextAttributes
-            ))
-            // Without this the text attributes are cleared after attaching the icon.
-            attributedText.addAttributes(
-                Attributes.leftAlignedLongTextAttributes,
-                range: NSRange(
-                    location: attributedText.length - 2,
-                    length: 2  // One for the icon and one for the space.
-                )
-            )
-        }
-        
-        attributedText.append(NSAttributedString(
-            string: meaning,
-            attributes: Attributes.leftAlignedLongTextAttributes
-        ))
-        
-        textView.attributedText = attributedText
-        
-        // Restore the highlights.
-        textView.highlightAll()
-    }
-    
-    private func highlightExistingPhrases() {
-        for (range, meaning) in zip(existingPhraseRanges, existingPhraseMeanings) {
-            guard let textRange = textView.textRange(from: range) else {
-                continue
-            }
-            let text = (textView.text as NSString).substring(with: range)
-            textView.newWordsInfo.append(NewWordInfo(
-                textRange: textRange,
-                word: text,
-                meaning: meaning
-            ))
-        }
-        textView.highlightAll()
     }
 }

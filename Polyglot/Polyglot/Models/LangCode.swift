@@ -11,6 +11,8 @@ import NaturalLanguage
 
 enum LangCode: String, Codable {
         
+    case undetermined
+    
     case zh
     case en
     case ja
@@ -33,6 +35,7 @@ extension LangCode {
         case .ru: return .es
         case .ko: return .ja
         case .de: return .ru
+        case .undetermined: return .undetermined
         }
     }
     
@@ -51,6 +54,7 @@ extension LangCode {
         case .ru: return .russian
         case .ko: return .korean
         case .de: return .german
+        case .undetermined: return .undetermined
         }
     }
     
@@ -63,6 +67,7 @@ extension LangCode {
         case .ru: return "🇷🇺"
         case .ko: return "🇰🇷"
         case .de: return "🇩🇪"
+        case .undetermined: return ""
         }
     }
     
@@ -75,6 +80,7 @@ extension LangCode {
         case .ru: return "com.apple.voice.compact.ru-RU.Milena"
         case .ko: return "com.apple.voice.enhanced.ko-KR.Yuna"
         case .de: return "com.apple.ttsbundle.siri_Martin_de-DE_compact"
+        case .undetermined: return ""
         }
     }
     
@@ -87,6 +93,7 @@ extension LangCode {
         case .ru: return Locale(identifier: "ru-RU")
         case .ko: return Locale(identifier: "ko-KR")
         case .de: return Locale(identifier: "de-DE")
+        case .undetermined: return Locale(identifier: "")
         }
     }
 }
@@ -105,6 +112,29 @@ extension LangCode {
         return tokenizer
     }
     
+}
+
+extension LangCode {
+    
+    init(detectedFrom text: String) {
+        let recognizer = NLLanguageRecognizer()
+        recognizer.processString(text)
+        guard let languageCode = recognizer.dominantLanguage else {
+            self = .undetermined  // Default val.
+            return
+        }
+        switch languageCode {
+        case .simplifiedChinese: self = .zh
+        case .english: self = .en
+        case .japanese: self = .ja
+        case .spanish: self = .es
+        case .russian: self = .ru
+        case .korean: self = .ko
+        case .german: self = .de
+        default: self = .undetermined  // Default val.
+        }
+    }
+
 }
 
 extension LangCode {

@@ -10,73 +10,111 @@ import UIKit
 
 class TranslationPracticeView: PracticeViewWithNewWordAddingTextView {
     
-    var practice: TranslationPracticeProducer.Item!
+    var text: String!
+    var meaning: String!
+    var textLang: LangCode!
+    var meaningLang: LangCode!
+    var textSource: TextSource!
+    var isTextMachineTranslated: Bool!
+    var existingPhraseRanges: [NSRange]!
+    var existingPhraseMeanings: [String]!
     
     // MARK: - Init
     
-    init(frame: CGRect = .zero, practice: TranslationPracticeProducer.Item) {
+    init(
+        frame: CGRect = .zero,
+        text: String,
+        meaning: String,
+        textLang: LangCode,
+        meaningLang: LangCode,
+        textSource: TextSource,
+        isTextMachineTranslated: Bool,
+        existingPhraseRanges: [NSRange],
+        existingPhraseMeanings: [String]
+    ) {
         super.init(frame: frame)
         
-        self.practice = practice
+        self.text = text
+        self.meaning = meaning
+        self.textLang = textLang
+        self.meaningLang = meaningLang
+        self.textSource = textSource
+        self.isTextMachineTranslated = isTextMachineTranslated
+        self.existingPhraseRanges = existingPhraseRanges
+        self.existingPhraseMeanings = existingPhraseMeanings
         
-        self.updateSetups()
-        self.updateViews()
-        self.updateLayouts()
+        updateSetups()
+        updateViews()
+        updateLayouts()
     }
     
     required init?(coder: NSCoder) {
-        super.init(coder: coder)
+        fatalError("init(coder:) has not been implemented")
     }
     
     override func updateViews() {
         super.updateViews()
         
-        if let text = practice.text {
-            textView.text = "\(practice.textLang.flagIcon): \(text)"
-        } else if let meaning = practice.meaning {
-            GoogleTranslator(
-                srcLang: practice.meaningLang,
-                trgLang: practice.textLang
-            ).translate(query: meaning) { (res) in
-                var textToDisplay: String
-                if let translation = res.first {
-                    textToDisplay = "(\(Strings.machineTranslationToken)) \(translation)"
-                } else {
-                    textToDisplay = Strings.machineTranslationErrorToken
-                }
-                DispatchQueue.main.async {
-                    self.textView.text = "\(self.practice.textLang.flagIcon): \(textToDisplay)"
-                }
-            }
-        }
+        displayMeaning()
     }
+    
+    override func displayMeaning() {
+        let attributedText = NSMutableAttributedString(
+            string: "",
+            attributes: Attributes.leftAlignedLongTextAttributes
+        )
+        if isTextMachineTranslated {
+            let imageAttrString = makeImageAttributedString(with: Icons.googleTranslateIcon)
+            attributedText.append(imageAttrString)
+            attributedText.append(NSAttributedString(string: " "))
+        }
+        attributedText.append(NSAttributedString(string: meaning))
+        attributedText.addAttributes(
+            Attributes.leftAlignedLongTextAttributes,
+            range: NSRange(
+                location: 0,
+                length: attributedText.string.count
+            )
+        )
+        
+        textView.attributedText = attributedText
+    }
+    
+    override func displayText() {
+        let attributedText = NSMutableAttributedString(attributedString: textView.attributedText!)
+        attributedText.append(NSAttributedString(string: "\n"))
+        if textSource == .chatGpt {
+            let imageAttrString = makeImageAttributedString(with: Icons.chatgptIcon)
+            attributedText.append(imageAttrString)
+            attributedText.append(NSAttributedString(string: " "))
+        }
+        
+        for i in 0..<existingPhraseRanges.count {
+            existingPhraseRanges[i].location += attributedText.string.count
+        }
+        
+        attributedText.append(NSAttributedString(string: text))
+        attributedText.addAttributes(
+            Attributes.leftAlignedLongTextAttributes,
+            range: NSRange(
+                location: 0,
+                length: attributedText.string.count
+            )
+        )
+        
+        textView.attributedText = attributedText
+    }
+    
 }
 
 extension TranslationPracticeView {
-    
-    func displayTranslation() {
-        
-        if let meaning = practice.meaning {
-            textView.text = "\(textView.text!)\n\n\(practice.meaningLang.flagIcon): \(meaning)"
-        } else if let text = practice.text {
-            GoogleTranslator(
-                srcLang: practice.textLang,
-                trgLang: practice.meaningLang
-            ).translate(query: text) { (res) in
-                var meaningToDisplay: String
-                if let translation = res.first {
-                    meaningToDisplay = "(\(Strings.machineTranslationToken)) \(translation)"
-                } else {
-                    meaningToDisplay = Strings.machineTranslationErrorToken
-                }
-                DispatchQueue.main.async {
-                    self.textView.text = "\(self.textView.text!)\n\n\(self.practice.meaningLang): \(meaningToDisplay)"
-                }
-            }
-        }
-        
-        // Restore the highlights.
-        textView.highlightAll()
+  
+    func updateViewsAfterSubmission() {
+        displayText()
+        highlightExistingPhrases(
+            existingPhraseRanges: existingPhraseRanges,
+            existingPhraseMeanings: existingPhraseMeanings
+        )
     }
     
 }
