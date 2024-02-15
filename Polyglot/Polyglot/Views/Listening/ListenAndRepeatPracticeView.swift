@@ -29,6 +29,8 @@ class ListenAndRepeatPracticeView: PracticeViewWithNewWordAddingTextView {
         Set(practice.clozeRanges).subtracting(matchedClozeRanges)
     }
     
+    private var shouldProcessRecognizedSpeech: Bool = true
+    
     // MARK: - Init
     
     init(frame: CGRect = .zero, practice: ListeningPractice!) {
@@ -69,6 +71,12 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewDelegate {
     }
     
     func updateViewsAfterSubmission() {
+        // If the practice is submitted without turning off the mic,
+        // the processRecognizedSpeech() func will still be called where
+        // recognized clozes are set with background colors,
+        // leading to invalid new phrase highlighting.
+        shouldProcessRecognizedSpeech = false
+        
         displayUnmatchedText()
         displayTranslation()
         highlightExistingPhrases()
@@ -158,6 +166,10 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
     // MARK: - ListeningPracticeViewController Delegate
     
     func processRecognizedSpeech(_ text: String) {
+        guard shouldProcessRecognizedSpeech else {
+            return
+        }
+        
         let speechTokens = text.tokenized(with: LangCode.currentLanguage.wordTokenizer)
         let speechBiGrams = generateBiGrams(from: speechTokens)
         
@@ -235,6 +247,12 @@ extension ListenAndRepeatPracticeView {
             
             for i in 0..<practice.clozeRanges.count {
                 practice.clozeRanges[i].location += 2  // One for the icon and one for the space.
+            }
+            for (biGram, biRanges) in clozeBiGram2BiRanges {
+                for i in 0..<biRanges.count {
+                    clozeBiGram2BiRanges[biGram]![i].leftRange.location += 2
+                    clozeBiGram2BiRanges[biGram]![i].rightRange.location += 2
+                }
             }
             for i in 0..<practice.existingPhraseRanges.count {
                 practice.existingPhraseRanges[i].location += 2

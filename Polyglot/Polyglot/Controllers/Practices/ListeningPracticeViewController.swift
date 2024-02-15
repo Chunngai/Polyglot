@@ -48,7 +48,7 @@ class ListeningPracticeViewController: PracticeViewController {
     
     // Listening.
     
-    var speechSynthesizer = AVSpeechSynthesizer()
+    var speechSynthesizer: AVSpeechSynthesizer!
     var utterance: AVSpeechUtterance!
     
     var isProducingSpeech: Bool = false {
@@ -178,8 +178,6 @@ class ListeningPracticeViewController: PracticeViewController {
             action: #selector(speakButtonTapped),
             for: .touchUpInside
         )
-        
-        speechSynthesizer.delegate = self
     }
     
     override func updateViews() {
@@ -250,8 +248,11 @@ class ListeningPracticeViewController: PracticeViewController {
         textViewOfPracticeView.newWordBottomView.offset = bottomViewOffset
         
         // Update the speech synthesizer.
+        speechSynthesizer = AVSpeechSynthesizer()
+        speechSynthesizer.delegate = self
         utterance = AVSpeechUtterance(string: practiceProducer.currentPractice.text)
         utterance.voice = AVSpeechSynthesisVoice(identifier: practiceProducer.currentPractice.textLang.voiceIdentifier)
+        isProducingSpeech = true
         
         // Update the speech recognizer.
         speechRecognizer = SFSpeechRecognizer(locale: practiceProducer.currentPractice.textLang.locale)
@@ -295,9 +296,6 @@ extension ListeningPracticeViewController {
     @objc override func nextButtonTapped() {
         // Store new words of the previous text.
         allNewWordsInfo[practiceProducer.currentPracticeIndex] = textViewOfPracticeView.newWordsInfo
-
-        practiceProducer.next()
-        updatePracticeView()
         
         practiceStatus = .beforeAnswering
         
@@ -306,6 +304,9 @@ extension ListeningPracticeViewController {
         isRecordingSpeech = false
         speakButton.tintColor = Colors.activeSystemButtonColor
         speakButton.isEnabled = true
+        
+        practiceProducer.next()
+        updatePracticeView()
     }
     
     @objc
