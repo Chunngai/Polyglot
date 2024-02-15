@@ -119,7 +119,7 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
             } else {  // ranges.count == 1
                 let range = ranges[0]
                 let token = (text as NSString).substring(with: range)
-                return [BiGram(leftToken: token): [BiRange(leftRange: range)]]
+                return [BiGram(leftToken: preprocess(token)): [BiRange(leftRange: range)]]
             }
         }
         
@@ -157,7 +157,7 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
             if tokens.count == 0 {
                 return [BiGram()]
             } else {  // tokens.count == 1
-                return [BiGram(leftToken: tokens[0])]
+                return [BiGram(leftToken: preprocess(tokens[0]))]
             }
         }
         
