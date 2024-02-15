@@ -610,6 +610,18 @@ extension Strings {
         return Strings._textsForPausedPractice[LangCode.currentLanguage]!
     }
     
+    private static let _GPTGeneratedContent: [LangCode : String] = [
+        LangCode.en : "GPT-generated Content",
+        LangCode.ja : "GPT生成コンテンツ",
+        LangCode.es : "Contenido Generado por GPT",
+        LangCode.ru : "Контент, Созданный с Помощью GPT",
+        LangCode.ko : "GPT 생성 콘텐츠",
+        LangCode.de : "GPT-generierter Inhalt",
+    ]
+    static var GPTGeneratedContent: String {
+        return Strings._GPTGeneratedContent[LangCode.currentLanguage]!
+    }
+        
     // MARK: - Timing
         
     private static let _timeUpAlertTitles: [LangCode : String] = [

@@ -419,6 +419,8 @@ extension ListeningPracticeViewController {
                 if case .article(let articleId, _, _) = practiceProducer.practiceList[practiceItemIndex].textSource,
                    let article = practiceProducer.articles.getArticle(from: articleId) {
                     articleTitle = article.title
+                } else if practiceProducer.practiceList[practiceItemIndex].textSource == .chatGpt {
+                    articleTitle = Strings.GPTGeneratedContent
                 }
                 
                 for newWordInfo in newWordsInfo {
