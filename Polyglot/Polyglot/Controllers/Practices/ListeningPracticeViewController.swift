@@ -192,9 +192,20 @@ class ListeningPracticeViewController: PracticeViewController {
     
     override func updatePracticeView() {
         func makePracticeView() -> PracticeViewDelegate {
+            let practice = practiceProducer.currentPractice
             switch practiceProducer.currentPractice.practiceType {
             case .listenAndRepeat:
-                return ListenAndRepeatPracticeView(practice: practiceProducer.currentPractice)
+                return ListenAndRepeatPracticeView(
+                    text: practice.text,
+                    meaning: practice.meaning,
+                    textLang: practice.textLang,
+                    meaningLang: practice.meaningLang,
+                    textSource: practice.textSource,
+                    isTextMachineTranslated: practice.isTextMachineTranslated,
+                    clozeRanges: practice.clozeRanges,
+                    existingPhraseRanges: practice.existingPhraseRanges,
+                    existingPhraseMeanings: practice.existingPhraseMeanings
+                )
             case .listenAndComplete:
                 return ListenAndCompletePracticeView(practice: practiceProducer.currentPractice)
             }

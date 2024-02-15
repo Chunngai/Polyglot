@@ -20,23 +20,50 @@ struct BiRange: Codable {
 
 class ListenAndRepeatPracticeView: PracticeViewWithNewWordAddingTextView {
     
-    var practice: ListeningPractice!
+    var text: String!
+    var meaning: String!
+    var textLang: LangCode!
+    var meaningLang: LangCode!
+    var textSource: TextSource!
+    var isTextMachineTranslated: Bool!
+    var clozeRanges: [NSRange]!
+    var existingPhraseRanges: [NSRange]!
+    var existingPhraseMeanings: [String]!
     
     private var clozeBiGram2BiRanges: [BiGram: [BiRange]] = [:]  // A bi-gram may correspond to multiple bi-ranges.
     
     private var matchedClozeRanges: Set<NSRange> = []
     private var unmatchedClozeRanges: Set<NSRange> {
-        Set(practice.clozeRanges).subtracting(matchedClozeRanges)
+        Set(clozeRanges).subtracting(matchedClozeRanges)
     }
     
     private var shouldProcessRecognizedSpeech: Bool = true
     
     // MARK: - Init
     
-    init(frame: CGRect = .zero, practice: ListeningPractice!) {
+    init(
+        frame: CGRect = .zero,
+        text: String,
+        meaning: String,
+        textLang: LangCode,
+        meaningLang: LangCode,
+        textSource: TextSource,
+        isTextMachineTranslated: Bool,
+        clozeRanges: [NSRange],
+        existingPhraseRanges: [NSRange],
+        existingPhraseMeanings: [String]
+    ) {
         super.init(frame: frame)
         
-        self.practice = practice
+        self.text = text
+        self.meaning = meaning
+        self.textLang = textLang
+        self.meaningLang = meaningLang
+        self.textSource = textSource
+        self.isTextMachineTranslated = isTextMachineTranslated
+        self.clozeRanges = clozeRanges
+        self.existingPhraseRanges = existingPhraseRanges
+        self.existingPhraseMeanings = existingPhraseMeanings
         
         updateSetups()
         updateViews()
@@ -51,8 +78,8 @@ class ListenAndRepeatPracticeView: PracticeViewWithNewWordAddingTextView {
         super.updateSetups()
         
         clozeBiGram2BiRanges = generateBiGram2BiRanges(
-            from: practice.clozeRanges,
-            of: practice.text
+            from: clozeRanges,
+            of: text
         )
     }
     
@@ -153,10 +180,10 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
     
     private func preprocess(_ text: String) -> String {
         var text = text
-        if practice.textLang == LangCode.ja {
+        if textLang == LangCode.ja {
             text = convertJapaneseToRomaji(text: text)
         }
-        if practice.textLang == LangCode.en {
+        if textLang == LangCode.en {
             text = convertUSSpellingToUKSpelling(text: text)
         }
         text = text.lowercased()
@@ -222,11 +249,11 @@ extension ListenAndRepeatPracticeView {
     
     private func displayText() {
         let attributedText = NSMutableAttributedString(
-            string: practice.text,
+            string: text,
             attributes: Attributes.leftAlignedLongTextAttributes
         )
         
-        if practice.textSource == .chatGpt {
+        if textSource == .chatGpt {
             let imageAttrString = makeImageAttributedString(with: Icons.chatgptIcon)
             attributedText.insert(imageAttrString, at: 0)
             attributedText.insert(
@@ -245,8 +272,8 @@ extension ListenAndRepeatPracticeView {
                 )
             )
             
-            for i in 0..<practice.clozeRanges.count {
-                practice.clozeRanges[i].location += 2  // One for the icon and one for the space.
+            for i in 0..<clozeRanges.count {
+                clozeRanges[i].location += 2  // One for the icon and one for the space.
             }
             for (biGram, biRanges) in clozeBiGram2BiRanges {
                 for i in 0..<biRanges.count {
@@ -254,8 +281,8 @@ extension ListenAndRepeatPracticeView {
                     clozeBiGram2BiRanges[biGram]![i].rightRange.location += 2
                 }
             }
-            for i in 0..<practice.existingPhraseRanges.count {
-                practice.existingPhraseRanges[i].location += 2
+            for i in 0..<existingPhraseRanges.count {
+                existingPhraseRanges[i].location += 2
             }
         }
         
@@ -264,7 +291,7 @@ extension ListenAndRepeatPracticeView {
     
     private func makeClozes() {
         let attributedText = NSMutableAttributedString(attributedString: textView.attributedText!)
-        for clozeRange in practice.clozeRanges {
+        for clozeRange in clozeRanges {
             attributedText.setTextColor(
                 for: clozeRange,
                 with: Colors.clozeMaskColor
@@ -300,7 +327,7 @@ extension ListenAndRepeatPracticeView {
             attributes: Attributes.leftAlignedLongTextAttributes
         ))
         
-        if practice.isTextMachineTranslated {
+        if isTextMachineTranslated {
             let imageAttrString = makeImageAttributedString(with: Icons.googleTranslateIcon)
             attributedText.append(imageAttrString)
             attributedText.append(NSAttributedString(
@@ -318,7 +345,7 @@ extension ListenAndRepeatPracticeView {
         }
         
         attributedText.append(NSAttributedString(
-            string: practice.meaning,
+            string: meaning,
             attributes: Attributes.leftAlignedLongTextAttributes
         ))
         
@@ -329,7 +356,7 @@ extension ListenAndRepeatPracticeView {
     }
     
     private func highlightExistingPhrases() {
-        for (range, meaning) in zip(practice.existingPhraseRanges, practice.existingPhraseMeanings) {
+        for (range, meaning) in zip(existingPhraseRanges, existingPhraseMeanings) {
             guard let textRange = textView.textRange(from: range) else {
                 continue
             }
