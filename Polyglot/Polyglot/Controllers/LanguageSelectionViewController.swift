@@ -72,6 +72,9 @@ extension LanguageSelectionViewController: UITableViewDataSource {
         cell.textLabel?.text = Strings.languageNamesOfAllLanguages[langCode]?[LangCode.currentLanguage] ?? ""
         cell.imageView?.image = Images.langImages[langCode]?.scaledToListIconSize()
         cell.selectionStyle = .none
+        if LangCode.learningLanguages[indexPath.row] == LangCode.currentLanguage {
+            cell.accessoryType = .checkmark
+        }
         
         return cell
     }
@@ -82,7 +85,9 @@ extension LanguageSelectionViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.delegate.updateLanguage(as: LangCode.learningLanguages[indexPath.row])
-        
+        if let cell = tableView.cellForRow(at: indexPath) {
+            cell.accessoryType = .checkmark
+        }
         navigationController?.popViewController(animated: true)
     }
     
