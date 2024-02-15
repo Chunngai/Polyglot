@@ -134,6 +134,7 @@ struct Sizes {
     
     static let defaultStackSpacing: CGFloat = 15
     static let defaultLineSpacing: CGFloat = 10
+    static let defaultParagraphSpacing: CGFloat = 10
     static let smallLineSpacing: CGFloat = 5
     static let defaultCollectionLayoutMinimumLineSpacing: CGFloat = 0
     static let defaultCollectionLayoutMinimumInteritemSpacing: CGFloat = 0
@@ -158,6 +159,7 @@ struct Attributes {
     static var defaultParaStyle: NSMutableParagraphStyle {
         let paraStyle = NSMutableParagraphStyle()
         paraStyle.lineSpacing = Sizes.defaultLineSpacing
+        paraStyle.paragraphSpacing = Sizes.defaultParagraphSpacing
         paraStyle.alignment = .justified
         return paraStyle
     }

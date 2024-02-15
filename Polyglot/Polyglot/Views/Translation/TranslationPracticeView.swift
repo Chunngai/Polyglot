@@ -73,7 +73,7 @@ class TranslationPracticeView: PracticeViewWithNewWordAddingTextView {
             Attributes.leftAlignedLongTextAttributes,
             range: NSRange(
                 location: 0,
-                length: attributedText.string.count
+                length: attributedText.length
             )
         )
         
@@ -90,7 +90,7 @@ class TranslationPracticeView: PracticeViewWithNewWordAddingTextView {
         }
         
         for i in 0..<existingPhraseRanges.count {
-            existingPhraseRanges[i].location += attributedText.string.count
+            existingPhraseRanges[i].location += attributedText.length
         }
         
         attributedText.append(NSAttributedString(string: text))
@@ -98,7 +98,7 @@ class TranslationPracticeView: PracticeViewWithNewWordAddingTextView {
             Attributes.leftAlignedLongTextAttributes,
             range: NSRange(
                 location: 0,
-                length: attributedText.string.count
+                length: attributedText.length
             )
         )
         

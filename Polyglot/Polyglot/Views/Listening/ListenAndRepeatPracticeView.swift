@@ -116,7 +116,7 @@ class ListenAndRepeatPracticeView: PracticeViewWithNewWordAddingTextView {
             Attributes.leftAlignedLongTextAttributes,
             range: NSRange(
                 location: 0,
-                length: attributedText.string.count
+                length: attributedText.length
             )
         )
         
@@ -130,22 +130,19 @@ class ListenAndRepeatPracticeView: PracticeViewWithNewWordAddingTextView {
         if isTextMachineTranslated {
             let imageAttrString = makeImageAttributedString(with: Icons.googleTranslateIcon)
             attributedText.append(imageAttrString)
-            attributedText.append(NSAttributedString(
-                string: " ",
-                attributes: Attributes.leftAlignedLongTextAttributes
-            ))
+            attributedText.append(NSAttributedString(string: " "))
+            attributedText.addAttributes(
+                Attributes.leftAlignedLongTextAttributes,
+                range: NSRange(
+                    location: attributedText.length - 2,
+                    length: 2
+                )
+            )
         }
         attributedText.append(NSAttributedString(
             string: meaning,
             attributes: Attributes.leftAlignedLongTextAttributes
         ))
-        attributedText.addAttributes(
-            Attributes.leftAlignedLongTextAttributes,
-            range: NSRange(
-                location: 0,
-                length: attributedText.string.count
-            )
-        )
         
         textView.attributedText = attributedText
     }
