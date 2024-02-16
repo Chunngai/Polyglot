@@ -8,14 +8,32 @@
 
 import UIKit
 
-class ListenAndCompletePracticeView: PracticeViewWithNewWordAddingTextView {
-    
-    var practice: ListeningPractice!
-    
+class ListenAndCompletePracticeView: TextMeaningPracticeView {
+        
     // MARK: - Init
     
-    init(frame: CGRect = .zero, practice: ListeningPractice) {
-        super.init(frame: frame)
+    override init(
+        frame: CGRect = .zero,
+        text: String,
+        meaning: String,
+        textLang: LangCode,
+        meaningLang: LangCode,
+        textSource: TextSource,
+        isTextMachineTranslated: Bool,
+        existingPhraseRanges: [NSRange],
+        existingPhraseMeanings: [String]
+    ) {
+        super.init(
+            frame: frame,
+            text: text,
+            meaning: meaning,
+            textLang: textLang,
+            meaningLang: meaningLang,
+            textSource: textSource,
+            isTextMachineTranslated: isTextMachineTranslated,
+            existingPhraseRanges: existingPhraseRanges,
+            existingPhraseMeanings: existingPhraseMeanings
+        )
         
         updateSetups()
         updateViews()
@@ -26,15 +44,6 @@ class ListenAndCompletePracticeView: PracticeViewWithNewWordAddingTextView {
         super.init(coder: coder)
     }
     
-    override func updateSetups() {
-        super.updateSetups()
-    }
-    
-    override func updateViews() {
-        super.updateViews()
-        
-        textView.text = practice.text
-    }
 }
 
 extension ListenAndCompletePracticeView: ListeningPracticeViewDelegate {

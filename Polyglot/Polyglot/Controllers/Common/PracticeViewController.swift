@@ -326,37 +326,6 @@ extension PracticeViewController: TimingBarDelegate {
 
 extension PracticeViewController {
     
-    func addWordsFromArticles(words: [Word]) {
-        self.words.add(newWords: words)
-        for word in words {
-            if LangCode.currentLanguage == LangCode.ja {
-                JapaneseAccentAnalyzer.makeTokens(for: word) { tokens in
-                    guard LangCode.currentLanguage == LangCode.ja else {
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        self.words.updateWord(of: word.id, newTokens: tokens)
-                    }
-                }
-            }
-            if LangCode.currentLanguage == LangCode.ru {
-                RussianAccentAnalyzer.makeTokens(for: word) { tokens in
-                    guard LangCode.currentLanguage == LangCode.ru else {
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        self.words.updateWord(of: word.id, newTokens: tokens)
-                    }
-                }
-            }
-        }
-    }
-    
-}
-
-
-extension PracticeViewController {
-    
     // MARK: - Constants
     
     static let practiceViewWidthRatio: CGFloat = 0.8

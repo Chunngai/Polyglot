@@ -28,6 +28,13 @@ protocol WordPracticeViewDelegate: PracticeViewDelegate {
     
 }
 
+protocol SpeakingPracticeViewDelegate: PracticeViewDelegate {
+    
+    func submit() -> Any
+    func updateViewsAfterSubmission()
+    
+}
+
 protocol ListeningPracticeViewDelegate: PracticeViewDelegate {
     
     func submit() -> Any

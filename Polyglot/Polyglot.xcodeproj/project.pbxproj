@@ -10,13 +10,14 @@
 		48430D635046D89103A12061 /* Pods_Polyglot_PolyglotUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 907D4F8E5EB18C9B62364FB2 /* Pods_Polyglot_PolyglotUITests.framework */; };
 		AC706291155790A1E33AAB8C /* Pods_PolyglotTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E379777C4FD33BCD824C64B5 /* Pods_PolyglotTests.framework */; };
 		C43026072813DBE394EFE8FB /* Pods_Polyglot.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F18AC45591099280DCFC633D /* Pods_Polyglot.framework */; };
+		C60625F72B7FB5E800429BAF /* TextMeaningPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60625F62B7FB5E800429BAF /* TextMeaningPracticeViewController.swift */; };
 		C619E68F2AC8154F00A30B27 /* LangCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C619E68E2AC8154F00A30B27 /* LangCell.swift */; };
 		C619E6932AC830CB00A30B27 /* CardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C619E6922AC830CB00A30B27 /* CardCell.swift */; };
 		C642A6082B7B8008003893B8 /* LanguageSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C642A6072B7B8008003893B8 /* LanguageSelectionViewController.swift */; };
 		C67B85A22AED943200F7657A /* JapaneseAccentAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67B85A12AED943200F7657A /* JapaneseAccentAnalyzer.swift */; };
 		C67B85A42AED94B800F7657A /* RussianAccentAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67B85A32AED94B800F7657A /* RussianAccentAnalyzer.swift */; };
 		C696B9512B6DEDA600B00A02 /* ContentCardsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C696B9502B6DEDA600B00A02 /* ContentCardsExtensions.swift */; };
-		C69DB5EA2B73BE9B00B3BC66 /* PracticeViewWithNewWordAddingTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69DB5E92B73BE9B00B3BC66 /* PracticeViewWithNewWordAddingTextView.swift */; };
+		C69DB5EA2B73BE9B00B3BC66 /* TextMeaningPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69DB5E92B73BE9B00B3BC66 /* TextMeaningPracticeView.swift */; };
 		C69DB5EC2B73C05700B3BC66 /* ListenAndRepeatPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69DB5EB2B73C05700B3BC66 /* ListenAndRepeatPracticeView.swift */; };
 		C69DB5EE2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69DB5ED2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift */; };
 		C69DB5F02B73D3A800B3BC66 /* SpeechRecognitionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69DB5EF2B73D3A800B3BC66 /* SpeechRecognitionViewController.swift */; };
@@ -164,13 +165,14 @@
 		781C1DC2544908B8FF39175D /* Pods-PolyglotTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PolyglotTests.release.xcconfig"; path = "Target Support Files/Pods-PolyglotTests/Pods-PolyglotTests.release.xcconfig"; sourceTree = "<group>"; };
 		80A4DDEB0D1137F63C376D55 /* Pods-Polyglot-PolyglotUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Polyglot-PolyglotUITests.release.xcconfig"; path = "Target Support Files/Pods-Polyglot-PolyglotUITests/Pods-Polyglot-PolyglotUITests.release.xcconfig"; sourceTree = "<group>"; };
 		907D4F8E5EB18C9B62364FB2 /* Pods_Polyglot_PolyglotUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Polyglot_PolyglotUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		C60625F62B7FB5E800429BAF /* TextMeaningPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextMeaningPracticeViewController.swift; sourceTree = "<group>"; };
 		C619E68E2AC8154F00A30B27 /* LangCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCell.swift; sourceTree = "<group>"; };
 		C619E6922AC830CB00A30B27 /* CardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardCell.swift; sourceTree = "<group>"; };
 		C642A6072B7B8008003893B8 /* LanguageSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageSelectionViewController.swift; sourceTree = "<group>"; };
 		C67B85A12AED943200F7657A /* JapaneseAccentAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JapaneseAccentAnalyzer.swift; sourceTree = "<group>"; };
 		C67B85A32AED94B800F7657A /* RussianAccentAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RussianAccentAnalyzer.swift; sourceTree = "<group>"; };
 		C696B9502B6DEDA600B00A02 /* ContentCardsExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardsExtensions.swift; sourceTree = "<group>"; };
-		C69DB5E92B73BE9B00B3BC66 /* PracticeViewWithNewWordAddingTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeViewWithNewWordAddingTextView.swift; sourceTree = "<group>"; };
+		C69DB5E92B73BE9B00B3BC66 /* TextMeaningPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextMeaningPracticeView.swift; sourceTree = "<group>"; };
 		C69DB5EB2B73C05700B3BC66 /* ListenAndRepeatPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListenAndRepeatPracticeView.swift; sourceTree = "<group>"; };
 		C69DB5ED2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListenAndCompletePracticeView.swift; sourceTree = "<group>"; };
 		C69DB5EF2B73D3A800B3BC66 /* SpeechRecognitionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionViewController.swift; sourceTree = "<group>"; };
@@ -380,7 +382,7 @@
 			isa = PBXGroup;
 			children = (
 				FF495E9F29591DEC00EA7EA9 /* TableHeaderView.swift */,
-				C69DB5E92B73BE9B00B3BC66 /* PracticeViewWithNewWordAddingTextView.swift */,
+				C69DB5E92B73BE9B00B3BC66 /* TextMeaningPracticeView.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -503,6 +505,7 @@
 				FF5D129029577AC4005DEEDE /* NavController.swift */,
 				FF5844302967217700137E00 /* ListViewController.swift */,
 				FFCBB0D6296B0AA200E5B9D9 /* PracticeViewController.swift */,
+				C60625F62B7FB5E800429BAF /* TextMeaningPracticeViewController.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -978,6 +981,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C60625F72B7FB5E800429BAF /* TextMeaningPracticeViewController.swift in Sources */,
 				FF591ED62967960C0004CB80 /* WordPractice.swift in Sources */,
 				FFBD60412969D713004165FC /* WordPracticeProducer.swift in Sources */,
 				FF495E962958FFE600EA7EA9 /* WordsViewController.swift in Sources */,
@@ -985,7 +989,7 @@
 				C6C8C3172B7617F200FBC43B /* Text.swift in Sources */,
 				C696B9512B6DEDA600B00A02 /* ContentCardsExtensions.swift in Sources */,
 				FF491E772959CC960088FD13 /* FillingPracticeView.swift in Sources */,
-				C69DB5EA2B73BE9B00B3BC66 /* PracticeViewWithNewWordAddingTextView.swift in Sources */,
+				C69DB5EA2B73BE9B00B3BC66 /* TextMeaningPracticeView.swift in Sources */,
 				FF491E752959C4320088FD13 /* SelectionPracticeView.swift in Sources */,
 				FFCBB0E0296B45F300E5B9D9 /* TranslationPracticeView.swift in Sources */,
 				FF4964BA29579C5A00414AC5 /* UISearchBarExtensions.swift in Sources */,

@@ -1,5 +1,5 @@
 //
-//  PracticeViewWithNewWordAddingTextView.swift
+//  TextMeaningPracticeView.swift
 //  Polyglot
 //
 //  Created by Ho on 2/7/24.
@@ -8,7 +8,20 @@
 
 import UIKit
 
-class PracticeViewWithNewWordAddingTextView: UIView, PracticeViewDelegate {
+class TextMeaningPracticeView: UIView, PracticeViewDelegate {
+    
+    var text: String!
+    var meaning: String!
+    var textLang: LangCode!
+    var meaningLang: LangCode!
+    var textSource: TextSource!
+    var isTextMachineTranslated: Bool!
+    var existingPhraseRanges: [NSRange]!
+    var existingPhraseMeanings: [String]!
+    
+    var newWordsInfo: [NewWordInfo] {
+        return textView.newWordsInfo
+    }
     
     // MARK: - Views
     
@@ -26,13 +39,32 @@ class PracticeViewWithNewWordAddingTextView: UIView, PracticeViewDelegate {
     
     // MARK: - Init
     
-    override init(frame: CGRect = .zero) {
+    init(
+        frame: CGRect = .zero,
+        text: String,
+        meaning: String,
+        textLang: LangCode,
+        meaningLang: LangCode,
+        textSource: TextSource,
+        isTextMachineTranslated: Bool,
+        existingPhraseRanges: [NSRange],
+        existingPhraseMeanings: [String]
+    ) {
         super.init(frame: frame)
         
+        self.text = text
+        self.meaning = meaning
+        self.textLang = textLang
+        self.meaningLang = meaningLang
+        self.textSource = textSource
+        self.isTextMachineTranslated = isTextMachineTranslated
+        self.existingPhraseRanges = existingPhraseRanges
+        self.existingPhraseMeanings = existingPhraseMeanings
+        
         textView = NewWordAddingTextView(
-            textLang: LangCode.currentLanguage,
-            meaningLang: LangCode.pairedLanguage
-        )  // TODO: - is it proper to directly pass langs here?
+            textLang: textLang,
+            meaningLang: meaningLang
+        )
         textView.attributedText = NSMutableAttributedString(
             string: " ",
             attributes: Attributes.leftAlignedLongTextAttributes
@@ -74,7 +106,7 @@ class PracticeViewWithNewWordAddingTextView: UIView, PracticeViewDelegate {
     
 }
 
-extension PracticeViewWithNewWordAddingTextView {
+extension TextMeaningPracticeView {
     
     func makeImageAttributedString(with icon: UIImage) -> NSAttributedString {
         let textAttachment = NSTextAttachment()

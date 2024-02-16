@@ -18,24 +18,15 @@ struct BiRange: Codable {
     var rightRange: NSRange = NSRange()
 }
 
-class ListenAndRepeatPracticeView: PracticeViewWithNewWordAddingTextView {
+class ListenAndRepeatPracticeView: TextMeaningPracticeView {
     
-    var text: String!
-    var meaning: String!
-    var textLang: LangCode!
-    var meaningLang: LangCode!
-    var textSource: TextSource!
-    var isTextMachineTranslated: Bool!
     var clozeRanges: [NSRange]!
-    var existingPhraseRanges: [NSRange]!
-    var existingPhraseMeanings: [String]!
-    
-    private var clozeBiGram2BiRanges: [BiGram: [BiRange]] = [:]  // A bi-gram may correspond to multiple bi-ranges.
-    
     private var matchedClozeRanges: Set<NSRange> = []
     private var unmatchedClozeRanges: Set<NSRange> {
         Set(clozeRanges).subtracting(matchedClozeRanges)
     }
+    
+    private var clozeBiGram2BiRanges: [BiGram: [BiRange]] = [:]  // A bi-gram may correspond to multiple bi-ranges.
     
     private var shouldProcessRecognizedSpeech: Bool = true
     
@@ -53,17 +44,19 @@ class ListenAndRepeatPracticeView: PracticeViewWithNewWordAddingTextView {
         existingPhraseRanges: [NSRange],
         existingPhraseMeanings: [String]
     ) {
-        super.init(frame: frame)
+        super.init(
+            frame: frame,
+            text: text,
+            meaning: meaning,
+            textLang: textLang,
+            meaningLang: meaningLang,
+            textSource: textSource,
+            isTextMachineTranslated: isTextMachineTranslated,
+            existingPhraseRanges: existingPhraseRanges,
+            existingPhraseMeanings: existingPhraseMeanings
+        )
         
-        self.text = text
-        self.meaning = meaning
-        self.textLang = textLang
-        self.meaningLang = meaningLang
-        self.textSource = textSource
-        self.isTextMachineTranslated = isTextMachineTranslated
         self.clozeRanges = clozeRanges
-        self.existingPhraseRanges = existingPhraseRanges
-        self.existingPhraseMeanings = existingPhraseMeanings
         
         updateSetups()
         updateViews()

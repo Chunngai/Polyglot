@@ -8,20 +8,11 @@
 
 import UIKit
 
-class TranslationPracticeView: PracticeViewWithNewWordAddingTextView {
-    
-    var text: String!
-    var meaning: String!
-    var textLang: LangCode!
-    var meaningLang: LangCode!
-    var textSource: TextSource!
-    var isTextMachineTranslated: Bool!
-    var existingPhraseRanges: [NSRange]!
-    var existingPhraseMeanings: [String]!
+class TranslationPracticeView: TextMeaningPracticeView {
     
     // MARK: - Init
     
-    init(
+    override init(
         frame: CGRect = .zero,
         text: String,
         meaning: String,
@@ -32,16 +23,17 @@ class TranslationPracticeView: PracticeViewWithNewWordAddingTextView {
         existingPhraseRanges: [NSRange],
         existingPhraseMeanings: [String]
     ) {
-        super.init(frame: frame)
-        
-        self.text = text
-        self.meaning = meaning
-        self.textLang = textLang
-        self.meaningLang = meaningLang
-        self.textSource = textSource
-        self.isTextMachineTranslated = isTextMachineTranslated
-        self.existingPhraseRanges = existingPhraseRanges
-        self.existingPhraseMeanings = existingPhraseMeanings
+        super.init(
+            frame: frame,
+            text: text,
+            meaning: meaning,
+            textLang: textLang,
+            meaningLang: meaningLang,
+            textSource: textSource,
+            isTextMachineTranslated: isTextMachineTranslated,
+            existingPhraseRanges: existingPhraseRanges,
+            existingPhraseMeanings: existingPhraseMeanings
+        )
         
         updateSetups()
         updateViews()
@@ -107,8 +99,14 @@ class TranslationPracticeView: PracticeViewWithNewWordAddingTextView {
     
 }
 
-extension TranslationPracticeView {
+extension TranslationPracticeView: SpeakingPracticeViewDelegate {
   
+    // MARK: - SpeakingPracticeView Delegate
+    
+    func submit() -> Any {
+        return []
+    }
+    
     func updateViewsAfterSubmission() {
         displayText()
         highlightExistingPhrases(
