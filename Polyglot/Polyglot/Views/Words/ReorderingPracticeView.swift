@@ -218,9 +218,9 @@ extension ReorderingPracticeView {
     
     private func afterDragAndDrop() {
         if itemsInRowStack.isEmpty {
-            delegate.practiceStatus = .beforeAnswering
+            delegate.deactivateDoneButton()
         } else {
-            delegate.practiceStatus = .afterAnswering
+            delegate.activateDoneButton()
         }
     }
     

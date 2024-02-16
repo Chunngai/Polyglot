@@ -14,6 +14,13 @@ protocol PracticeViewDelegate: UIView {
     
 }
 
+protocol WordPracticeViewControllerDelegate {
+    
+    func activateDoneButton()
+    func deactivateDoneButton()
+    
+}
+
 protocol WordPracticeViewDelegate: PracticeViewDelegate {
     
     func submit() -> String

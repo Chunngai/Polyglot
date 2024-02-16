@@ -176,7 +176,7 @@ extension SelectionPracticeView: ThreeItemSelectionStackDelegate {
     
     func buttonSelected(sender: UIButton) {
         selectionStack.selectButton(of: sender.tag)
-        delegate.practiceStatus = .afterAnswering
+        delegate.activateDoneButton()
     }
     
 }

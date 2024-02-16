@@ -31,21 +31,6 @@ class TranslationPracticeViewController: PracticeViewController {
     }
     private var bottomViewOffset: CGFloat!
     
-    var practiceStatus: PracticeStatus! {
-        didSet {
-            switch practiceStatus {
-            case .beforeAnswering:
-                doneButton.isHidden = false
-                nextButton.isHidden = true
-            case .finished:
-                doneButton.isHidden = true
-                nextButton.isHidden = false
-            default:
-                return
-            }
-        }
-    }
-    
     // MARK: - Init
     
     override func viewDidLayoutSubviews() {
@@ -57,12 +42,6 @@ class TranslationPracticeViewController: PracticeViewController {
         // is called.
         // Thus reset the offset here.
         textViewOfPracticeView.newWordBottomView.offset = bottomViewOffset
-    }
-    
-    override func updateSetups() {
-        super.updateSetups()
-        
-        practiceStatus = .beforeAnswering
     }
     
     override func updateViews() {
@@ -146,20 +125,18 @@ extension TranslationPracticeViewController {
     }
     
     @objc override func doneButtonTapped() {
-        
-        practiceStatus = .finished
-            
+        super.doneButtonTapped()
         (practiceView as! TranslationPracticeView).updateViewsAfterSubmission()
     }
     
     @objc override func nextButtonTapped() {
+        super.nextButtonTapped()
+        
         // Store new words of the previous text.
         allNewWordsInfo[practiceProducer.currentPracticeIndex] = textViewOfPracticeView.newWordsInfo
 
         practiceProducer.next()
         updatePracticeView()
-        
-        practiceStatus = .beforeAnswering
     }
 }
 

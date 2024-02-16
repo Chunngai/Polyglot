@@ -147,9 +147,9 @@ extension FillingPracticeView {
         }
         
         if !text.strip().isEmpty {
-            delegate.practiceStatus = .afterAnswering
+            delegate.activateDoneButton()
         } else {
-            delegate.practiceStatus = .beforeAnswering
+            delegate.deactivateDoneButton()
         }
         
         return

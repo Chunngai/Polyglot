@@ -31,21 +31,6 @@ class ListeningPracticeViewController: PracticeViewController {
     }
     private var bottomViewOffset: CGFloat!
     
-    var practiceStatus: PracticeStatus! {
-        didSet {
-            switch practiceStatus {
-            case .beforeAnswering:
-                doneButton.isHidden = false
-                nextButton.isHidden = true
-            case .finished:
-                doneButton.isHidden = true
-                nextButton.isHidden = false
-            default:
-                return
-            }
-        }
-    }
-    
     // Listening.
     
     var speechSynthesizer: AVSpeechSynthesizer!
@@ -165,9 +150,7 @@ class ListeningPracticeViewController: PracticeViewController {
     
     override func updateSetups() {
         super.updateSetups()
-        
-        practiceStatus = .beforeAnswering
-        
+                
         listenButton.addTarget(
             self,
             action: #selector(listenButtonTapped),
@@ -289,8 +272,7 @@ extension ListeningPracticeViewController {
     }
     
     @objc override func doneButtonTapped() {
-        
-        practiceStatus = .finished
+        super.doneButtonTapped()
                 
         let submission = (practiceView as! ListeningPracticeViewDelegate).submit()
         practiceProducer.checkCorrectness(of: submission)
@@ -305,11 +287,11 @@ extension ListeningPracticeViewController {
     }
     
     @objc override func nextButtonTapped() {
+        super.nextButtonTapped()
+        
         // Store new words of the previous text.
         allNewWordsInfo[practiceProducer.currentPracticeIndex] = textViewOfPracticeView.newWordsInfo
-        
-        practiceStatus = .beforeAnswering
-        
+                
         speechSynthesizer.stopSpeaking(at: .immediate)  // Stop first.
         isProducingSpeech = false  // Then change the image.
         isRecordingSpeech = false

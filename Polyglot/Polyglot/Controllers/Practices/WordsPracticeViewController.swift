@@ -15,25 +15,6 @@ class WordsPracticeViewController: PracticeViewController {
         words: words,
         articles: articles
     )
-    
-    var practiceStatus: PracticeStatus! {
-        didSet {
-            switch practiceStatus {
-            case .beforeAnswering:
-                doneButton.isHidden = false
-                nextButton.isHidden = true
-                deactivateDoneButton()
-            case .afterAnswering:
-                activateDoneButton()
-            case .finished:
-                doneButton.isHidden = true
-                nextButton.isHidden = false
-                deactivateDoneButton()
-            default:
-                return
-            }
-        }
-    }
        
     // Code for adjusting the height of the textfield
     // when the keyboard is displayed.
@@ -110,7 +91,6 @@ class WordsPracticeViewController: PracticeViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
         
-        practiceStatus = .beforeAnswering
     }
     
     override func updatePracticeView() {
@@ -197,16 +177,16 @@ class WordsPracticeViewController: PracticeViewController {
     }
 }
 
-extension WordsPracticeViewController {
+extension WordsPracticeViewController: WordPracticeViewControllerDelegate {
     
-    // MARK: - Utils
+    // MARK: - WordPracticeViewController Delegate
     
-    private func activateDoneButton() {
+    func activateDoneButton() {
         doneButton.isEnabled = true
         doneButton.backgroundColor = Colors.lightBlue
     }
     
-    private func deactivateDoneButton() {
+    func deactivateDoneButton() {
         doneButton.isEnabled = false
         doneButton.backgroundColor = Colors.lightGrayBackgroundColor
     }
@@ -217,6 +197,8 @@ extension WordsPracticeViewController {
     // MARK: - Selectors
     
     @objc override func doneButtonTapped() {
+        super.doneButtonTapped()
+        
         let answer = (practiceView as! WordPracticeViewDelegate).submit()
         practiceProducer.submit(answer: answer)
         (practiceView as! WordPracticeViewDelegate).updateViewsAfterSubmission(
@@ -224,15 +206,13 @@ extension WordsPracticeViewController {
             key: practiceProducer.currentPractice.key,
             tokenizer: practiceProducer.currentPractice.tokenizer
         )
-                
-        practiceStatus = .finished
     }
     
     @objc override func nextButtonTapped() {        
+        super.nextButtonTapped()
+        
         practiceProducer.next()
         updatePracticeView()
-        
-        practiceStatus = .beforeAnswering
     }
 }
 
