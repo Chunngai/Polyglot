@@ -10,12 +10,20 @@ import Foundation
 
 class TextMeaningPracticeProducer: BasePracticeProducer {
     
+    var groupedArticles: [GroupedArticles]!
+    
     var translator: GoogleTranslator = GoogleTranslator(
         srcLang: LangCode.currentLanguage,
         trgLang: LangCode.pairedLanguage
     )
     
     var contentCreator: ContentCreator = ContentCreator(lang: LangCode.currentLanguage)
+    
+    override init(words: [Word], articles: [Article]) {
+        super.init(words: words, articles: articles)
+        
+        self.groupedArticles = articles.groups
+    }
     
 }
 
@@ -90,7 +98,8 @@ extension TextMeaningPracticeProducer {
                 }
             }
         } else {
-            let randomArticle = self.articles.randomElement()!
+            let randomGroup = self.groupedArticles.randomElement()!
+            let randomArticle = randomGroup.articles.randomElement()!
             let randomParagraph = randomArticle.paras.randomElement()!
             
             let paragraphText = randomParagraph.text
