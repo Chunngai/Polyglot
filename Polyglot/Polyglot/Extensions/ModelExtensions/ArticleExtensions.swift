@@ -143,6 +143,7 @@ extension Array where Iterator.Element == Article {
             caseInsensitive: true,
             diacriticInsensitive: false  // E.g., Apfel and Äpfel.
         )
+        let wordTokens = wordText.tokenized(with: LangCode.currentLanguage.wordTokenizer)
         
         var candidates: [(
             articleId: String,
@@ -159,6 +160,12 @@ extension Array where Iterator.Element == Article {
                     diacriticInsensitive: false  // E.g., Apfel and Äpfel.
                 )
                 if !paraText.contains(wordText) {
+                    continue
+                }
+                // Word boundary check.
+                // E.g., wit in with.
+                let paraTokens = paraText.tokenized(with: LangCode.currentLanguage.wordTokenizer)
+                if !paraTokens.contains(wordTokens) {
                     continue
                 }
                 

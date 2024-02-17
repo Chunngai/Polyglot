@@ -70,10 +70,6 @@
 		FF50250E295244F10097C2CB /* ReadingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF50250D295244F10097C2CB /* ReadingViewController.swift */; };
 		FF502512295248D10097C2CB /* Article.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF502511295248D10097C2CB /* Article.swift */; };
 		FF50251429524D100097C2CB /* ReadingTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF50251329524D100097C2CB /* ReadingTableCell.swift */; };
-		FF506EC92A69A53D00136C82 /* Unit 1.info.fixed.json in Resources */ = {isa = PBXBuildFile; fileRef = FF506EC82A69A53D00136C82 /* Unit 1.info.fixed.json */; };
-		FF506ECB2A69A54700136C82 /* Unit 2.info.json in Resources */ = {isa = PBXBuildFile; fileRef = FF506ECA2A69A54700136C82 /* Unit 2.info.json */; };
-		FF506ECD2A69A54C00136C82 /* Unit 3.info.json in Resources */ = {isa = PBXBuildFile; fileRef = FF506ECC2A69A54C00136C82 /* Unit 3.info.json */; };
-		FF506ECF2A69A55800136C82 /* de.words.duome.u1.json in Resources */ = {isa = PBXBuildFile; fileRef = FF506ECE2A69A55800136C82 /* de.words.duome.u1.json */; };
 		FF52920A2952012E00858B55 /* ThreeButtonSelectionStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5292092952012E00858B55 /* ThreeButtonSelectionStack.swift */; };
 		FF52921229520D1200858B55 /* UINavigationBarExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF52921129520D1200858B55 /* UINavigationBarExtensions.swift */; };
 		FF55D156296F3AEC0092FB6B /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF55D155296F3AEC0092FB6B /* Constants.swift */; };
@@ -232,10 +228,6 @@
 		FF50250D295244F10097C2CB /* ReadingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingViewController.swift; sourceTree = "<group>"; };
 		FF502511295248D10097C2CB /* Article.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Article.swift; sourceTree = "<group>"; };
 		FF50251329524D100097C2CB /* ReadingTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingTableCell.swift; sourceTree = "<group>"; };
-		FF506EC82A69A53D00136C82 /* Unit 1.info.fixed.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "Unit 1.info.fixed.json"; path = "../../../../../../Volumes/Windows/Users/Neko/OneDrive/Repos/polyglot-backend/scripts/ru/Unit 1.info.fixed.json"; sourceTree = "<group>"; };
-		FF506ECA2A69A54700136C82 /* Unit 2.info.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "Unit 2.info.json"; path = "../../../../../../Volumes/Windows/Users/Neko/OneDrive/Repos/polyglot-backend/scripts/ru/Unit 2.info.json"; sourceTree = "<group>"; };
-		FF506ECC2A69A54C00136C82 /* Unit 3.info.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = "Unit 3.info.json"; path = "../../../../../../Volumes/Windows/Users/Neko/OneDrive/Repos/polyglot-backend/scripts/ru/Unit 3.info.json"; sourceTree = "<group>"; };
-		FF506ECE2A69A55800136C82 /* de.words.duome.u1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = de.words.duome.u1.json; path = "../../../../../../Volumes/Windows/Users/Neko/OneDrive/Repos/polyglot-backend/scripts/de/de.words.duome.u1.json"; sourceTree = "<group>"; };
 		FF5292092952012E00858B55 /* ThreeButtonSelectionStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeButtonSelectionStack.swift; sourceTree = "<group>"; };
 		FF52921129520D1200858B55 /* UINavigationBarExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UINavigationBarExtensions.swift; sourceTree = "<group>"; };
 		FF55D155296F3AEC0092FB6B /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
@@ -511,10 +503,6 @@
 				FF4BF6882A69468C00D875E1 /* duome_de_sentences */,
 				FFC26AE9298D82CB004D9656 /* duome_es_sentences */,
 				FFC26AED298D82D7004D9656 /* duome_ru_sentences */,
-				FF506EC82A69A53D00136C82 /* Unit 1.info.fixed.json */,
-				FF506ECA2A69A54700136C82 /* Unit 2.info.json */,
-				FF506ECC2A69A54C00136C82 /* Unit 3.info.json */,
-				FF506ECE2A69A55800136C82 /* de.words.duome.u1.json */,
 				C6F5FB752B71079C0040A26B /* ClozeViewController.swift */,
 				C69DB5EF2B73D3A800B3BC66 /* SpeechRecognitionViewController.swift */,
 				C6A666F32B75EBE6002B4DEE /* Resource */,
@@ -796,12 +784,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FF506ECF2A69A55800136C82 /* de.words.duome.u1.json in Resources */,
-				FF506ECB2A69A54700136C82 /* Unit 2.info.json in Resources */,
 				FF4BF68B2A69468C00D875E1 /* duome_de_sentences in Resources */,
-				FF506ECD2A69A54C00136C82 /* Unit 3.info.json in Resources */,
 				FFC26AEC298D82CB004D9656 /* duome_es_sentences in Resources */,
-				FF506EC92A69A53D00136C82 /* Unit 1.info.fixed.json in Resources */,
 				FF62C97F2951382600D41797 /* Assets.xcassets in Resources */,
 				FFC26AEE298D82D7004D9656 /* duome_ru_sentences in Resources */,
 			);

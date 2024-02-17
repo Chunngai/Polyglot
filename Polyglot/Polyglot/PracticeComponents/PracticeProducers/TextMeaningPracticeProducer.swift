@@ -35,15 +35,23 @@ extension TextMeaningPracticeProducer {
     ) {
         var existingPhraseRanges: [NSRange] = []
         var existingPhraseMeanings: [String] = []
-        let textUniqueTokens = Set(text.tokenized(with: LangCode.currentLanguage.wordTokenizer))
+        let text = text.normalized(caseInsensitive: true)
+        let textTokens = text.tokenized(with: LangCode.currentLanguage.wordTokenizer)
         for word in self.words {
-            let wordUniqueTokens = Set(word.text.tokenized(with: LangCode.currentLanguage.wordTokenizer))
-            if !textUniqueTokens.intersection(wordUniqueTokens).isEmpty  // Avoid cases like "wit" in "with".
-                && text.contains(word.text) {
-                let range = (text as NSString).range(of: word.text)
-                existingPhraseRanges.append(range)
-                existingPhraseMeanings.append(word.meaning)
+            let wordText = word.text.normalized(caseInsensitive: true)
+            if !text.contains(wordText) {
+                continue
             }
+            // Word boundary check.
+            // E.g., wit in with.
+            let wordTextTokens = wordText.tokenized(with: LangCode.currentLanguage.wordTokenizer)
+            if !textTokens.contains(wordTextTokens) {
+                continue
+            }
+            
+            let range = (text as NSString).range(of: wordText)
+            existingPhraseRanges.append(range)
+            existingPhraseMeanings.append(word.meaning)
         }
         
         return (
