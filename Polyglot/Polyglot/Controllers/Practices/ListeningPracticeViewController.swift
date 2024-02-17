@@ -217,7 +217,6 @@ extension ListeningPracticeViewController {
         speechSynthesizer.stopSpeaking(at: .immediate)
         
         super.cancelButtonTapped()
-        navigationController?.dismiss(animated: true, completion: nil)
 
     }
     
@@ -237,7 +236,7 @@ extension ListeningPracticeViewController {
     }
     
     @objc override func nextButtonTapped() {
-        super.nextButtonTapped()
+        updateAllNewWordsInfo(with: practiceView as! TextMeaningPracticeView)
                         
         speechSynthesizer.stopSpeaking(at: .immediate)  // Stop first.
         isProducingSpeech = false  // Then change the image.
@@ -245,7 +244,11 @@ extension ListeningPracticeViewController {
         speakButton.tintColor = Colors.activeSystemButtonColor
         speakButton.isEnabled = true
         
-        updateAllNewWordsInfo(with: practiceView as! TextMeaningPracticeView)
+        guard !shouldFinishPracticing else {
+            self.stopPracticing()
+            return
+        }
+        super.nextButtonTapped()
         practiceProducer.next()
         updatePracticeView()
     }

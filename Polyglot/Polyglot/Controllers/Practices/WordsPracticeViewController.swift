@@ -216,9 +216,13 @@ extension WordsPracticeViewController {
         )
     }
     
-    @objc override func nextButtonTapped() {        
-        super.nextButtonTapped()
+    @objc override func nextButtonTapped() {   
+        guard !shouldFinishPracticing else {
+            self.stopPracticing()
+            return
+        }
         
+        super.nextButtonTapped()
         practiceProducer.next()
         updatePracticeView()
     }

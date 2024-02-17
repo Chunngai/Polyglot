@@ -76,7 +76,7 @@
 		FF506ECF2A69A55800136C82 /* de.words.duome.u1.json in Resources */ = {isa = PBXBuildFile; fileRef = FF506ECE2A69A55800136C82 /* de.words.duome.u1.json */; };
 		FF52920A2952012E00858B55 /* ThreeButtonSelectionStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5292092952012E00858B55 /* ThreeButtonSelectionStack.swift */; };
 		FF52921229520D1200858B55 /* UINavigationBarExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF52921129520D1200858B55 /* UINavigationBarExtensions.swift */; };
-		FF55D156296F3AEC0092FB6B /* Values.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF55D155296F3AEC0092FB6B /* Values.swift */; };
+		FF55D156296F3AEC0092FB6B /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF55D155296F3AEC0092FB6B /* Constants.swift */; };
 		FF5690142980367A00CA2C7B /* LangCode.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5690132980367A00CA2C7B /* LangCode.swift */; };
 		FF5844312967217700137E00 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5844302967217700137E00 /* ListViewController.swift */; };
 		FF584434296732B400137E00 /* DictionaryExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF584433296732B400137E00 /* DictionaryExtensions.swift */; };
@@ -238,7 +238,7 @@
 		FF506ECE2A69A55800136C82 /* de.words.duome.u1.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = de.words.duome.u1.json; path = "../../../../../../Volumes/Windows/Users/Neko/OneDrive/Repos/polyglot-backend/scripts/de/de.words.duome.u1.json"; sourceTree = "<group>"; };
 		FF5292092952012E00858B55 /* ThreeButtonSelectionStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreeButtonSelectionStack.swift; sourceTree = "<group>"; };
 		FF52921129520D1200858B55 /* UINavigationBarExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UINavigationBarExtensions.swift; sourceTree = "<group>"; };
-		FF55D155296F3AEC0092FB6B /* Values.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Values.swift; sourceTree = "<group>"; };
+		FF55D155296F3AEC0092FB6B /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		FF5690132980367A00CA2C7B /* LangCode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCode.swift; sourceTree = "<group>"; };
 		FF5844302967217700137E00 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
 		FF584433296732B400137E00 /* DictionaryExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DictionaryExtensions.swift; sourceTree = "<group>"; };
@@ -461,7 +461,7 @@
 			children = (
 				FF62C9A829513A5000D41797 /* Theme.swift */,
 				FF706DF0295142AF00DBCF8E /* Strings.swift */,
-				FF55D155296F3AEC0092FB6B /* Values.swift */,
+				FF55D155296F3AEC0092FB6B /* Constants.swift */,
 				FF5AA00A2961F208009D5237 /* Alerts.swift */,
 				FF5B182B2961E55F00C80DC3 /* IO.swift */,
 				FF1780CE2A48EDCD005F588B /* Notifications.swift */,
@@ -1014,7 +1014,7 @@
 				FFBC8A842A9F2FDD001123EB /* UILabelExtensions.swift in Sources */,
 				C69DB5EC2B73C05700B3BC66 /* ListenAndRepeatPracticeView.swift in Sources */,
 				C67B85A42AED94B800F7657A /* RussianAccentAnalyzer.swift in Sources */,
-				FF55D156296F3AEC0092FB6B /* Values.swift in Sources */,
+				FF55D156296F3AEC0092FB6B /* Constants.swift in Sources */,
 				FF4964CD2958BE8900414AC5 /* TimeIntervalExtensions.swift in Sources */,
 				FF52920A2952012E00858B55 /* ThreeButtonSelectionStack.swift in Sources */,
 				C60626112B8076AF00429BAF /* TextSource.swift in Sources */,

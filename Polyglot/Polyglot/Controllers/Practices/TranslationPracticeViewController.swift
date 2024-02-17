@@ -50,20 +50,19 @@ extension TranslationPracticeViewController {
     
     // MARK: - Selectors
     
-    @objc override func cancelButtonTapped() {
-        super.cancelButtonTapped()
-        navigationController?.dismiss(animated: true, completion: nil)
-    }
-    
     @objc override func doneButtonTapped() {
         super.doneButtonTapped()
         (practiceView as! TextMeaningPracticeView).updateViewsAfterSubmission()
     }
     
     @objc override func nextButtonTapped() {
-        super.nextButtonTapped()
-        
         updateAllNewWordsInfo(with: practiceView as! TextMeaningPracticeView)
+
+        guard !shouldFinishPracticing else {
+            self.stopPracticing()
+            return
+        }
+        super.nextButtonTapped()
         practiceProducer.next()
         updatePracticeView()
     }

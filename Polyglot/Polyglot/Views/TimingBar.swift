@@ -130,7 +130,7 @@ extension TimingBar {
     
     @objc private func fireTimer() {
         // TODO: - Note that the current timing will not be executed in background. So it is just a visual effect.
-        if !Variables.isTimingEnabled {
+        if !TimingBar.isTimingEnabled {
             pause()
         }
         
@@ -162,6 +162,7 @@ extension TimingBar {
     // MARK: - Constants
     
     private static let defaultDuration: Double = TimeInterval.minute * 10
+    static var isTimingEnabled: Bool = true
     
 }
 

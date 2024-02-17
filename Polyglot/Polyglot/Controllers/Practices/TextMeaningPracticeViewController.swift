@@ -160,15 +160,11 @@ extension TextMeaningPracticeViewController {
     // MARK: - TimingBar Delegate
     
     override func stopPracticing() {
-        // TODO: - Move elsewhere
         // TODO: - Add an alert
-        // New words are saved only the next button is pressed.
-        // If the button is not pressed, the new words will not be saved.
-        updateAllNewWordsInfo(with: practiceView as! TextMeaningPracticeView)
+
         saveNewWords()
         
-        doneButton.isHidden = true
-        nextButton.isHidden = true
+        navigationController?.dismiss(animated: true, completion: nil)
     }
     
 }

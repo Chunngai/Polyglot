@@ -141,6 +141,8 @@ struct Sizes {
     
     // MARK: - Widths.
     
+    static let reorderingRowStackWidth: CGFloat = UIScreen.main.bounds.width * 0.8
+    static let reorderingWordBankWidth: CGFloat = UIScreen.main.bounds.width * 0.8
     static let defaultBorderWidth: CGFloat = 2
     
 }

@@ -11,6 +11,8 @@ import IQKeyboardManagerSwift
 
 class PracticeViewController: UIViewController {
         
+    var shouldFinishPracticing: Bool = false
+    
     // MARK: - Models
     
     var words: [Word]! {
@@ -283,21 +285,7 @@ extension PracticeViewController: TimingBarDelegate {
     }
         
     func timingBarTimeUp(timingBar: TimingBar) {
-        if timingBar.duration != Constants.maxPracticeDuration {
-            presentTimeUpAlert(duration: timingBar.duration) { (isOk) in
-                if isOk {
-                    // Update the timing bar.
-                    timingBar.add(duration: Constants.practiceDuration)
-                    timingBar.start()
-                } else {
-                    self.stopPracticing()
-                }
-            }
-        } else {
-            presentTimeUpAlert(duration: timingBar.duration) { (_) in
-                self.stopPracticing()
-            }
-        }
+        self.shouldFinishPracticing = true
     }
     
     func timingBarTimingStarted(timingBar: TimingBar) {

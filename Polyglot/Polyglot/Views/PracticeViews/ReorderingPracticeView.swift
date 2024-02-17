@@ -103,7 +103,7 @@ class ReorderingPracticeView: WordPracticeView {
             sendSubviewToBack(rowStack)
             
             wordBank.snp.updateConstraints { (make) in
-                make.width.equalTo(Constants.reorderingWordBankWidth)
+                make.width.equalTo(Sizes.reorderingWordBankWidth)
                 // https://stackoverflow.com/questions/42437966/how-to-adjust-height-of-uicollectionview-to-be-the-height-of-the-content-size-of
                 make.height.equalTo(wordBank.collectionViewLayout.collectionViewContentSize.height)
                 make.centerX.equalToSuperview()
@@ -120,7 +120,7 @@ class ReorderingPracticeView: WordPracticeView {
                     ReorderingPracticeView.rowHeight
                         + ReorderingPracticeView.rowStackVerticalSpacing * 2
                 ))
-                make.width.equalTo(Constants.reorderingRowStackWidth)
+                make.width.equalTo(Sizes.reorderingRowStackWidth)
                 make.centerX.equalToSuperview()
             }
             for row in rowStack.arrangedSubviews {
@@ -282,7 +282,7 @@ extension ReorderingPracticeView {
             )
             
             summedWidth += itemWidth
-            if summedWidth > Constants.reorderingRowStackWidth {
+            if summedWidth > Sizes.reorderingRowStackWidth {
                 rowNumber += 1
                 summedWidth = itemWidth
             }
