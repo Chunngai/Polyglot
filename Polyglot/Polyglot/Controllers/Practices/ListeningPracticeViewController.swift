@@ -164,7 +164,7 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController {
         let currentPractice = practiceProducer.currentPractice as! ListeningPractice
         switch currentPractice.practiceType {
         case .listenAndRepeat:
-            return ListenAndRepeatPracticeView(
+            let practiceView = ListenAndRepeatPracticeView(
                 text: currentPractice.text,
                 meaning: currentPractice.meaning,
                 textLang: currentPractice.textLang,
@@ -175,6 +175,8 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController {
                 existingPhraseRanges: currentPractice.existingPhraseRanges,
                 existingPhraseMeanings: currentPractice.existingPhraseMeanings
             )
+            practiceView.delegate = self
+            return practiceView
         case .listenAndComplete:
             return ListenAndCompletePracticeView(
                 text: currentPractice.text,
@@ -262,6 +264,14 @@ extension ListeningPracticeViewController {
     private func speakButtonTapped() {
         isRecordingSpeech.toggle()
     }
+}
+
+extension ListeningPracticeViewController: ListenAndRepeatPracticeViewDelegate {
+    
+    func canSubmit() {
+        doneButtonTapped()
+    }
+    
 }
 
 extension ListeningPracticeViewController: AVSpeechSynthesizerDelegate {

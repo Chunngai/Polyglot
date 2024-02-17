@@ -30,6 +30,10 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
     
     private var shouldProcessRecognizedSpeech: Bool = true
     
+    // MARK: - Controllers
+    
+    var delegate: ListeningPracticeViewController!
+    
     // MARK: - Init
     
     init(
@@ -273,6 +277,10 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
             }
         }
         textView.attributedText = newAttributes
+        
+        if matchedClozeRanges.count == clozeRanges.count {
+            delegate.canSubmit()
+        }
     }
     
 }
@@ -308,4 +316,10 @@ extension ListenAndRepeatPracticeView {
         }
         textView.attributedText = newAttributes
     }
+}
+
+protocol ListenAndRepeatPracticeViewDelegate {
+    
+    func canSubmit()
+    
 }
