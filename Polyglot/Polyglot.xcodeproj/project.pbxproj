@@ -11,6 +11,8 @@
 		AC706291155790A1E33AAB8C /* Pods_PolyglotTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E379777C4FD33BCD824C64B5 /* Pods_PolyglotTests.framework */; };
 		C43026072813DBE394EFE8FB /* Pods_Polyglot.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F18AC45591099280DCFC633D /* Pods_Polyglot.framework */; };
 		C60625F72B7FB5E800429BAF /* TextMeaningPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60625F62B7FB5E800429BAF /* TextMeaningPracticeViewController.swift */; };
+		C60626062B8069E600429BAF /* BasePracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60626052B8069E600429BAF /* BasePracticeView.swift */; };
+		C60626082B8069F100429BAF /* WordPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60626072B8069F100429BAF /* WordPracticeView.swift */; };
 		C619E68F2AC8154F00A30B27 /* LangCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C619E68E2AC8154F00A30B27 /* LangCell.swift */; };
 		C619E6932AC830CB00A30B27 /* CardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C619E6922AC830CB00A30B27 /* CardCell.swift */; };
 		C642A6082B7B8008003893B8 /* LanguageSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C642A6072B7B8008003893B8 /* LanguageSelectionViewController.swift */; };
@@ -35,7 +37,6 @@
 		C6F5FB7A2B7202AF0040A26B /* ListeningPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F5FB792B7202AF0040A26B /* ListeningPracticeViewController.swift */; };
 		C6F5FB7E2B72067F0040A26B /* ListeningPracticeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F5FB7D2B72067F0040A26B /* ListeningPracticeProducer.swift */; };
 		FF1780CF2A48EDCD005F588B /* Notifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF1780CE2A48EDCD005F588B /* Notifications.swift */; };
-		FF491E732959C2FD0088FD13 /* PracticeViewDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E722959C2FD0088FD13 /* PracticeViewDelegate.swift */; };
 		FF491E752959C4320088FD13 /* SelectionPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E742959C4320088FD13 /* SelectionPracticeView.swift */; };
 		FF491E772959CC960088FD13 /* FillingPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E762959CC960088FD13 /* FillingPracticeView.swift */; };
 		FF491E802959ED730088FD13 /* Separator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF491E7F2959ED730088FD13 /* Separator.swift */; };
@@ -108,7 +109,6 @@
 		FFC26AEE298D82D7004D9656 /* duome_ru_sentences in Resources */ = {isa = PBXBuildFile; fileRef = FFC26AED298D82D7004D9656 /* duome_ru_sentences */; };
 		FFCBB0D7296B0AA200E5B9D9 /* PracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0D6296B0AA200E5B9D9 /* PracticeViewController.swift */; };
 		FFCBB0DB296B1A6700E5B9D9 /* PracticeProducerDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0DA296B1A6700E5B9D9 /* PracticeProducerDelegate.swift */; };
-		FFCBB0DD296B2E4000E5B9D9 /* ReadingPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0DC296B2E4000E5B9D9 /* ReadingPracticeView.swift */; };
 		FFCBB0E0296B45F300E5B9D9 /* TranslationPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0DF296B45F300E5B9D9 /* TranslationPracticeView.swift */; };
 		FFD7DF6D299D376000019D51 /* RowStackItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD7DF6C299D376000019D51 /* RowStackItem.swift */; };
 		FFD7DF72299D509B00019D51 /* CGRectExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD7DF71299D509B00019D51 /* CGRectExtensions.swift */; };
@@ -166,6 +166,8 @@
 		80A4DDEB0D1137F63C376D55 /* Pods-Polyglot-PolyglotUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Polyglot-PolyglotUITests.release.xcconfig"; path = "Target Support Files/Pods-Polyglot-PolyglotUITests/Pods-Polyglot-PolyglotUITests.release.xcconfig"; sourceTree = "<group>"; };
 		907D4F8E5EB18C9B62364FB2 /* Pods_Polyglot_PolyglotUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Polyglot_PolyglotUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C60625F62B7FB5E800429BAF /* TextMeaningPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextMeaningPracticeViewController.swift; sourceTree = "<group>"; };
+		C60626052B8069E600429BAF /* BasePracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasePracticeView.swift; sourceTree = "<group>"; };
+		C60626072B8069F100429BAF /* WordPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPracticeView.swift; sourceTree = "<group>"; };
 		C619E68E2AC8154F00A30B27 /* LangCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCell.swift; sourceTree = "<group>"; };
 		C619E6922AC830CB00A30B27 /* CardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardCell.swift; sourceTree = "<group>"; };
 		C642A6072B7B8008003893B8 /* LanguageSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageSelectionViewController.swift; sourceTree = "<group>"; };
@@ -195,7 +197,6 @@
 		E8CBB92BCDC55CA05C2EED5D /* Pods-PolyglotTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PolyglotTests.debug.xcconfig"; path = "Target Support Files/Pods-PolyglotTests/Pods-PolyglotTests.debug.xcconfig"; sourceTree = "<group>"; };
 		F18AC45591099280DCFC633D /* Pods_Polyglot.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Polyglot.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FF1780CE2A48EDCD005F588B /* Notifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notifications.swift; sourceTree = "<group>"; };
-		FF491E722959C2FD0088FD13 /* PracticeViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeViewDelegate.swift; sourceTree = "<group>"; };
 		FF491E742959C4320088FD13 /* SelectionPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionPracticeView.swift; sourceTree = "<group>"; };
 		FF491E762959CC960088FD13 /* FillingPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FillingPracticeView.swift; sourceTree = "<group>"; };
 		FF491E7F2959ED730088FD13 /* Separator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Separator.swift; sourceTree = "<group>"; };
@@ -273,7 +274,6 @@
 		FFC26AED298D82D7004D9656 /* duome_ru_sentences */ = {isa = PBXFileReference; lastKnownFileType = folder; name = duome_ru_sentences; path = ../../../../../../Volumes/Windows/Users/Neko/Desktop/polyglot/duome_sentences/duome_ru_sentences; sourceTree = "<group>"; };
 		FFCBB0D6296B0AA200E5B9D9 /* PracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeViewController.swift; sourceTree = "<group>"; };
 		FFCBB0DA296B1A6700E5B9D9 /* PracticeProducerDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeProducerDelegate.swift; sourceTree = "<group>"; };
-		FFCBB0DC296B2E4000E5B9D9 /* ReadingPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPracticeView.swift; sourceTree = "<group>"; };
 		FFCBB0DF296B45F300E5B9D9 /* TranslationPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeView.swift; sourceTree = "<group>"; };
 		FFD7DF6C299D376000019D51 /* RowStackItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RowStackItem.swift; sourceTree = "<group>"; };
 		FFD7DF71299D509B00019D51 /* CGRectExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGRectExtensions.swift; sourceTree = "<group>"; };
@@ -320,6 +320,16 @@
 				781C1DC2544908B8FF39175D /* Pods-PolyglotTests.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		C60626042B8069D200429BAF /* PracticeViews */ = {
+			isa = PBXGroup;
+			children = (
+				C60626052B8069E600429BAF /* BasePracticeView.swift */,
+				C60626072B8069F100429BAF /* WordPracticeView.swift */,
+				C69DB5E92B73BE9B00B3BC66 /* TextMeaningPracticeView.swift */,
+			);
+			path = PracticeViews;
 			sourceTree = "<group>";
 		};
 		C69D97E02AC7FE5600AC2CD9 /* Lists */ = {
@@ -383,7 +393,6 @@
 			isa = PBXGroup;
 			children = (
 				FF495E9F29591DEC00EA7EA9 /* TableHeaderView.swift */,
-				C69DB5E92B73BE9B00B3BC66 /* TextMeaningPracticeView.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -391,7 +400,6 @@
 		FF491E6F2959C2DF0088FD13 /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
-				FF491E722959C2FD0088FD13 /* PracticeViewDelegate.swift */,
 				FFCBB0DA296B1A6700E5B9D9 /* PracticeProducerDelegate.swift */,
 			);
 			path = Protocols;
@@ -606,6 +614,7 @@
 			children = (
 				FF52920B2952013900858B55 /* CustomViews */,
 				FF24AB75297073AA00129EEF /* Common */,
+				C60626042B8069D200429BAF /* PracticeViews */,
 				FF56901929803E9D00CA2C7B /* Home */,
 				FF495E9A295903B700EA7EA9 /* Words */,
 				FF706DFE2951503700DBCF8E /* Reading */,
@@ -651,7 +660,6 @@
 			children = (
 				FF50251329524D100097C2CB /* ReadingTableCell.swift */,
 				FF4B382E29525BD400BB3FFD /* ReadingEditTableCell.swift */,
-				FFCBB0DC296B2E4000E5B9D9 /* ReadingPracticeView.swift */,
 			);
 			path = Reading;
 			sourceTree = "<group>";
@@ -1000,7 +1008,6 @@
 				FF1780CF2A48EDCD005F588B /* Notifications.swift in Sources */,
 				C6C8C3152B75F96A00FBC43B /* CFRangeExtensions.swift in Sources */,
 				FF4964C92958B05300414AC5 /* RoundButton.swift in Sources */,
-				FF491E732959C2FD0088FD13 /* PracticeViewDelegate.swift in Sources */,
 				C67B85A22AED943200F7657A /* JapaneseAccentAnalyzer.swift in Sources */,
 				FF5690142980367A00CA2C7B /* LangCode.swift in Sources */,
 				C6F5FB7A2B7202AF0040A26B /* ListeningPracticeViewController.swift in Sources */,
@@ -1018,6 +1025,7 @@
 				C6E1E0312AC5C2F600E4AF72 /* HomeViewController.swift in Sources */,
 				FF50251429524D100097C2CB /* ReadingTableCell.swift in Sources */,
 				FF491E802959ED730088FD13 /* Separator.swift in Sources */,
+				C60626062B8069E600429BAF /* BasePracticeView.swift in Sources */,
 				C69F76682B7D1F9F0006828A /* ListeningPractice.swift in Sources */,
 				FF8CDE812952995F00B36CA3 /* NewWordAddingBottomView.swift in Sources */,
 				FF5B182C2961E55F00C80DC3 /* IO.swift in Sources */,
@@ -1043,6 +1051,7 @@
 				FFBD60452969D733004165FC /* SpeakingPracticeProducer.swift in Sources */,
 				FF706DF1295142AF00DBCF8E /* Strings.swift in Sources */,
 				FFD7DF7D299DA18000019D51 /* ReorderingPracticeView.swift in Sources */,
+				C60626082B8069F100429BAF /* WordPracticeView.swift in Sources */,
 				FF63DDFC299AC17C0088C10B /* WordBank.swift in Sources */,
 				FF62C9762951382500D41797 /* AppDelegate.swift in Sources */,
 				FF4CA730295E869900423946 /* TranslationPracticeViewController.swift in Sources */,
@@ -1062,7 +1071,6 @@
 				C69DB5EC2B73C05700B3BC66 /* ListenAndRepeatPracticeView.swift in Sources */,
 				C67B85A42AED94B800F7657A /* RussianAccentAnalyzer.swift in Sources */,
 				FF55D156296F3AEC0092FB6B /* Values.swift in Sources */,
-				FFCBB0DD296B2E4000E5B9D9 /* ReadingPracticeView.swift in Sources */,
 				FF4964CD2958BE8900414AC5 /* TimeIntervalExtensions.swift in Sources */,
 				FF52920A2952012E00858B55 /* ThreeButtonSelectionStack.swift in Sources */,
 				FF62C9782951382500D41797 /* SceneDelegate.swift in Sources */,

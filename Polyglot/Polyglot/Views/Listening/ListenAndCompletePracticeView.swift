@@ -44,15 +44,13 @@ class ListenAndCompletePracticeView: TextMeaningPracticeView {
         super.init(coder: coder)
     }
     
-}
-
-extension ListenAndCompletePracticeView: ListeningPracticeViewDelegate {
+    // MARK: - Methods from the Super Class
     
-    func submit() -> Any {
+    override func submit() -> Any {
         return []
     }
     
-    func updateViewsAfterSubmission() {
+    override func updateViewsAfterSubmission() {
         
     }
 }

@@ -153,11 +153,13 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController {
         mainView.addSubview(speakButton)
     }
     
+    // MARK: - Methods from the Super Class
+    
     override func makePrompt() -> String {
         return practiceProducer.currentPractice.prompt
     }
     
-    override func makePracticeView() -> PracticeViewDelegate {
+    override func makePracticeView() -> TextMeaningPracticeView {
         let practice = practiceProducer.currentPractice
         switch practiceProducer.currentPractice.practiceType {
         case .listenAndRepeat:
@@ -219,9 +221,9 @@ extension ListeningPracticeViewController {
     @objc override func doneButtonTapped() {
         super.doneButtonTapped()
                 
-        let submission = (practiceView as! ListeningPracticeViewDelegate).submit()
+        let submission = (practiceView as! TextMeaningPracticeView).submit()
         practiceProducer.checkCorrectness(of: submission)
-        (practiceView as! ListeningPracticeViewDelegate).updateViewsAfterSubmission()
+        (practiceView as! TextMeaningPracticeView).updateViewsAfterSubmission()
         
         isRecordingSpeech = false
         speakButton.setImage(

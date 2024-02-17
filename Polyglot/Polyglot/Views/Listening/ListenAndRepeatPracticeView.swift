@@ -83,6 +83,8 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
         makeClozes()
     }
     
+    // MARK: - Methods from the Super Class
+    
     override func displayText() {
         let attributedText = NSMutableAttributedString(string: "")
         if textSource == .chatGpt {
@@ -139,15 +141,12 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
         
         textView.attributedText = attributedText
     }
-}
-
-extension ListenAndRepeatPracticeView: ListeningPracticeViewDelegate {
     
-    func submit() -> Any {
+    override func submit() -> Any {
         return Array<NSRange>(matchedClozeRanges)
     }
     
-    func updateViewsAfterSubmission() {
+    override func updateViewsAfterSubmission() {
         // If the practice is submitted without turning off the mic,
         // the processRecognizedSpeech() func will still be called where
         // recognized clozes are set with background colors,

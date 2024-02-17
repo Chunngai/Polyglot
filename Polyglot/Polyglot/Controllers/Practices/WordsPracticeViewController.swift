@@ -94,7 +94,7 @@ class WordsPracticeViewController: PracticeViewController {
     }
     
     override func updatePracticeView() {
-        func makePracticeView() -> PracticeViewDelegate {
+        func makePracticeView() -> WordPracticeView {
             switch practiceProducer.currentPractice.practice.practiceType {
             case .meaningSelection:
                 return {
@@ -174,12 +174,14 @@ class WordsPracticeViewController: PracticeViewController {
                 practiceView.makeDraggableWordBankItems()
             })
         }
+        
+        deactivateDoneButton()
     }
 }
 
-extension WordsPracticeViewController: WordPracticeViewControllerDelegate {
+extension WordsPracticeViewController: WordPracticeViewDelegate {
     
-    // MARK: - WordPracticeViewController Delegate
+    // MARK: - WordPracticeView Delegate
     
     func activateDoneButton() {
         doneButton.isEnabled = true
@@ -199,9 +201,9 @@ extension WordsPracticeViewController {
     @objc override func doneButtonTapped() {
         super.doneButtonTapped()
         
-        let answer = (practiceView as! WordPracticeViewDelegate).submit()
+        let answer = (practiceView as! WordPracticeView).submit()
         practiceProducer.submit(answer: answer)
-        (practiceView as! WordPracticeViewDelegate).updateViewsAfterSubmission(
+        (practiceView as! WordPracticeView).updateViewsAfterSubmission(
             for: practiceProducer.currentPractice.practice.correctness!,
             key: practiceProducer.currentPractice.key,
             tokenizer: practiceProducer.currentPractice.tokenizer

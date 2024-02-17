@@ -55,7 +55,7 @@ class PracticeViewController: UIViewController {
         return label
     }()
     
-    var practiceView: PracticeViewDelegate!
+    var practiceView: BasePracticeView!
     
     var doneButton: RoundButton = {
         let button = RoundButton(radius: Sizes.roundButtonRadius)

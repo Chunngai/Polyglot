@@ -50,6 +50,8 @@ class TranslationPracticeView: TextMeaningPracticeView {
         displayMeaning()
     }
     
+    // MARK: - Methods from the Super Class
+    
     override func displayMeaning() {
         let attributedText = NSMutableAttributedString(
             string: "",
@@ -97,22 +99,16 @@ class TranslationPracticeView: TextMeaningPracticeView {
         textView.attributedText = attributedText
     }
     
-}
-
-extension TranslationPracticeView: SpeakingPracticeViewDelegate {
-  
-    // MARK: - SpeakingPracticeView Delegate
-    
-    func submit() -> Any {
+    override func submit() -> Any {
         return []
     }
     
-    func updateViewsAfterSubmission() {
+    override func updateViewsAfterSubmission() {
         displayText()
         highlightExistingPhrases(
             existingPhraseRanges: existingPhraseRanges,
             existingPhraseMeanings: existingPhraseMeanings
         )
     }
-    
+
 }

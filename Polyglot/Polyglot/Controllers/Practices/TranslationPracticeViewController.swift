@@ -23,12 +23,14 @@ class TranslationPracticeViewController: TextMeaningPracticeViewController {
         promptLabel.numberOfLines = 1
         promptLabel.adjustsFontSizeToFitWidth = true
     }
+    
+    // MARK: - Methods from the Super Class
  
     override func makePrompt() -> String {
         Strings.interpretationPracticePrompt
     }
     
-    override func makePracticeView() -> PracticeViewDelegate {
+    override func makePracticeView() -> TextMeaningPracticeView {
         let practice = practiceProducer.currentPractice
         return TranslationPracticeView(
             text: practice.text,
@@ -55,7 +57,7 @@ extension TranslationPracticeViewController {
     
     @objc override func doneButtonTapped() {
         super.doneButtonTapped()
-        (practiceView as! TranslationPracticeView).updateViewsAfterSubmission()
+        (practiceView as! TextMeaningPracticeView).updateViewsAfterSubmission()
     }
     
     @objc override func nextButtonTapped() {

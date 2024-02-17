@@ -8,7 +8,7 @@
 
 import UIKit
 
-class TextMeaningPracticeView: UIView, PracticeViewDelegate {
+class TextMeaningPracticeView: BasePracticeView {
     
     var text: String!
     var meaning: String!
@@ -104,6 +104,13 @@ class TextMeaningPracticeView: UIView, PracticeViewDelegate {
         fatalError("displayMeaning() has not been implemented.")
     }
     
+    func submit() -> Any {
+        fatalError("submit() has not been implemented.")
+    }
+    
+    func updateViewsAfterSubmission() {
+        fatalError("updateViewsAfterSubmission() has not been implemented.")
+    }
 }
 
 extension TextMeaningPracticeView {

@@ -9,7 +9,7 @@
 import UIKit
 import NaturalLanguage
 
-class ReorderingPracticeView: UIView {
+class ReorderingPracticeView: WordPracticeView {
     
     var words: [String]!
     var shuffledWords: [String]!
@@ -170,18 +170,15 @@ class ReorderingPracticeView: UIView {
         addSubview(referenceLabel)
         
     }
-}
-
-extension ReorderingPracticeView: WordPracticeViewDelegate {
     
-    // MARK: - WordPracticeView Delegate
+    // MARK: - Methods from the Super Class
     
-    func submit() -> String {
+    override func submit() -> String {
         isUserInteractionEnabled = false
         return answer
     }
     
-    func updateViewsAfterSubmission(for correctness: WordPractice.Correctness, key: String, tokenizer: NLTokenizer) {
+    override func updateViewsAfterSubmission(for correctness: WordPractice.Correctness, key: String, tokenizer: NLTokenizer) {
         
 //        let keyComponents = key.components(from: tokenizer)
 //

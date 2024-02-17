@@ -9,7 +9,7 @@
 import UIKit
 import NaturalLanguage
 
-class SelectionPracticeView: UIView {
+class SelectionPracticeView: WordPracticeView {
     
     // MARK: - Controllers
     
@@ -141,19 +141,16 @@ class SelectionPracticeView: UIView {
             textView.isHidden = true
         }
     }
-}
-
-extension SelectionPracticeView: WordPracticeViewDelegate {
     
-    // MARK: - WordPracticeView Delegate
+    // MARK: - Methods from the Super Class
     
-    func submit() -> String {
+    override func submit() -> String {
         selectionStack.isSelectionEnabled = false
         
         return selectionStack.selectedButton!.titleLabel!.text!
     }
     
-    func updateViewsAfterSubmission(for correctness: WordPractice.Correctness, key: String, tokenizer: NLTokenizer) {
+    override func updateViewsAfterSubmission(for correctness: WordPractice.Correctness, key: String, tokenizer: NLTokenizer) {
         if correctness == .correct {
             selectionStack.selectedButton!.backgroundColor = Colors.correctColor
         } else {

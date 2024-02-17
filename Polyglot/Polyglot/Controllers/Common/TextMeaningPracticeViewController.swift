@@ -38,7 +38,7 @@ class TextMeaningPracticeViewController: PracticeViewController {
         fatalError("makePrompt() has not been implemented.")
     }
     
-    func makePracticeView() -> PracticeViewDelegate {
+    func makePracticeView() -> TextMeaningPracticeView {
         fatalError("makePracticeView() has not been implemented.")
     }
     

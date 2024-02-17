@@ -9,7 +9,7 @@
 import UIKit
 import NaturalLanguage
 
-class FillingPracticeView: UIView {
+class FillingPracticeView: WordPracticeView {
     
     var answer: String {
         textField.text!.strip()
@@ -96,13 +96,10 @@ class FillingPracticeView: UIView {
             make.width.equalTo(bottomLine.snp.width)
         }
     }
-}
 
-extension FillingPracticeView: WordPracticeViewDelegate {
+    // MARK: - Methods from the Super Class
     
-    // MARK: - WordPracticeView Delegate
-    
-    func submit() -> String {
+    override func submit() -> String {
         textField.text = textField.text?.normalizeQuotes()
         textField.resignFirstResponder()
         textField.isEnabled = false
@@ -110,7 +107,7 @@ extension FillingPracticeView: WordPracticeViewDelegate {
         return answer
     }
     
-    func updateViewsAfterSubmission(for correctness: WordPractice.Correctness, key: String, tokenizer: NLTokenizer) {
+    override func updateViewsAfterSubmission(for correctness: WordPractice.Correctness, key: String, tokenizer: NLTokenizer) {
         
         let attributedAnswer = NSMutableAttributedString(string: answer)
         
