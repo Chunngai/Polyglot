@@ -10,10 +10,7 @@ import UIKit
 import IQKeyboardManagerSwift
 
 class PracticeViewController: UIViewController {
-    
-    // TODO: - Can it be overriden?
-//    var practiceProducer: Any!
-    
+        
     // MARK: - Models
     
     var words: [Word]! {

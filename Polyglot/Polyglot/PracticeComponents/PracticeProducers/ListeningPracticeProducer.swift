@@ -8,29 +8,12 @@
 
 import Foundation
 
-class ListeningPracticeProducer: PracticeProducerDelegate {
-    
-    var translator: GoogleTranslator = GoogleTranslator(
-        srcLang: LangCode.currentLanguage,
-        trgLang: LangCode.pairedLanguage
-    )
-    var contentCreator: ContentCreator = ContentCreator(lang: LangCode.currentLanguage)
-    
-    // MARK: - PracticeProducer Delegate
-    
-    typealias U = ListeningPractice
-    
-    var words: [Word]
-    var articles: [Article]
-    
-    var practiceList: [ListeningPractice] = []
-    var currentPracticeIndex: Int = 0
+class ListeningPracticeProducer: TextMeaningPracticeProducer {
         
     // MARK: - Init
     
-    init(words: [Word], articles: [Article]) {
-        self.words = words
-        self.articles = articles
+    override init(words: [Word], articles: [Article]) {
+        super.init(words: words, articles: articles)
         
         let cachedListeningPractices = ListeningPracticeProducer.loadCachedPractices(for: LangCode.currentLanguage)
         if !cachedListeningPractices.isEmpty {
@@ -40,7 +23,9 @@ class ListeningPracticeProducer: PracticeProducerDelegate {
         }
         // Create and save new cached practices for the use of next time.
         DispatchQueue.global(qos: .userInitiated).async {
-            var listeningPracticesToCache = self.make()
+            guard var listeningPracticesToCache = self.make() as? [ListeningPractice] else {
+                return
+            }
             ListeningPracticeProducer.save(
                 &listeningPracticesToCache,
                 for: LangCode.currentLanguage
@@ -48,7 +33,7 @@ class ListeningPracticeProducer: PracticeProducerDelegate {
         }
     }
     
-    func make() -> [ListeningPractice] {
+    override func make() -> [BasePractice] {
         
         var practiceList: [ListeningPractice] = []
         for _ in 0..<batchSize {
@@ -238,6 +223,10 @@ extension ListeningPracticeProducer {
 extension ListeningPracticeProducer {
     
     func checkCorrectness(of submission: Any) {
+        guard let currentPractice = currentPractice as? ListeningPractice else {
+            return
+        }
+        
         if currentPractice.practiceType == .listenAndRepeat {
             guard let matchedClozeRanges = submission as? [NSRange] else {
                 return

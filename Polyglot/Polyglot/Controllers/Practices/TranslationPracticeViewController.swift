@@ -31,7 +31,7 @@ class TranslationPracticeViewController: TextMeaningPracticeViewController {
     }
     
     override func makePracticeView() -> TextMeaningPracticeView {
-        let practice = practiceProducer.currentPractice
+        let practice = practiceProducer.currentPractice as! SpeakingPractice
         return TranslationPracticeView(
             text: practice.text,
             meaning: practice.meaning,

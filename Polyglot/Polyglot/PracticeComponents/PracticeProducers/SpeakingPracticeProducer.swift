@@ -8,29 +8,12 @@
 
 import Foundation
 
-class SpeakingPracticeProducer: PracticeProducerDelegate {
+class SpeakingPracticeProducer: TextMeaningPracticeProducer {
     
-    var translator: GoogleTranslator = GoogleTranslator(
-        srcLang: LangCode.currentLanguage,
-        trgLang: LangCode.pairedLanguage
-    )
-    var contentCreator: ContentCreator = ContentCreator(lang: LangCode.currentLanguage)
-    
-    // MARK: - PracticeProducer Delegate
-    
-    typealias U = SpeakingPractice
-    
-    var words: [Word]
-    var articles: [Article]
-    
-    var practiceList: [SpeakingPractice] = []
-    var currentPracticeIndex: Int = 0
-        
     // MARK: - Init
     
-    init(words: [Word], articles: [Article]) {
-        self.words = words
-        self.articles = articles
+    override init(words: [Word], articles: [Article]) {
+        super.init(words: words, articles: articles)
         
         let cachedSpeakingPractices = SpeakingPracticeProducer.loadCachedPractices(for: LangCode.currentLanguage)
         if !cachedSpeakingPractices.isEmpty {
@@ -40,7 +23,9 @@ class SpeakingPracticeProducer: PracticeProducerDelegate {
         }
         // Create and save new cached practices for the use of next time.
         DispatchQueue.global(qos: .userInitiated).async {
-            var speakingPracticesToCache = self.make()
+            guard var speakingPracticesToCache = self.make() as? [SpeakingPractice] else {
+                return
+            }
             SpeakingPracticeProducer.save(
                 &speakingPracticesToCache,
                 for: LangCode.currentLanguage
@@ -48,7 +33,7 @@ class SpeakingPracticeProducer: PracticeProducerDelegate {
         }
     }
     
-    func make() -> [SpeakingPractice] {
+    override func make() -> [BasePractice] {
         
         var practiceList: [SpeakingPractice] = []
         for _ in 0..<batchSize {

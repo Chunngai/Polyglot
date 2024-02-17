@@ -22,7 +22,7 @@ struct CodableRange: Codable {
     }
 }
 
-class TextMeaningPractice: PracticeDelegate, Codable {
+class TextMeaningPractice: BasePractice, Codable {
     
     var id: UUID = UUID()
     var text: String

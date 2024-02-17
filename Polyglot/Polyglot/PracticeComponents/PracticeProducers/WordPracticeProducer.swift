@@ -10,42 +10,13 @@ import Foundation
 import UIKit
 import NaturalLanguage
 
-class WordPracticeProducer: PracticeProducerDelegate {
+class WordPracticeProducer: BasePracticeProducer {
+        
+    // MARK: - Init
     
-    typealias U = WordPracticeProducer.Item
-    
-    var words: [Word]
-    var articles: [Article]
-    var batchSize: Int = 6
-    
-    var practiceList: [WordPracticeProducer.Item] = []
-    var currentPracticeIndex: Int = 0 {
-        didSet {
-            if currentPracticeIndex >= practiceList.count - batchSize {  // For saving time.
-                DispatchQueue.global(qos: .userInitiated).async {
-                    DispatchQueue.main.async {
-                        self.practiceList.append(contentsOf: self.make())
-                    }
-                }
-            }
-            
-            if currentPracticeIndex >= practiceList.count {
-                practiceList.append(contentsOf: make())
-            }
-        }
-    }
-    var currentPractice: WordPracticeProducer.Item {
-        get {
-            return practiceList[currentPracticeIndex]
-        }
-        set {
-            practiceList[currentPracticeIndex] = newValue
-        }
-    }
-    
-    init(words: [Word], articles: [Article]) {
-        self.words = words
-        self.articles = articles
+    override init(words: [Word], articles: [Article]) {
+        super.init(words: words, articles: articles)
+        
         self.batchSize = self.words.count >= batchSize ?
             batchSize :
             self.words.count
@@ -53,7 +24,7 @@ class WordPracticeProducer: PracticeProducerDelegate {
         self.practiceList.append(contentsOf: make())
     }
     
-    func make() -> [WordPracticeProducer.Item] {
+    override func make() -> [BasePractice] {
         
 //        func calculateProbs() -> [Double] {
 //            
@@ -134,7 +105,7 @@ class WordPracticeProducer: PracticeProducerDelegate {
             if !randomWords.contains(randomWord) {
                 randomWords.append(randomWord)
             }
-            if randomWords.count == batchSize {
+            if randomWords.count >= batchSize {
                 break
             }
         }
@@ -142,12 +113,12 @@ class WordPracticeProducer: PracticeProducerDelegate {
         var practiceList: [WordPracticeProducer.Item] = []
         for randomWord in randomWords {
                         
-            if batchSize >= WordPracticeProducer.defaultChoiceNumber {
+            if self.words.count >= WordPracticeProducer.defaultChoiceNumber {
                 practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .textToMeaning))
             }
             practiceList.append(makeMeaningFillingPractice(for: randomWord, in: .meaningToText))
 
-            if batchSize >= WordPracticeProducer.defaultChoiceNumber,
+            if self.words.count >= WordPracticeProducer.defaultChoiceNumber,
                 let contextSelectionPractice = makeContextSelectionPractice(for: randomWord) {
                 practiceList.append(contextSelectionPractice)
             }
@@ -171,6 +142,9 @@ class WordPracticeProducer: PracticeProducerDelegate {
 extension WordPracticeProducer {
     
     func submit(answer: String) {
+        guard let currentPractice = currentPractice as? WordPracticeProducer.Item else {
+            return
+        }
         currentPractice.checkCorrectness(answer: answer)
         
         if currentPractice.practice.correctness != .correct {
@@ -181,27 +155,25 @@ extension WordPracticeProducer {
                 // TODO: - Copy it in a more elegant way.
                 let practiceForReinforcement = WordPracticeProducer.Item(
                     practice: WordPractice(
-                        practiceType: self.currentPractice.practice.practiceType,
-                        wordId: self.currentPractice.practice.wordId,
-                        selectionWordsIds: self.currentPractice.practice.selectionWordsIds,
-                        selectionAccentsList: self.currentPractice.practice.selectionAccentsList,
-                        articleId: self.currentPractice.practice.articleId,
-                        paragraphId: self.currentPractice.practice.paragraphId,
-                        direction: self.currentPractice.practice.direction,
+                        practiceType: currentPractice.practice.practiceType,
+                        wordId: currentPractice.practice.wordId,
+                        selectionWordsIds: currentPractice.practice.selectionWordsIds,
+                        selectionAccentsList: currentPractice.practice.selectionAccentsList,
+                        articleId: currentPractice.practice.articleId,
+                        paragraphId: currentPractice.practice.paragraphId,
+                        direction: currentPractice.practice.direction,
                         correctness: nil  // Reset the correctness.
                     ),
-                    wordInPrompt: self.currentPractice.wordInPrompt,
-                    prompt: self.currentPractice.prompt,
-                    selectionTexts: self.currentPractice.selectionTexts,
-                    context: self.currentPractice.context,
-                    wordsToReorder: self.currentPractice.wordsToReorder,
-                    key: self.currentPractice.key,
+                    wordInPrompt: currentPractice.wordInPrompt,
+                    prompt: currentPractice.prompt,
+                    selectionTexts: currentPractice.selectionTexts,
+                    context: currentPractice.context,
+                    wordsToReorder: currentPractice.wordsToReorder,
+                    key: currentPractice.key,
                     isForReinforcement: true  // Specify that it is for reinforcement.
                 )
                 
-                DispatchQueue.main.async {
-                    self.practiceList.append(practiceForReinforcement)
-                }
+                self.practiceList.append(practiceForReinforcement)
                 
             }
         }
@@ -485,9 +457,8 @@ extension WordPracticeProducer {
 
 extension WordPracticeProducer {
     
-    struct Item: PracticeDelegate {
+    class Item: BasePractice {
         
-        typealias T = WordPractice
         var practice: WordPractice
         
         var wordInPrompt: String
@@ -517,8 +488,28 @@ extension WordPracticeProducer {
                 return LangCode.pairedLanguage.wordTokenizer
             }
         }
+        
+        init(
+            practice: WordPractice,
+            wordInPrompt: String,
+            prompt: String,
+            selectionTexts: [String]? = nil,
+            context: String? = nil,
+            wordsToReorder: [String]? = nil,
+            key: String,
+            isForReinforcement: Bool = false
+        ) {
+            self.practice = practice
+            self.wordInPrompt = wordInPrompt
+            self.prompt = prompt
+            self.selectionTexts = selectionTexts
+            self.context = context
+            self.wordsToReorder = wordsToReorder
+            self.key = key
+            self.isForReinforcement = isForReinforcement
+        }
                 
-        mutating func checkCorrectness(answer: String) {
+        func checkCorrectness(answer: String) {
             
             // Do not normalize for accent practices,
             // or the accent mark will be removed.

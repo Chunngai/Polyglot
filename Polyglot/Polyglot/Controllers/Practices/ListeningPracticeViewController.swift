@@ -156,34 +156,35 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController {
     // MARK: - Methods from the Super Class
     
     override func makePrompt() -> String {
-        return practiceProducer.currentPractice.prompt
+        let currentPractice = practiceProducer.currentPractice as! ListeningPractice
+        return currentPractice.prompt
     }
     
     override func makePracticeView() -> TextMeaningPracticeView {
-        let practice = practiceProducer.currentPractice
-        switch practiceProducer.currentPractice.practiceType {
+        let currentPractice = practiceProducer.currentPractice as! ListeningPractice
+        switch currentPractice.practiceType {
         case .listenAndRepeat:
             return ListenAndRepeatPracticeView(
-                text: practice.text,
-                meaning: practice.meaning,
-                textLang: practice.textLang,
-                meaningLang: practice.meaningLang,
-                textSource: practice.textSource,
-                isTextMachineTranslated: practice.isTextMachineTranslated,
-                clozeRanges: practice.clozeRanges,
-                existingPhraseRanges: practice.existingPhraseRanges,
-                existingPhraseMeanings: practice.existingPhraseMeanings
+                text: currentPractice.text,
+                meaning: currentPractice.meaning,
+                textLang: currentPractice.textLang,
+                meaningLang: currentPractice.meaningLang,
+                textSource: currentPractice.textSource,
+                isTextMachineTranslated: currentPractice.isTextMachineTranslated,
+                clozeRanges: currentPractice.clozeRanges,
+                existingPhraseRanges: currentPractice.existingPhraseRanges,
+                existingPhraseMeanings: currentPractice.existingPhraseMeanings
             )
         case .listenAndComplete:
             return ListenAndCompletePracticeView(
-                text: practice.text,
-                meaning: practice.meaning,
-                textLang: practice.textLang,
-                meaningLang: practice.meaningLang,
-                textSource: practice.textSource,
-                isTextMachineTranslated: practice.isTextMachineTranslated,
-                existingPhraseRanges: practice.existingPhraseRanges,
-                existingPhraseMeanings: practice.existingPhraseMeanings
+                text: currentPractice.text,
+                meaning: currentPractice.meaning,
+                textLang: currentPractice.textLang,
+                meaningLang: currentPractice.meaningLang,
+                textSource: currentPractice.textSource,
+                isTextMachineTranslated: currentPractice.isTextMachineTranslated,
+                existingPhraseRanges: currentPractice.existingPhraseRanges,
+                existingPhraseMeanings: currentPractice.existingPhraseMeanings
             )
         }
     }
@@ -191,15 +192,17 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController {
     override func updatePracticeView() {
         super.updatePracticeView()
         
+        let currentPractice = practiceProducer.currentPractice as! ListeningPractice
+        
         // Update the speech synthesizer.
         speechSynthesizer = AVSpeechSynthesizer()
         speechSynthesizer.delegate = self
-        utterance = AVSpeechUtterance(string: practiceProducer.currentPractice.text)
-        utterance.voice = AVSpeechSynthesisVoice(identifier: practiceProducer.currentPractice.textLang.voiceIdentifier)
+        utterance = AVSpeechUtterance(string: currentPractice.text)
+        utterance.voice = AVSpeechSynthesisVoice(identifier: currentPractice.textLang.voiceIdentifier)
         isProducingSpeech = true
         
         // Update the speech recognizer.
-        speechRecognizer = SFSpeechRecognizer(locale: practiceProducer.currentPractice.textLang.locale)
+        speechRecognizer = SFSpeechRecognizer(locale: currentPractice.textLang.locale)
     }
 }
 

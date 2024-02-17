@@ -42,6 +42,8 @@ class TextMeaningPracticeViewController: PracticeViewController {
         fatalError("makePracticeView() has not been implemented.")
     }
     
+    // MARK: - Methods from the Super Class
+    
     override func updatePracticeView() {
         // Dismiss the keyboard.
         // If it is not dismissed, the bottom view

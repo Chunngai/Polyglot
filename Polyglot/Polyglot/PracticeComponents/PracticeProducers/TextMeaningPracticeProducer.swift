@@ -1,132 +1,30 @@
 //
-//  PracticeProducerDelegate.swift
+//  TextMeaningPracticeProducer.swift
 //  Polyglot
 //
-//  Created by Sola on 2023/1/8.
-//  Copyright © 2023 Sola. All rights reserved.
+//  Created by Ho on 2/17/24.
+//  Copyright © 2024 Sola. All rights reserved.
 //
 
 import Foundation
 
-protocol PracticeDelegate {
-        
-}
-
-protocol PracticeProducerDelegate {
+class TextMeaningPracticeProducer: BasePracticeProducer {
     
-    // https://stackoverflow.com/questions/31765806/can-my-class-override-protocol-property-type-in-swift
-    
-    associatedtype U: PracticeDelegate
-    
-    var words: [Word] { get set }
-    var articles: [Article] { get set }
-    
-    var practiceList: [U] { get set }
-    var currentPracticeIndex: Int { get set }
-    var currentPractice: U { get set }
-    
-    var batchSize: Int { get }
-
-    func make() -> [U]
-    mutating func next()
-    
-}
-
-extension PracticeProducerDelegate {
-    
-    var currentPractice: U {
-        get {
-            return practiceList[currentPracticeIndex]
-        }
-        set {
-            practiceList[currentPracticeIndex] = newValue
-        }
-    }
-    
-    var batchSize: Int {
-        6
-    }
-    
-    mutating func next() {
-        currentPracticeIndex += 1
-        if currentPracticeIndex >= practiceList.count {
-            practiceList.append(contentsOf: make())
-        }
-    }
-    
-}
-
-extension PracticeProducerDelegate {
-    
-    // MARK: - Constants
-    
-    static var practiceMakingTimeThredshold: TimeInterval {
-        5
-    }
-
-}
-
-enum TextGranularity: String {
-    case sentence
-    case paragraph
-}
-
-enum TextSource: Codable, Equatable {
-    case article(
-        articleId: String,
-        paragraphId: String,
-        sentenceId: Int?
+    var translator: GoogleTranslator = GoogleTranslator(
+        srcLang: LangCode.currentLanguage,
+        trgLang: LangCode.pairedLanguage
     )
-    case chatGpt
-}
-
-extension TextSource {
     
-    private enum CodingKeys: String, CodingKey {
-        case type
-        case articleId
-        case paragraphId
-        case sentenceId
-    }
-    
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        switch self {
-        case .article(let articleId, let paragraphId, let sentenceId):
-            try container.encode("article", forKey: .type)
-            try container.encode(articleId, forKey: .articleId)
-            try container.encode(paragraphId, forKey: .paragraphId)
-            try container.encode(sentenceId, forKey: .sentenceId)
-        case .chatGpt:
-            try container.encode("chatGpt", forKey: .type)
-        }
-    }
-    
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let type = try container.decode(String.self, forKey: .type)
-        switch type {
-        case "article":
-            let articleId = try container.decode(String.self, forKey: .articleId)
-            let paragraphId = try container.decode(String.self, forKey: .paragraphId)
-            let sentenceId = try container.decode(Int?.self, forKey: .sentenceId)
-            self = .article(
-                articleId: articleId,
-                paragraphId: paragraphId,
-                sentenceId: sentenceId
-            )
-        case "chatGpt":
-            self = .chatGpt
-        default:
-            throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Invalid type")
-        }
-    }
+    var contentCreator: ContentCreator = ContentCreator(lang: LangCode.currentLanguage)
     
 }
 
-extension PracticeProducerDelegate {
+extension TextMeaningPracticeProducer {
     
-    func findExistingPhraseRangesAndMeanings(for text: String) -> (ranges: [NSRange], meanings: [String]) {
+    func findExistingPhraseRangesAndMeanings(for text: String) -> (
+        ranges: [NSRange],
+        meanings: [String]
+    ) {
         var existingPhraseRanges: [NSRange] = []
         var existingPhraseMeanings: [String] = []
         let textUniqueTokens = Set(text.tokenized(with: LangCode.currentLanguage.wordTokenizer))
@@ -269,6 +167,5 @@ extension PracticeProducerDelegate {
             }
         }
     }
-    
-    
+
 }

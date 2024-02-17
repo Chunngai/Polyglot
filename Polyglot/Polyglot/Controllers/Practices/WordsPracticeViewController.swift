@@ -94,12 +94,16 @@ class WordsPracticeViewController: PracticeViewController {
     }
     
     override func updatePracticeView() {
+        
+        let currentPractice = practiceProducer.currentPractice as! WordPracticeProducer.Item
+        
         func makePracticeView() -> WordPracticeView {
-            switch practiceProducer.currentPractice.practice.practiceType {
+
+            switch currentPractice.practice.practiceType {
             case .meaningSelection:
                 return {
                     let practiceView = SelectionPracticeView()
-                    practiceView.updateValues(selectionTexts: practiceProducer.currentPractice.selectionTexts!)
+                    practiceView.updateValues(selectionTexts: currentPractice.selectionTexts!)
                     practiceView.delegate = self
                     return practiceView
                 }()
@@ -113,8 +117,8 @@ class WordsPracticeViewController: PracticeViewController {
                 return {
                     let practiceView = SelectionPracticeView()
                     practiceView.updateValues(
-                        selectionTexts: practiceProducer.currentPractice.selectionTexts!,
-                        textViewText: practiceProducer.currentPractice.context!
+                        selectionTexts: currentPractice.selectionTexts!,
+                        textViewText: currentPractice.context!
                     )
                     practiceView.delegate = self
                     return practiceView
@@ -122,14 +126,14 @@ class WordsPracticeViewController: PracticeViewController {
             case .accentSelection:
                 return {
                     let practiceView = SelectionPracticeView()
-                    practiceView.updateValues(selectionTexts: practiceProducer.currentPractice.selectionTexts!)
+                    practiceView.updateValues(selectionTexts: currentPractice.selectionTexts!)
                     practiceView.delegate = self
                     return practiceView
                 }()
             case .reordering:
                 return {
                     let practiceView = ReorderingPracticeView()
-                    practiceView.updateValues(words: practiceProducer.currentPractice.wordsToReorder!)
+                    practiceView.updateValues(words: currentPractice.wordsToReorder!)
                     practiceView.delegate = self
                     return practiceView
                 }()
@@ -141,12 +145,12 @@ class WordsPracticeViewController: PracticeViewController {
         // WHOSE TOP DEPENDS ON THE BOTTOM OF THE PROMPT VIEW.
         // OTHERWISE, THE LOCATIONS OF THE DRAGGABLE LABELS MAY BE WEIRD.
         let promptAttributes = NSMutableAttributedString(
-            string: practiceProducer.currentPractice.prompt,
+            string: currentPractice.prompt,
             attributes: Attributes.practicePromptAttributes
         )
         promptAttributes.add(
             attributes: Attributes.practiceWordAttributes,
-            for: practiceProducer.currentPractice.wordInPrompt
+            for: currentPractice.wordInPrompt
         )
         promptLabel.attributedText = promptAttributes
         
@@ -203,10 +207,12 @@ extension WordsPracticeViewController {
         
         let answer = (practiceView as! WordPracticeView).submit()
         practiceProducer.submit(answer: answer)
+        
+        let currentPractice = practiceProducer.currentPractice as! WordPracticeProducer.Item
         (practiceView as! WordPracticeView).updateViewsAfterSubmission(
-            for: practiceProducer.currentPractice.practice.correctness!,
-            key: practiceProducer.currentPractice.key,
-            tokenizer: practiceProducer.currentPractice.tokenizer
+            for: currentPractice.practice.correctness!,
+            key: currentPractice.key,
+            tokenizer: currentPractice.tokenizer
         )
     }
     
@@ -225,6 +231,7 @@ extension WordsPracticeViewController {
     override func stopPracticing() {
         
         for practiceItem in practiceProducer.practiceList {
+            let practiceItem = practiceItem as! WordPracticeProducer.Item
             guard let word = words.getWord(from: practiceItem.practice.wordId) else {
                 continue
             }
