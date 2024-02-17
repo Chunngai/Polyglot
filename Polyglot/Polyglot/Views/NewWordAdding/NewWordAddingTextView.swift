@@ -275,6 +275,9 @@ extension NewWordAddingTextView: NewWordBottomViewDelegate {
         // Remove the highlight.
         let selectedRange = removedNewWordInfo.textRange
         hightlight(selectedRange, with: Colors.lightGrayBackgroundColor)
+        // The code above will remove the background colors
+        // of the overlapped ranges, which need to be recovered.
+        highlightAll()
     }
     
     func meaningTextFieldEditingChanged() {
