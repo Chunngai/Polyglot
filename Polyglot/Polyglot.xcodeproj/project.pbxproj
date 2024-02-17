@@ -364,6 +364,7 @@
 		C69F76642B7D195E0006828A /* PracticeComponents */ = {
 			isa = PBXGroup;
 			children = (
+				FF491E6F2959C2DF0088FD13 /* Protocols */,
 				FF69103229956F65003A925A /* PracticeProducers */,
 				C69F76612B7D19360006828A /* PracticeItems */,
 			);
@@ -558,7 +559,6 @@
 				FF502510295248BF0097C2CB /* Models */,
 				FF62C9A629513A2800D41797 /* Controllers */,
 				FF62C9A729513A3700D41797 /* Views */,
-				FF491E6F2959C2DF0088FD13 /* Protocols */,
 				C69F76642B7D195E0006828A /* PracticeComponents */,
 				FF706DF3295144A000DBCF8E /* Extensions */,
 				FF4CA732295E888000423946 /* Utils */,
