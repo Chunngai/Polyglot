@@ -1,5 +1,5 @@
 //
-//  IQInvocation.swift
+//  IQKeyboardManager+UITextFieldViewNotification.swift
 //  https://github.com/hackiftekhar/IQKeyboardManager
 //  Copyright (c) 2013-24 Iftekhar Qurashi.
 //
@@ -23,20 +23,24 @@
 
 import UIKit
 
+// MARK: UITextField/UITextView Notifications
 @available(iOSApplicationExtension, unavailable)
 @MainActor
-@objc public final class IQInvocation: NSObject {
-    @objc public weak var target: AnyObject?
-    @objc public var action: Selector
+internal extension IQKeyboardManager {
 
-    @objc public init(_ target: AnyObject, _ action: Selector) {
-        self.target = target
-        self.action = action
+    @MainActor
+    private struct AssociatedKeys {
+        static var rootConfigWhilePopActive: Int = 0
     }
 
-    @objc public func invoke(from: Any) {
-        if let target: AnyObject = target {
-            UIApplication.shared.sendAction(action, to: target, from: from, for: UIEvent())
+    var rootConfigurationWhilePopGestureActive: IQRootControllerConfiguration? {
+        get {
+            return objc_getAssociatedObject(self,
+                                            &AssociatedKeys.rootConfigWhilePopActive) as? IQRootControllerConfiguration
+        }
+        set(newValue) {
+            objc_setAssociatedObject(self, &AssociatedKeys.rootConfigWhilePopActive,
+                                     newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
     }
 }

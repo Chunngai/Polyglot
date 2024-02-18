@@ -1,5 +1,5 @@
 //
-//  IQInvocation.swift
+//  IQKeyboardConfiguration.swift
 //  https://github.com/hackiftekhar/IQKeyboardManager
 //  Copyright (c) 2013-24 Iftekhar Qurashi.
 //
@@ -25,18 +25,15 @@ import UIKit
 
 @available(iOSApplicationExtension, unavailable)
 @MainActor
-@objc public final class IQInvocation: NSObject {
-    @objc public weak var target: AnyObject?
-    @objc public var action: Selector
+@objc public final class IQKeyboardConfiguration: NSObject {
 
-    @objc public init(_ target: AnyObject, _ action: Selector) {
-        self.target = target
-        self.action = action
-    }
+    /**
+    Override the keyboardAppearance for all textField/textView. Default is NO.
+    */
+    @objc public var overrideAppearance: Bool = false
 
-    @objc public func invoke(from: Any) {
-        if let target: AnyObject = target {
-            UIApplication.shared.sendAction(action, to: target, from: from, for: UIEvent())
-        }
-    }
+    /**
+    If overrideKeyboardAppearance is YES, then all the textField keyboardAppearance is set using this property.
+    */
+    @objc public var appearance: UIKeyboardAppearance = UIKeyboardAppearance.default
 }

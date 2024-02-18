@@ -1,5 +1,5 @@
 //
-//  IQInvocation.swift
+//  IQTextFieldViewInfoModel.swift
 //  https://github.com/hackiftekhar/IQKeyboardManager
 //  Copyright (c) 2013-24 Iftekhar Qurashi.
 //
@@ -25,18 +25,32 @@ import UIKit
 
 @available(iOSApplicationExtension, unavailable)
 @MainActor
-@objc public final class IQInvocation: NSObject {
-    @objc public weak var target: AnyObject?
-    @objc public var action: Selector
+internal final class IQTextFieldViewInfoModel: NSObject {
 
-    @objc public init(_ target: AnyObject, _ action: Selector) {
-        self.target = target
-        self.action = action
+    weak var textFieldDelegate: UITextFieldDelegate?
+    weak var textViewDelegate: UITextViewDelegate?
+    weak var textFieldView: UIView?
+    let originalReturnKeyType: UIReturnKeyType
+
+    init(textField: UITextField) {
+        self.textFieldView = textField
+        self.textFieldDelegate = textField.delegate
+        self.originalReturnKeyType = textField.returnKeyType
     }
 
-    @objc public func invoke(from: Any) {
-        if let target: AnyObject = target {
-            UIApplication.shared.sendAction(action, to: target, from: from, for: UIEvent())
+    init(textView: UITextView) {
+        self.textFieldView = textView
+        self.textViewDelegate = textView.delegate
+        self.originalReturnKeyType = textView.returnKeyType
+    }
+
+    func restore() {
+        if let textField = textFieldView as? UITextField {
+            textField.returnKeyType = originalReturnKeyType
+            textField.delegate = textFieldDelegate
+        } else if let textView = textFieldView as? UITextView {
+            textView.returnKeyType = originalReturnKeyType
+            textView.delegate = textViewDelegate
         }
     }
 }

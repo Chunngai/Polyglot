@@ -1,5 +1,5 @@
 //
-//  IQInvocation.swift
+//  IQKeyboardManagerCompatible.swift
 //  https://github.com/hackiftekhar/IQKeyboardManager
 //  Copyright (c) 2013-24 Iftekhar Qurashi.
 //
@@ -21,22 +21,39 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import UIKit
+import Foundation
 
+/// Wrapper for IQKeyboardManager compatible types. This type provides an extension point for
+/// convenience methods in IQKeyboardManager.
 @available(iOSApplicationExtension, unavailable)
-@MainActor
-@objc public final class IQInvocation: NSObject {
-    @objc public weak var target: AnyObject?
-    @objc public var action: Selector
-
-    @objc public init(_ target: AnyObject, _ action: Selector) {
-        self.target = target
-        self.action = action
-    }
-
-    @objc public func invoke(from: Any) {
-        if let target: AnyObject = target {
-            UIApplication.shared.sendAction(action, to: target, from: from, for: UIEvent())
-        }
+public struct IQKeyboardManagerWrapper<Base> {
+    public let base: Base
+    public init(_ base: Base) {
+        self.base = base
     }
 }
+
+// swiftlint:disable identifier_name
+/// Represents an object type that is compatible with IQKeyboardManager. You can use `iq` property to get a
+/// value in the namespace of IQKeyboardManager.
+@available(iOSApplicationExtension, unavailable)
+public protocol IQKeyboardManagerCompatible {
+    /// Type being extended.
+    associatedtype Base
+
+    /// Instance IQKeyboardManager extension point.
+    var iq: IQKeyboardManagerWrapper<Base> { get set }
+}
+
+// swiftlint:disable unused_setter_value
+@available(iOSApplicationExtension, unavailable)
+public extension IQKeyboardManagerCompatible {
+
+    /// Instance IQKeyboardManager extension point.
+    var iq: IQKeyboardManagerWrapper<Self> {
+        get { IQKeyboardManagerWrapper(self) }
+        set {}
+    }
+}
+// swiftlint:enable unused_setter_value
+// swiftlint:enable identifier_name

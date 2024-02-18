@@ -1,5 +1,5 @@
 //
-//  IQInvocation.swift
+//  IQTextFieldViewInfo.swift
 //  https://github.com/hackiftekhar/IQKeyboardManager
 //  Copyright (c) 2013-24 Iftekhar Qurashi.
 //
@@ -25,18 +25,33 @@ import UIKit
 
 @available(iOSApplicationExtension, unavailable)
 @MainActor
-@objc public final class IQInvocation: NSObject {
-    @objc public weak var target: AnyObject?
-    @objc public var action: Selector
+public struct IQTextFieldViewInfo: Equatable {
 
-    @objc public init(_ target: AnyObject, _ action: Selector) {
-        self.target = target
-        self.action = action
+    nonisolated public static func == (lhs: Self, rhs: Self) -> Bool {
+        return lhs.textFieldView == rhs.textFieldView &&
+        lhs.name == rhs.name
     }
 
-    @objc public func invoke(from: Any) {
-        if let target: AnyObject = target {
-            UIApplication.shared.sendAction(action, to: target, from: from, for: UIEvent())
+    @MainActor
+    @objc public enum Name: Int {
+        case beginEditing
+        case endEditing
+    }
+
+    public let name: Name
+
+    public let textFieldView: UIView
+
+    public init?(notification: Notification?, name: Name) {
+        guard let view: UIView = notification?.object as? UIView else {
+            return nil
         }
+
+        guard !view.iq.isAlertViewTextField() else {
+            return nil
+        }
+
+        self.name = name
+        textFieldView = view
     }
 }

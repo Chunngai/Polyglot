@@ -1,5 +1,5 @@
 //
-//  IQInvocation.swift
+//  IQPlaceholderable.swift
 //  https://github.com/hackiftekhar/IQKeyboardManager
 //  Copyright (c) 2013-24 Iftekhar Qurashi.
 //
@@ -21,22 +21,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+import Foundation
 import UIKit
 
 @available(iOSApplicationExtension, unavailable)
 @MainActor
-@objc public final class IQInvocation: NSObject {
-    @objc public weak var target: AnyObject?
-    @objc public var action: Selector
+public protocol IQPlaceholderable: AnyObject {
 
-    @objc public init(_ target: AnyObject, _ action: Selector) {
-        self.target = target
-        self.action = action
-    }
-
-    @objc public func invoke(from: Any) {
-        if let target: AnyObject = target {
-            UIApplication.shared.sendAction(action, to: target, from: from, for: UIEvent())
-        }
-    }
+    var placeholder: String? { get set }
+    var attributedPlaceholder: NSAttributedString? { get set }
 }
+
+@available(iOSApplicationExtension, unavailable)
+extension UITextField: IQPlaceholderable { }
+
+@available(iOSApplicationExtension, unavailable)
+extension IQTextView: IQPlaceholderable { }

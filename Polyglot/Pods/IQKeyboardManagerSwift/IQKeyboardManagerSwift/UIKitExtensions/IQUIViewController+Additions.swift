@@ -1,5 +1,5 @@
 //
-//  IQInvocation.swift
+//  IQUIViewController+Additions.swift
 //  https://github.com/hackiftekhar/IQKeyboardManager
 //  Copyright (c) 2013-24 Iftekhar Qurashi.
 //
@@ -25,18 +25,24 @@ import UIKit
 
 @available(iOSApplicationExtension, unavailable)
 @MainActor
-@objc public final class IQInvocation: NSObject {
-    @objc public weak var target: AnyObject?
-    @objc public var action: Selector
+@objc extension UIViewController {
 
-    @objc public init(_ target: AnyObject, _ action: Selector) {
-        self.target = target
-        self.action = action
+    /**
+     This method is provided to override by viewController's
+     if the library lifts a viewController which you doesn't want to lift.
+     This may happen if you have implemented side menu feature
+     in your app and the library try to lift the side menu controller.
+     Overriding this method in side menu class to return correct controller should fix the problem.
+    */
+    open func iq_parentContainerViewController() -> UIViewController? {
+        return self
     }
+}
 
-    @objc public func invoke(from: Any) {
-        if let target: AnyObject = target {
-            UIApplication.shared.sendAction(action, to: target, from: from, for: UIEvent())
-        }
+@available(iOSApplicationExtension, unavailable)
+@objc extension UIViewController {
+    @available(*, unavailable, renamed: "iq_parentContainerViewController()")
+    open func parentIQContainerViewController() -> UIViewController? {
+        return self
     }
 }
