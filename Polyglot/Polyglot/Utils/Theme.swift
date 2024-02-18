@@ -221,7 +221,13 @@ struct Attributes {
         NSAttributedString.Key.paragraphStyle: Attributes.leftAlignedParaStyle
     ]
     static let newArticleTopicAttributes = Attributes.leftAlignedLongTextAttributes
-    static let newArticleBodyAttributes = Attributes.leftAlignedLongTextAttributes
+    static let newArticleBodyAttributes = {
+        var attrs = Attributes.leftAlignedLongTextAttributes
+        let paraStyle = attrs[.paragraphStyle] as! NSMutableParagraphStyle
+        paraStyle.paragraphSpacing = 0
+        attrs[.paragraphStyle] = paraStyle
+        return attrs
+    }()
     static let newArticleSourceAttributes = Attributes.leftAlignedLongTextAttributes
     
     // MARK: - Buttons.

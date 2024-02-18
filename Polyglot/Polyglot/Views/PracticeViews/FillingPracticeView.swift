@@ -38,7 +38,7 @@ class FillingPracticeView: WordPracticeView {
     
     var referenceLabel: UILabel = {
         let label = UILabel()
-        label.textColor = Colors.normalTextColor
+        label.textColor = Colors.weakTextColor
         label.font = UIFont.systemFont(ofSize: Sizes.practiceFontSize)
         label.isHidden = true
         label.numberOfLines = 0

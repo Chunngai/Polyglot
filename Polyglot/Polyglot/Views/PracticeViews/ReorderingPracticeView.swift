@@ -48,8 +48,8 @@ class ReorderingPracticeView: WordPracticeView {
     
     var translationLabel: UILabel = {
         let label = UILabel()
-        label.textColor = Colors.weakTextColor
-        label.font = UIFont.systemFont(ofSize: Sizes.practiceFontSize)
+        label.textColor = Colors.normalTextColor
+//        label.font = UIFont.systemFont(ofSize: Sizes.practiceFontSize)
         label.numberOfLines = 0
         return label
     }()

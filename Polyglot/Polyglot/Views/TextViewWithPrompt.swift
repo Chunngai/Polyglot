@@ -38,8 +38,11 @@ class TextViewWithPrompt: UITextView {
     }
     
     var content: String {
-        // TODO: - If the content is deleted after "selete all", the space after the prompt text will be deleted, and the replacement does not work at all.
-        return text.replacingOccurrences(of: prompt, with: "")
+        if let range = text.range(of: prompt) {
+            return text.replacingOccurrences(of: prompt, with: "", range: range)
+        } else {
+            return text.replacingOccurrences(of: prompt, with: "")
+        }
     }
         
     // MARK: - Init
@@ -75,8 +78,14 @@ extension TextViewWithPrompt  {
     
     private func maybeAddPrompt() {
         if let prompt = prompt, !text.starts(with: prompt) {
-            // Guarantee that the prompt is at the beginning.
-            text = prompt + text
+            if prompt.strip() != text.strip() {
+                // Guarantee that the prompt is at the beginning.
+                text = prompt + text
+            } else {
+                // If the content is deleted after "selete all",
+                // the space after the prompt will be removed.
+                text = prompt
+            }
         }
     }
     
@@ -135,8 +144,12 @@ extension TextViewWithPrompt: UITextViewDelegate {
         // Disallow to select the prompt.
         // Note that nothing should be done if no text is selected (r.length == 0)!
         var r = textView.selectedRange
-        if r.length != 0 && r.location < prompt.count {
-            r = NSRange(location: prompt.count, length: content.count)
+//        if r.length != 0 && r.location < prompt.count {
+//            r = NSRange(location: prompt.count, length: content.count)
+//            textView.selectedRange = r
+//        }
+        if r.location < prompt.count {
+            r.location = prompt.count
             textView.selectedRange = r
         }
     }

@@ -243,7 +243,7 @@ extension ReadingEditViewController {
         let attributes = ReadingEditViewController.attributes[identifier]
         
         cell.updateValues(prompt: prompt, text: text, attributes: attributes, textViewTag: identifier)
-        cell.textView.isScrollEnabled = identifier == ReadingEditViewController.bodyIdentifier
+//        cell.textView.isScrollEnabled = identifier == ReadingEditViewController.bodyIdentifier
         return cell
     }
     
