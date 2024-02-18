@@ -38,8 +38,8 @@ class ListeningPracticeProducer: TextMeaningPracticeProducer {
         var practiceList: [ListeningPractice] = []
         for _ in 0..<batchSize {
             
-            let p = Double.random(in: 0...1)
-            if p >= 0 && p < 0.45 {  // 45%.
+            let n = Int.random(in: 0...1)
+            if n == 0 {
                 makePractice(
                     ofType: .listenAndRepeat,
                     for: self.words.randomElement()!,
@@ -48,18 +48,10 @@ class ListeningPracticeProducer: TextMeaningPracticeProducer {
                         practiceList.append(listenAndRepeatPractice)
                     }
                 )
-            } else if p >= 0.45 && p < 0.9 {  // 45%
+            } else if n == 1 {
                 makePractice(
                     ofType: .listenAndRepeat,
                     inGranularity: TextGranularity.sentence,
-                    callBack: { listenAndRepeatPractice in
-                        practiceList.append(listenAndRepeatPractice)
-                    }
-                )
-            } else if p >= 0.9 && p <= 1.0 {  // 10%
-                makePractice(
-                    ofType: .listenAndRepeat,
-                    inGranularity: TextGranularity.paragraph,
                     callBack: { listenAndRepeatPractice in
                         practiceList.append(listenAndRepeatPractice)
                     }
