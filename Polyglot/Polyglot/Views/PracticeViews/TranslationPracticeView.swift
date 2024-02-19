@@ -58,6 +58,12 @@ class TranslationPracticeView: TextMeaningPracticeView {
             attributes: Attributes.leftAlignedLongTextAttributes
         )
         if isTextMachineTranslated {
+            let iconRange = NSRange(
+                location: attributedText.length,
+                length: 2  // Icon + space.
+            )
+            unselectableRanges.append(iconRange)
+                        
             let imageAttrString = makeImageAttributedString(with: Icons.googleTranslateIcon)
             attributedText.append(imageAttrString)
             attributedText.append(NSAttributedString(string: " "))
@@ -78,6 +84,12 @@ class TranslationPracticeView: TextMeaningPracticeView {
         let attributedText = NSMutableAttributedString(attributedString: textView.attributedText!)
         attributedText.append(NSAttributedString(string: "\n"))
         if textSource == .chatGpt {
+            let iconRange = NSRange(
+                location: attributedText.length,
+                length: 2  // Icon + space.
+            )
+            unselectableRanges.append(iconRange)
+            
             let imageAttrString = makeImageAttributedString(with: Icons.chatgptIcon)
             attributedText.append(imageAttrString)
             attributedText.append(NSAttributedString(string: " "))

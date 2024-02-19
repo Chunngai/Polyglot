@@ -92,6 +92,12 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
     override func displayText() {
         let attributedText = NSMutableAttributedString(string: "")
         if textSource == .chatGpt {
+            let iconRange = NSRange(
+                location: attributedText.length,
+                length: 2  // Icon + space.
+            )
+            unselectableRanges.append(iconRange)
+            
             let imageAttrString = makeImageAttributedString(with: Icons.chatgptIcon)
             attributedText.append(imageAttrString)
             attributedText.append(NSAttributedString(string: " "))
@@ -127,6 +133,12 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
 
         attributedText.append(NSAttributedString(string: "\n"))
         if isTextMachineTranslated {
+            let iconRange = NSRange(
+                location: attributedText.length,
+                length: 2  // Icon + space.
+            )
+            unselectableRanges.append(iconRange)
+            
             let imageAttrString = makeImageAttributedString(with: Icons.googleTranslateIcon)
             attributedText.append(imageAttrString)
             attributedText.append(NSAttributedString(string: " "))

@@ -38,7 +38,7 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
             meaningLang: meaningLang
         )
         
-        updateConfigs()
+        updateSetups()
         updateViews()
         updateLayouts()
     }
@@ -47,11 +47,9 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func updateConfigs() {
+    private func updateSetups() {
         
         isEditable = false
-        // Important! Do not set the delegate as a view controller.
-        delegate = self
         
         newWordBottomView.delegate = self
                 
@@ -215,9 +213,7 @@ extension NewWordAddingTextView {
 }
 
 extension NewWordAddingTextView {
-    
-    // MARK: - UITextView Delegate
-    
+        
     override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
         
         if action == #selector(copy(_:)) {
@@ -283,10 +279,6 @@ extension NewWordAddingTextView: NewWordBottomViewDelegate {
     func meaningTextFieldEditingChanged() {
         currentNewWordInfo.meaning = newWordBottomView.meaning
     }
-}
-
-protocol NewWordAddingTextViewDelegate {
-        
 }
 
 struct NewWordInfo {

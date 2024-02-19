@@ -23,6 +23,8 @@ class TextMeaningPracticeView: BasePracticeView {
         return textView.newWordsInfo
     }
     
+    var unselectableRanges: [NSRange] = []
+    
     // MARK: - Views
     
     var mainView: UIView = {
@@ -76,7 +78,7 @@ class TextMeaningPracticeView: BasePracticeView {
     }
     
     func updateSetups() {
-        
+        textView.delegate = self
     }
     
     func updateViews() {
@@ -149,4 +151,29 @@ extension TextMeaningPracticeView {
         }
         textView.highlightAll()
     }
+}
+
+extension TextMeaningPracticeView: UITextViewDelegate {
+    
+    func textViewDidChangeSelection(_ textView: UITextView) {
+        // Disable the selection of icons.
+        let r = textView.selectedRange
+        for unselectableRange in self.unselectableRanges {
+            if unselectableRange.intersection(r) != nil {
+                let newLocation = unselectableRange.location + unselectableRange.length
+                let newLength = abs(r.length - newLocation)
+                textView.selectedRange = NSRange(
+                    location: newLocation,
+                    length: newLength
+                )
+                break
+            }
+        }
+    }
+    
+    func textView(_ textView: UITextView, shouldInteractWith textAttachment: NSTextAttachment, in characterRange: NSRange) -> Bool {
+        // Disable the interaction of icons.
+        return false
+    }
+    
 }
