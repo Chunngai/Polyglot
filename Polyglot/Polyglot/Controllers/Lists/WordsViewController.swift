@@ -10,12 +10,8 @@ import UIKit
 
 class WordsViewController: ListViewController {
     
-    // Translation stuff.
+    // Translation.
     
-    private var translator: GoogleTranslator = GoogleTranslator(
-        srcLang: LangCode.currentLanguage,
-        trgLang: LangCode.pairedLanguage
-    )
     private var translations: [String] = []
     private var translationIndex: Int = 0 {
         didSet {
@@ -28,13 +24,13 @@ class WordsViewController: ListViewController {
     private var isTranslating: Bool = false {
         didSet {
             if isTranslating {
-                wordAddingMeaningTextField?.isEnabled = false  // Disable editing.
-                wordAddingMeaningTextField?.rightView = translationSpinner
+                wordAddingSecondTextField?.isEnabled = false  // Disable editing.
+                wordAddingSecondTextField?.rightView = translationSpinner
                 translationSpinner.startAnimating()
             } else {
-                wordAddingMeaningTextField?.isEnabled = true  // Enable editing.
+                wordAddingSecondTextField?.isEnabled = true  // Enable editing.
                 translationSpinner.stopAnimating()
-                wordAddingMeaningTextField?.rightView = translationButton
+                wordAddingSecondTextField?.rightView = translationButton
             }
         }
     }
@@ -42,22 +38,18 @@ class WordsViewController: ListViewController {
     // Don't use self.presentedController to obtain the alert contrller.
     // When the search controller is active, the alert controller
     // cannot be obtained with this method.
-    private var wordAddingWordTextField: UITextField? {
-        guard let lastAlertController = self.lastAlertController else {
-            return nil
-        }
-        return lastAlertController.textFields?[0]
+    private var wordAddingFirstTextField: UITextField? {
+        return self.lastAlertController?.textFields?[0]
     }
-    private var wordAddingMeaningTextField: UITextField? {
-        guard let lastAlertController = self.lastAlertController else {
-            return nil
-        }
-        return lastAlertController.textFields?[1]
+    private var wordAddingSecondTextField: UITextField? {
+        return self.lastAlertController?.textFields?[1]
     }
     private var lastlyTypedWord: String = ""
     private var lastAlertController: UIAlertController!
     
-    // Table view stuff.
+    private var isText2Meaning: Bool!
+    
+    // Table view.
     
     private var dataSource: [GroupedWords]! {
         didSet {
@@ -211,7 +203,7 @@ extension WordsViewController {
             if let word = word, !word.text.isEmpty {
                 textField.text = word.text
             } else {
-                textField.placeholder = Strings.addingNewWordAlertTextFieldPlaceholderForText
+                textField.placeholder = "\(Strings.addingNewWordAlertTextFieldPlaceholderForText)/\(Strings.addingNewWordAlertTextFieldPlaceHolderForMeaning)"
             }
         }
         alert.addTextField { (textField) in
@@ -219,20 +211,13 @@ extension WordsViewController {
             if let word = word, !word.meaning.isEmpty {
                 textField.text = word.meaning
             } else {
-                textField.placeholder = Strings.addingNewWordAlertTextFieldPlaceHolderForMeaning
+                textField.placeholder = "\(Strings.addingNewWordAlertTextFieldPlaceHolderForMeaning)/\(Strings.addingNewWordAlertTextFieldPlaceholderForText)"
             }
 
             // Add a translation button.
             textField.rightView = self.translationButton
             textField.rightViewMode = .always
         }
-//        alert.addTextField { (textField) in
-//            if let word = word, let note = word.note, !note.isEmpty {
-//                textField.text = word.note
-//            } else {
-//                textField.placeholder = Strings.addingNewWordAlertTextFieldPlaceHolderForNote
-//            }
-//        }
 
         alert.addAction(UIAlertAction(title: Strings.done, style: .default, handler: { [weak alert] (_) in
             
@@ -240,14 +225,19 @@ extension WordsViewController {
             var meaning: String = ""
             var note: String?
             if let textField = alert?.textFields?[0], let textFieldInput = textField.text {
-                text = textFieldInput
+                if self.isText2Meaning {
+                    text = textFieldInput
+                } else {
+                    meaning = textFieldInput
+                }
             }
             if let textField = alert?.textFields?[1], let textFieldInput = textField.text {
-                meaning = textFieldInput
+                if self.isText2Meaning {
+                    meaning = textFieldInput
+                } else {
+                    text = textFieldInput
+                }
             }
-//            if let textField = alert?.textFields?[2] {
-//                note = textField.text
-//            }
             
             let updatedWord: Word!
             if let word = word {
@@ -305,34 +295,55 @@ extension WordsViewController {
     
     @objc func textFieldTranslateButtonTapped() -> Void {
         
-        guard let word = wordAddingWordTextField?.text else {
+        guard let firstTextFieldText = wordAddingFirstTextField?.text else {
             return
         }
         // The word to translate should not be empty.
-        guard !word.strip().isEmpty else {
+        guard !firstTextFieldText.strip().isEmpty else {
             return
         }
         
-        if self.translations.isEmpty || word != lastlyTypedWord {
+        // Language detection.
+        var srcLang: LangCode
+        var trgLang: LangCode
+        let firstTextFieldTextLanguage = LangCode(detectedFrom: firstTextFieldText)
+        if firstTextFieldTextLanguage == LangCode.currentLanguage {
+            isText2Meaning = true
+            srcLang = LangCode.currentLanguage
+            trgLang = LangCode.pairedLanguage
+        } else {
+            isText2Meaning = false
+            srcLang = firstTextFieldTextLanguage != .undetermined ?
+                firstTextFieldTextLanguage :
+                LangCode.pairedLanguage
+            trgLang = LangCode.currentLanguage
+        }
+        // Make a translator.
+        let translator = GoogleTranslator(
+            srcLang: srcLang,
+            trgLang: trgLang
+        )
+        
+        if self.translations.isEmpty || firstTextFieldText != lastlyTypedWord {
             
-            lastlyTypedWord = word
+            lastlyTypedWord = firstTextFieldText
             
             isTranslating = true
-            self.translator.translate(query: word) { (translations) in
+            translator.translate(query: firstTextFieldText) { (translations) in
                 self.translations = translations
                 // Concat all translations as an additional translation.
                 self.translations.append(translations.joined(separator: "; "))
                 DispatchQueue.main.async {
                     self.isTranslating = false
                     if self.translationIndex < self.translations.count {
-                        self.wordAddingMeaningTextField?.text = self.translations[self.translationIndex]
+                        self.wordAddingSecondTextField?.text = self.translations[self.translationIndex]
                     }
                 }
             }
         } else {
             self.translationIndex += 1
             if !translations.isEmpty {
-                self.wordAddingMeaningTextField?.text = self.translations[self.translationIndex]
+                self.wordAddingSecondTextField?.text = self.translations[self.translationIndex]
             }
         }
         
