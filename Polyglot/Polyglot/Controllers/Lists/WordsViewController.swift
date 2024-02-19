@@ -91,7 +91,7 @@ class WordsViewController: ListViewController {
     lazy var translationButton: UIButton = {
         let button = UIButton()
         button.setImage(
-            Icons.translateIcon.withTintColor(Colors.activeSystemButtonColor),
+            Icons.googleTranslateIcon.scaledToListIconSize(),
             for: .normal
         )
         button.addTarget(
