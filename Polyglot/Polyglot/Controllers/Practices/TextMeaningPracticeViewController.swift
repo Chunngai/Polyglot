@@ -24,6 +24,8 @@ class TextMeaningPracticeViewController: PracticeViewController {
         }
     }
         
+    // MARK: - Init
+    
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
@@ -33,6 +35,25 @@ class TextMeaningPracticeViewController: PracticeViewController {
         + doneButton.radius
         + 20
     }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+
+    }
+    
+    deinit {
+        // Remove observers when the view controller is deinitialized
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    // MARK: - Methods to be Overwritten
     
     func makePrompt() -> String {
         fatalError("makePrompt() has not been implemented.")
@@ -92,6 +113,34 @@ class TextMeaningPracticeViewController: PracticeViewController {
             height: 20 + "word".textSize(withFont: UIFont.systemFont(ofSize: Sizes.mediumFontSize)).height + 15 + "meaning".textSize(withFont: UIFont.systemFont(ofSize: Sizes.smallFontSize)).height + 20
         )
     }
+}
+
+extension TextMeaningPracticeViewController {
+    
+    // MARK: - Selectors
+    
+    @objc 
+    func keyboardWillShow(notification: NSNotification) {
+        guard let keyboardFrame = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
+            return
+        }
+            
+        let viewFrame = view.frame
+
+        guard viewFrame.maxY != keyboardFrame.minY else {
+            return
+        }
+        
+        // After switching from a higher keyboard to a lower keyboard,
+        // there will be a black bar between the view and the keyboard.
+        // The following code fixes this bug.
+        let offset = keyboardFrame.minY - viewFrame.maxY
+        view.frame.origin = CGPoint(
+            x: view.frame.origin.x,
+            y: view.frame.origin.y + offset
+        )
+    }
+    
 }
 
 extension TextMeaningPracticeViewController {
