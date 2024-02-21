@@ -223,7 +223,9 @@ extension WordsViewController {
             
             var text: String = ""
             var meaning: String = ""
-            var note: String?
+            if self.isText2Meaning == nil {
+                self.isText2Meaning = true
+            }
             if let textField = alert?.textFields?[0], let textFieldInput = textField.text {
                 if self.isText2Meaning {
                     text = textFieldInput
@@ -241,10 +243,10 @@ extension WordsViewController {
             
             let updatedWord: Word!
             if let word = word {
-                self.words.updateWord(of: word.id, newText: text, newMeaning: meaning, newNote: note)
+                self.words.updateWord(of: word.id, newText: text, newMeaning: meaning)
                 updatedWord = self.words.getWord(from: word.id)  // TODO: - Speed up.
             } else {
-                let newWord = Word(text: text, meaning: meaning, note: note)
+                let newWord = Word(text: text, meaning: meaning)
                 self.words.add(newWord: newWord)
                 updatedWord = newWord
             }
@@ -359,6 +361,8 @@ extension WordsViewController {
         self.translationIndex = 0
         self.isTranslating = false
         self.lastlyTypedWord = ""
+        self.lastAlertController = nil
+        self.isText2Meaning = nil
     }
     
     private func updateSomeAccents(n: Int = 10) {
