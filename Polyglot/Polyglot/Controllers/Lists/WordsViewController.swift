@@ -332,6 +332,16 @@ extension WordsViewController {
             
             isTranslating = true
             translator.translate(query: firstTextFieldText) { (translations) in
+                guard !translations.isEmpty else {
+                    // The didSet of isTranslating
+                    // contains code for updating views,
+                    // which requires to be performed in
+                    // the main thread.
+                    DispatchQueue.main.async {
+                        self.isTranslating = false
+                    }
+                    return
+                }
                 self.translations = translations
                 // Concat all translations as an additional translation.
                 self.translations.append(translations.joined(separator: "; "))
