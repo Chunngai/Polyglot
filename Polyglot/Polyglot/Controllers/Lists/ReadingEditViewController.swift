@@ -50,6 +50,8 @@ class ReadingEditViewController: UIViewController {
         
         // Ensure that the status bar has a bg color in the modal presentation mode.
         UIApplication.shared.statusBarUIView?.backgroundColor = .systemGroupedBackground
+        
+        scrollToQuery()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -316,7 +318,7 @@ extension ReadingEditViewController {
             ignoreAccents: shouldIgnoreCaseAndAccent
         )
         bodyCellTextView.attributedText = attributedText
-        // Scrolling.  TODO: - Cannot scroll to the correct location.
+        // Scrolling.  TODO: - Cannot scroll to the correct position.
         bodyCellTextView.scrollRangeToVisible(queryRange)
     }
     

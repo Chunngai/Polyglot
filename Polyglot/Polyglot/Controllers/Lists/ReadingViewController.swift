@@ -118,9 +118,7 @@ extension ReadingViewController: UITableViewDelegate {
             readingEditViewController.updateValues(article: cell.article, query: query)
             
             let readingEditNavController = NavController(rootViewController: readingEditViewController)
-            navigationController?.present(readingEditNavController, animated: true, completion: {
-                readingEditViewController.scrollToQuery()
-            })
+            navigationController?.present(readingEditNavController, animated: true, completion: nil)
         }
     }
     
