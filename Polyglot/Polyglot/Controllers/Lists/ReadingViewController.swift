@@ -12,7 +12,9 @@ class ReadingViewController: ListViewController {
     
     private var dataSource: [GroupedArticles]! {
         didSet {
-            tableView.reloadData()
+            DispatchQueue.main.async {  // Update the table in the main thread.
+                self.tableView.reloadData()
+            }
         }
     }
     
@@ -108,13 +110,17 @@ extension ReadingViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let query = searchController.searchBar.text
+        
         if let cell = tableView.cellForRow(at: indexPath) as? ReadingTableCell {
             let readingEditViewController = ReadingEditViewController()
             readingEditViewController.delegate = self
-            readingEditViewController.updateValues(article: cell.article)
+            readingEditViewController.updateValues(article: cell.article, query: query)
             
             let readingEditNavController = NavController(rootViewController: readingEditViewController)
-            navigationController?.present(readingEditNavController, animated: true, completion: nil)
+            navigationController?.present(readingEditNavController, animated: true, completion: {
+                readingEditViewController.scrollToQuery()
+            })
         }
     }
     
@@ -165,7 +171,9 @@ extension ReadingViewController: UISearchResultsUpdating {
         guard let keyWord = searchController.searchBar.text else {
             return
         }
-        dataSource = articles.subset(containing: keyWord).groups
+        DispatchQueue.global(qos: .userInitiated).async {  // Slow.
+            self.dataSource = self.articles.subset(containing: keyWord).groups
+        }
     }
     
 }

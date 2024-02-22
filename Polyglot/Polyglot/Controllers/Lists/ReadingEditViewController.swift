@@ -18,6 +18,8 @@ class ReadingEditViewController: UIViewController {
         self.cell(for: ReadingEditViewController.bodyIdentifier)
     ]
     
+    var query: String?
+    
     // MARK: - Models
     
     private var article: Article?
@@ -100,8 +102,9 @@ class ReadingEditViewController: UIViewController {
         }
     }
     
-    func updateValues(article: Article) {
+    func updateValues(article: Article, query: String?) {
         self.article = article
+        self.query = query
     }
 }
  
@@ -281,6 +284,42 @@ extension ReadingEditViewController {
                 .replacingOccurrences(of: Strings.macNewLineSymbol, with: "\n"),
         ]
     }
+}
+
+extension ReadingEditViewController {
+    
+    func scrollToQuery(shouldIgnoreCaseAndAccent: Bool = true) {
+        guard var query = query else {
+            return
+        }
+        query = query.normalized(
+            caseInsensitive: shouldIgnoreCaseAndAccent,
+            diacriticInsensitive: shouldIgnoreCaseAndAccent
+        )
+        
+        let bodyCellTextView = cells[ReadingEditViewController.bodyIdentifier].textView
+        let text = bodyCellTextView.text.normalized(
+            caseInsensitive: shouldIgnoreCaseAndAccent,
+            diacriticInsensitive: shouldIgnoreCaseAndAccent
+        )
+        let queryRange = (text as NSString).range(of: query)
+        guard queryRange.location != NSNotFound else {
+            return
+        }
+        
+        // Highlighting.
+        let attributedText = NSMutableAttributedString(attributedString: bodyCellTextView.attributedText)
+        attributedText.setBackgroundColor(
+            for: query,
+            with: Colors.lightBlue,
+            ignoreCasing: shouldIgnoreCaseAndAccent,
+            ignoreAccents: shouldIgnoreCaseAndAccent
+        )
+        bodyCellTextView.attributedText = attributedText
+        // Scrolling.  TODO: - Cannot scroll to the correct location.
+        bodyCellTextView.scrollRangeToVisible(queryRange)
+    }
+    
 }
 
 extension ReadingEditViewController {

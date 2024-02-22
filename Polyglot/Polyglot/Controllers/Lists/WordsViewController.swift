@@ -53,7 +53,9 @@ class WordsViewController: ListViewController {
     
     private var dataSource: [GroupedWords]! {
         didSet {
-            tableView.reloadData()
+            DispatchQueue.main.async {  // Update the table in the main thread.
+                self.tableView.reloadData()
+            }
         }
     }
     
@@ -429,7 +431,9 @@ extension WordsViewController: UISearchResultsUpdating {
         guard let keyWord = searchController.searchBar.text else {
             return
         }
-        dataSource = words.subset(containing: keyWord).grouped()
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.dataSource = self.words.subset(containing: keyWord).grouped()
+        }
     }
 }
 

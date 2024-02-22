@@ -89,6 +89,17 @@ extension NSMutableAttributedString {
         )
     }
     
+    func setBackgroundColor(for text: String? = nil, with color: UIColor, ignoreCasing: Bool = false, ignoreAccents: Bool = false) {
+        add(
+            attributes: [
+                .backgroundColor : color
+            ],
+            for: text,
+            ignoreCasing: ignoreCasing,
+            ignoreAccents: ignoreAccents
+        )
+    }
+    
     func setBackgroundColor(for range: NSRange, with color: UIColor) {
         add(
             attributes: [
