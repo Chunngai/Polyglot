@@ -41,6 +41,8 @@ class PracticeViewController: UIViewController {
         let bar = TimingBar(duration: Constants.practiceDuration)
         return bar
     }()
+    var cancelButton: UIBarButtonItem!
+    var toggleButton: UIBarButtonItem!
     
     var mainView: UIView = {
         let view = UIView()
@@ -130,12 +132,21 @@ class PracticeViewController: UIViewController {
         // Ensure that the nav bar has a bg color in the modal presentation mode.
         navigationController?.navigationBar.backgroundColor = Colors.defaultBackgroundColor
         
-        navigationItem.leftBarButtonItem = UIBarButtonItem(
+        cancelButton = UIBarButtonItem(
             image: Icons.cancelIcon,
             style: .plain,
             target: self,
             action: #selector(cancelButtonTapped)
         )
+        toggleButton = UIBarButtonItem(
+            image: Icons.pauseIcon,
+            style: .plain,
+            target: self,
+            action: #selector(toggleButtonTapped)
+        )
+        
+        navigationItem.leftBarButtonItem = cancelButton
+        navigationItem.rightBarButtonItem = toggleButton
         navigationItem.titleView = timingBar
                  
         view.backgroundColor = Colors.defaultBackgroundColor
@@ -201,6 +212,16 @@ extension PracticeViewController {
     
     @objc func cancelButtonTapped() {
         stopPracticing()
+    }
+    
+    @objc func toggleButtonTapped() {
+        if toggleButton.image == Icons.startIcon {
+            timingBar.start()
+            toggleButton.image = Icons.pauseIcon
+        } else if toggleButton.image == Icons.pauseIcon {
+            timingBar.pause()
+            toggleButton.image = Icons.startIcon
+        }
     }
     
     @objc func doneButtonTapped() {
@@ -280,12 +301,14 @@ extension PracticeViewController: TimingBarDelegate {
     
     // MARK: - TimingBar Delegate
     
-    func timingBarSet(toggleButton: UIBarButtonItem) {
-        navigationItem.rightBarButtonItem = toggleButton
-    }
-        
     func timingBarTimeUp(timingBar: TimingBar) {
         self.shouldFinishPracticing = true
+        
+        self.cancelButton.isEnabled = false
+        self.cancelButton.tintColor = Colors.inactiveSystemButtonColor
+        
+        self.toggleButton.isEnabled = false
+        self.toggleButton.tintColor = Colors.inactiveSystemButtonColor
     }
     
     func timingBarTimingStarted(timingBar: TimingBar) {
@@ -302,7 +325,6 @@ extension PracticeViewController: TimingBarDelegate {
             return
         }
         
-        timingBar.hideIcon()
         maskView.isHidden = false
         mainView.isUserInteractionEnabled = false
         view.bringSubviewToFront(maskView)  // The mask view should be in the front of all views.

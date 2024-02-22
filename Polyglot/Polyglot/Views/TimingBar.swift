@@ -14,23 +14,10 @@ class TimingBar: UIView {
     private var secondCounter: TimeInterval = 0
     
     private var timer: Timer!
-    private var isTiming: Bool = true {
-        didSet {
-            if isTiming {
-                start()
-            } else {
-                pause()
-            }
-        }
-    }
     
     // MARK: - Controllers
     
-    var delegate: TimingBarDelegate! {
-        didSet {
-            delegate.timingBarSet?(toggleButton: toggleButton)
-        }
-    }
+    var delegate: TimingBarDelegate!
     
     // MARK: - Views
     
@@ -42,9 +29,7 @@ class TimingBar: UIView {
         progressView.layer.cornerRadius = Sizes.smallCornerRadius
         return progressView
     }()
-    
-    private var toggleButton: UIBarButtonItem!
-    
+        
     // MARK: - Init
     
     init(frame: CGRect = .zero, duration: TimeInterval = TimingBar.defaultDuration) {
@@ -62,12 +47,7 @@ class TimingBar: UIView {
     }
     
     private func updateSetups() {
-        toggleButton = UIBarButtonItem(
-            image: nil,
-            style: .plain,
-            target: self,
-            action: #selector(toggleTimingState)
-        )
+        
     }
     
     private func updateViews() {
@@ -92,7 +72,6 @@ extension TimingBar {
     
     func start() {
         
-        toggleButton.image = Icons.pauseIcon
         delegate.timingBarTimingStarted?(timingBar: self)
         
         // https://www.hackingwithswift.com/example-code/system/how-to-make-an-action-repeat-using-timer
@@ -101,7 +80,6 @@ extension TimingBar {
     
     func pause() {
         
-        toggleButton.image = Icons.startIcon
         delegate.timingBarTimingPaused?(timingBar: self)
 
         // https://www.hackingwithswift.com/example-code/system/how-to-make-an-action-repeat-using-timer
@@ -110,18 +88,8 @@ extension TimingBar {
     
     func stop() {
         
-        toggleButton.image = nil
-
         timer.invalidate()
     }
-}
-
-extension TimingBar {
-    
-    func hideIcon() {
-        toggleButton.image = nil
-    }
-    
 }
 
 extension TimingBar {
@@ -146,15 +114,7 @@ extension TimingBar {
         
         self.secondCounter += TimeInterval.second
     }
-    
-    @objc private func toggleTimingState() {
-        if toggleButton.image == Icons.startIcon {
-            isTiming = true
-        } else if toggleButton.image == Icons.pauseIcon {
-            isTiming = false
-        }
-    }
-    
+
 }
 
 extension TimingBar {
