@@ -8,6 +8,7 @@
 
 import UIKit
 import IQKeyboardManagerSwift
+import AVFAudio
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -26,6 +27,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         IQKeyboardManager.shared.enable = true
         // https://stackoverflow.com/questions/40124364/how-to-hide-toolbar-in-iqkeyboardmanager-ios-swift-3
         IQKeyboardManager.shared.enableAutoToolbar = false
+        
+        // https://stackoverflow.com/questions/44343858/make-ios-text-to-speech-work-when-ringer-is-muted
+        try? AVAudioSession.sharedInstance().setCategory(.playback)
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
