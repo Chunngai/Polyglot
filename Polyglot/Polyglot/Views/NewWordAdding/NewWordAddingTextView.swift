@@ -196,8 +196,11 @@ extension NewWordAddingTextView {
             // Right text position.
             let rangeEndPositionValue = valueOf(textPosition: wordTextRange.end)
 
-            let isTextRangeTapped: Bool = rangeStartPositionValue <= tapPositionValue
-                && tapPositionValue <= rangeEndPositionValue
+            // Use < instead of <=,
+            // else tapping anywhere below the text will meet the condition
+            // if the range is at the end of the text.
+            let isTextRangeTapped: Bool = rangeStartPositionValue < tapPositionValue
+                && tapPositionValue < rangeEndPositionValue
             if isTextRangeTapped {
                 newWordBottomView.word = newWordInfo.word
                 newWordBottomView.meaning = newWordInfo.meaning
