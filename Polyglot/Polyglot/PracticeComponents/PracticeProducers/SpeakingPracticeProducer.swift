@@ -21,16 +21,33 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
         } else {
             self.practiceList.append(contentsOf: make())
         }
-        // Create and save new cached practices for the use of next time.
-        DispatchQueue.global(qos: .userInitiated).async {
-            guard var speakingPracticesToCache = self.make() as? [SpeakingPractice] else {
-                return
-            }
-            SpeakingPracticeProducer.save(
-                &speakingPracticesToCache,
-                for: LangCode.currentLanguage
-            )
+//        // Create and save new cached practices for the use of next time.
+//        DispatchQueue.global(qos: .userInitiated).async {
+//            guard var speakingPracticesToCache = self.make() as? [SpeakingPractice] else {
+//                return
+//            }
+//            SpeakingPracticeProducer.save(
+//                &speakingPracticesToCache,
+//                for: LangCode.currentLanguage
+//            )
+//        }
+    }
+    
+    override func next() {
+        super.next()
+        
+        let startIndex = currentPracticeIndex + 1
+        if startIndex >= practiceList.count {
+            return
         }
+        
+        guard var practicesToCache = [BasePractice](practiceList.suffix(from: currentPracticeIndex + 1)) as? [SpeakingPractice] else {
+            return
+        }
+        SpeakingPracticeProducer.save(
+            &practicesToCache,
+            for: LangCode.currentLanguage
+        )
     }
     
     override func make() -> [BasePractice] {

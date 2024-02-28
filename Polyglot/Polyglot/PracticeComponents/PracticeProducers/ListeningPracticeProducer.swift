@@ -22,15 +22,32 @@ class ListeningPracticeProducer: TextMeaningPracticeProducer {
             self.practiceList.append(contentsOf: make())
         }
         // Create and save new cached practices for the use of next time.
-        DispatchQueue.global(qos: .userInitiated).async {
-            guard var listeningPracticesToCache = self.make() as? [ListeningPractice] else {
-                return
-            }
-            ListeningPracticeProducer.save(
-                &listeningPracticesToCache,
-                for: LangCode.currentLanguage
-            )
+//        DispatchQueue.global(qos: .userInitiated).async {
+//            guard var listeningPracticesToCache = self.make() as? [ListeningPractice] else {
+//                return
+//            }
+//            ListeningPracticeProducer.save(
+//                &listeningPracticesToCache,
+//                for: LangCode.currentLanguage
+//            )
+//        }
+    }
+    
+    override func next() {
+        super.next()
+        
+        let startIndex = currentPracticeIndex + 1
+        if startIndex >= practiceList.count {
+            return
         }
+        
+        guard var practicesToCache = [BasePractice](practiceList.suffix(from: currentPracticeIndex + 1)) as? [ListeningPractice] else {
+            return
+        }
+        ListeningPracticeProducer.save(
+            &practicesToCache,
+            for: LangCode.currentLanguage
+        )
     }
     
     override func make() -> [BasePractice] {
