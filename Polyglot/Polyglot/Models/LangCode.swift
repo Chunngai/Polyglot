@@ -124,7 +124,7 @@ extension LangCode {
             return
         }
         switch languageCode {
-        case .simplifiedChinese: self = .zh
+        case .simplifiedChinese, .traditionalChinese: self = .zh
         case .english: self = .en
         case .japanese: self = .ja
         case .spanish: self = .es

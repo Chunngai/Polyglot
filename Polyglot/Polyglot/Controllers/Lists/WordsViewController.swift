@@ -307,31 +307,32 @@ extension WordsViewController {
             return
         }
         
-        // Language detection.
-        var srcLang: LangCode
-        var trgLang: LangCode
-        let firstTextFieldTextLanguage = LangCode(detectedFrom: firstTextFieldText)
-        if firstTextFieldTextLanguage == LangCode.currentLanguage {
-            isText2Meaning = true
-            srcLang = LangCode.currentLanguage
-            trgLang = LangCode.pairedLanguage
-        } else {
-            isText2Meaning = false
-            srcLang = firstTextFieldTextLanguage != .undetermined ?
-                firstTextFieldTextLanguage :
-                LangCode.pairedLanguage
-            trgLang = LangCode.currentLanguage
-        }
-        // Make a translator.
-        let translator = GoogleTranslator(
-            srcLang: srcLang,
-            trgLang: trgLang
-        )
-        
         if self.translations.isEmpty || firstTextFieldText != lastlyTypedWord {
             
-            lastlyTypedWord = firstTextFieldText
+            clearTranslations()
             
+            lastlyTypedWord = firstTextFieldText
+    
+            // Language detection.
+            var srcLang: LangCode
+            var trgLang: LangCode
+            let firstTextFieldTextLanguage = LangCode(detectedFrom: firstTextFieldText)
+            if firstTextFieldTextLanguage == LangCode.currentLanguage
+                || firstTextFieldTextLanguage == .undetermined {
+                isText2Meaning = true
+                srcLang = LangCode.currentLanguage
+                trgLang = LangCode.pairedLanguage
+            } else {
+                isText2Meaning = false
+                srcLang = firstTextFieldTextLanguage
+                trgLang = LangCode.currentLanguage
+            }
+            // Make a translator.
+            let translator = GoogleTranslator(
+                srcLang: srcLang,
+                trgLang: trgLang
+            )
+            // Translation.
             isTranslating = true
             translator.translate(query: firstTextFieldText) { (translations) in
                 guard !translations.isEmpty else {
@@ -373,7 +374,6 @@ extension WordsViewController {
         self.translationIndex = 0
         self.isTranslating = false
         self.lastlyTypedWord = ""
-        self.lastAlertController = nil
         self.isText2Meaning = nil
     }
     
