@@ -84,6 +84,19 @@ extension LangCode {
         }
     }
     
+    var voiceRate: Float {
+        switch self {
+        case .zh: return 0.5
+        case .en: return 0.55
+        case .ja: return 0.55
+        case .es: return 0.5
+        case .ru: return 0.5
+        case .ko: return 0.5
+        case .de: return 0.5
+        case .undetermined: return 0.5
+        }
+    }
+    
     var locale: Locale {
         switch self {
         case .zh: return Locale(identifier: "zh-CN")

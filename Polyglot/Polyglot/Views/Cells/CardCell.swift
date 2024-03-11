@@ -358,6 +358,7 @@ extension CardCellContentView {
             
             let utterance = AVSpeechUtterance(string: content)
             utterance.voice = AVSpeechSynthesisVoice(identifier: lang.voiceIdentifier)
+            utterance.rate = lang.voiceRate
             
             config.delegate.indexPathForCellThatIsProcudingVoice = config.indexPath
             config.delegate.synthesizer.speak(utterance)
