@@ -26,12 +26,20 @@ class PracticeViewController: UIViewController {
         }
     }
     
+    var practiceMetaData: [String:String]! {
+        didSet {
+            delegate.practiceMetaData = practiceMetaData
+        }
+    }
+    
     // MARK: - Controllers
     
     var delegate: HomeViewController! {
         didSet {
             self.words = delegate.words
             self.articles = delegate.articles
+            
+            self.practiceMetaData = delegate.practiceMetaData
         }
     }
     

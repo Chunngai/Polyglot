@@ -207,6 +207,17 @@ extension Strings {
         return Strings._speaking[LangCode.currentLanguage]!
     }
     
+    static let _recentPractice: [LangCode : String] = [
+        LangCode.en : "Recent Practice",
+        LangCode.ja : "最近の練習",
+        LangCode.es : "Práctica Reciente",
+        LangCode.ru : "Недавняя Практика",
+        LangCode.ko : "최근 연습",
+        LangCode.de : "Aktuelle Praxis",
+    ]
+    static var recentPractice: String {
+        return Strings._recentPractice[LangCode.currentLanguage]!
+    }
 }
 
 extension Strings {

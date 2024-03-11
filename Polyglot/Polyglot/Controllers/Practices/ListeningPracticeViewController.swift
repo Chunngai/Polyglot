@@ -341,6 +341,15 @@ extension ListeningPracticeViewController {
     
 }
 
+extension ListeningPracticeViewController {
+    
+    override func stopPracticing() {
+        practiceMetaData["recentListeningPracticeDate"] = Date().repr()
+        super.stopPracticing()
+    }
+    
+}
+
 protocol ListeningPracticeViewControllerDelegate {
     
     func processRecognizedSpeech(_ text: String)

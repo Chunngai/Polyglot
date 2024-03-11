@@ -32,7 +32,6 @@ extension Date {
 extension Date {
     
     static let defaultFormat: String = "yy MMM d"
-    
     static var defaultFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = Date.defaultFormat

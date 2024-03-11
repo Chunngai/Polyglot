@@ -261,6 +261,7 @@ extension WordsPracticeViewController {
             }
         }
         
+        practiceMetaData["recentWordPracticeDate"] = Date().repr()
         navigationController?.dismiss(animated: true, completion: nil)
     }
     

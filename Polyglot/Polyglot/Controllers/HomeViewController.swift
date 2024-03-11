@@ -75,15 +75,24 @@ class HomeViewController: UIViewController {
     var practiceItems: [HomeItem] {[
         HomeItem(
             image: Images.wordPracticeImage,
-            text: Strings.phraseReview
+            text: Strings.phraseReview,
+            secondaryText: practiceMetaData["recentWordPracticeDate"] != nil
+            ? "\(Strings.recentPractice): \(practiceMetaData["recentWordPracticeDate"]!)"
+            : nil
         ),
         HomeItem(
             image: Images.listeningPracticeImage,
-            text: Strings.listening
+            text: Strings.listening,
+            secondaryText: practiceMetaData["recentListeningPracticeDate"] != nil
+            ? "\(Strings.recentPractice): \(practiceMetaData["recentListeningPracticeDate"]!)"
+            : nil
         ),
         HomeItem(
             image: Images.translationPracticeImage,
-            text: Strings.speaking
+            text: Strings.speaking,
+            secondaryText: practiceMetaData["recentTranslationPracticeDate"] != nil
+            ? "\(Strings.recentPractice): \(practiceMetaData["recentTranslationPracticeDate"]!)"
+            : nil
         )
     ]}
     
@@ -116,9 +125,6 @@ class HomeViewController: UIViewController {
             Word.save(&newValue, for: LangCode.currentLanguage)
             
             wordMetaData["count"] = String(newValue.count)
-            DispatchQueue.main.async {  // May be called by the accent retrieving in a closure.
-                self.applySnapShots()
-            }
         }
     }
     
@@ -140,20 +146,38 @@ class HomeViewController: UIViewController {
             Article.save(&newValue, for: LangCode.currentLanguage)
             
             articleMetaData["count"] = String(newValue.count)
-            DispatchQueue.main.async {  // May be called by the accent retrieving in a closure.
-                self.applySnapShots()
-            }
         }
     }
     
     var wordMetaData: [String:String] = Word.loadMetaData(for: LangCode.currentLanguage) {
         didSet {
-            Word.saveMetaData(&wordMetaData, for: LangCode.currentLanguage)
+            Word.saveMetaData(
+                &wordMetaData, 
+                for: LangCode.currentLanguage
+            )
+            DispatchQueue.main.async {  // May be called by the accent retrieving in a closure.
+                self.applySnapShots()
+            }
         }
     }
     var articleMetaData: [String:String] = Article.loadMetaData(for: LangCode.currentLanguage) {
         didSet {
-            Article.saveMetaData(&articleMetaData, for: LangCode.currentLanguage)
+            Article.saveMetaData(
+                &articleMetaData,
+                for: LangCode.currentLanguage
+            )
+            DispatchQueue.main.async {  // May be called by the accent retrieving in a closure.
+                self.applySnapShots()
+            }
+        }
+    }
+    var practiceMetaData: [String:String] = BasePracticeProducer.loadMetaData(for: LangCode.currentLanguage) {
+        didSet {
+            BasePracticeProducer.saveMetaData(
+                &practiceMetaData,
+                for: LangCode.currentLanguage
+            )
+            applySnapShots()
         }
     }
     
@@ -489,6 +513,7 @@ extension HomeViewController: LanguageSelectionViewControllerDelegate {
         self._articles = nil
         self.wordMetaData = Word.loadMetaData(for: LangCode.currentLanguage)
         self.articleMetaData = Article.loadMetaData(for: LangCode.currentLanguage)
+        self.practiceMetaData = BasePracticeProducer.loadMetaData(for: LangCode.currentLanguage)
         
         navigationItem.title = Strings.homeTitle
         applySnapShots()
@@ -597,7 +622,12 @@ extension HomeViewController {
             item: HomeItem
         ) in
             
-            var content = UIListContentConfiguration.valueCell()
+            var content: UIListContentConfiguration
+            if indexPath.section == HomeViewController.listSection {
+                content = UIListContentConfiguration.valueCell()
+            } else {
+                content = UIListContentConfiguration.sidebarSubtitleCell()
+            }
             content.image = item.image
             content.text = item.text
             content.secondaryText = item.secondaryText

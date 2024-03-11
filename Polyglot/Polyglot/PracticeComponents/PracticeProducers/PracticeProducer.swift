@@ -56,3 +56,38 @@ extension BasePracticeProducer {
     static var practiceMakingTimeThredshold: TimeInterval = 5
 
 }
+
+extension BasePracticeProducer {
+    
+    // MARK: - IO
+    
+    static func metaDataFileName(for lang: LangCode) -> String {
+        return "practice.meta.\(lang.rawValue).json"
+    }
+    
+    static func loadMetaData(for lang: LangCode) -> [String:String] {
+        do {
+            let metaData = try readDataFromJson(
+                fileName: BasePracticeProducer.metaDataFileName(for: lang),
+                type: [String:String].self
+            ) as? [String:String] ?? [:]
+            return metaData
+        } catch {
+            print(error)
+            exit(1)
+        }
+    }
+    
+    static func saveMetaData(_ metaData: inout [String:String], for lang: LangCode) {
+        do {
+            try writeDataToJson(
+                fileName: BasePracticeProducer.metaDataFileName(for: lang),
+                data: metaData
+            )
+        } catch {
+            print(error)
+            exit(1)
+        }
+    }
+    
+}

@@ -67,3 +67,12 @@ extension TranslationPracticeViewController {
         updatePracticeView()
     }
 }
+
+extension TranslationPracticeViewController {
+    
+    override func stopPracticing() {
+        practiceMetaData["recentTranslationPracticeDate"] = Date().repr()
+        super.stopPracticing()
+    }
+    
+}
