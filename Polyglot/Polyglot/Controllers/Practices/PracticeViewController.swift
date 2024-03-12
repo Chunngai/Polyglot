@@ -255,6 +255,7 @@ extension PracticeViewController {
     
     @objc func maskViewTapped() {
         timingBar.start()
+        toggleButton.image = Icons.pauseIcon
     }
 }
 
