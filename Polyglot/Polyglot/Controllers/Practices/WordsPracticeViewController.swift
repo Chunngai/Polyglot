@@ -218,6 +218,7 @@ extension WordsPracticeViewController {
     
     @objc override func nextButtonTapped() {   
         guard !shouldFinishPracticing else {
+            practiceMetaData["recentWordPracticeDate"] = Date().repr(of: Date.defaultDateAndTimeFormat)
             self.stopPracticing()
             return
         }
@@ -261,7 +262,6 @@ extension WordsPracticeViewController {
             }
         }
         
-        practiceMetaData["recentWordPracticeDate"] = Date().repr()
         navigationController?.dismiss(animated: true, completion: nil)
     }
     

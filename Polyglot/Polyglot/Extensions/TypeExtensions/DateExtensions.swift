@@ -31,19 +31,30 @@ extension Date {
 
 extension Date {
     
-    static let defaultFormat: String = "yy MMM d"
-    static var defaultFormatter: DateFormatter {
+    static let defaultDateFormat: String = "yy MMM d"
+    static let defaultDateFormatter: DateFormatter = Date.formatter(of: Date.defaultDateFormat)
+    
+    static let defaultTimeFormat: String = "HH:mm"
+    static let defaultTimeFormatter: DateFormatter = Date.formatter(of: Date.defaultTimeFormat)
+    
+    static let defaultDateAndTimeFormat: String = Date.defaultDateFormat + " " + Date.defaultTimeFormat
+    static let defaultDateAndTimeFormatter: DateFormatter = Date.formatter(of: Date.defaultDateAndTimeFormat)
+    
+    static func formatter(of dateFormat: String) -> DateFormatter {
         let formatter = DateFormatter()
-        formatter.dateFormat = Date.defaultFormat
+        formatter.dateFormat = dateFormat
         formatter.timeZone = TimeZone(secondsFromGMT: TimeZone.current.secondsFromGMT())
         return formatter
     }
+}
+ 
+extension Date {
     
     func repr(from formatter: DateFormatter) -> String {
         return formatter.string(from: self)
     }
     
-    func repr(of format: String = Date.defaultFormat) -> String {
+    func repr(of format: String) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = format
         formatter.timeZone = TimeZone(secondsFromGMT: TimeZone.current.secondsFromGMT())

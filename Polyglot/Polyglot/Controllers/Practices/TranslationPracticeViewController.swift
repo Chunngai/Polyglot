@@ -59,6 +59,7 @@ extension TranslationPracticeViewController {
         updateAllNewWordsInfo(with: practiceView as! TextMeaningPracticeView)
 
         guard !shouldFinishPracticing else {
+            practiceMetaData["recentTranslationPracticeDate"] = Date().repr(of: Date.defaultDateAndTimeFormat)
             self.stopPracticing()
             return
         }
@@ -71,7 +72,6 @@ extension TranslationPracticeViewController {
 extension TranslationPracticeViewController {
     
     override func stopPracticing() {
-        practiceMetaData["recentTranslationPracticeDate"] = Date().repr()
         super.stopPracticing()
     }
     

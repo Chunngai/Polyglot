@@ -302,7 +302,7 @@ extension HomeViewController {
         }
         
         mailComposer.setToRecipients([Config.defaultEmail])
-        mailComposer.setSubject("Data Copy \(Date().repr())")
+        mailComposer.setSubject("Data Copy \(Date().repr(of: Date.defaultDateFormat))")
         mailComposer.setMessageBody("", isHTML: false)
         
         // Present the mail composer view controller

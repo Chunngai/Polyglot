@@ -248,6 +248,7 @@ extension ListeningPracticeViewController {
         speakButton.isEnabled = true
         
         guard !shouldFinishPracticing else {
+            practiceMetaData["recentListeningPracticeDate"] = Date().repr(of: Date.defaultDateAndTimeFormat)
             self.stopPracticing()
             return
         }
@@ -345,7 +346,6 @@ extension ListeningPracticeViewController {
 extension ListeningPracticeViewController {
     
     override func stopPracticing() {
-        practiceMetaData["recentListeningPracticeDate"] = Date().repr()
         super.stopPracticing()
     }
     

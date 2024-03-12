@@ -198,7 +198,7 @@ extension Array where Iterator.Element == Word {
 
 extension Word {
     
-    static let defaultDateFormatter = Date.defaultFormatter  // For speeding up word grouping.
+    static let defaultDateFormatter = Date.defaultDateFormatter  // For speeding up word grouping.
     
     var groupId: String {
         var groupId = cDate.repr(from: Word.defaultDateFormatter)
