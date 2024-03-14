@@ -48,6 +48,34 @@ class TextMeaningPracticeViewController: PracticeViewController {
 
     }
     
+    override func updateLayouts() {
+        super.updateLayouts()
+        
+        let topOffset = UIApplication.shared.statusBarFrame.height  // https://stackoverflow.com/questions/25973733/status-bar-height-in-swift
+            + navigationController!.navigationBar.frame.maxY
+            + 50
+        
+        mainView.snp.remakeConstraints { (make) in
+            make.centerX.equalToSuperview()
+            make.width.equalToSuperview()
+            make.top.equalToSuperview().inset(topOffset)
+            make.bottom.equalToSuperview()
+        }
+        
+        let doneAndNextButonOffset = UIScreen.main.bounds.width * (1 - PracticeViewController.practiceViewWidthRatio) / 2 - Sizes.roundButtonRadius / 2
+        doneButton.snp.remakeConstraints { (make) in
+            make.trailing.equalTo(mainView.snp.trailing).inset(doneAndNextButonOffset)
+            make.bottom.equalToSuperview().inset(150)
+            make.width.height.equalTo(Sizes.roundButtonRadius)
+        }
+        nextButton.snp.remakeConstraints { (make) in
+            make.trailing.equalTo(mainView.snp.trailing).inset(doneAndNextButonOffset)
+            make.bottom.equalToSuperview().inset(150)
+            make.width.height.equalTo(Sizes.roundButtonRadius)
+        }
+        
+    }
+    
     deinit {
         // Remove observers when the view controller is deinitialized
         NotificationCenter.default.removeObserver(self)
@@ -94,7 +122,7 @@ class TextMeaningPracticeViewController: PracticeViewController {
             make.top.equalTo(promptLabel.snp.bottom).offset(20)
             make.centerX.equalToSuperview()
             make.width.equalToSuperview().multipliedBy(PracticeViewController.practiceViewWidthRatio)
-            make.bottom.equalTo(nextButton.snp.top).offset(-20)
+            make.bottom.equalToSuperview().inset(100)
         }
         
         // Also remember to update the textview in the practice view.
@@ -112,6 +140,9 @@ class TextMeaningPracticeViewController: PracticeViewController {
             // TODO: Update the calculation.
             height: 20 + "word".textSize(withFont: UIFont.systemFont(ofSize: Sizes.mediumFontSize)).height + 15 + "meaning".textSize(withFont: UIFont.systemFont(ofSize: Sizes.smallFontSize)).height + 20
         )
+        
+        mainView.bringSubviewToFront(doneButton)
+        mainView.bringSubviewToFront(nextButton)
     }
 }
 

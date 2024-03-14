@@ -70,6 +70,8 @@ class PracticeViewController: UIViewController {
         let button = RoundButton(radius: Sizes.roundButtonRadius)
         button.setImage(Icons.doneIcon, for: .normal)
         button.backgroundColor = Colors.lightBlue
+        button.layer.borderColor = Colors.borderColor.cgColor
+        button.layer.borderWidth = Sizes.defaultBorderWidth
         return button
     }()
     
@@ -77,6 +79,8 @@ class PracticeViewController: UIViewController {
         let button = RoundButton(radius: Sizes.roundButtonRadius)
         button.setImage(Icons.nextIcon, for: .normal)
         button.backgroundColor = Colors.lightBlue
+        button.layer.borderColor = Colors.borderColor.cgColor
+        button.layer.borderWidth = Sizes.defaultBorderWidth
         button.isHidden = true
         return button
     }()
@@ -202,7 +206,7 @@ class PracticeViewController: UIViewController {
             // If the nav bar is translucent:
 //            make.top.equalToSuperview().inset(navigationController!.navigationBar.frame.maxY + 60)
             // If the nav bar is not translucent.
-            make.top.equalToSuperview().inset(topOffset)
+            make.top.equalToSuperview().inset(topOffset * 0.9)
             make.width.equalToSuperview().multipliedBy(0.9)
             make.centerX.equalToSuperview()
             make.bottom.equalToSuperview().inset(30)

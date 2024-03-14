@@ -526,10 +526,10 @@ extension Strings {
     }
     
     private static let _listeningAndRepeatPracticePrompts: [LangCode : String] = [
-        LangCode.en : "listening and repeating",
+        LangCode.en : "Listening and Repeating",
         LangCode.ja : "聞き取りと繰り返し",
-        LangCode.es : "Escucha y repetición",
-        LangCode.ru : "Прослушивание и повторение",
+        LangCode.es : "Escucha y Repetición",
+        LangCode.ru : "Прослушивание и Повторение",
         LangCode.ko : "청취와 반복",
         LangCode.de : "Hören und Wiederholung",
     ]
