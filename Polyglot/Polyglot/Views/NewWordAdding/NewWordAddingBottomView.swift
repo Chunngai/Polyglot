@@ -104,7 +104,7 @@ class NewWordAddingBottomView: UIView {
     
     lazy var translateButton: UIButton = {
         let button = UIButton()
-        button.setImage(Icons.translateIcon, for: .normal)
+        button.setImage(Icons.googleTranslateIcon, for: .normal)
         return button
     }()
     lazy var spinner: UIActivityIndicatorView = {
@@ -166,23 +166,24 @@ class NewWordAddingBottomView: UIView {
         }
         
         meaningTextField.snp.makeConstraints { (make) in
-            make.top.equalTo(wordLabel.snp.bottom).offset(15)
+            make.top.equalTo(wordLabel.snp.bottom).offset(10)
             make.left.equalTo(wordLabel.snp.left)
             make.right.equalTo(wordLabel.snp.right)
         }
         
         doneButton.snp.makeConstraints { (make) in
-            make.top.equalTo(wordLabel.snp.top)
+            make.centerY.equalTo(wordLabel.snp.centerY)
             make.right.equalToSuperview().inset(20)
         }
         deleteButton.snp.makeConstraints { (make) in
-            make.top.equalTo(wordLabel.snp.top)
+            make.centerY.equalTo(wordLabel.snp.centerY)
             make.right.equalTo(doneButton.snp.right)
         }
         
         translateButton.snp.makeConstraints { (make) in
             make.centerY.equalTo(meaningTextField.snp.centerY)
             make.centerX.equalTo(doneButton.snp.centerX)
+            make.width.height.equalTo(doneButton.intrinsicContentSize.width)
         }
         spinner.snp.makeConstraints { (make) in
             make.centerY.equalTo(translateButton.snp.centerY)

@@ -26,16 +26,6 @@ class TextMeaningPracticeViewController: PracticeViewController {
         
     // MARK: - Init
     
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        
-        // TODO: - Simplify here.
-        textViewOfPracticeView.newWordBottomView.offset = UIScreen.main.bounds.maxY
-        - mainView.frame.maxY
-        + doneButton.radius
-        + 20
-    }
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -109,6 +99,14 @@ class TextMeaningPracticeViewController: PracticeViewController {
             attributes: Attributes.practicePromptAttributes
         )
         
+        // TODO: Update the calculation.
+        // Height: top padding + word label height + word-meaning padding + meaning label height + bottom padding.
+        let newWordBottomViewHeight = 20
+        + "word".textSize(withFont: UIFont.systemFont(ofSize: Sizes.mediumFontSize)).height
+        + 10
+        + "meaning".textSize(withFont: UIFont.systemFont(ofSize: Sizes.smallFontSize)).height
+        + 20
+        
         // Remove the old practice view.
         if practiceView != nil {
             practiceView.removeFromSuperview()
@@ -122,7 +120,11 @@ class TextMeaningPracticeViewController: PracticeViewController {
             make.top.equalTo(promptLabel.snp.bottom).offset(20)
             make.centerX.equalToSuperview()
             make.width.equalToSuperview().multipliedBy(PracticeViewController.practiceViewWidthRatio)
-            make.bottom.equalToSuperview().inset(100)
+            make.bottom.equalToSuperview().inset(
+                NewWordAddingTextView.newWordBottomViewVerticalPadding / 2
+                + newWordBottomViewHeight
+                + NewWordAddingTextView.newWordBottomViewVerticalPadding
+            )
         }
         
         // Also remember to update the textview in the practice view.
@@ -136,9 +138,7 @@ class TextMeaningPracticeViewController: PracticeViewController {
             width: view.frame.width
                 // For aligning with the text view.
                 - (UIScreen.main.bounds.width * (1 - PracticeViewController.practiceViewWidthRatio)),
-            // Height: top padding + word label height + word-meaning padding + meaning label height + bottom padding.
-            // TODO: Update the calculation.
-            height: 20 + "word".textSize(withFont: UIFont.systemFont(ofSize: Sizes.mediumFontSize)).height + 15 + "meaning".textSize(withFont: UIFont.systemFont(ofSize: Sizes.smallFontSize)).height + 20
+            height: newWordBottomViewHeight
         )
         
         mainView.bringSubviewToFront(doneButton)

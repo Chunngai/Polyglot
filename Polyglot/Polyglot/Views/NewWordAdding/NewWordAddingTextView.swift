@@ -47,6 +47,12 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        newWordBottomView.offset = newWordBottomView.frame.height + NewWordAddingTextView.newWordBottomViewVerticalPadding
+    }
+    
     private func updateSetups() {
         
         isEditable = false
@@ -291,4 +297,12 @@ struct NewWordInfo {
     
     var word: String
     var meaning: String
+}
+
+extension NewWordAddingTextView {
+
+    // MARK: - Constants
+    
+    static let newWordBottomViewVerticalPadding: CGFloat = 20
+    
 }
