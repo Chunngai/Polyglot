@@ -37,7 +37,7 @@ struct ContentCards {
     
     var words: [ContentCardsLang: [WordEntry]]
     var sentences: [ContentCardsHour: [ContentCardsLang: SentenceEntry]]
-    var paragraphs: [ContentCardsHour: [ContentCardsLang: ParagraphEntry]]
+//    var paragraphs: [ContentCardsHour: [ContentCardsLang: ParagraphEntry]]
     
 }
 
@@ -76,7 +76,7 @@ extension ContentCards: Codable {
         
         try container.encode(words, forKey: .words)
         try container.encode(sentences, forKey: .sentences)
-        try container.encode(paragraphs, forKey: .paragraphs)
+//        try container.encode(paragraphs, forKey: .paragraphs)
     }
     
     init(from decoder: Decoder) throws {
@@ -129,22 +129,22 @@ extension ContentCards: Codable {
             }
         }
         
-        do {
-            paragraphs = try values.decode([ContentCardsHour: [ContentCardsLang: ParagraphEntry]].self, forKey: .paragraphs)
-        } catch {
-            let oldVersionParagraphs = try values.decode([ContentCardsLang: [OldContentCardsHour: ParagraphEntry]].self, forKey: .paragraphs)
-            
-            paragraphs = [:]
-            for (lang, hour2paragraphEntry) in oldVersionParagraphs {
-                for (hourString, paragraphEntry) in hour2paragraphEntry {
-                    let hour = Int(hourString)!
-                    if !paragraphs.keys.contains(hour) {
-                        paragraphs[hour] = [:]
-                    }
-                    paragraphs[hour]![lang] = paragraphEntry
-                }
-            }
-        }
+//        do {
+//            paragraphs = try values.decode([ContentCardsHour: [ContentCardsLang: ParagraphEntry]].self, forKey: .paragraphs)
+//        } catch {
+//            let oldVersionParagraphs = try values.decode([ContentCardsLang: [OldContentCardsHour: ParagraphEntry]].self, forKey: .paragraphs)
+//            
+//            paragraphs = [:]
+//            for (lang, hour2paragraphEntry) in oldVersionParagraphs {
+//                for (hourString, paragraphEntry) in hour2paragraphEntry {
+//                    let hour = Int(hourString)!
+//                    if !paragraphs.keys.contains(hour) {
+//                        paragraphs[hour] = [:]
+//                    }
+//                    paragraphs[hour]![lang] = paragraphEntry
+//                }
+//            }
+//        }
     }
     
 }
@@ -163,11 +163,11 @@ extension ContentCards {
             ) as? ContentCards {
                 return contentCards
             } else {
-                return ContentCards(dateString: "", words: [:], sentences: [:], paragraphs: [:])
+                return ContentCards(dateString: "", words: [:], sentences: [:])
             }
         } catch {
             print(error)
-            return ContentCards(dateString: "", words: [:], sentences: [:], paragraphs: [:])
+            return ContentCards(dateString: "", words: [:], sentences: [:])
         }
     }
     
@@ -205,9 +205,14 @@ extension ContentCards {
         
         let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
             if let data = data, error == nil {
-                if var contentCards = try? JSONDecoder().decode(ContentCards.self, from: data) {
+                do {
+                    var contentCards = try JSONDecoder().decode(ContentCards.self, from: data)
                     completion(contentCards)
                     ContentCards.save(&contentCards)
+                } catch let error as DecodingError {
+                    print(error)
+                } catch {
+                    print(error.localizedDescription)
                 }
             }
             

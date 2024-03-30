@@ -181,12 +181,17 @@ class HomeViewController: UIViewController {
         }
     }
     
-    var contentCards: ContentCards!
+    var contentCards: ContentCards! {
+        didSet {
+            self.generateContentCardSnapshots()
+            self.applyContentCardSnapshots()
+        }
+    }
     var contentCardSnapshots: [String: [
         Int: NSDiffableDataSourceSectionSnapshot<HomeItem>
     ]] = [
         "sentences": [:],
-        "paragraphs": [:],
+//        "paragraphs": [:],
     ]
     
     // MARK: - CardCell Delegate
@@ -343,44 +348,44 @@ extension HomeViewController {
                 self.contentCardSnapshots["sentences"]![hour] = sectionSnapshot
             }
             
-            var paragraphItems: [HomeItem] = []
-            for lang in LangCode.learningLanguages {
-                guard let entry = contentCards.paragraphs[hour]?[lang.rawValue] else {
-                    continue
-                }
-                guard let content = entry.content, !content.isEmpty else {
-                    continue
-                }
-                
-                var allWords: [String] = []
-                var allMeanings: [String] = []
-                var allPronunciations: [String] = []
-                for (wordLang, wordEntries) in contentCards.words {
-                    if wordLang != lang.rawValue {
-                        continue
-                    }
-                    for wordEntry in wordEntries {
-                        allWords.append(wordEntry.text!)
-                        allMeanings.append(wordEntry.meaning!)
-                        allPronunciations.append(wordEntry.pronunciation!)
-                    }
-                }
-                
-                paragraphItems.append(HomeItem(
-                    lang: lang,
-                    words: allWords,
-                    meanings: allMeanings,
-                    pronunciations: allPronunciations,
-                    content: content,
-                    contentSource: "chatgpt"
-                ))
-            }
-            if !paragraphItems.isEmpty {
-                var sectionSnapshot = NSDiffableDataSourceSectionSnapshot<HomeItem>()
-                sectionSnapshot.append([HomeItem(header: "\(hour):00")])
-                sectionSnapshot.append(paragraphItems)
-                self.contentCardSnapshots["paragraphs"]![hour] = sectionSnapshot
-            }
+//            var paragraphItems: [HomeItem] = []
+//            for lang in LangCode.learningLanguages {
+//                guard let entry = contentCards.paragraphs[hour]?[lang.rawValue] else {
+//                    continue
+//                }
+//                guard let content = entry.content, !content.isEmpty else {
+//                    continue
+//                }
+//                
+//                var allWords: [String] = []
+//                var allMeanings: [String] = []
+//                var allPronunciations: [String] = []
+//                for (wordLang, wordEntries) in contentCards.words {
+//                    if wordLang != lang.rawValue {
+//                        continue
+//                    }
+//                    for wordEntry in wordEntries {
+//                        allWords.append(wordEntry.text!)
+//                        allMeanings.append(wordEntry.meaning!)
+//                        allPronunciations.append(wordEntry.pronunciation!)
+//                    }
+//                }
+//                
+//                paragraphItems.append(HomeItem(
+//                    lang: lang,
+//                    words: allWords,
+//                    meanings: allMeanings,
+//                    pronunciations: allPronunciations,
+//                    content: content,
+//                    contentSource: "chatgpt"
+//                ))
+//            }
+//            if !paragraphItems.isEmpty {
+//                var sectionSnapshot = NSDiffableDataSourceSectionSnapshot<HomeItem>()
+//                sectionSnapshot.append([HomeItem(header: "\(hour):00")])
+//                sectionSnapshot.append(paragraphItems)
+//                self.contentCardSnapshots["paragraphs"]![hour] = sectionSnapshot
+//            }
         }
     }
     
@@ -413,36 +418,34 @@ extension HomeViewController {
             }
             
             // Paragraphs.
-            let paragraphSectionIdentifier = ContentCards.paragraphSectionIdentifier(for: hour)
-            if currentSectionIdentifiers.contains(paragraphSectionIdentifier) {
-                continue
-            }
-            guard let paragraphSnapShot = contentCardSnapshots["paragraphs"]![hour] else {
-                continue
-            }
-            DispatchQueue.main.async {
-                UIView.performWithoutAnimation {
-                    self.dataSource.apply(
-                        paragraphSnapShot,
-                        to: paragraphSectionIdentifier
-                    )
-                }
-            }
+//            let paragraphSectionIdentifier = ContentCards.paragraphSectionIdentifier(for: hour)
+//            if currentSectionIdentifiers.contains(paragraphSectionIdentifier) {
+//                continue
+//            }
+//            guard let paragraphSnapShot = contentCardSnapshots["paragraphs"]![hour] else {
+//                continue
+//            }
+//            DispatchQueue.main.async {
+//                UIView.performWithoutAnimation {
+//                    self.dataSource.apply(
+//                        paragraphSnapShot,
+//                        to: paragraphSectionIdentifier
+//                    )
+//                }
+//            }
         }
     }
     
     private func displayContentCards() {
         if contentCards == nil {
             contentCards = ContentCards.load()
-            generateContentCardSnapshots()
         }
         // Date check.
         if contentCards.dateString != Date().repr(of: ContentCards.dateFormat) {
             ContentCards.fetchAndSave { contentCards in
-                self.generateContentCardSnapshots()
+                self.contentCards = contentCards
             }
         }
-        self.applyContentCardSnapshots()
     }
     
 }
