@@ -181,12 +181,7 @@ class HomeViewController: UIViewController {
         }
     }
     
-    var contentCards: ContentCards! {
-        didSet {
-            self.generateContentCardSnapshots()
-            self.applyContentCardSnapshots()
-        }
-    }
+    var contentCards: ContentCards!
     var contentCardSnapshots: [String: [
         Int: NSDiffableDataSourceSectionSnapshot<HomeItem>
     ]] = [
@@ -444,7 +439,12 @@ extension HomeViewController {
         if contentCards.dateString != Date().repr(of: ContentCards.dateFormat) {
             ContentCards.fetchAndSave { contentCards in
                 self.contentCards = contentCards
+                self.generateContentCardSnapshots()
+                self.applyContentCardSnapshots()
             }
+        } else {
+            self.generateContentCardSnapshots()
+            self.applyContentCardSnapshots()
         }
     }
     

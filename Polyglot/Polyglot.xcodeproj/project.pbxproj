@@ -63,7 +63,6 @@
 		FF4AB0072A9B4DE600908062 /* APIKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4AB0062A9B4DE600908062 /* APIKeys.swift */; };
 		FF4B382B29525A4300BB3FFD /* ReadingEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4B382A29525A4300BB3FFD /* ReadingEditViewController.swift */; };
 		FF4B382F29525BD400BB3FFD /* ReadingEditTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4B382E29525BD400BB3FFD /* ReadingEditTableCell.swift */; };
-		FF4BF68B2A69468C00D875E1 /* duome_de_sentences in Resources */ = {isa = PBXBuildFile; fileRef = FF4BF6882A69468C00D875E1 /* duome_de_sentences */; };
 		FF4CA730295E869900423946 /* TranslationPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4CA72F295E869900423946 /* TranslationPracticeViewController.swift */; };
 		FF4D7CC62953952C009F6894 /* NSMutableAttributedStringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4D7CC52953952C009F6894 /* NSMutableAttributedStringExtensions.swift */; };
 		FF4FA0C82AADDAA0001EA18C /* ContentCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4FA0C72AADDAA0001EA18C /* ContentCards.swift */; };
@@ -103,8 +102,6 @@
 		FFBC8A842A9F2FDD001123EB /* UILabelExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBC8A832A9F2FDD001123EB /* UILabelExtensions.swift */; };
 		FFBD60412969D713004165FC /* WordPracticeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60402969D713004165FC /* WordPracticeProducer.swift */; };
 		FFBD60452969D733004165FC /* SpeakingPracticeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60442969D733004165FC /* SpeakingPracticeProducer.swift */; };
-		FFC26AEC298D82CB004D9656 /* duome_es_sentences in Resources */ = {isa = PBXBuildFile; fileRef = FFC26AE9298D82CB004D9656 /* duome_es_sentences */; };
-		FFC26AEE298D82D7004D9656 /* duome_ru_sentences in Resources */ = {isa = PBXBuildFile; fileRef = FFC26AED298D82D7004D9656 /* duome_ru_sentences */; };
 		FFCBB0D7296B0AA200E5B9D9 /* PracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0D6296B0AA200E5B9D9 /* PracticeViewController.swift */; };
 		FFCBB0DB296B1A6700E5B9D9 /* PracticeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0DA296B1A6700E5B9D9 /* PracticeProducer.swift */; };
 		FFCBB0E0296B45F300E5B9D9 /* TranslationPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0DF296B45F300E5B9D9 /* TranslationPracticeView.swift */; };
@@ -221,7 +218,6 @@
 		FF4AB0062A9B4DE600908062 /* APIKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIKeys.swift; sourceTree = "<group>"; };
 		FF4B382A29525A4300BB3FFD /* ReadingEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingEditViewController.swift; sourceTree = "<group>"; };
 		FF4B382E29525BD400BB3FFD /* ReadingEditTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingEditTableCell.swift; sourceTree = "<group>"; };
-		FF4BF6882A69468C00D875E1 /* duome_de_sentences */ = {isa = PBXFileReference; lastKnownFileType = folder; name = duome_de_sentences; path = ../../../../../../Volumes/Windows/Users/Neko/Desktop/polyglot/duome_sentences/duome_de_sentences; sourceTree = "<group>"; };
 		FF4CA72F295E869900423946 /* TranslationPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeViewController.swift; sourceTree = "<group>"; };
 		FF4D7CC52953952C009F6894 /* NSMutableAttributedStringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSMutableAttributedStringExtensions.swift; sourceTree = "<group>"; };
 		FF4FA0C72AADDAA0001EA18C /* ContentCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCards.swift; sourceTree = "<group>"; };
@@ -266,8 +262,6 @@
 		FFBC8A832A9F2FDD001123EB /* UILabelExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UILabelExtensions.swift; sourceTree = "<group>"; };
 		FFBD60402969D713004165FC /* WordPracticeProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPracticeProducer.swift; sourceTree = "<group>"; };
 		FFBD60442969D733004165FC /* SpeakingPracticeProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingPracticeProducer.swift; sourceTree = "<group>"; };
-		FFC26AE9298D82CB004D9656 /* duome_es_sentences */ = {isa = PBXFileReference; lastKnownFileType = folder; name = duome_es_sentences; path = ../../../../../../Volumes/Windows/Users/Neko/Desktop/polyglot/duome_sentences/duome_es_sentences; sourceTree = "<group>"; };
-		FFC26AED298D82D7004D9656 /* duome_ru_sentences */ = {isa = PBXFileReference; lastKnownFileType = folder; name = duome_ru_sentences; path = ../../../../../../Volumes/Windows/Users/Neko/Desktop/polyglot/duome_sentences/duome_ru_sentences; sourceTree = "<group>"; };
 		FFCBB0D6296B0AA200E5B9D9 /* PracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeViewController.swift; sourceTree = "<group>"; };
 		FFCBB0DA296B1A6700E5B9D9 /* PracticeProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeProducer.swift; sourceTree = "<group>"; };
 		FFCBB0DF296B45F300E5B9D9 /* TranslationPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeView.swift; sourceTree = "<group>"; };
@@ -500,9 +494,6 @@
 		FF62C9742951382500D41797 /* Polyglot */ = {
 			isa = PBXGroup;
 			children = (
-				FF4BF6882A69468C00D875E1 /* duome_de_sentences */,
-				FFC26AE9298D82CB004D9656 /* duome_es_sentences */,
-				FFC26AED298D82D7004D9656 /* duome_ru_sentences */,
 				C6F5FB752B71079C0040A26B /* ClozeViewController.swift */,
 				C69DB5EF2B73D3A800B3BC66 /* SpeechRecognitionViewController.swift */,
 				C6A666F32B75EBE6002B4DEE /* Resource */,
@@ -784,10 +775,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FF4BF68B2A69468C00D875E1 /* duome_de_sentences in Resources */,
-				FFC26AEC298D82CB004D9656 /* duome_es_sentences in Resources */,
 				FF62C97F2951382600D41797 /* Assets.xcassets in Resources */,
-				FFC26AEE298D82D7004D9656 /* duome_ru_sentences in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
