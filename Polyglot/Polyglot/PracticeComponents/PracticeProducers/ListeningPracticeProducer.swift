@@ -63,6 +63,7 @@ class ListeningPracticeProducer: TextMeaningPracticeProducer {
                     inGranularity: TextGranularity.sentence,
                     callBack: { listenAndRepeatPractice in
                         practiceList.append(listenAndRepeatPractice)
+                        practiceList.append(ListeningPractice(from: listenAndRepeatPractice))
                     }
                 )
             } else if n == 1 {
@@ -71,6 +72,7 @@ class ListeningPracticeProducer: TextMeaningPracticeProducer {
                     inGranularity: TextGranularity.sentence,
                     callBack: { listenAndRepeatPractice in
                         practiceList.append(listenAndRepeatPractice)
+                        practiceList.append(ListeningPractice(from: listenAndRepeatPractice))
                     }
                 )
             }
@@ -246,7 +248,10 @@ extension ListeningPracticeProducer {
             }
             if Double(matchedClozeRanges.count) / Double(currentPractice.clozeRanges.count) <= ListeningPracticeProducer.listenAndRepeatRedoThredshold
                 && currentPractice.repeatedTimes < ListeningPracticeProducer.maxRepeatedTimes {
-                practiceList.append(ListeningPractice(from: currentPractice))
+                
+                let newPractice = ListeningPractice(from: currentPractice)
+                newPractice.repeatedTimes += 1
+                practiceList.append(newPractice)
             }
         }
     }

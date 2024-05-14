@@ -65,7 +65,7 @@ class ListeningPractice: TextMeaningPractice {
             clozeRanges: another.clozeRanges,
             existingPhraseRanges: another.existingPhraseRanges,
             existingPhraseMeanings: another.existingPhraseMeanings,
-            repeatedTimes: another.repeatedTimes + 1
+            repeatedTimes: another.repeatedTimes
         )
     }
     
