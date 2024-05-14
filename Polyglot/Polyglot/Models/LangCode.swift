@@ -113,6 +113,36 @@ extension LangCode {
 
 extension LangCode {
     
+    private func isAbbr(_ text: String) -> Bool {
+        return text == text.uppercased()
+    }
+    
+    private static var predicateForPureLatinText: NSPredicate = {
+        let regex = "^[a-zA-Z]+$"
+        return NSPredicate(format:"SELF MATCHES %@", regex)
+    }()
+    
+    private func containsOnlyLatinLetters(_ text: String) -> Bool {
+        return LangCode.predicateForPureLatinText.evaluate(with: text)
+    }
+    
+    var clozeFilter: (String) -> Bool {
+        switch self {
+        case .zh: return containsOnlyLatinLetters
+        case .en: return isAbbr
+        case .ja: return containsOnlyLatinLetters
+        case .es: return isAbbr
+        case .ru: return isAbbr
+        case .ko: return containsOnlyLatinLetters
+        case .de: return isAbbr
+        case .undetermined: return isAbbr
+        }
+    }
+    
+}
+
+extension LangCode {
+    
     var wordTokenizer: NLTokenizer {
         let tokenizer = NLTokenizer(unit: .word)
         tokenizer.setLanguage(self.NLLanguage)

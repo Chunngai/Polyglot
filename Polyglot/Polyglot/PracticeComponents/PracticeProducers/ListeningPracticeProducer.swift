@@ -105,7 +105,7 @@ extension ListeningPracticeProducer {
         
     }
     
-    private func generateRanges(for text: String) -> [NSRange] {
+    private func generateClozeRanges(for text: String) -> [NSRange] {
                 
         var clozeRanges: [NSRange] = []
 
@@ -121,10 +121,12 @@ extension ListeningPracticeProducer {
         for (i, character) in text.enumerated() {
             
             if tokenBuffer == tokens[0] {
-                clozeRanges.append(NSRange(
-                    location: location,
-                    length: length
-                ))
+                if !LangCode.currentLanguage.clozeFilter(tokenBuffer) {
+                    clozeRanges.append(NSRange(
+                        location: location,
+                        length: length
+                    ))
+                }
                 tokens.remove(at: 0)
                 tokenBuffer = ""
                 
@@ -159,10 +161,12 @@ extension ListeningPracticeProducer {
         }
 
         if !tokenBuffer.isEmpty {
-            clozeRanges.append(NSRange(
-                location: location,
-                length: length
-            ))
+            if !LangCode.currentLanguage.clozeFilter(tokenBuffer) {
+                clozeRanges.append(NSRange(
+                    location: location,
+                    length: length
+                ))
+            }
         }
         
         return clozeRanges
@@ -176,7 +180,7 @@ extension ListeningPracticeProducer {
         isTextMachineTranslated: Bool
     ) -> ListeningPractice? {
                     
-        var clozeRanges: [NSRange] = generateRanges(for: text)
+        var clozeRanges: [NSRange] = generateClozeRanges(for: text)
         if clozeRanges.isEmpty {
             return nil
         }
