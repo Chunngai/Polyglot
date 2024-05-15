@@ -117,25 +117,34 @@ extension LangCode {
         return text == text.uppercased()
     }
     
-    private static var predicateForPureLatinText: NSPredicate = {
-        let regex = "^[a-zA-Z]+$"
-        return NSPredicate(format:"SELF MATCHES %@", regex)
-    }()
+    private func containsLatinLetters(_ text: String) -> Bool {
+        let range = text.range(of: "[a-zA-Z]", options: .regularExpression)
+        return range != nil
+    }
     
-    private func containsOnlyLatinLetters(_ text: String) -> Bool {
-        return LangCode.predicateForPureLatinText.evaluate(with: text)
+    private func containsDigits(_ text: String) -> Bool {
+        let range = text.range(of: "\\d", options: .regularExpression)
+        return range != nil
+    }
+    
+    private func clozeFilterForZhJaKo(_ text: String) -> Bool {
+        return containsLatinLetters(text) || containsDigits(text)
+    }
+    
+    private func clozeFilterForOtherLangs(_ text: String) -> Bool {
+        return isAbbr(text) || containsDigits(text)
     }
     
     var clozeFilter: (String) -> Bool {
         switch self {
-        case .zh: return containsOnlyLatinLetters
-        case .en: return isAbbr
-        case .ja: return containsOnlyLatinLetters
-        case .es: return isAbbr
-        case .ru: return isAbbr
-        case .ko: return containsOnlyLatinLetters
-        case .de: return isAbbr
-        case .undetermined: return isAbbr
+        case .zh: return clozeFilterForZhJaKo
+        case .en: return clozeFilterForOtherLangs
+        case .ja: return clozeFilterForZhJaKo
+        case .es: return clozeFilterForOtherLangs
+        case .ru: return clozeFilterForOtherLangs
+        case .ko: return clozeFilterForZhJaKo
+        case .de: return clozeFilterForOtherLangs
+        case .undetermined: return clozeFilterForOtherLangs
         }
     }
     
