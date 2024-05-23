@@ -228,7 +228,16 @@ extension ListeningPracticeViewController {
                 
         let submission = (practiceView as! TextMeaningPracticeView).submit()
         practiceProducer.checkCorrectness(of: submission)
-        (practiceView as! TextMeaningPracticeView).updateViewsAfterSubmission()
+        
+        if let practiceView = practiceView as? TextMeaningPracticeView {
+            practiceView.updateViewsAfterSubmission()
+            
+            updateAllNewWordsInfo(with: practiceView)
+            
+            if practiceView.shouldReinforce {
+                practiceProducer.reinforce()
+            }
+        }
         
         isRecordingSpeech = false
         speakButton.setImage(
@@ -239,8 +248,6 @@ extension ListeningPracticeViewController {
     }
     
     @objc override func nextButtonTapped() {
-        updateAllNewWordsInfo(with: practiceView as! TextMeaningPracticeView)
-                        
         speechSynthesizer.stopSpeaking(at: .immediate)  // Stop first.
         isProducingSpeech = false  // Then change the image.
         isRecordingSpeech = false

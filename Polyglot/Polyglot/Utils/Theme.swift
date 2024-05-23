@@ -17,6 +17,7 @@ struct Colors {
     
     static let normalTextColor: UIColor = .black
     static let weakTextColor: UIColor = UIColor.intRGB2UIColor(red: 106, green: 106, blue: 106)
+    static let activeTextColor: UIColor = .systemBlue
     static let inactiveTextColor: UIColor = .lightGray
     static let lightTextColor: UIColor = .white
         
@@ -77,17 +78,22 @@ struct Images {
     static let listeningPracticeImage: UIImage = UIImage.init(systemName: "beats.headphones")!
     static let translationPracticeImage: UIImage = UIImage.init(systemName: "bubble")!
     
+    // Content card images.
+    
     static let contentCardProduceSpeechImage: UIImage = UIImage.init(systemName: "play.circle")!
     static let contentCardStopSpeechImage: UIImage = UIImage.init(systemName: "stop.circle")!
     static let contentCardHidingMeaningImage: UIImage = UIImage.init(systemName: "questionmark.app")!
     static let contentCardDisplayingMeaningImage: UIImage = UIImage.init(systemName: "questionmark.app.fill")!
+    
+    // Practice images.
     
     static let listeningPracticeProduceSpeechImage: UIImage = UIImage.init(systemName: "play.circle")!
     static let listeningPracticePauseSpeechImage: UIImage = UIImage.init(systemName: "pause.circle")!
     static let listeningPracticeStartToRecordSpeechImage: UIImage = UIImage.init(systemName: "mic.circle")!
     static let listeningPracticeRecordingSpeechImage: UIImage = UIImage.init(systemName: "mic.circle.fill")!
     static let listeningPracticeDisallowSpeechRecordingImage: UIImage = UIImage.init(systemName: "mic.slash.circle")!
-    
+ 
+    static let textMeaningPracticeReinforceImage: UIImage = UIImage.init(systemName: "arrow.2.circlepath")!
 }
 
 struct Icons {

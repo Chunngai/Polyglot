@@ -25,6 +25,10 @@ class TextMeaningPracticeView: BasePracticeView {
     
     var unselectableRanges: [NSRange] = []
     
+    var shouldReinforce: Bool {
+        return !reinforceButton.isEnabled
+    }
+    
     // MARK: - Views
     
     var mainView: UIView = {
@@ -38,6 +42,21 @@ class TextMeaningPracticeView: BasePracticeView {
     }()
     
     var textView: NewWordAddingTextView!
+    
+    var reinforceButton: UIButton = {
+        let button = UIButton()
+        button.setImage(Images.textMeaningPracticeReinforceImage, for: .normal)
+        button.backgroundColor = .none
+        return button
+    }()
+    var reinforceTextButton: UIButton = {
+        let button = UIButton()
+        button.setTitle(Strings.reinforce, for: .normal)
+        button.setTitleColor(Colors.activeSystemButtonColor, for: .normal)
+        button.titleLabel?.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        button.backgroundColor = .none
+        return button
+    }()
     
     // MARK: - Init
     
@@ -79,11 +98,24 @@ class TextMeaningPracticeView: BasePracticeView {
     
     func updateSetups() {
         textView.delegate = self
+        
+        reinforceButton.addTarget(
+            self,
+            action: #selector(reinforceButtonTapped),
+            for: .touchUpInside
+        )
+        reinforceTextButton.addTarget(
+            self,
+            action: #selector(reinforceButtonTapped),
+            for: .touchUpInside
+        )
     }
     
     func updateViews() {
         addSubview(mainView)
         mainView.addSubview(textView)
+        mainView.addSubview(reinforceButton)
+        mainView.addSubview(reinforceTextButton)
     }
     
     func updateLayouts() {
@@ -92,9 +124,17 @@ class TextMeaningPracticeView: BasePracticeView {
             make.width.equalToSuperview()
             make.height.equalToSuperview()
         }
-        textView.snp.makeConstraints { (make) in
-            let inset = (Attributes.leftAlignedLongTextAttributes[NSAttributedString.Key.font] as! UIFont).pointSize
+        
+        let inset = (Attributes.leftAlignedLongTextAttributes[NSAttributedString.Key.font] as! UIFont).pointSize
+        textView.snp.makeConstraints { make in
             make.top.bottom.leading.trailing.equalToSuperview().inset(inset)
+        }
+        reinforceButton.snp.makeConstraints { make in
+            make.leading.bottom.equalToSuperview().inset(inset)
+        }
+        reinforceTextButton.snp.makeConstraints { make in
+            make.leading.equalTo(reinforceButton.snp.trailing).offset(5)
+            make.centerY.equalTo(reinforceButton.snp.centerY)
         }
     }
     
@@ -174,6 +214,21 @@ extension TextMeaningPracticeView: UITextViewDelegate {
     func textView(_ textView: UITextView, shouldInteractWith textAttachment: NSTextAttachment, in characterRange: NSRange) -> Bool {
         // Disable the interaction of icons.
         return false
+    }
+    
+}
+
+extension TextMeaningPracticeView {
+    
+    // MARK: - Selectors
+    
+    @objc
+    private func reinforceButtonTapped() {
+        reinforceButton.tintColor = Colors.inactiveSystemButtonColor
+        reinforceButton.isEnabled = false
+        
+        reinforceTextButton.setTitleColor(Colors.inactiveTextColor, for: .normal)
+        reinforceTextButton.isEnabled = false
     }
     
 }

@@ -256,6 +256,13 @@ extension ListeningPracticeProducer {
         }
     }
     
+    func reinforce() {
+        guard let currentPractice = currentPractice as? ListeningPractice else {
+            return
+        }
+        practiceList.append(ListeningPractice(from: currentPractice))
+    }
+    
 }
 
 extension ListeningPracticeProducer {

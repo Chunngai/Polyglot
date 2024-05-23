@@ -150,6 +150,17 @@ extension SpeakingPracticeProducer {
 
 extension SpeakingPracticeProducer {
     
+    func reinforce() {
+        guard let currentPractice = currentPractice as? SpeakingPractice else {
+            return
+        }
+        practiceList.append(SpeakingPractice(from: currentPractice))
+    }
+    
+}
+
+extension SpeakingPracticeProducer {
+    
     // MARK: - IO
     
     static func fileName(for lang: String) -> String {

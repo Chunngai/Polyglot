@@ -10,4 +10,17 @@ import Foundation
 
 class SpeakingPractice: TextMeaningPractice {
     
+    convenience init(from another: SpeakingPractice) {
+        self.init(
+            text: another.text,
+            meaning: another.meaning,
+            textLang: another.textLang,
+            meaningLang: another.meaningLang,
+            textSource: another.textSource,
+            isTextMachineTranslated: another.isTextMachineTranslated,
+            existingPhraseRanges: another.existingPhraseRanges,
+            existingPhraseMeanings: another.existingPhraseMeanings
+        )
+    }
+    
 }

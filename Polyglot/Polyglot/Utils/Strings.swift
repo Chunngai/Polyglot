@@ -633,6 +633,18 @@ extension Strings {
         return Strings._GPTGeneratedContent[LangCode.currentLanguage]!
     }
         
+    private static let _reinforce: [LangCode : String] = [
+        LangCode.en : "Reinforce",
+        LangCode.ja : "強化",
+        LangCode.es : "Reforzar",
+        LangCode.ru : "Укрепить",
+        LangCode.ko : "강화",
+        LangCode.de : "Verstärken",
+    ]
+    static var reinforce: String {
+        return Strings._reinforce[LangCode.currentLanguage]!
+    }
+    
     // MARK: - Timing
         
     private static let _timeUpAlertTitles: [LangCode : String] = [
