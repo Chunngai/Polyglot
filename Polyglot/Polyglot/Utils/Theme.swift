@@ -87,13 +87,13 @@ struct Images {
     
     // Practice images.
     
-    static let listeningPracticeProduceSpeechImage: UIImage = UIImage.init(systemName: "play.circle")!
-    static let listeningPracticePauseSpeechImage: UIImage = UIImage.init(systemName: "pause.circle")!
-    static let listeningPracticeStartToRecordSpeechImage: UIImage = UIImage.init(systemName: "mic.circle")!
-    static let listeningPracticeRecordingSpeechImage: UIImage = UIImage.init(systemName: "mic.circle.fill")!
-    static let listeningPracticeDisallowSpeechRecordingImage: UIImage = UIImage.init(systemName: "mic.slash.circle")!
+    static let listeningPracticeProduceSpeechImage: UIImage = Icons.start1Icon
+    static let listeningPracticePauseSpeechImage: UIImage = Icons.pause1Icon
+    static let listeningPracticeStartToRecordSpeechImage: UIImage = Icons.micIcon
+    static let listeningPracticeRecordingSpeechImage: UIImage = Icons.micFilledIcon
+//    static let listeningPracticeDisallowSpeechRecordingImage: UIImage = UIImage.init(systemName: "mic.slash")!
  
-    static let textMeaningPracticeReinforceImage: UIImage = UIImage.init(systemName: "arrow.2.circlepath")!
+    static let textMeaningPracticeReinforceImage: UIImage = Icons.refreshIcon
 }
 
 struct Icons {
@@ -110,6 +110,13 @@ struct Icons {
     static let pauseIcon = UIImage(imageLiteralResourceName: "pause")
     static let chatgptIcon = UIImage(imageLiteralResourceName: "chatgpt").whiteBackgroundToTransparent()!
     static let googleTranslateIcon = UIImage(imageLiteralResourceName: "google-translate")
+    
+    // Ref: https://stackoverflow.com/questions/31803157/how-can-i-color-a-uiimage-in-swift
+    static let start1Icon = UIImage(imageLiteralResourceName: "start_1").withRenderingMode(.alwaysTemplate)
+    static let pause1Icon = UIImage(imageLiteralResourceName: "pause_1").withRenderingMode(.alwaysTemplate)
+    static let micIcon = UIImage(imageLiteralResourceName: "mic").resize(widthRatio: 0.8, heightRatio: 0.8).withRenderingMode(.alwaysTemplate)
+    static let micFilledIcon = UIImage(imageLiteralResourceName: "mic.filled").resize(widthRatio: 0.8, heightRatio: 0.8).withRenderingMode(.alwaysTemplate)
+    static let refreshIcon = UIImage(imageLiteralResourceName: "refresh").withRenderingMode(.alwaysTemplate)
     
 }
 

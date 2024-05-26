@@ -85,74 +85,9 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController {
     
     // MARK: - Views
     
-    let listenButton: UIButton = {
-        let button = UIButton()
-        button.setImage(
-            Images.listeningPracticeProduceSpeechImage.withTintColor(Colors.activeSystemButtonColor),
-            for: .normal
-        )
-        return button
-    }()
-    let speakButton: UIButton = {
-        let button = UIButton()
-        button.setImage(
-            Images.listeningPracticeStartToRecordSpeechImage.withTintColor(Colors.activeSystemButtonColor),
-            for: .normal
-        )
-        return button
-    }()
-    
-    // MARK: - Init
-    
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+    var listenButton: UIButton!
+    var speakButton: UIButton!
         
-        let mainViewWidth = mainView.frame.width
-        let horizontalPadding = (mainViewWidth - mainViewWidth * PracticeViewController.practiceViewWidthRatio) / 2
-        // Add the listen and speak button.
-        speakButton.snp.makeConstraints { make in
-            make.top.equalTo(promptLabel.snp.top)
-            make.trailing.equalToSuperview().inset(horizontalPadding)
-            make.width.equalTo(speakButton.intrinsicContentSize.width)
-        }
-        listenButton.snp.makeConstraints { make in
-            make.top.equalTo(promptLabel.snp.top)
-            make.trailing.equalTo(speakButton.snp.leading).offset(-6)
-            make.width.equalTo(speakButton.intrinsicContentSize.width)
-        }
-        // Update the width of the prompt label.
-        promptLabel.snp.remakeConstraints { make in
-            make.top.equalToSuperview()
-            make.leading.equalToSuperview().inset(horizontalPadding)
-            make.trailing.equalTo(listenButton.snp.leading).offset(-6)
-        }
-    }
-    
-    override func updateSetups() {
-        super.updateSetups()
-                
-        listenButton.addTarget(
-            self,
-            action: #selector(listenButtonTapped),
-            for: .touchUpInside
-        )
-        speakButton.addTarget(
-            self,
-            action: #selector(speakButtonTapped),
-            for: .touchUpInside
-        )
-    }
-    
-    override func updateViews() {
-        super.updateViews()
-        
-        promptLabel.numberOfLines = 1
-        promptLabel.adjustsFontSizeToFitWidth = true
-        
-        mainView.addSubview(listenButton)
-        mainView.addSubview(speakButton)
-    }
-    
     // MARK: - Methods from the Super Class
     
     override func makePrompt() -> String {
@@ -176,6 +111,21 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController {
                 existingPhraseMeanings: currentPractice.existingPhraseMeanings
             )
             practiceView.delegate = self
+            
+            listenButton = practiceView.listenButton
+            listenButton.addTarget(
+                self,
+                action: #selector(listenButtonTapped),
+                for: .touchUpInside
+            )
+            
+            speakButton = practiceView.speakButton
+            speakButton.addTarget(
+                self,
+                action: #selector(speakButtonTapped),
+                for: .touchUpInside
+            )
+            
             return practiceView
         case .listenAndComplete:
             return ListenAndCompletePracticeView(
@@ -234,7 +184,7 @@ extension ListeningPracticeViewController {
         
         isRecordingSpeech = false
         speakButton.setImage(
-            Images.listeningPracticeDisallowSpeechRecordingImage.withTintColor(Colors.inactiveSystemButtonColor),
+            Images.listeningPracticeStartToRecordSpeechImage.withTintColor(Colors.inactiveSystemButtonColor),
             for: .normal
         )
         speakButton.isEnabled = false
@@ -301,7 +251,7 @@ extension ListeningPracticeViewController {
         let audioSession = AVAudioSession.sharedInstance()
         // https://stackoverflow.com/questions/40270738/avspeechsynthesizer-does-not-speak-after-using-sfspeechrecognizer
         try audioSession.setCategory(
-            .playAndRecord,
+            .playAndRecord,  // Slow.
             mode: .default,
             options: [.defaultToSpeaker, .allowBluetoothA2DP]
         )

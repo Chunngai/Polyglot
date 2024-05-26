@@ -43,14 +43,34 @@ class TextMeaningPracticeView: BasePracticeView {
     
     var textView: NewWordAddingTextView!
     
-    var reinforceButton: UIButton = {
+    let listenButton: UIButton = {
         let button = UIButton()
-        button.setImage(Images.textMeaningPracticeReinforceImage, for: .normal)
+        button.setImage(
+            Images.listeningPracticeProduceSpeechImage,
+            for: .normal
+        )
+        return button
+    }()
+    let speakButton: UIButton = {
+        let button = UIButton()
+        button.setImage(
+            Images.listeningPracticeStartToRecordSpeechImage,
+            for: .normal
+        )
+        return button
+    }()
+    
+    let reinforceButton: UIButton = {
+        let button = UIButton()
+        button.setImage(
+            Images.textMeaningPracticeReinforceImage,
+            for: .normal
+        )
         button.backgroundColor = .none
         button.isHidden = true
         return button
     }()
-    var reinforceTextButton: UIButton = {
+    let reinforceTextButton: UIButton = {
         let button = UIButton()
         button.setTitle(Strings.reinforce, for: .normal)
         button.setTitleColor(Colors.activeSystemButtonColor, for: .normal)
@@ -116,6 +136,8 @@ class TextMeaningPracticeView: BasePracticeView {
     func updateViews() {
         addSubview(mainView)
         mainView.addSubview(textView)
+        mainView.addSubview(listenButton)
+        mainView.addSubview(speakButton)
         mainView.addSubview(reinforceButton)
         mainView.addSubview(reinforceTextButton)
     }
@@ -128,9 +150,19 @@ class TextMeaningPracticeView: BasePracticeView {
         }
         
         let inset = (Attributes.leftAlignedLongTextAttributes[NSAttributedString.Key.font] as! UIFont).pointSize
+        
         textView.snp.makeConstraints { make in
             make.top.bottom.leading.trailing.equalToSuperview().inset(inset)
         }
+        
+        listenButton.snp.makeConstraints { make in
+            make.leading.bottom.equalToSuperview().inset(inset)
+        }
+        speakButton.snp.makeConstraints { make in
+            make.leading.equalTo(listenButton.snp.trailing).offset(10)
+            make.centerY.equalTo(listenButton.snp.centerY)
+        }
+        
         reinforceButton.snp.makeConstraints { make in
             make.leading.bottom.equalToSuperview().inset(inset)
         }
@@ -153,6 +185,9 @@ class TextMeaningPracticeView: BasePracticeView {
     }
     
     func updateViewsAfterSubmission() {
+        listenButton.isHidden = true
+        speakButton.isHidden = true
+        
         reinforceButton.isHidden = false
         reinforceTextButton.isHidden = false
     }
