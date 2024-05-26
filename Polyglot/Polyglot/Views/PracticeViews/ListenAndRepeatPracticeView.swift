@@ -163,6 +163,9 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
     }
     
     override func updateViewsAfterSubmission() {
+        
+        super.updateViewsAfterSubmission()
+        
         // If the practice is submitted without turning off the mic,
         // the processRecognizedSpeech() func will still be called where
         // recognized clozes are set with background colors,

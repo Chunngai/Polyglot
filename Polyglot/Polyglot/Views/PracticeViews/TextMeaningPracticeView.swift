@@ -47,6 +47,7 @@ class TextMeaningPracticeView: BasePracticeView {
         let button = UIButton()
         button.setImage(Images.textMeaningPracticeReinforceImage, for: .normal)
         button.backgroundColor = .none
+        button.isHidden = true
         return button
     }()
     var reinforceTextButton: UIButton = {
@@ -55,6 +56,7 @@ class TextMeaningPracticeView: BasePracticeView {
         button.setTitleColor(Colors.activeSystemButtonColor, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
         button.backgroundColor = .none
+        button.isHidden = true
         return button
     }()
     
@@ -151,7 +153,8 @@ class TextMeaningPracticeView: BasePracticeView {
     }
     
     func updateViewsAfterSubmission() {
-        fatalError("updateViewsAfterSubmission() has not been implemented.")
+        reinforceButton.isHidden = false
+        reinforceTextButton.isHidden = false
     }
 }
 

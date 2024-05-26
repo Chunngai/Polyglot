@@ -116,6 +116,9 @@ class TranslationPracticeView: TextMeaningPracticeView {
     }
     
     override func updateViewsAfterSubmission() {
+        
+        super.updateViewsAfterSubmission()
+        
         displayText()
         highlightExistingPhrases(
             existingPhraseRanges: existingPhraseRanges,

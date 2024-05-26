@@ -52,18 +52,20 @@ extension TranslationPracticeViewController {
     
     @objc override func doneButtonTapped() {
         super.doneButtonTapped()
+        
         if let practiceView = practiceView as? TextMeaningPracticeView {
             practiceView.updateViewsAfterSubmission()
-            
-            updateAllNewWordsInfo(with: practiceView)
-            
-            if practiceView.shouldReinforce {
-                practiceProducer.reinforce()
-            }
         }
     }
     
     @objc override func nextButtonTapped() {
+        if let practiceView = practiceView as? TextMeaningPracticeView {
+            updateAllNewWordsInfo(with: practiceView)
+            if practiceView.shouldReinforce {
+                practiceProducer.reinforce()
+            }
+        }
+        
         guard !shouldFinishPracticing else {
             practiceMetaData["recentTranslationPracticeDate"] = Date().repr(of: Date.defaultDateAndTimeFormat)
             self.stopPracticing()

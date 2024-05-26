@@ -225,18 +225,11 @@ extension ListeningPracticeViewController {
     
     @objc override func doneButtonTapped() {
         super.doneButtonTapped()
-                
-        let submission = (practiceView as! TextMeaningPracticeView).submit()
-        practiceProducer.checkCorrectness(of: submission)
         
         if let practiceView = practiceView as? TextMeaningPracticeView {
+            let submission = practiceView.submit()
+            practiceProducer.checkCorrectness(of: submission)
             practiceView.updateViewsAfterSubmission()
-            
-            updateAllNewWordsInfo(with: practiceView)
-            
-            if practiceView.shouldReinforce {
-                practiceProducer.reinforce()
-            }
         }
         
         isRecordingSpeech = false
@@ -248,6 +241,14 @@ extension ListeningPracticeViewController {
     }
     
     @objc override func nextButtonTapped() {
+        
+        if let practiceView = practiceView as? TextMeaningPracticeView {
+            updateAllNewWordsInfo(with: practiceView)
+            if practiceView.shouldReinforce {
+                practiceProducer.reinforce()
+            }
+        }
+        
         speechSynthesizer.stopSpeaking(at: .immediate)  // Stop first.
         isProducingSpeech = false  // Then change the image.
         isRecordingSpeech = false
