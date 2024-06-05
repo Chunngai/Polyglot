@@ -32,7 +32,7 @@ class TranslationPracticeViewController: TextMeaningPracticeViewController {
     
     override func makePracticeView() -> TextMeaningPracticeView {
         let practice = practiceProducer.currentPractice as! SpeakingPractice
-        return TranslationPracticeView(
+        let practiceView = TranslationPracticeView(
             text: practice.text,
             meaning: practice.meaning,
             textLang: practice.textLang,
@@ -42,6 +42,10 @@ class TranslationPracticeViewController: TextMeaningPracticeViewController {
             existingPhraseRanges: practice.existingPhraseRanges,
             existingPhraseMeanings: practice.existingPhraseMeanings
         )
+        
+        practiceView.speakButton.isHidden = true
+        practiceView.listenButton.isHidden = true
+        return practiceView
     }
     
 }
