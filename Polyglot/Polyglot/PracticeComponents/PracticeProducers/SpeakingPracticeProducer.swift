@@ -62,6 +62,7 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
                     inGranularity: TextGranularity.sentence,
                     callBack: { practice in
                         practiceList.append(practice)
+                        practiceList.append(SpeakingPractice(from: practice))
                     }
                 )
             } else if n == 1 {
@@ -69,6 +70,7 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
                     inGranularity: TextGranularity.sentence,
                     callBack: { practice in
                         practiceList.append(practice)
+                        practiceList.append(SpeakingPractice(from: practice))
                     }
                 )
             }
