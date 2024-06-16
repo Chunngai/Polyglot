@@ -141,6 +141,36 @@ class TextMeaningPracticeViewController: PracticeViewController {
             height: newWordBottomViewHeight
         )
         
+        // Add newly-added new words.
+        // TODO: - A better way?
+        if let practiceView = practiceView as? TextMeaningPracticeView {
+            for item in allNewWordsInfo {
+                for newWordsInfo in item.newWordsInfo {
+                    let text = practiceView.text.normalized(caseInsensitive: true)
+                    let wordText = newWordsInfo.word.normalized(caseInsensitive: true)
+                    if !text.contains(wordText) {
+                        continue
+                    }
+                    
+                    // Word boundary check.
+                    // E.g., wit in with.
+                    let textTokens = text.tokenized(with: LangCode.currentLanguage.wordTokenizer)
+                    let wordTextTokens = wordText.tokenized(with: LangCode.currentLanguage.wordTokenizer)
+                    if !textTokens.contains(wordTextTokens) {
+                        continue
+                    }
+                    
+                    let range = (text as NSString).range(of: wordText)
+                    practiceView.existingPhraseRanges.append(range)
+                    practiceView.existingPhraseMeanings.append(newWordsInfo.meaning)
+                }
+            }
+            
+            // Deduplication.
+            practiceView.existingPhraseRanges = Array(Set(practiceView.existingPhraseRanges))
+            practiceView.existingPhraseMeanings = Array(Set(practiceView.existingPhraseMeanings))
+        }
+        
         mainView.bringSubviewToFront(doneButton)
         mainView.bringSubviewToFront(nextButton)
     }
