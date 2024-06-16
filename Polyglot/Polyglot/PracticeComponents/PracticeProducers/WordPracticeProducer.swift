@@ -475,7 +475,7 @@ extension WordPracticeProducer {
         var tokenizer: NLTokenizer {
             let lang: LangCode = {
                 switch practice.direction {
-                case .textToMeaning: return LangCode.pairedLanguage
+                case .textToMeaning: return LangCode.currentLanguage.configs.languageForTranslation
                 case .meaningToText: return LangCode.currentLanguage
                 case .text: return LangCode.currentLanguage
                 }
@@ -485,7 +485,7 @@ extension WordPracticeProducer {
             if lang == LangCode.currentLanguage {
                 return LangCode.currentLanguage.wordTokenizer
             } else {
-                return LangCode.pairedLanguage.wordTokenizer
+                return LangCode.currentLanguage.configs.languageForTranslation.wordTokenizer
             }
         }
         

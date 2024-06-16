@@ -244,10 +244,10 @@ class HomeViewController: UIViewController {
         navigationItem.title = Strings.homeTitle
         navigationItem.largeTitleDisplayMode = .always
         navigationItem.rightBarButtonItem = UIBarButtonItem(
-            image: UIImage.init(systemName: "square.and.arrow.up"),
+            image: UIImage(systemName: "gearshape"),
             style: .plain,
             target: self,
-            action: #selector(emailAnCopy)
+            action: #selector(settingsTapped)
         )
     }
     
@@ -260,55 +260,21 @@ extension HomeViewController {
     
     // MARK: - Selectors
     
+    @objc
+    private func settingsTapped() {
+        let settingsVC = SettingsViewController()
+        navigationController?.pushViewController(
+            settingsVC,
+            animated: true
+        )
+    }
+    
     @objc private func appMovedToForeground() {
         DispatchQueue.global(qos: .userInitiated).async {
             self.displayContentCards()
         }
     }
     
-    @objc private func emailAnCopy() {
-        guard MFMailComposeViewController.canSendMail() else {
-            // Handle the case where the device can't send emails, e.g., display an alert.
-            print("Cannot send email.")
-            return
-        }
-        
-        let mailComposer = MFMailComposeViewController()
-        mailComposer.mailComposeDelegate = self
-        
-        for fileName in self.fileNamesToUpload {
-            
-            if let fileURL = try? constructFileUrl(
-                from: fileName,
-                create: false
-            ) {
-                if let data = try? Data(contentsOf: fileURL) {
-                    mailComposer.addAttachmentData(
-                        data,
-                        mimeType: "application/json",
-                        fileName: fileName
-                    )
-                } else {
-                    // Handle the case where reading the file data failed.
-                    print("Failed to read data from \(fileName)")
-                    return
-                }
-            } else {
-                // Handle any errors related to constructing the file URL
-                print("Failed to construct URL for \(fileName)")
-                return
-            }
-            
-        }
-        
-        mailComposer.setToRecipients([Config.defaultEmail])
-        mailComposer.setSubject("Data Copy \(Date().repr(of: Date.defaultDateFormat))")
-        mailComposer.setMessageBody("", isHTML: false)
-        
-        // Present the mail composer view controller
-        self.present(mailComposer, animated: true, completion: nil)
-        
-    }
 }
 
 extension HomeViewController {
@@ -454,20 +420,11 @@ extension HomeViewController {
     
     // MARK: - Utils
     
-    private var fileNamesToUpload: [String] {
-        var fileNames: [String] = []
-        for learningLang in LangCode.learningLanguages {
-            fileNames.append(Word.fileName(for: learningLang))
-            fileNames.append(Article.fileName(for: learningLang))
-        }
-        return fileNames
-    }
-    
     private func uploadFilesToServer() {
         let serverURL = "http://4o51096o21.zicp.vip/upload"
         let headers: HTTPHeaders = ["Content-Type": "multipart/form-data"]
         
-        for fileName in self.fileNamesToUpload {
+        for fileName in Constants.filesToSend {
             AF.upload(  // TODO: - Cannot upload all files when using mobile data, but ok with wifi.
                 multipartFormData: { multipartFormData in
                     if let fileURL = try? constructFileUrl(
@@ -522,35 +479,6 @@ extension HomeViewController: LanguageSelectionViewControllerDelegate {
         applySnapShots()
     }
     
-}
-
-extension HomeViewController: MFMailComposeViewControllerDelegate {
-    
-    // MARK: - MFMailCompose ViewController Delegate
-    
-    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
-        controller.dismiss(animated: true, completion: nil)
-        
-        switch result {
-        case .sent:
-            // Handle the email sent successfully
-            print("Email sent successfully")
-        case .saved:
-            // Handle the email being saved as a draft
-            print("Email saved as draft")
-        case .cancelled:
-            // Handle the user canceling the email composition
-            print("Email composition canceled")
-        case .failed:
-            // Handle the case where the email failed to send
-            if let error = error {
-                print("Email send error: \(error.localizedDescription)")
-            }
-        @unknown default:
-            break
-        }
-    }
-
 }
 
 extension HomeViewController {
@@ -801,6 +729,8 @@ extension HomeViewController: UICollectionViewDelegate {
             
             let vc = LanguageSelectionViewController()
             vc.delegate = self
+            vc.langs = LangCode.learningLanguages
+            vc.selectedLang = LangCode.currentLanguage
             navigationController?.pushViewController(
                 vc,
                 animated: true

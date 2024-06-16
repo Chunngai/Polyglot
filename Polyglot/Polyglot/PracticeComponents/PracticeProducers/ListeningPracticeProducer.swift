@@ -62,8 +62,9 @@ class ListeningPracticeProducer: TextMeaningPracticeProducer {
                     for: self.words.randomElement()!,
                     inGranularity: TextGranularity.sentence,
                     callBack: { listenAndRepeatPractice in
-                        practiceList.append(listenAndRepeatPractice)
-                        practiceList.append(ListeningPractice(from: listenAndRepeatPractice))
+                        for _ in 1...LangCode.currentLanguage.configs.practiceRepetition {
+                            practiceList.append(ListeningPractice(from: listenAndRepeatPractice))
+                        }
                     }
                 )
             } else if n == 1 {
@@ -71,8 +72,9 @@ class ListeningPracticeProducer: TextMeaningPracticeProducer {
                     ofType: .listenAndRepeat,
                     inGranularity: TextGranularity.sentence,
                     callBack: { listenAndRepeatPractice in
-                        practiceList.append(listenAndRepeatPractice)
-                        practiceList.append(ListeningPractice(from: listenAndRepeatPractice))
+                        for _ in 1...LangCode.currentLanguage.configs.practiceRepetition {
+                            practiceList.append(ListeningPractice(from: listenAndRepeatPractice))
+                        }
                     }
                 )
             }
@@ -198,7 +200,7 @@ extension ListeningPracticeProducer {
             text: text,
             meaning: meaning,
             textLang: LangCode.currentLanguage,
-            meaningLang: LangCode.pairedLanguage,
+            meaningLang: LangCode.currentLanguage.configs.languageForTranslation,
             textSource: textSource,
             isTextMachineTranslated: isTextMachineTranslated,
             clozeRanges: clozeRanges,

@@ -60,7 +60,12 @@ struct ContentCreator {
         }
         
         
-        guard let url = URL(string: "https://api.chatanywhere.com.cn/v1/chat/completions") else {
+        guard let urlString = LangCode.currentLanguage.configs.ChatGPTAPIURL,
+              let url = URL(string: urlString) else {
+            completion(nil)
+            return
+        }
+        guard let apiKey = LangCode.currentLanguage.configs.ChatGPTAPIKey else {
             completion(nil)
             return
         }
@@ -87,7 +92,7 @@ struct ContentCreator {
         )
         request.setValue(Constants.userAgent, forHTTPHeaderField: "User-Agent")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(APIKeys.chatGptAPIKey)", forHTTPHeaderField: "Authorization")
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         // https://stackoverflow.com/questions/31937686/how-to-make-http-post-request-with-json-body-in-swift
         request.httpMethod = "POST"
         request.httpBody = try? JSONSerialization.data(withJSONObject: [

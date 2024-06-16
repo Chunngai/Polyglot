@@ -152,7 +152,7 @@ class ReorderingPracticeView: WordPracticeView {
         
         GoogleTranslator(
             srcLang: LangCode.currentLanguage,
-            trgLang: LangCode.pairedLanguage
+            trgLang: LangCode.currentLanguage.configs.languageForTranslation
         ).translate(query: words.joined(separator: Strings.wordSeparator)) { (res) in
             if let translation = res.first {
                 DispatchQueue.main.async {

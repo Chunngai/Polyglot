@@ -13,6 +13,18 @@ struct Strings {
     
     // MARK: - Language Strings
     
+    static let _zhStrings: [LangCode : String] = [
+        LangCode.en : "Chinese",
+        LangCode.ja : "中国語",
+        LangCode.es : "Chino",
+        LangCode.ru : "Китайский",
+        LangCode.ko : "중국어",
+        LangCode.de : "Chinesisch",
+    ]
+    static var zhString: String {
+        return Strings._zhStrings[LangCode.currentLanguage]!
+    }
+    
     static let _enStrings: [LangCode : String] = [
         LangCode.en : "English",
         LangCode.ja : "英語",
@@ -86,6 +98,7 @@ struct Strings {
     }
 
     static var languageNamesOfAllLanguages: [LangCode: [LangCode: String]] = [
+        LangCode.zh : Strings._zhStrings,
         LangCode.en : Strings._enStrings,
         LangCode.ja : Strings._jaStrings,
         LangCode.es : Strings._esStrings,

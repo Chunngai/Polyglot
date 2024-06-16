@@ -321,7 +321,7 @@ extension WordsViewController {
                 || firstTextFieldTextLanguage == .undetermined {
                 isText2Meaning = true
                 srcLang = LangCode.currentLanguage
-                trgLang = LangCode.pairedLanguage
+                trgLang = LangCode.currentLanguage.configs.languageForTranslation
             } else {
                 isText2Meaning = false
                 srcLang = firstTextFieldTextLanguage

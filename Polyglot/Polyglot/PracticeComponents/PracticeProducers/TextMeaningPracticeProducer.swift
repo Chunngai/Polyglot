@@ -14,7 +14,7 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
     
     var translator: GoogleTranslator = GoogleTranslator(
         srcLang: LangCode.currentLanguage,
-        trgLang: LangCode.pairedLanguage
+        trgLang: LangCode.currentLanguage.configs.languageForTranslation
     )
     
     var contentCreator: ContentCreator = ContentCreator(lang: LangCode.currentLanguage)
@@ -159,6 +159,9 @@ extension TextMeaningPracticeProducer {
             }
         } else if text == nil && meaning == nil {
             guard let randomWord = randomWord else {
+                return
+            }
+            guard LangCode.currentLanguage.configs.canGenerateTextsWithLLMsForPractices else {
                 return
             }
             contentCreator.createContent(

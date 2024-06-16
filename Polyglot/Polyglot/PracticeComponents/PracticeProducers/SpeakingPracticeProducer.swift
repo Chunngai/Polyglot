@@ -69,8 +69,9 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
                 makePractice(
                     inGranularity: TextGranularity.sentence,
                     callBack: { practice in
-                        practiceList.append(practice)
-                        practiceList.append(SpeakingPractice(from: practice))
+                        for _ in 1...LangCode.currentLanguage.configs.practiceRepetition {
+                            practiceList.append(SpeakingPractice(from: practice))
+                        }
                     }
                 )
             }
@@ -104,7 +105,7 @@ extension SpeakingPracticeProducer {
         
         let (existingPhraseRanges, existingPhraseMeanings) = findExistingPhraseRangesAndMeanings(for: text)
         
-        var meaningLang = LangCode.pairedLanguage
+        var meaningLang = LangCode.currentLanguage.configs.languageForTranslation
         if !isTextMachineTranslated {
             let detectedMeaningLang = LangCode(detectedFrom: meaning)
             if detectedMeaningLang != .undetermined {

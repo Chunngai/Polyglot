@@ -23,20 +23,17 @@ struct Colors {
         
     static let activeSystemButtonColor: UIColor = .systemBlue
     static let inactiveSystemButtonColor: UIColor = .lightGray
+    static let inactivateSelectionButtonBackgroundColor: UIColor = Colors.lightBlue
+    static let activateSelectionButtonBackgroundColor: UIColor = Colors.strongLightBlue
     
     static let lightBlue: UIColor = UIColor.intRGB2UIColor(red: 213, green: 236, blue: 248)
     static let strongLightBlue: UIColor = UIColor.intRGB2UIColor(red: 154, green: 207, blue: 238)
     
-    static let inactivateSelectionButtonBackgroundColor: UIColor = Colors.lightBlue
-    static let activateSelectionButtonBackgroundColor: UIColor = Colors.strongLightBlue
-        
     static let correctColor: UIColor = UIColor.intRGB2UIColor(red: 186, green: 220, blue: 173)
     static let incorrectColor: UIColor = UIColor.intRGB2UIColor(red: 201, green: 113, blue: 117)
     
     static let timingBarTintColor: UIColor = .systemGray5
-    
     static let borderColor: UIColor = .systemGray5
-
     static let separatorColor: UIColor = .lightGray
     
     static let clozeMaskColor: UIColor = .systemGray5
@@ -50,6 +47,7 @@ struct Images {
     
     // Lang images.
     
+    static let zhImage: UIImage = UIImage(imageLiteralResourceName: LangCode.zh.rawValue).scale(to: Sizes.langImageScalingFactor)
     static let enImage: UIImage = UIImage(imageLiteralResourceName: LangCode.en.rawValue).scale(to: Sizes.langImageScalingFactor)
     static let jaImage: UIImage = UIImage(imageLiteralResourceName: LangCode.ja.rawValue).scale(to: Sizes.langImageScalingFactor)
     static let esImage: UIImage = UIImage(imageLiteralResourceName: LangCode.es.rawValue).scale(to: Sizes.langImageScalingFactor)
@@ -58,6 +56,7 @@ struct Images {
     static let deImage: UIImage = UIImage(imageLiteralResourceName: LangCode.de.rawValue).scale(to: Sizes.langImageScalingFactor)
     
     static let langImages: [LangCode : UIImage] = [
+        LangCode.zh: Images.zhImage,
         LangCode.en: Images.enImage,
         LangCode.ja: Images.jaImage,
         LangCode.es: Images.esImage,

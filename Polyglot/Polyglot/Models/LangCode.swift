@@ -21,25 +21,28 @@ enum LangCode: String, Codable {
     case ko
     case de
     
+    static var currentLanguage: LangCode = .en
+
 }
 
 extension LangCode {
     
-    static var currentLanguage: LangCode = .en
-    static var pairedLanguage: LangCode {
-        switch LangCode.currentLanguage {
-        case .zh: return .zh
-        case .en: return .zh
-        case .ja: return .zh
-        case .es: return .en
-        case .ru: return .es
-        case .ko: return .ja
-        case .de: return .ru
-        case .undetermined: return .undetermined
+    // MARK: - Lang Configs
+    
+    private static var lang2configs: [LangCode: Configs] = [:]
+    var configs: Configs {
+        get {
+            if !LangCode.lang2configs.keys.contains(self) {
+                LangCode.lang2configs[self] = Configs.load(for: self)
+            }
+            return LangCode.lang2configs[self]!
+        }
+        set {
+            var newConfigs = newValue
+            Configs.save(&newConfigs, for: self)
+            LangCode.lang2configs[self] = newConfigs
         }
     }
-    
-    static let learningLanguages: [LangCode] = LangCode.loadLearningLanguages()
     
 }
 
@@ -81,19 +84,6 @@ extension LangCode {
         case .ko: return "com.apple.voice.enhanced.ko-KR.Yuna"
         case .de: return "com.apple.ttsbundle.siri_Martin_de-DE_compact"
         case .undetermined: return ""
-        }
-    }
-    
-    var voiceRate: Float {
-        switch self {
-        case .zh: return 0.5
-        case .en: return 0.55
-        case .ja: return 0.55
-        case .es: return 0.5
-        case .ru: return 0.5
-        case .ko: return 0.5
-        case .de: return 0.5
-        case .undetermined: return 0.5
         }
     }
     
@@ -191,6 +181,8 @@ extension LangCode {
 
 extension LangCode {
     
+    static let learningLanguages: [LangCode] = LangCode.loadLearningLanguages()
+
     // MARK: - IO
     
     static var fileName: String {
@@ -223,4 +215,68 @@ extension LangCode {
             exit(1)
         }
     }
+}
+
+struct Configs: Codable {
+    
+    var languageForTranslation: LangCode
+    var voiceRate: Float
+    
+    var practiceDuration: Int
+    var practiceRepetition: Int
+    
+    var canGenerateTextsWithLLMsForPractices: Bool
+    var ChatGPTAPIURL: String?
+    var ChatGPTAPIKey: String?
+    
+    var backupEmailAddr: String?
+    
+}
+
+extension Configs {
+    
+    // MARK: - IO
+    
+    static func fileName(for lang: LangCode) -> String {
+        return "configs.\(lang.rawValue).json"
+    }
+    
+    static func load(for lang: LangCode) -> Configs {
+        do {
+            let configs = try readDataFromJson(
+                fileName: Configs.fileName(for: lang),
+                type: Configs.self
+            ) as? Configs ?? Configs.defaultConfigs
+            return configs
+        } catch {
+            print(error)
+            exit(1)
+        }
+    }
+    
+    static func save(_ configs: inout Configs, for lang: LangCode) {
+        do {
+            try writeDataToJson(
+                fileName: Configs.fileName(for: lang),
+                data: configs
+            )
+        } catch {
+            print(error)
+            exit(1)
+        }
+    }
+}
+
+extension Configs {
+    
+    // MARK: - Constants
+    
+    static let defaultConfigs = Configs(
+        languageForTranslation: LangCode.zh,
+        voiceRate: 0.5,
+        practiceDuration: 5,
+        practiceRepetition: 2,
+        canGenerateTextsWithLLMsForPractices: true
+    )
+    
 }

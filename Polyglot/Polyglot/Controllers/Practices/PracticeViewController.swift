@@ -46,7 +46,7 @@ class PracticeViewController: UIViewController {
     // MARK: - Views
     
     var timingBar: TimingBar = {
-        let bar = TimingBar(duration: Constants.practiceDuration)
+        let bar = TimingBar(duration: TimeInterval(LangCode.currentLanguage.configs.practiceDuration))
         return bar
     }()
     var cancelButton: UIBarButtonItem!
@@ -266,15 +266,9 @@ extension PracticeViewController {
 extension PracticeViewController: TimingBarDelegate {
     
     private func presentTimeUpAlert(duration: TimeInterval, completion: @escaping (_ isOk: Bool) -> Void) {
-        let reachedMaxDuration: Bool = duration == Constants.maxPracticeDuration
         
         let message: String = {
-            var message: String = ""
-            if !reachedMaxDuration {
-                message = Strings.timeUpAlertBody
-            } else {
-                message = Strings.maxTimeUpAlertBody
-            }
+            var message = Strings.timeUpAlertBody
             
             let minutes: Int = Int(duration / 60)
             message = message.replacingOccurrences(of: Strings.maskToken, with: String(minutes))
@@ -295,15 +289,13 @@ extension PracticeViewController: TimingBarDelegate {
         })
         alert.addAction(okButton)
         
-        if !reachedMaxDuration {
-            let cancelButton = UIAlertAction(
-                title: Strings.cancel,
-                style: .cancel,
-                handler: { (_) -> Void in
-                    completion(false)
+        let cancelButton = UIAlertAction(
+            title: Strings.cancel,
+            style: .cancel,
+            handler: { (_) -> Void in
+                completion(false)
             })
-            alert.addAction(cancelButton)
-        }
+        alert.addAction(cancelButton)
         
         present(alert, animated: true, completion: nil)
     }

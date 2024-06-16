@@ -10,6 +10,9 @@ import UIKit
 
 class LanguageSelectionViewController: UIViewController {
     
+    var langs: [LangCode]!
+    var selectedLang: LangCode!
+    
     // MARK: - Controllers
     
     var delegate: LanguageSelectionViewControllerDelegate!
@@ -62,17 +65,17 @@ extension LanguageSelectionViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return LangCode.learningLanguages.count
+        return langs.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell()
-        let langCode = LangCode.learningLanguages[indexPath.row]
+        let langCode = langs[indexPath.row]
         
         cell.textLabel?.text = Strings.languageNamesOfAllLanguages[langCode]?[LangCode.currentLanguage] ?? ""
         cell.imageView?.image = Images.langImages[langCode]?.scaledToListIconSize()
         cell.selectionStyle = .none
-        if LangCode.learningLanguages[indexPath.row] == LangCode.currentLanguage {
+        if langs[indexPath.row] == selectedLang {
             cell.accessoryType = .checkmark
         }
         
@@ -84,7 +87,8 @@ extension LanguageSelectionViewController: UITableViewDataSource {
 extension LanguageSelectionViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.delegate.updateLanguage(as: LangCode.learningLanguages[indexPath.row])
+        selectedLang = langs[indexPath.row]
+        self.delegate.updateLanguage(as: selectedLang)
         if let cell = tableView.cellForRow(at: indexPath) {
             cell.accessoryType = .checkmark
         }

@@ -12,10 +12,14 @@ import NaturalLanguage
 
 struct Constants {
     
-    // MARK: - Timing.
-    
-    static let practiceDuration: TimeInterval = TimeInterval.minute * 5
-    static let maxPracticeDuration: TimeInterval = Constants.practiceDuration * 6
+    static let filesToSend: [String] = {
+        var fileNames: [String] = []
+        for learningLang in LangCode.learningLanguages {
+            fileNames.append(Word.fileName(for: learningLang))
+            fileNames.append(Article.fileName(for: learningLang))
+        }
+        return fileNames
+    }()
     
     // MARK: - Network.
     
