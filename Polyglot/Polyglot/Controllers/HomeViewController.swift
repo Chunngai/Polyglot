@@ -762,10 +762,13 @@ extension HomeViewController: UICollectionViewDelegate {
             let vc: PracticeViewController
             if row == 0 {
                 vc = WordsPracticeViewController()
+                vc.practiceDuration = LangCode.currentLanguage.configs.phraseReviewPracticeDuration
             } else if row == 1 {
                 vc = ListeningPracticeViewController()
+                vc.practiceDuration = LangCode.currentLanguage.configs.listeningPracticeDuration
             } else if row == 2 {
                 vc = TranslationPracticeViewController()
+                vc.practiceDuration = LangCode.currentLanguage.configs.speakingPracticeDuration
             } else {
                 fatalError("Not Implemented.")
             }

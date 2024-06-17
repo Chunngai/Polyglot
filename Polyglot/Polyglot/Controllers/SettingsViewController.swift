@@ -59,6 +59,9 @@ class SettingsViewController: UIViewController {
                 cell.slider.minimumValue = 0.0
                 cell.slider.maximumValue = 1.0
                 cell.slider.value = LangCode.currentLanguage.configs.voiceRate
+                cell.formatingFunc = { (sliderVal: Float) -> String in
+                    return String(format: "%.2f", sliderVal)
+                }
                 cell.label.text = cell.formatingFunc(cell.slider.value)
                 return cell
             }()
@@ -66,11 +69,37 @@ class SettingsViewController: UIViewController {
         [
             {
                 let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
-                cell.imageView?.image = UIImage.init(systemName: "timer")
+                cell.imageView?.image = Images.wordPracticeImage
                 cell.step = 5
                 cell.slider.minimumValue = 5
                 cell.slider.maximumValue = 30
-                cell.slider.value = Float(LangCode.currentLanguage.configs.practiceDuration)
+                cell.slider.value = Float(LangCode.currentLanguage.configs.phraseReviewPracticeDuration)
+                cell.formatingFunc = { (sliderVal: Float) -> String in
+                    return "\(String(Int(sliderVal))) mins"  // TODO: - Update localization
+                }
+                cell.label.text = cell.formatingFunc(cell.slider.value)
+                return cell
+            }(),
+            {
+                let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
+                cell.imageView?.image = Images.listeningPracticeImage
+                cell.step = 5
+                cell.slider.minimumValue = 5
+                cell.slider.maximumValue = 30
+                cell.slider.value = Float(LangCode.currentLanguage.configs.listeningPracticeDuration)
+                cell.formatingFunc = { (sliderVal: Float) -> String in
+                    return "\(String(Int(sliderVal))) mins"  // TODO: - Update localization
+                }
+                cell.label.text = cell.formatingFunc(cell.slider.value)
+                return cell
+            }(),
+            {
+                let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
+                cell.imageView?.image = Images.translationPracticeImage
+                cell.step = 5
+                cell.slider.minimumValue = 5
+                cell.slider.maximumValue = 30
+                cell.slider.value = Float(LangCode.currentLanguage.configs.speakingPracticeDuration)
                 cell.formatingFunc = { (sliderVal: Float) -> String in
                     return "\(String(Int(sliderVal))) mins"  // TODO: - Update localization
                 }
@@ -167,7 +196,9 @@ class SettingsViewController: UIViewController {
         LangCode.currentLanguage.configs = Configs(
             languageForTranslation: selectedTranslationLang,
             voiceRate: (cells[1][0] as! SettingsSlidingCell).slider.value,
-            practiceDuration: Int((cells[2][0] as! SettingsSlidingCell).slider.value),
+            phraseReviewPracticeDuration: Int((cells[2][0] as! SettingsSlidingCell).slider.value),
+            listeningPracticeDuration: Int((cells[2][1] as! SettingsSlidingCell).slider.value),
+            speakingPracticeDuration: Int((cells[2][2] as! SettingsSlidingCell).slider.value),
             practiceRepetition: Int((cells[3][0] as! SettingsSlidingCell).slider.value),
             canGenerateTextsWithLLMsForPractices: (cells[4][0] as! SettingsSwitchingCell).switchView.isOn,
             ChatGPTAPIURL: (cells[4][1] as! SettingsInputCell).textField.text?.strip(),

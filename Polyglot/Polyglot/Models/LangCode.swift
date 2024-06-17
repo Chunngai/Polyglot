@@ -217,12 +217,14 @@ extension LangCode {
     }
 }
 
-struct Configs: Codable {
+struct Configs {
     
     var languageForTranslation: LangCode
     var voiceRate: Float
     
-    var practiceDuration: Int
+    var phraseReviewPracticeDuration: Int
+    var listeningPracticeDuration: Int
+    var speakingPracticeDuration: Int
     var practiceRepetition: Int
     
     var canGenerateTextsWithLLMsForPractices: Bool
@@ -231,6 +233,74 @@ struct Configs: Codable {
     
     var backupEmailAddr: String?
     
+}
+
+extension Configs: Codable {
+    
+    enum CodingKeys: String, CodingKey {
+        
+        case languageForTranslation
+        case voiceRate
+        
+        case phraseReviewPracticeDuration
+        case listeningPracticeDuration
+        case speakingPracticeDuration
+        case practiceRepetition
+        
+        case canGenerateTextsWithLLMsForPractices
+        case ChatGPTAPIURL
+        case ChatGPTAPIKey
+        
+        case backupEmailAddr
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(languageForTranslation, forKey: .languageForTranslation)
+        try container.encode(voiceRate, forKey: .voiceRate)
+        
+        try container.encode(phraseReviewPracticeDuration, forKey: .phraseReviewPracticeDuration)
+        try container.encode(listeningPracticeDuration, forKey: .listeningPracticeDuration)
+        try container.encode(speakingPracticeDuration, forKey: .speakingPracticeDuration)
+        try container.encode(practiceRepetition, forKey: .practiceRepetition)
+        
+        try container.encode(canGenerateTextsWithLLMsForPractices, forKey: .canGenerateTextsWithLLMsForPractices)
+        try container.encode(ChatGPTAPIURL, forKey: .ChatGPTAPIURL)
+        try container.encode(ChatGPTAPIKey, forKey: .ChatGPTAPIKey)
+        
+        try container.encode(backupEmailAddr, forKey: .backupEmailAddr)
+    }
+    
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        
+        languageForTranslation = try values.decode(LangCode.self, forKey: .languageForTranslation)
+        voiceRate = try values.decode(Float.self, forKey: .voiceRate)
+        
+        do {
+            phraseReviewPracticeDuration = try values.decode(Int.self, forKey: .phraseReviewPracticeDuration)
+        } catch {
+            phraseReviewPracticeDuration = 5
+        }
+        do {
+            listeningPracticeDuration = try values.decode(Int.self, forKey: .listeningPracticeDuration)
+        } catch {
+            listeningPracticeDuration = 5
+        }
+        do {
+            speakingPracticeDuration = try values.decode(Int.self, forKey: .speakingPracticeDuration)
+        } catch {
+            speakingPracticeDuration = 5
+        }
+        practiceRepetition = try values.decode(Int.self, forKey: .practiceRepetition)
+        
+        canGenerateTextsWithLLMsForPractices = try values.decode(Bool.self, forKey: .canGenerateTextsWithLLMsForPractices)
+        ChatGPTAPIURL = try values.decode(String?.self, forKey: .ChatGPTAPIURL)
+        ChatGPTAPIKey = try values.decode(String?.self, forKey: .ChatGPTAPIKey)
+        
+        backupEmailAddr = try values.decode(String?.self, forKey: .backupEmailAddr)
+    }
 }
 
 extension Configs {
@@ -274,7 +344,9 @@ extension Configs {
     static let defaultConfigs = Configs(
         languageForTranslation: LangCode.zh,
         voiceRate: 0.5,
-        practiceDuration: 5,
+        phraseReviewPracticeDuration: 5,
+        listeningPracticeDuration: 5,
+        speakingPracticeDuration: 5,
         practiceRepetition: 2,
         canGenerateTextsWithLLMsForPractices: true
     )

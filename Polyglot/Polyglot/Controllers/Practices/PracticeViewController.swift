@@ -11,6 +11,7 @@ import IQKeyboardManagerSwift
 
 class PracticeViewController: UIViewController {
         
+    var practiceDuration: Int!
     var shouldFinishPracticing: Bool = false
     
     // MARK: - Models
@@ -45,8 +46,8 @@ class PracticeViewController: UIViewController {
     
     // MARK: - Views
     
-    var timingBar: TimingBar = {
-        let bar = TimingBar(duration: TimeInterval(LangCode.currentLanguage.configs.practiceDuration))
+    lazy var timingBar: TimingBar = {
+        let bar = TimingBar(duration: Double(practiceDuration) * TimeInterval.minute)
         return bar
     }()
     var cancelButton: UIBarButtonItem!

@@ -11,7 +11,7 @@ import UIKit
 class SettingsSlidingCell: UITableViewCell {
     
     var step: Float!
-    var formatingFunc: ((Float) -> String) = SettingsSlidingCell.defaultFormattingFunc
+    var formatingFunc: ((Float) -> String)!
         
     // MARK: - Views
     
@@ -77,14 +77,6 @@ extension SettingsSlidingCell {
         sender.setValue(roundedValue, animated: false)  // Adjust slider to the discrete value
         
         label.text = formatingFunc(slider.value)
-    }
-    
-}
-
-extension SettingsSlidingCell {
-    
-    static let defaultFormattingFunc: (Float) -> String = { (sliderVal: Float) -> String in
-        return String(format: "%.1f", sliderVal)
     }
     
 }
