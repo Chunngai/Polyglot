@@ -161,7 +161,13 @@ extension TextMeaningPracticeProducer {
             guard let randomWord = randomWord else {
                 return
             }
-            guard LangCode.currentLanguage.configs.canGenerateTextsWithLLMsForPractices else {
+            if !LangCode.currentLanguage.configs.canGenerateTextsWithLLMsForPractices {
+                callBack(
+                    randomWord.text,
+                    randomWord.meaning,
+                    TextSource.none,
+                    false
+                )
                 return
             }
             contentCreator.createContent(

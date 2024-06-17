@@ -15,6 +15,7 @@ enum TextSource: Codable, Equatable {
         sentenceId: Int?
     )
     case chatGpt
+    case none
 }
 
 extension TextSource {
@@ -36,6 +37,8 @@ extension TextSource {
             try container.encode(sentenceId, forKey: .sentenceId)
         case .chatGpt:
             try container.encode("chatGpt", forKey: .type)
+        case .none:
+            try container.encode("none", forKey: .type)
         }
     }
     
@@ -54,6 +57,8 @@ extension TextSource {
             )
         case "chatGpt":
             self = .chatGpt
+        case "none":
+            self = .none
         default:
             throw DecodingError.dataCorruptedError(forKey: .type, in: container, debugDescription: "Invalid type")
         }
