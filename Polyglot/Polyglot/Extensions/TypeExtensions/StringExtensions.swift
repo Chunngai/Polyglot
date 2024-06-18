@@ -109,3 +109,15 @@ extension String {
     }
     
 }
+
+extension String {
+    
+    var isNumericText: Bool {
+        
+        return Int(self) != nil || Float(self) != nil || Double(self) != nil || self.allSatisfy({ char in  // https://sarunw.com/posts/how-to-check-if-string-is-number-in-swift/
+            char.isNumber || char == "." || char == ","
+        }) || LangCode.currentLanguage.numberFormatter.number(from: self.lowercased())?.stringValue != nil
+        
+    }
+    
+}

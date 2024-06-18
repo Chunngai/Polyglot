@@ -99,6 +99,14 @@ extension LangCode {
         case .undetermined: return Locale(identifier: "")
         }
     }
+    
+    var numberFormatter: NumberFormatter {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .spellOut
+        numberFormatter.locale = self.locale
+        return numberFormatter
+    }
+    
 }
 
 extension LangCode {
@@ -112,17 +120,12 @@ extension LangCode {
         return range != nil
     }
     
-    private func containsDigits(_ text: String) -> Bool {
-        let range = text.range(of: "\\d", options: .regularExpression)
-        return range != nil
-    }
-    
     private func clozeFilterForZhJaKo(_ text: String) -> Bool {
-        return containsLatinLetters(text) || containsDigits(text)
+        return containsLatinLetters(text) || text.isNumericText
     }
     
     private func clozeFilterForOtherLangs(_ text: String) -> Bool {
-        return isAbbr(text) || containsDigits(text)
+        return isAbbr(text) || text.isNumericText
     }
     
     var clozeFilter: (String) -> Bool {
