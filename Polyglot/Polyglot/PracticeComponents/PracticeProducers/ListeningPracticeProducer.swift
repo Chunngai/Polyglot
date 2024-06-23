@@ -192,7 +192,10 @@ extension ListeningPracticeProducer {
             clozeRanges = clozeRanges.randomElements(of: ListeningPracticeProducer.maxClozeNumForListenAndComplete)
         }
         
-        let (existingPhraseRanges, existingPhraseMeanings) = findExistingPhraseRangesAndMeanings(for: text)
+        let (existingPhraseRanges, existingPhraseMeanings) = findExistingPhraseRangesAndMeanings(
+            for: text,
+            from: self.words
+        )
         
         return ListeningPractice(
             practiceType: practiceType,

@@ -103,7 +103,10 @@ extension SpeakingPracticeProducer {
         isTextMachineTranslated: Bool
     ) -> SpeakingPractice? {
         
-        let (existingPhraseRanges, existingPhraseMeanings) = findExistingPhraseRangesAndMeanings(for: text)
+        let (existingPhraseRanges, existingPhraseMeanings) = findExistingPhraseRangesAndMeanings(
+            for: text,
+            from: self.words
+        )
         
         var meaningLang = LangCode.currentLanguage.configs.languageForTranslation
         if !isTextMachineTranslated {

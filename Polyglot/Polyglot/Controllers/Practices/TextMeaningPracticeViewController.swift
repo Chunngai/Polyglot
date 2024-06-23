@@ -9,11 +9,6 @@
 import UIKit
 
 class TextMeaningPracticeViewController: PracticeViewController {
-    
-    var allNewWordsInfo: [(
-        textSource: TextSource,
-        newWordsInfo: [NewWordInfo]
-    )] = []
 
     var textViewOfPracticeView: NewWordAddingTextView {
         get {
@@ -141,36 +136,6 @@ class TextMeaningPracticeViewController: PracticeViewController {
             height: newWordBottomViewHeight
         )
         
-        // Add newly-added new words.
-        // TODO: - A better way?
-//        if let practiceView = practiceView as? TextMeaningPracticeView {
-//            for item in allNewWordsInfo {
-//                for newWordsInfo in item.newWordsInfo {
-//                    let text = practiceView.text.normalized(caseInsensitive: true)
-//                    let wordText = newWordsInfo.word.normalized(caseInsensitive: true)
-//                    if !text.contains(wordText) {
-//                        continue
-//                    }
-//                    
-//                    // Word boundary check.
-//                    // E.g., wit in with.
-//                    let textTokens = text.tokenized(with: LangCode.currentLanguage.wordTokenizer)
-//                    let wordTextTokens = wordText.tokenized(with: LangCode.currentLanguage.wordTokenizer)
-//                    if !textTokens.contains(wordTextTokens) {
-//                        continue
-//                    }
-//                    
-//                    let range = (text as NSString).range(of: wordText)
-//                    practiceView.existingPhraseRanges.append(range)
-//                    practiceView.existingPhraseMeanings.append(newWordsInfo.meaning)
-//                }
-//            }
-//            
-//            // Deduplication.
-//            practiceView.existingPhraseRanges = Array(Set(practiceView.existingPhraseRanges))
-//            practiceView.existingPhraseMeanings = Array(Set(practiceView.existingPhraseMeanings))
-//        }
-        
         mainView.bringSubviewToFront(doneButton)
         mainView.bringSubviewToFront(nextButton)
     }
@@ -206,61 +171,79 @@ extension TextMeaningPracticeViewController {
 
 extension TextMeaningPracticeViewController {
     
-    func updateAllNewWordsInfo(with practiceView: TextMeaningPracticeView) {
-        allNewWordsInfo.append((
-            textSource: practiceView.textSource,
-            newWordsInfo: practiceView.newWordsInfo
-        ))
+    func newWords(from newWordsInfo: [NewWordInfo], of textSource: TextSource) -> [Word] {
+        
+        var articleTitle: String? = nil
+        if case .article(let articleId, _, _) = textSource,
+           let article = articles.getArticle(from: articleId) {
+            articleTitle = article.title
+        } else if textSource == .chatGpt {
+            articleTitle = Strings.GPTGeneratedContent
+        }
+        
+        var newWords: [Word] = []
+        for newWordInfo in newWordsInfo {
+            newWords.append(Word(
+                text: newWordInfo.word,
+                meaning: newWordInfo.meaning,
+                note: articleTitle
+            ))
+        }
+            
+        return newWords
     }
     
-    func addWordsFromArticles(words: [Word]) {
-        self.words.add(newWords: words)
-        for word in words {
+    func save(newWords: [Word]) {
+        
+        for newWord in newWords {
+            self.words.add(newWord: newWord)
+            
             if LangCode.currentLanguage == LangCode.ja {
-                JapaneseAccentAnalyzer.makeTokens(for: word) { tokens in
+                JapaneseAccentAnalyzer.makeTokens(for: newWord) { tokens in
                     guard LangCode.currentLanguage == LangCode.ja else {
                         return
                     }
                     DispatchQueue.main.async {
-                        self.words.updateWord(of: word.id, newTokens: tokens)
+                        self.words.updateWord(of: newWord.id, newTokens: tokens)
                     }
                 }
             }
             if LangCode.currentLanguage == LangCode.ru {
-                RussianAccentAnalyzer.makeTokens(for: word) { tokens in
+                RussianAccentAnalyzer.makeTokens(for: newWord) { tokens in
                     guard LangCode.currentLanguage == LangCode.ru else {
                         return
                     }
                     DispatchQueue.main.async {
-                        self.words.updateWord(of: word.id, newTokens: tokens)
+                        self.words.updateWord(of: newWord.id, newTokens: tokens)
                     }
                 }
             }
         }
     }
     
-    func saveNewWords() {
-        var newWords: [Word] = []
-        for (textSource, newWordsInfo) in allNewWordsInfo {
-            
-            var articleTitle: String? = nil
-            if case .article(let articleId, _, _) = textSource,
-               let article = articles.getArticle(from: articleId) {
-                articleTitle = article.title
-            } else if textSource == .chatGpt {
-                articleTitle = Strings.GPTGeneratedContent
-            }
-            
-            for newWordInfo in newWordsInfo {
-                newWords.append(Word(
-                    text: newWordInfo.word,
-                    meaning: newWordInfo.meaning,
-                    note: articleTitle
-                ))
-            }
+    func updateExistingRangesAndMeaningsOfRemainingPractices(from practiceProducer: TextMeaningPracticeProducer, with newWords: [Word]) {
+        guard !practiceProducer.practiceList.isEmpty else {
+            return
+        }
+        guard practiceProducer.currentPracticeIndex + 1 <= practiceProducer.practiceList.count - 1 else {
+            return
         }
         
-        addWordsFromArticles(words: newWords)
+        for i in (practiceProducer.currentPracticeIndex + 1)..<practiceProducer.practiceList.count {
+            if let practice = practiceProducer.practiceList[i] as? TextMeaningPractice {
+                let (newRanges, newMeanings) = practiceProducer.findExistingPhraseRangesAndMeanings(
+                    for: practice.text,
+                    from: newWords
+                )
+                for (newRange, newMeaning) in zip(newRanges, newMeanings) {
+                    if !practice.existingPhraseRanges.contains(newRange) {
+                        practice.existingPhraseRanges.append(newRange)
+                        practice.existingPhraseMeanings.append(newMeaning)
+                    }
+                }
+                practiceProducer.practiceList[i] = practice
+            }
+        }
     }
     
 }
@@ -271,8 +254,6 @@ extension TextMeaningPracticeViewController {
     
     override func stopPracticing() {
         // TODO: - Add an alert
-
-        saveNewWords()
         
         navigationController?.dismiss(animated: true, completion: nil)
     }

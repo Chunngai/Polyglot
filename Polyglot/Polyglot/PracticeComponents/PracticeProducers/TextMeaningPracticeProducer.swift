@@ -29,7 +29,7 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
 
 extension TextMeaningPracticeProducer {
     
-    func findExistingPhraseRangesAndMeanings(for text: String) -> (
+    func findExistingPhraseRangesAndMeanings(for text: String, from wordsToSearch: [Word]) -> (
         ranges: [NSRange],
         meanings: [String]
     ) {
@@ -37,7 +37,7 @@ extension TextMeaningPracticeProducer {
         var existingPhraseMeanings: [String] = []
         let text = text.normalized(caseInsensitive: true)
         let textTokens = text.tokenized(with: LangCode.currentLanguage.wordTokenizer)
-        for word in self.words {
+        for word in wordsToSearch {
             let wordText = word.text.normalized(caseInsensitive: true)
             if !text.contains(wordText) {
                 continue

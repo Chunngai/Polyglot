@@ -64,7 +64,16 @@ extension TranslationPracticeViewController {
     
     @objc override func nextButtonTapped() {
         if let practiceView = practiceView as? TextMeaningPracticeView {
-            updateAllNewWordsInfo(with: practiceView)
+            let newWords = newWords(
+                from: practiceView.newWordsInfo,
+                of: practiceView.textSource
+            )
+            save(newWords: newWords)
+            updateExistingRangesAndMeaningsOfRemainingPractices(
+                from: practiceProducer,
+                with: newWords
+            )
+            
             if practiceView.shouldReinforce {
                 practiceProducer.reinforce()
             }
