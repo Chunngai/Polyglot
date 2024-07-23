@@ -77,6 +77,73 @@ extension String {
         return NSRange(range, in: self)
     }
     
+    var tokenRanges: [NSRange] {
+        
+        var tokenRanges: [NSRange] = []
+        
+        // For Japanese and some languages, tokenization is crucial.
+        var tokens = self.tokenized(with: LangCode.currentLanguage.wordTokenizer)
+        guard !tokens.isEmpty else {
+            return []
+        }
+        
+        var tokenBuffer: String = ""
+        var location: Int = 0
+        var length: Int = 0
+        for (i, character) in self.enumerated() {
+            
+            if tokenBuffer == tokens[0] {
+                if !LangCode.currentLanguage.clozeFilter(tokenBuffer) {
+                    tokenRanges.append(NSRange(
+                        location: location,
+                        length: length
+                    ))
+                }
+                tokens.remove(at: 0)
+                tokenBuffer = ""
+                
+                //                print(
+                //                    location,
+                //                    length,
+                //                    (text as NSString).substring(with: NSRange(
+                //                        location: location,
+                //                        length: length
+                //                    ))
+                //                )
+            }
+            
+            if tokens.isEmpty {
+                break
+            }
+            
+            if character == tokens[0].first! && tokenBuffer.isEmpty {
+                location = i
+                length = 1
+                tokenBuffer = String(character)
+                continue
+            }
+            
+            if tokens[0].starts(with: tokenBuffer + String(character)) {
+                tokenBuffer += String(character)
+                length += 1
+                continue
+            }
+            
+            tokenBuffer = ""
+        }
+        
+        if !tokenBuffer.isEmpty {
+            if !LangCode.currentLanguage.clozeFilter(tokenBuffer) {
+                tokenRanges.append(NSRange(
+                    location: location,
+                    length: length
+                ))
+            }
+        }
+        
+        return tokenRanges
+    }
+    
 }
 
 extension String {

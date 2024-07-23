@@ -74,9 +74,17 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
     override func updateSetups() {
         super.updateSetups()
         
+        var updatedText = text ?? ""
+        if LangCode.currentLanguage == .ko {  // Handle inconsistent word splitting. E.g., 인공지능/인공 지능.
+            let koTokens = text.tokenized(with: LangCode.currentLanguage.wordTokenizer)
+            for i in 0..<koTokens.count - 1 {
+                updatedText += " " + koTokens[i] + koTokens[i + 1]
+            }
+        }
         clozeBiGram2BiRanges = generateBiGram2BiRanges(
-            from: clozeRanges,
-            of: text
+//            from: clozeRanges,
+            for: updatedText
+//            of: updatedText
         )
     }
     
@@ -183,7 +191,9 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
 
 extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
     
-    private func generateBiGram2BiRanges(from ranges: [NSRange], of text: String) -> [BiGram: [BiRange]] {
+//    private func generateBiGram2BiRanges(from ranges: [NSRange], of text: String) -> [BiGram: [BiRange]] {
+    private func generateBiGram2BiRanges(for text: String) -> [BiGram: [BiRange]] {
+        let ranges = text.tokenRanges
         guard ranges.count > 1 else {
             if ranges.count == 0 {
                 return [BiGram(): []]
@@ -198,6 +208,9 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
         for i in 0..<ranges.count - 1 {
             let leftRange = ranges[i]
             let rightRange = ranges[i + 1]
+            guard clozeRanges.contains(leftRange) || clozeRanges.contains(rightRange) else {
+                continue
+            }
             
             var leftToken = (text as NSString).substring(with: leftRange)
             leftToken = preprocess(leftToken)
@@ -268,7 +281,13 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
             return
         }
         
-        let speechTokens = text.tokenized(with: LangCode.currentLanguage.wordTokenizer)
+        var speechTokens = text.tokenized(with: LangCode.currentLanguage.wordTokenizer)
+        if LangCode.currentLanguage == .ko {  // Handle inconsistent word splitting.
+            let nKoTokens = speechTokens.count
+            for i in 0..<nKoTokens - 1 {
+                speechTokens.append(speechTokens[i] + speechTokens[i + 1])
+            }
+        }
         let speechBiGrams = generateBiGrams(from: speechTokens)
         
         let newAttributes = NSMutableAttributedString(attributedString: textView.attributedText!)

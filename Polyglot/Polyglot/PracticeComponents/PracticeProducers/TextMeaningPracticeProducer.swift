@@ -131,16 +131,44 @@ extension TextMeaningPracticeProducer {
         }
         
         if let text = text, let meaning = meaning {
-            callBack(
-                text,
-                meaning,
-                TextSource.article(
-                    articleId: articleId!,
-                    paragraphId: paragraphId!,
-                    sentenceId: sentenceIndex
-                ),
-                false
-            )
+            if LangCode.init(detectedFrom: meaning) == LangCode.currentLanguage.configs.languageForTranslation {
+                callBack(
+                    text,
+                    meaning,
+                    TextSource.article(
+                        articleId: articleId!,
+                        paragraphId: paragraphId!,
+                        sentenceId: sentenceIndex
+                    ),
+                    false
+                )
+            } else {
+                translator.translate(query: meaning) { translations in
+                    if let meaningTranslation = translations.first {
+                        callBack(
+                            text,
+                            meaning + " / " + meaningTranslation,
+                            TextSource.article(
+                                articleId: articleId!,
+                                paragraphId: paragraphId!,
+                                sentenceId: sentenceIndex
+                            ),
+                            true
+                        )
+                    } else {
+                        callBack(
+                            text,
+                            meaning,
+                            TextSource.article(
+                                articleId: articleId!,
+                                paragraphId: paragraphId!,
+                                sentenceId: sentenceIndex
+                            ),
+                            false
+                        )
+                    }
+                }
+            }
         } else if let text = text, meaning == nil {
             translator.translate(query: text) { translations in
                 guard let meaning = translations.first else {

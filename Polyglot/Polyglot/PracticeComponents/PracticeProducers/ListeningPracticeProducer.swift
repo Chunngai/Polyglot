@@ -109,73 +109,6 @@ extension ListeningPracticeProducer {
         
     }
     
-    private func generateClozeRanges(for text: String) -> [NSRange] {
-                
-        var clozeRanges: [NSRange] = []
-
-        // For Japanese and some languages, tokenization is crucial.
-        var tokens = text.tokenized(with: LangCode.currentLanguage.wordTokenizer)
-        guard !tokens.isEmpty else {
-            return []
-        }
-        
-        var tokenBuffer: String = ""
-        var location: Int = 0
-        var length: Int = 0
-        for (i, character) in text.enumerated() {
-            
-            if tokenBuffer == tokens[0] {
-                if !LangCode.currentLanguage.clozeFilter(tokenBuffer) {
-                    clozeRanges.append(NSRange(
-                        location: location,
-                        length: length
-                    ))
-                }
-                tokens.remove(at: 0)
-                tokenBuffer = ""
-                
-//                print(
-//                    location,
-//                    length,
-//                    (text as NSString).substring(with: NSRange(
-//                        location: location,
-//                        length: length
-//                    ))
-//                )
-            }
-            
-            if tokens.isEmpty {
-                break
-            }
-            
-            if character == tokens[0].first! && tokenBuffer.isEmpty {
-                location = i
-                length = 1
-                tokenBuffer = String(character)
-                continue
-            }
-            
-            if tokens[0].starts(with: tokenBuffer + String(character)) {
-                tokenBuffer += String(character)
-                length += 1
-                continue
-            }
-            
-            tokenBuffer = ""
-        }
-
-        if !tokenBuffer.isEmpty {
-            if !LangCode.currentLanguage.clozeFilter(tokenBuffer) {
-                clozeRanges.append(NSRange(
-                    location: location,
-                    length: length
-                ))
-            }
-        }
-        
-        return clozeRanges
-    }
-    
     private func makePractice(
         practiceType: ListeningPractice.PracticeType,
         text: String,
@@ -184,7 +117,7 @@ extension ListeningPracticeProducer {
         isTextMachineTranslated: Bool
     ) -> ListeningPractice? {
                     
-        var clozeRanges: [NSRange] = generateClozeRanges(for: text)
+        var clozeRanges: [NSRange] = text.tokenRanges
         if clozeRanges.isEmpty {
             return nil
         }
