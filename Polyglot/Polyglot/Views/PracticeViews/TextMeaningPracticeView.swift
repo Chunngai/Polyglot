@@ -25,8 +25,16 @@ class TextMeaningPracticeView: BasePracticeView {
     
     var unselectableRanges: [NSRange] = []
     
-    var shouldReinforce: Bool {
-        return !reinforceButton.isEnabled
+    var shouldReinforce: Bool = false {
+        didSet {
+            if shouldReinforce {
+                reinforceButton.tintColor = Colors.inactiveSystemButtonColor
+                reinforceTextButton.setTitleColor(Colors.inactiveTextColor, for: .normal)
+            } else {
+                reinforceButton.tintColor = Colors.activeSystemButtonColor
+                reinforceTextButton.setTitleColor(Colors.activeTextColor, for: .normal)
+            }
+        }
     }
     
     // MARK: - Views
@@ -262,11 +270,9 @@ extension TextMeaningPracticeView {
     
     @objc
     private func reinforceButtonTapped() {
-        reinforceButton.tintColor = Colors.inactiveSystemButtonColor
-        reinforceButton.isEnabled = false
         
-        reinforceTextButton.setTitleColor(Colors.inactiveTextColor, for: .normal)
-        reinforceTextButton.isEnabled = false
+        shouldReinforce.toggle()
+        
     }
     
 }

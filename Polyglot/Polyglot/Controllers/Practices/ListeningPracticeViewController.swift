@@ -180,6 +180,12 @@ extension ListeningPracticeViewController {
             let submission = practiceView.submit()
             practiceProducer.checkCorrectness(of: submission)
             practiceView.updateViewsAfterSubmission()
+            
+            if let practice = practiceProducer.currentPractice as? ListeningPractice,
+               practice.practiceType == .listenAndRepeat,
+               practice.correctness <= ListeningPracticeProducer.listenAndRepeatRedoThredshold {
+                practiceView.shouldReinforce = true
+            }
         }
         
         isRecordingSpeech = false

@@ -184,13 +184,7 @@ extension ListeningPracticeProducer {
             guard let matchedClozeRanges = submission as? [NSRange] else {
                 return
             }
-            if Double(matchedClozeRanges.count) / Double(currentPractice.clozeRanges.count) <= ListeningPracticeProducer.listenAndRepeatRedoThredshold
-                && currentPractice.repeatedTimes < ListeningPracticeProducer.maxRepeatedTimes {
-                
-                let newPractice = ListeningPractice(from: currentPractice)
-                newPractice.repeatedTimes += 1
-                practiceList.append(newPractice)
-            }
+            currentPractice.correctness = Float(matchedClozeRanges.count) / Float(currentPractice.clozeRanges.count)
         }
     }
     
@@ -241,7 +235,6 @@ extension ListeningPracticeProducer {
     // MARK: - Constants
     
     static let maxClozeNumForListenAndComplete: Int = 10
-    static let listenAndRepeatRedoThredshold: Double = 0.6
-    static let maxRepeatedTimes: Int = 3
+    static let listenAndRepeatRedoThredshold: Float = 0.6
     
 }

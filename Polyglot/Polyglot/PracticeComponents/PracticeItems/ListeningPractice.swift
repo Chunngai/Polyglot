@@ -19,6 +19,7 @@ class ListeningPractice: TextMeaningPractice {
     var prompt: String
     var clozeRanges: [NSRange]
     var repeatedTimes: Int
+    var correctness: Float = 0
     
     init(
         practiceType: PracticeType,
@@ -74,6 +75,7 @@ class ListeningPractice: TextMeaningPractice {
         case prompt
         case clozeRanges
         case repeatedTimes
+        case correctness
     }
     
     override func encode(to encoder: Encoder) throws {
@@ -82,6 +84,7 @@ class ListeningPractice: TextMeaningPractice {
         try container.encode(prompt, forKey: .prompt)
         try container.encode(clozeRanges.map(CodableRange.init(from:)), forKey: .clozeRanges)
         try container.encode(repeatedTimes, forKey: .repeatedTimes)
+        try container.encode(correctness, forKey: .correctness)
         
         try super.encode(to: encoder)
     }
@@ -92,6 +95,7 @@ class ListeningPractice: TextMeaningPractice {
         prompt = try container.decode(String.self, forKey: .prompt)
         clozeRanges = (try container.decode([CodableRange].self, forKey: .clozeRanges)).map { $0.nsRange }
         repeatedTimes = try container.decode(Int.self, forKey: .repeatedTimes)
+        correctness = try container.decode(Float.self, forKey: .correctness)
         
         try super.init(from: decoder)
     }
