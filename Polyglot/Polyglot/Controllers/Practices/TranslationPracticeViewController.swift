@@ -40,7 +40,9 @@ class TranslationPracticeViewController: TextMeaningPracticeViewController {
             textSource: practice.textSource,
             isTextMachineTranslated: practice.isTextMachineTranslated,
             existingPhraseRanges: practice.existingPhraseRanges,
-            existingPhraseMeanings: practice.existingPhraseMeanings
+            existingPhraseMeanings: practice.existingPhraseMeanings,
+            totalRepetitions: practice.totalRepetitions,
+            currentRepetition: practice.currentRepetition
         )
         
         practiceView.speakButton.isHidden = true
@@ -58,9 +60,9 @@ extension TranslationPracticeViewController {
         super.doneButtonTapped()
         
         if let practiceView = practiceView as? TextMeaningPracticeView {
-            practiceProducer.submit([])  // Do nothing here. TODO: - return the submitted practice or something.
             practiceView.updateViewsAfterSubmission()  // TODO: - accept the submitted practice as input.
         }
+        practiceProducer.updatePracticeRepetitions()
     }
     
     @objc override func nextButtonTapped() {

@@ -18,6 +18,8 @@ class TextMeaningPracticeView: BasePracticeView {
     var isTextMachineTranslated: Bool!
     var existingPhraseRanges: [NSRange]!
     var existingPhraseMeanings: [String]!
+    var totalRepetitions: Int!
+    var currentRepetition: Int!
     
     var newWordsInfo: [NewWordInfo] {
         return textView.newWordsInfo
@@ -30,10 +32,16 @@ class TextMeaningPracticeView: BasePracticeView {
             if shouldReinforce {
                 reinforceButton.tintColor = Colors.inactiveSystemButtonColor
                 reinforceTextButton.setTitleColor(Colors.inactiveTextColor, for: .normal)
+                
+                totalRepetitions += 1
             } else {
                 reinforceButton.tintColor = Colors.activeSystemButtonColor
                 reinforceTextButton.setTitleColor(Colors.activeTextColor, for: .normal)
+                
+                totalRepetitions -= 1
             }
+            
+            updateRepetitionLabelText()
         }
     }
     
@@ -88,6 +96,14 @@ class TextMeaningPracticeView: BasePracticeView {
         return button
     }()
     
+    let repetitionsLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = Colors.weakTextColor
+        label.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        label.textAlignment = .center
+        return label
+    }()
+    
     // MARK: - Init
     
     init(
@@ -99,7 +115,9 @@ class TextMeaningPracticeView: BasePracticeView {
         textSource: TextSource,
         isTextMachineTranslated: Bool,
         existingPhraseRanges: [NSRange],
-        existingPhraseMeanings: [String]
+        existingPhraseMeanings: [String],
+        totalRepetitions: Int,
+        currentRepetition: Int
     ) {
         super.init(frame: frame)
         
@@ -111,6 +129,8 @@ class TextMeaningPracticeView: BasePracticeView {
         self.isTextMachineTranslated = isTextMachineTranslated
         self.existingPhraseRanges = existingPhraseRanges
         self.existingPhraseMeanings = existingPhraseMeanings
+        self.totalRepetitions = totalRepetitions
+        self.currentRepetition = currentRepetition
         
         textView = NewWordAddingTextView(
             textLang: textLang,
@@ -120,6 +140,8 @@ class TextMeaningPracticeView: BasePracticeView {
             string: " ",
             attributes: Attributes.leftAlignedLongTextAttributes
         )
+        
+        updateRepetitionLabelText()
     }
     
     required init?(coder: NSCoder) {
@@ -148,6 +170,7 @@ class TextMeaningPracticeView: BasePracticeView {
         mainView.addSubview(speakButton)
         mainView.addSubview(reinforceButton)
         mainView.addSubview(reinforceTextButton)
+        mainView.addSubview(repetitionsLabel)
     }
     
     func updateLayouts() {
@@ -178,6 +201,11 @@ class TextMeaningPracticeView: BasePracticeView {
             make.leading.equalTo(reinforceButton.snp.trailing).offset(5)
             make.centerY.equalTo(reinforceButton.snp.centerY)
         }
+        
+        repetitionsLabel.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.centerY.equalTo(listenButton.snp.centerY)
+        }
     }
     
     func displayText() {
@@ -198,6 +226,9 @@ class TextMeaningPracticeView: BasePracticeView {
         
         reinforceButton.isHidden = false
         reinforceTextButton.isHidden = false
+        
+        currentRepetition += 1
+        updateRepetitionLabelText()
     }
 }
 
@@ -236,6 +267,10 @@ extension TextMeaningPracticeView {
             ))
         }
         textView.highlightAll()
+    }
+    
+    private func updateRepetitionLabelText() {
+        repetitionsLabel.text = "\(currentRepetition!)/\(totalRepetitions!)"
     }
 }
 

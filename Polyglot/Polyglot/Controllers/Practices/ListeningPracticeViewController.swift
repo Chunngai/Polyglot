@@ -108,7 +108,9 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController {
                 isTextMachineTranslated: currentPractice.isTextMachineTranslated,
                 clozeRanges: currentPractice.clozeRanges,
                 existingPhraseRanges: currentPractice.existingPhraseRanges,
-                existingPhraseMeanings: currentPractice.existingPhraseMeanings
+                existingPhraseMeanings: currentPractice.existingPhraseMeanings,
+                totalRepetitions: currentPractice.totalRepetitions,
+                currentRepetition: currentPractice.currentRepetition
             )
             practiceView.delegate = self
             
@@ -136,7 +138,9 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController {
                 textSource: currentPractice.textSource,
                 isTextMachineTranslated: currentPractice.isTextMachineTranslated,
                 existingPhraseRanges: currentPractice.existingPhraseRanges,
-                existingPhraseMeanings: currentPractice.existingPhraseMeanings
+                existingPhraseMeanings: currentPractice.existingPhraseMeanings,
+                totalRepetitions: currentPractice.totalRepetitions,
+                currentRepetition: currentPractice.currentRepetition
             )
         }
     }
@@ -178,15 +182,13 @@ extension ListeningPracticeViewController {
         
         if let practiceView = practiceView as? TextMeaningPracticeView {
             let submission = practiceView.submit()
-            practiceProducer.submit(submission)
-            practiceView.updateViewsAfterSubmission()
-            
-            if let practice = practiceProducer.currentPractice as? ListeningPractice,
-               practice.practiceType == .listenAndRepeat,
-               practice.correctness <= ListeningPracticeProducer.listenAndRepeatRedoThredshold {
+            if let correctness = practiceProducer.submit(submission),
+               correctness <= ListeningPracticeProducer.listenAndRepeatRedoThredshold {
                 practiceView.shouldReinforce = true
             }
+            practiceView.updateViewsAfterSubmission()
         }
+        practiceProducer.updatePracticeRepetitions()
         
         isRecordingSpeech = false
         speakButton.setImage(

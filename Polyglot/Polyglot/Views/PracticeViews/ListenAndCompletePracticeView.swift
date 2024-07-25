@@ -21,7 +21,9 @@ class ListenAndCompletePracticeView: TextMeaningPracticeView {
         textSource: TextSource,
         isTextMachineTranslated: Bool,
         existingPhraseRanges: [NSRange],
-        existingPhraseMeanings: [String]
+        existingPhraseMeanings: [String],
+        totalRepetitions: Int,
+        currentRepetition: Int
     ) {
         super.init(
             frame: frame,
@@ -32,7 +34,9 @@ class ListenAndCompletePracticeView: TextMeaningPracticeView {
             textSource: textSource,
             isTextMachineTranslated: isTextMachineTranslated,
             existingPhraseRanges: existingPhraseRanges,
-            existingPhraseMeanings: existingPhraseMeanings
+            existingPhraseMeanings: existingPhraseMeanings,
+            totalRepetitions: totalRepetitions,
+            currentRepetition: currentRepetition
         )
         
         updateSetups()

@@ -46,7 +46,9 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
         isTextMachineTranslated: Bool,
         clozeRanges: [NSRange],
         existingPhraseRanges: [NSRange],
-        existingPhraseMeanings: [String]
+        existingPhraseMeanings: [String],
+        totalRepetitions: Int,
+        currentRepetition: Int
     ) {
         super.init(
             frame: frame,
@@ -57,7 +59,9 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
             textSource: textSource,
             isTextMachineTranslated: isTextMachineTranslated,
             existingPhraseRanges: existingPhraseRanges,
-            existingPhraseMeanings: existingPhraseMeanings
+            existingPhraseMeanings: existingPhraseMeanings,
+            totalRepetitions: totalRepetitions,
+            currentRepetition: currentRepetition
         )
         
         self.clozeRanges = clozeRanges

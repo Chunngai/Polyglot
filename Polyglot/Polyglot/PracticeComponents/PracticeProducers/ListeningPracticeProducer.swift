@@ -64,19 +64,19 @@ class ListeningPracticeProducer: TextMeaningPracticeProducer {
         return practiceList
     }
     
-    override func submit(_ matchedClozeRanges: Any) {
-        super.submit(matchedClozeRanges)
-        
+    func submit(_ matchedClozeRanges: Any) -> Float? {
         guard let currentPractice = currentPractice as? ListeningPractice else {
-            return
+            return nil
         }
         
         if currentPractice.practiceType == .listenAndRepeat {
             guard let matchedClozeRanges = matchedClozeRanges as? [NSRange] else {
-                return
+                return nil
             }
-            currentPractice.correctness = Float(matchedClozeRanges.count) / Float(currentPractice.clozeRanges.count)
+            let correctness = Float(matchedClozeRanges.count) / Float(currentPractice.clozeRanges.count)
+            return correctness
         }
+        return nil
     }
     
     override func reinforce() {

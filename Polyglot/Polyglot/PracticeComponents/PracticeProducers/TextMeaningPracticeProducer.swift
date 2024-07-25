@@ -47,7 +47,7 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
         }
     }
     
-    func submit(_ submission: Any) {
+    func updatePracticeRepetitions() {
         if let currentPractice = self.practiceList[self.currentPracticeIndex] as? TextMeaningPractice {
             currentPractice.currentRepetition += 1
             if currentPractice.currentRepetition < currentPractice.totalRepetitions {
