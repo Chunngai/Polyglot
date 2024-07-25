@@ -93,12 +93,10 @@ extension String {
         for (i, character) in self.enumerated() {
             
             if tokenBuffer == tokens[0] {
-                if !LangCode.currentLanguage.clozeFilter(tokenBuffer) {
-                    tokenRanges.append(NSRange(
-                        location: location,
-                        length: length
-                    ))
-                }
+                tokenRanges.append(NSRange(
+                    location: location,
+                    length: length
+                ))
                 tokens.remove(at: 0)
                 tokenBuffer = ""
                 
@@ -133,12 +131,10 @@ extension String {
         }
         
         if !tokenBuffer.isEmpty {
-            if !LangCode.currentLanguage.clozeFilter(tokenBuffer) {
-                tokenRanges.append(NSRange(
-                    location: location,
-                    length: length
-                ))
-            }
+            tokenRanges.append(NSRange(
+                location: location,
+                length: length
+            ))
         }
         
         return tokenRanges

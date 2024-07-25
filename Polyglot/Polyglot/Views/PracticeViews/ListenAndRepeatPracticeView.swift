@@ -26,7 +26,7 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
         Set(clozeRanges).subtracting(matchedClozeRanges)
     }
     
-    private var clozeBiGram2BiRanges: [BiGram: [BiRange]] = [:]  // A bi-gram may correspond to multiple bi-ranges.
+    private var textBiGram2BiRanges: [BiGram: [BiRange]] = [:]  // A bi-gram may correspond to multiple bi-ranges.
     
     private var shouldProcessRecognizedSpeech: Bool = true
     
@@ -85,7 +85,7 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
                 updatedText += " " + koTokens[i] + koTokens[i + 1]
             }
         }
-        clozeBiGram2BiRanges = generateBiGram2BiRanges(
+        textBiGram2BiRanges = generateBiGram2BiRanges(
 //            from: clozeRanges,
             for: updatedText
 //            of: updatedText
@@ -117,10 +117,10 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
             for i in 0..<clozeRanges.count {
                 clozeRanges[i].location += 2  // One for the icon and one for the space.
             }
-            for (biGram, biRanges) in clozeBiGram2BiRanges {
+            for (biGram, biRanges) in textBiGram2BiRanges {
                 for i in 0..<biRanges.count {
-                    clozeBiGram2BiRanges[biGram]![i].leftRange.location += 2
-                    clozeBiGram2BiRanges[biGram]![i].rightRange.location += 2
+                    textBiGram2BiRanges[biGram]![i].leftRange.location += 2
+                    textBiGram2BiRanges[biGram]![i].rightRange.location += 2
                 }
             }
             for i in 0..<existingPhraseRanges.count {
@@ -295,22 +295,24 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
         let speechBiGrams = generateBiGrams(from: speechTokens)
         
         let newAttributes = NSMutableAttributedString(attributedString: textView.attributedText!)
-        let biGramOverlaps = Set(clozeBiGram2BiRanges.keys).intersection(speechBiGrams)
+        let biGramOverlaps = Set(textBiGram2BiRanges.keys).intersection(speechBiGrams)
         for biGramOverlap in biGramOverlaps {
-            guard let biRangeOverlaps = clozeBiGram2BiRanges[biGramOverlap] else {
+            guard let biRangeOverlaps = textBiGram2BiRanges[biGramOverlap] else {
                 continue
             }
             for biRangeOverlap in biRangeOverlaps {
                 for range in [biRangeOverlap.leftRange, biRangeOverlap.rightRange] {
-                    newAttributes.setTextColor(
-                        for: range,
-                        with: Attributes.leftAlignedLongTextAttributes[.foregroundColor] as! UIColor
-                    )
-                    newAttributes.setBackgroundColor(
-                        for: range,
-                        with: mainView.backgroundColor!
-                    )
-                    matchedClozeRanges.insert(range)
+                    if clozeRanges.contains(range) {
+                        newAttributes.setTextColor(
+                            for: range,
+                            with: Attributes.leftAlignedLongTextAttributes[.foregroundColor] as! UIColor
+                        )
+                        newAttributes.setBackgroundColor(
+                            for: range,
+                            with: mainView.backgroundColor!
+                        )
+                        matchedClozeRanges.insert(range)
+                    }
                 }
             }
         }

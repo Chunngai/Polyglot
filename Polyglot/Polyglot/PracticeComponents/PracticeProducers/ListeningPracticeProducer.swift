@@ -119,7 +119,14 @@ extension ListeningPracticeProducer {
         isTextMachineTranslated: Bool
     ) -> ListeningPractice? {
                     
-        var clozeRanges: [NSRange] = text.tokenRanges
+        var clozeRanges: [NSRange] = text.tokenRanges.compactMap { tokenRange in
+            let token = (text as NSString).substring(with: tokenRange)
+            if !LangCode.currentLanguage.clozeFilter(token) {
+                return tokenRange
+            } else {
+                return nil
+            }
+        }
         if clozeRanges.isEmpty {
             return nil
         }
