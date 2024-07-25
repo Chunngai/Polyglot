@@ -21,33 +21,6 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
         } else {
             self.practiceList.append(contentsOf: make())
         }
-//        // Create and save new cached practices for the use of next time.
-//        DispatchQueue.global(qos: .userInitiated).async {
-//            guard var speakingPracticesToCache = self.make() as? [SpeakingPractice] else {
-//                return
-//            }
-//            SpeakingPracticeProducer.save(
-//                &speakingPracticesToCache,
-//                for: LangCode.currentLanguage
-//            )
-//        }
-    }
-    
-    override func next() {
-        super.next()
-        
-        let startIndex = currentPracticeIndex + 1
-        if startIndex >= practiceList.count {
-            return
-        }
-        
-        guard var practicesToCache = [BasePractice](practiceList.suffix(from: currentPracticeIndex + 1)) as? [SpeakingPractice] else {
-            return
-        }
-        SpeakingPracticeProducer.save(
-            &practicesToCache,
-            for: LangCode.currentLanguage
-        )
     }
     
     override func make() -> [BasePractice] {
@@ -61,18 +34,14 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
                     for: self.words.randomElement()!,
                     inGranularity: TextGranularity.sentence,
                     callBack: { practice in
-                        for _ in 1...LangCode.currentLanguage.configs.practiceRepetition {
-                            practiceList.append(SpeakingPractice(from: practice))
-                        }
+                        practiceList.append(practice)
                     }
                 )
             } else if n == 1 {
                 makePractice(
                     inGranularity: TextGranularity.sentence,
                     callBack: { practice in
-                        for _ in 1...LangCode.currentLanguage.configs.practiceRepetition {
-                            practiceList.append(SpeakingPractice(from: practice))
-                        }
+                        practiceList.append(practice)
                     }
                 )
             }
@@ -90,8 +59,25 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
             Thread.sleep(forTimeInterval: 0.1)  // For avoiding high CPU usage.
         }
         
-        practiceList.shuffle()
         return practiceList
+    }
+    
+    override func reinforce() {
+        guard let currentPractice = currentPractice as? SpeakingPractice else {
+            return
+        }
+        currentPractice.totalRepetitions += 1
+        self.practiceList[self.currentPracticeIndex] = currentPractice
+    }
+    
+    override func cache() {        
+        guard var practicesToCache = self.practiceList as? [SpeakingPractice] else {
+            return
+        }
+        SpeakingPracticeProducer.save(
+            &practicesToCache,
+            for: LangCode.currentLanguage
+        )
     }
 }
 
@@ -125,7 +111,9 @@ extension SpeakingPracticeProducer {
             textSource: textSource,
             isTextMachineTranslated: isTextMachineTranslated,
             existingPhraseRanges: existingPhraseRanges,
-            existingPhraseMeanings: existingPhraseMeanings
+            existingPhraseMeanings: existingPhraseMeanings,
+            totalRepetitions: LangCode.currentLanguage.configs.practiceRepetition,
+            currentRepetition: 0
         )
     }
     
@@ -153,17 +141,6 @@ extension SpeakingPracticeProducer {
         }
         
     }
-}
-
-extension SpeakingPracticeProducer {
-    
-    func reinforce() {
-        guard let currentPractice = currentPractice as? SpeakingPractice else {
-            return
-        }
-        practiceList.append(SpeakingPractice(from: currentPractice))
-    }
-    
 }
 
 extension SpeakingPracticeProducer {

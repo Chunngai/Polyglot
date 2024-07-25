@@ -10,6 +10,18 @@ import Foundation
 
 class TextMeaningPracticeProducer: BasePracticeProducer {
     
+    override var currentPractice: BasePractice {
+        get {
+            if self.practiceList.isEmpty {
+                self.practiceList.append(contentsOf: self.make())
+            }
+            return self.practiceList[self.currentPracticeIndex]
+        }
+        set {
+            self.practiceList[self.currentPracticeIndex] = newValue
+        }
+    }
+    
     var groupedArticles: [GroupedArticles]!
     
     var translator: GoogleTranslator = GoogleTranslator(
@@ -23,6 +35,42 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
         super.init(words: words, articles: articles)
         
         self.groupedArticles = articles.groups
+    }
+    
+    override func next() {
+        self.currentPracticeIndex = (0..<self.practiceList.count).randomElement()!
+        
+        if self.practiceList.count <= batchSize / 2 {
+            DispatchQueue.global(qos: .userInitiated).async {
+                self.practiceList.append(contentsOf: self.make())
+            }
+        }
+    }
+    
+    func submit(_ submission: Any) {
+        if let currentPractice = self.practiceList[self.currentPracticeIndex] as? TextMeaningPractice {
+            currentPractice.currentRepetition += 1
+            if currentPractice.currentRepetition < currentPractice.totalRepetitions {
+                self.practiceList[self.currentPracticeIndex] = currentPractice
+            } else {
+                self.practiceList.remove(at: self.currentPracticeIndex)
+            }
+        }
+        // TODO: - debug
+//        for i in 0..<self.practiceList.count {
+//            if let practice = self.practiceList[i] as? TextMeaningPractice {
+//                print(i, practice.totalRepetitions, practice.currentRepetition, practice.text)
+//            }
+//        }
+//        print()
+    }
+    
+    func reinforce() {
+        fatalError("reinforce() has not been implemented.")
+    }
+    
+    func cache() {
+        fatalError("cache() has not been implemented.")
     }
     
 }

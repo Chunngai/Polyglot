@@ -18,7 +18,6 @@ class ListeningPractice: TextMeaningPractice {
     var practiceType: PracticeType
     var prompt: String
     var clozeRanges: [NSRange]
-    var repeatedTimes: Int
     var correctness: Float = 0
     
     init(
@@ -33,12 +32,12 @@ class ListeningPractice: TextMeaningPractice {
         clozeRanges: [NSRange],
         existingPhraseRanges: [NSRange],
         existingPhraseMeanings: [String],
-        repeatedTimes: Int = 0
+        totalRepetitions: Int,
+        currentRepetition: Int
     ) {
         self.practiceType = practiceType
         self.prompt = prompt
         self.clozeRanges = clozeRanges
-        self.repeatedTimes = repeatedTimes
         
         super.init(
             text: text,
@@ -48,7 +47,9 @@ class ListeningPractice: TextMeaningPractice {
             textSource: textSource,
             isTextMachineTranslated: isTextMachineTranslated,
             existingPhraseRanges: existingPhraseRanges,
-            existingPhraseMeanings: existingPhraseMeanings
+            existingPhraseMeanings: existingPhraseMeanings,
+            totalRepetitions: totalRepetitions,
+            currentRepetition: currentRepetition
         )
         
     }
@@ -66,7 +67,8 @@ class ListeningPractice: TextMeaningPractice {
             clozeRanges: another.clozeRanges,
             existingPhraseRanges: another.existingPhraseRanges,
             existingPhraseMeanings: another.existingPhraseMeanings,
-            repeatedTimes: another.repeatedTimes
+            totalRepetitions: another.totalRepetitions,
+            currentRepetition: another.currentRepetition
         )
     }
     
@@ -74,7 +76,6 @@ class ListeningPractice: TextMeaningPractice {
         case practiceType
         case prompt
         case clozeRanges
-        case repeatedTimes
         case correctness
     }
     
@@ -83,7 +84,6 @@ class ListeningPractice: TextMeaningPractice {
         try container.encode(practiceType, forKey: .practiceType)
         try container.encode(prompt, forKey: .prompt)
         try container.encode(clozeRanges.map(CodableRange.init(from:)), forKey: .clozeRanges)
-        try container.encode(repeatedTimes, forKey: .repeatedTimes)
         try container.encode(correctness, forKey: .correctness)
         
         try super.encode(to: encoder)
@@ -94,7 +94,6 @@ class ListeningPractice: TextMeaningPractice {
         practiceType = try container.decode(PracticeType.self, forKey: .practiceType)
         prompt = try container.decode(String.self, forKey: .prompt)
         clozeRanges = (try container.decode([CodableRange].self, forKey: .clozeRanges)).map { $0.nsRange }
-        repeatedTimes = try container.decode(Int.self, forKey: .repeatedTimes)
         correctness = try container.decode(Float.self, forKey: .correctness)
         
         try super.init(from: decoder)

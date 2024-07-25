@@ -21,33 +21,6 @@ class ListeningPracticeProducer: TextMeaningPracticeProducer {
         } else {
             self.practiceList.append(contentsOf: make())
         }
-        // Create and save new cached practices for the use of next time.
-//        DispatchQueue.global(qos: .userInitiated).async {
-//            guard var listeningPracticesToCache = self.make() as? [ListeningPractice] else {
-//                return
-//            }
-//            ListeningPracticeProducer.save(
-//                &listeningPracticesToCache,
-//                for: LangCode.currentLanguage
-//            )
-//        }
-    }
-    
-    override func next() {
-        super.next()
-        
-        let startIndex = currentPracticeIndex + 1
-        if startIndex >= practiceList.count {
-            return
-        }
-        
-        guard var practicesToCache = [BasePractice](practiceList.suffix(from: currentPracticeIndex + 1)) as? [ListeningPractice] else {
-            return
-        }
-        ListeningPracticeProducer.save(
-            &practicesToCache,
-            for: LangCode.currentLanguage
-        )
     }
     
     override func make() -> [BasePractice] {
@@ -62,9 +35,7 @@ class ListeningPracticeProducer: TextMeaningPracticeProducer {
                     for: self.words.randomElement()!,
                     inGranularity: TextGranularity.sentence,
                     callBack: { listenAndRepeatPractice in
-                        for _ in 1...LangCode.currentLanguage.configs.practiceRepetition {
-                            practiceList.append(ListeningPractice(from: listenAndRepeatPractice))
-                        }
+                        practiceList.append(listenAndRepeatPractice)
                     }
                 )
             } else if n == 1 {
@@ -72,9 +43,7 @@ class ListeningPracticeProducer: TextMeaningPracticeProducer {
                     ofType: .listenAndRepeat,
                     inGranularity: TextGranularity.sentence,
                     callBack: { listenAndRepeatPractice in
-                        for _ in 1...LangCode.currentLanguage.configs.practiceRepetition {
-                            practiceList.append(ListeningPractice(from: listenAndRepeatPractice))
-                        }
+                        practiceList.append(listenAndRepeatPractice)
                     }
                 )
             }
@@ -92,9 +61,42 @@ class ListeningPracticeProducer: TextMeaningPracticeProducer {
             Thread.sleep(forTimeInterval: 0.1)  // For avoiding high CPU usage.
         }
         
-        practiceList.shuffle()
         return practiceList
     }
+    
+    override func submit(_ matchedClozeRanges: Any) {
+        super.submit(matchedClozeRanges)
+        
+        guard let currentPractice = currentPractice as? ListeningPractice else {
+            return
+        }
+        
+        if currentPractice.practiceType == .listenAndRepeat {
+            guard let matchedClozeRanges = matchedClozeRanges as? [NSRange] else {
+                return
+            }
+            currentPractice.correctness = Float(matchedClozeRanges.count) / Float(currentPractice.clozeRanges.count)
+        }
+    }
+    
+    override func reinforce() {
+        guard let currentPractice = currentPractice as? ListeningPractice else {
+            return
+        }
+        currentPractice.totalRepetitions += 1
+        self.practiceList[self.currentPracticeIndex] = currentPractice
+    }
+    
+    override func cache() {
+        guard var practicesToCache = practiceList as? [ListeningPractice] else {
+            return
+        }
+        ListeningPracticeProducer.save(
+            &practicesToCache,
+            for: LangCode.currentLanguage
+        )
+    }
+    
 }
 
 extension ListeningPracticeProducer {
@@ -141,7 +143,9 @@ extension ListeningPracticeProducer {
             isTextMachineTranslated: isTextMachineTranslated,
             clozeRanges: clozeRanges,
             existingPhraseRanges: existingPhraseRanges,
-            existingPhraseMeanings: existingPhraseMeanings
+            existingPhraseMeanings: existingPhraseMeanings,
+            totalRepetitions: LangCode.currentLanguage.configs.practiceRepetition,
+            currentRepetition: 0
         )
     }
     
@@ -171,30 +175,6 @@ extension ListeningPracticeProducer {
         }
         
     }
-}
-
-extension ListeningPracticeProducer {
-    
-    func checkCorrectness(of submission: Any) {
-        guard let currentPractice = currentPractice as? ListeningPractice else {
-            return
-        }
-        
-        if currentPractice.practiceType == .listenAndRepeat {
-            guard let matchedClozeRanges = submission as? [NSRange] else {
-                return
-            }
-            currentPractice.correctness = Float(matchedClozeRanges.count) / Float(currentPractice.clozeRanges.count)
-        }
-    }
-    
-    func reinforce() {
-        guard let currentPractice = currentPractice as? ListeningPractice else {
-            return
-        }
-        practiceList.append(ListeningPractice(from: currentPractice))
-    }
-    
 }
 
 extension ListeningPracticeProducer {

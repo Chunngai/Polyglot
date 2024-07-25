@@ -58,7 +58,8 @@ extension TranslationPracticeViewController {
         super.doneButtonTapped()
         
         if let practiceView = practiceView as? TextMeaningPracticeView {
-            practiceView.updateViewsAfterSubmission()
+            practiceProducer.submit([])  // Do nothing here. TODO: - return the submitted practice or something.
+            practiceView.updateViewsAfterSubmission()  // TODO: - accept the submitted practice as input.
         }
     }
     
@@ -68,7 +69,7 @@ extension TranslationPracticeViewController {
                 from: practiceView.newWordsInfo,
                 of: practiceView.textSource
             )
-            save(newWords: newWords)
+            add(newWords: newWords)
             updateExistingRangesAndMeaningsOfRemainingPractices(
                 from: practiceProducer,
                 with: newWords
@@ -81,7 +82,7 @@ extension TranslationPracticeViewController {
         
         guard !shouldFinishPracticing else {
             practiceMetaData["recentTranslationPracticeDate"] = Date().repr(of: Date.defaultDateAndTimeFormat)
-            self.stopPracticing()
+            stopPracticing()
             return
         }
         super.nextButtonTapped()
@@ -93,6 +94,7 @@ extension TranslationPracticeViewController {
 extension TranslationPracticeViewController {
     
     override func stopPracticing() {
+        practiceProducer.cache()  // Finished all / tapped the cancel button.
         super.stopPracticing()
     }
     

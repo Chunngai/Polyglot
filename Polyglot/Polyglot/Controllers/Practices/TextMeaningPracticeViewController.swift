@@ -193,7 +193,7 @@ extension TextMeaningPracticeViewController {
         return newWords
     }
     
-    func save(newWords: [Word]) {
+    func add(newWords: [Word]) {
         
         for newWord in newWords {
             self.words.add(newWord: newWord)
@@ -225,24 +225,23 @@ extension TextMeaningPracticeViewController {
         guard !practiceProducer.practiceList.isEmpty else {
             return
         }
-        guard practiceProducer.currentPracticeIndex + 1 <= practiceProducer.practiceList.count - 1 else {
-            return
-        }
         
-        for i in (practiceProducer.currentPracticeIndex + 1)..<practiceProducer.practiceList.count {
-            if let practice = practiceProducer.practiceList[i] as? TextMeaningPractice {
-                let (newRanges, newMeanings) = practiceProducer.findExistingPhraseRangesAndMeanings(
-                    for: practice.text,
-                    from: newWords
-                )
-                for (newRange, newMeaning) in zip(newRanges, newMeanings) {
-                    if !practice.existingPhraseRanges.contains(newRange) {
-                        practice.existingPhraseRanges.append(newRange)
-                        practice.existingPhraseMeanings.append(newMeaning)
-                    }
-                }
-                practiceProducer.practiceList[i] = practice
+        for i in 0..<practiceProducer.practiceList.count {
+            guard let practice = practiceProducer.practiceList[i] as? TextMeaningPractice else {
+                continue
             }
+            
+            let (newRanges, newMeanings) = practiceProducer.findExistingPhraseRangesAndMeanings(
+                for: practice.text,
+                from: newWords
+            )
+            for (newRange, newMeaning) in zip(newRanges, newMeanings) {
+                if !practice.existingPhraseRanges.contains(newRange) {
+                    practice.existingPhraseRanges.append(newRange)
+                    practice.existingPhraseMeanings.append(newMeaning)
+                }
+            }
+            practiceProducer.practiceList[i] = practice
         }
     }
     

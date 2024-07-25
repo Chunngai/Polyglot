@@ -178,7 +178,7 @@ extension ListeningPracticeViewController {
         
         if let practiceView = practiceView as? TextMeaningPracticeView {
             let submission = practiceView.submit()
-            practiceProducer.checkCorrectness(of: submission)
+            practiceProducer.submit(submission)
             practiceView.updateViewsAfterSubmission()
             
             if let practice = practiceProducer.currentPractice as? ListeningPractice,
@@ -203,7 +203,7 @@ extension ListeningPracticeViewController {
                 from: practiceView.newWordsInfo,
                 of: practiceView.textSource
             )
-            save(newWords: newWords)
+            add(newWords: newWords)
             updateExistingRangesAndMeaningsOfRemainingPractices(
                 from: practiceProducer,
                 with: newWords
@@ -222,7 +222,7 @@ extension ListeningPracticeViewController {
         
         guard !shouldFinishPracticing else {
             practiceMetaData["recentListeningPracticeDate"] = Date().repr(of: Date.defaultDateAndTimeFormat)
-            self.stopPracticing()
+            stopPracticing()
             return
         }
         super.nextButtonTapped()
@@ -319,6 +319,7 @@ extension ListeningPracticeViewController {
 extension ListeningPracticeViewController {
     
     override func stopPracticing() {
+        practiceProducer.cache()  // Finished all / tapped the cancel button.
         super.stopPracticing()
     }
     
