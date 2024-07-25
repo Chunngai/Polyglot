@@ -62,7 +62,6 @@ extension TranslationPracticeViewController {
         if let practiceView = practiceView as? TextMeaningPracticeView {
             practiceView.updateViewsAfterSubmission()  // TODO: - accept the submitted practice as input.
         }
-        practiceProducer.updatePracticeRepetitions()
     }
     
     @objc override func nextButtonTapped() {
@@ -81,6 +80,8 @@ extension TranslationPracticeViewController {
                 practiceProducer.reinforce()
             }
         }
+        // Should be called after any code that will access practiceProducer.currentPractice, as this line of code will delete the current practice.
+        practiceProducer.updatePracticeRepetitions()
         
         guard !shouldFinishPracticing else {
             practiceMetaData["recentTranslationPracticeDate"] = Date().repr(of: Date.defaultDateAndTimeFormat)

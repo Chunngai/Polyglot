@@ -188,7 +188,6 @@ extension ListeningPracticeViewController {
             }
             practiceView.updateViewsAfterSubmission()
         }
-        practiceProducer.updatePracticeRepetitions()
         
         isRecordingSpeech = false
         speakButton.setImage(
@@ -215,6 +214,8 @@ extension ListeningPracticeViewController {
                 practiceProducer.reinforce()
             }
         }
+        // Should be called after any code that will access practiceProducer.currentPractice, as this line of code will delete the current practice.
+        practiceProducer.updatePracticeRepetitions()
         
         speechSynthesizer.stopSpeaking(at: .immediate)  // Stop first.
         isProducingSpeech = false  // Then change the image.
