@@ -107,7 +107,7 @@
 		FFBD60412969D713004165FC /* WordPracticeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60402969D713004165FC /* WordPracticeProducer.swift */; };
 		FFBD60452969D733004165FC /* SpeakingPracticeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60442969D733004165FC /* SpeakingPracticeProducer.swift */; };
 		FFCBB0D7296B0AA200E5B9D9 /* PracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0D6296B0AA200E5B9D9 /* PracticeViewController.swift */; };
-		FFCBB0DB296B1A6700E5B9D9 /* PracticeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0DA296B1A6700E5B9D9 /* PracticeProducer.swift */; };
+		FFCBB0DB296B1A6700E5B9D9 /* BasePracticeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0DA296B1A6700E5B9D9 /* BasePracticeProducer.swift */; };
 		FFCBB0E0296B45F300E5B9D9 /* TranslationPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0DF296B45F300E5B9D9 /* TranslationPracticeView.swift */; };
 		FFD7DF6D299D376000019D51 /* RowStackItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD7DF6C299D376000019D51 /* RowStackItem.swift */; };
 		FFD7DF72299D509B00019D51 /* CGRectExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD7DF71299D509B00019D51 /* CGRectExtensions.swift */; };
@@ -271,7 +271,7 @@
 		FFBD60402969D713004165FC /* WordPracticeProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPracticeProducer.swift; sourceTree = "<group>"; };
 		FFBD60442969D733004165FC /* SpeakingPracticeProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingPracticeProducer.swift; sourceTree = "<group>"; };
 		FFCBB0D6296B0AA200E5B9D9 /* PracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeViewController.swift; sourceTree = "<group>"; };
-		FFCBB0DA296B1A6700E5B9D9 /* PracticeProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeProducer.swift; sourceTree = "<group>"; };
+		FFCBB0DA296B1A6700E5B9D9 /* BasePracticeProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasePracticeProducer.swift; sourceTree = "<group>"; };
 		FFCBB0DF296B45F300E5B9D9 /* TranslationPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeView.swift; sourceTree = "<group>"; };
 		FFD7DF6C299D376000019D51 /* RowStackItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RowStackItem.swift; sourceTree = "<group>"; };
 		FFD7DF71299D509B00019D51 /* CGRectExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGRectExtensions.swift; sourceTree = "<group>"; };
@@ -586,7 +586,7 @@
 		FF69103229956F65003A925A /* PracticeProducers */ = {
 			isa = PBXGroup;
 			children = (
-				FFCBB0DA296B1A6700E5B9D9 /* PracticeProducer.swift */,
+				FFCBB0DA296B1A6700E5B9D9 /* BasePracticeProducer.swift */,
 				C606260C2B80765E00429BAF /* TextMeaningPracticeProducer.swift */,
 				FFBD60402969D713004165FC /* WordPracticeProducer.swift */,
 				FFBD60442969D733004165FC /* SpeakingPracticeProducer.swift */,
@@ -969,7 +969,7 @@
 				C619E68F2AC8154F00A30B27 /* LangCell.swift in Sources */,
 				C6F5FB7E2B72067F0040A26B /* ListeningPracticeProducer.swift in Sources */,
 				FF584434296732B400137E00 /* DictionaryExtensions.swift in Sources */,
-				FFCBB0DB296B1A6700E5B9D9 /* PracticeProducer.swift in Sources */,
+				FFCBB0DB296B1A6700E5B9D9 /* BasePracticeProducer.swift in Sources */,
 				C6C8C3132B75F95500FBC43B /* CFStringExtensions.swift in Sources */,
 				FF52921229520D1200858B55 /* UINavigationBarExtensions.swift in Sources */,
 				C6F5FB762B71079C0040A26B /* ClozeViewController.swift in Sources */,

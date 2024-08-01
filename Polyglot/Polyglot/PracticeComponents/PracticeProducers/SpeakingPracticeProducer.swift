@@ -15,6 +15,9 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
     override init(words: [Word], articles: [Article]) {
         super.init(words: words, articles: articles)
         
+        // Override the batch size.
+        self.batchSize = LangCode.currentLanguage.configs.speakingPracticeDuration
+        
         let cachedSpeakingPractices = SpeakingPracticeProducer.loadCachedPractices(for: LangCode.currentLanguage)
         if !cachedSpeakingPractices.isEmpty {
             self.practiceList.append(contentsOf: cachedSpeakingPractices)

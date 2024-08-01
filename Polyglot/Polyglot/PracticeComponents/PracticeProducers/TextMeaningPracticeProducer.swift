@@ -40,7 +40,7 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
     override func next() {
         self.currentPracticeIndex = (0..<self.practiceList.count).randomElement()!
         
-        if self.practiceList.count <= batchSize / 2 {
+        if self.practiceList.count <= batchSize {
             DispatchQueue.global(qos: .userInitiated).async {
                 self.practiceList.append(contentsOf: self.make())
             }
