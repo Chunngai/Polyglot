@@ -69,7 +69,7 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
         guard let currentPractice = currentPractice as? SpeakingPractice else {
             return
         }
-        currentPractice.totalRepetitions += 1
+        currentPractice.totalRepetitions += LangCode.currentLanguage.configs.practiceRepetition
         self.practiceList[self.currentPracticeIndex] = currentPractice
     }
     

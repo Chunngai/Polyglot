@@ -33,12 +33,12 @@ class TextMeaningPracticeView: BasePracticeView {
                 reinforceButton.tintColor = Colors.inactiveSystemButtonColor
                 reinforceTextButton.setTitleColor(Colors.inactiveTextColor, for: .normal)
                 
-                totalRepetitions += 1
+                totalRepetitions += LangCode.currentLanguage.configs.practiceRepetition
             } else {
                 reinforceButton.tintColor = Colors.activeSystemButtonColor
                 reinforceTextButton.setTitleColor(Colors.activeTextColor, for: .normal)
                 
-                totalRepetitions -= 1
+                totalRepetitions -= LangCode.currentLanguage.configs.practiceRepetition
             }
             
             updateRepetitionLabelText()
