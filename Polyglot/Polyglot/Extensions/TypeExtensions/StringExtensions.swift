@@ -175,12 +175,80 @@ extension String {
 
 extension String {
     
+    static let emojiNumber2Int: [Character: Int] = [
+        "0️⃣": 0,
+        "1️⃣": 1,
+        "2️⃣": 2,
+        "3️⃣": 3,
+        "4️⃣": 4,
+        "5️⃣": 5,
+        "6️⃣": 6,
+        "7️⃣": 7,
+        "8️⃣": 8,
+        "9️⃣": 9,
+        "🔢": 1234,
+    ]
+    static let unicodeNumberForms2Float: [Character: Float] = [
+        "⅐": 1/7,
+        "⅑": 1/9,
+        "⅒": 1/10,
+        "⅓": 1/3,
+        "⅔": 2/3,
+        "⅕": 1/5,
+        "⅖": 2/5,
+        "⅗": 3/5,
+        "⅘": 4/5,
+        "⅙": 1/6,
+        "⅚": 5/6,
+        "⅛": 1/8,
+        "⅜": 3/8,
+        "⅝": 5/8,
+        "⅞": 7/8,
+        "Ↄ": 100,
+        "ↄ": 100,
+        "↊": 10,
+        "↋": 11,
+    ]
+    
     var isNumericText: Bool {
         
         return Int(self) != nil || Float(self) != nil || Double(self) != nil || self.allSatisfy({ char in  // https://sarunw.com/posts/how-to-check-if-string-is-number-in-swift/
-            char.isNumber || char == "." || char == ","
+            char.isNumber || char == "." || char == "," || String.emojiNumber2Int.keys.contains(char) || String.unicodeNumberForms2Float.keys.contains(char)
         }) || LangCode.currentLanguage.numberFormatter.number(from: self.lowercased())?.stringValue != nil
         
+    }
+
+    var numericRepresentation: String? {
+        var s = self.replacingOccurrences(of: ",", with: "").replacingOccurrences(of: ", ", with: "")
+        if let intRepr = Int(s) {
+            return String(intRepr)
+        } else if let floatRepr = Float(s) {
+            return String(floatRepr)
+        } else if let doubleRepr = Double(s) {
+            return String(doubleRepr)
+        }
+        
+        
+        let wholeNumberString = s.compactMap({ c in
+            if let v = c.wholeNumberValue {
+                return String(v)
+            } else if let v = String.emojiNumber2Int[c] {
+                return String(v)
+            } else if let v = String.unicodeNumberForms2Float[c] {
+                return String(v)
+            } else {
+                return ""
+            }
+        }).joined(separator: "").trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
+        if wholeNumberString.count != 0 {
+            return wholeNumberString
+        }
+        
+        if let formattedS = LangCode.currentLanguage.numberFormatter.number(from: s.lowercased())?.stringValue {
+            return formattedS
+        }
+        
+        return nil
     }
     
 }

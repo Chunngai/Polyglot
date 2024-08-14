@@ -275,6 +275,9 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
             text = convertUSSpellingToUKSpelling(text: text)
         }
         text = text.lowercased()
+        if text.isNumericText {
+            text = text.numericRepresentation ?? text
+        }
         return text
     }
     
