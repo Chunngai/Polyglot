@@ -305,6 +305,14 @@ extension ListeningPracticeViewController {
         
         // Configure the microphone input.
         let recordingFormat = inputNode.outputFormat(forBus: 0)
+        guard recordingFormat.sampleRate != 0 && recordingFormat.channelCount != 0 else {
+            // Handle random crash (after using the mic with Siri?)
+            // https://stackoverflow.com/questions/41805381/avaudioengine-inputnode-installtap-crash-when-restarting-recording
+            self.isRecordingSpeech = false
+            print("Not enough available inputs!")
+            NSLog("Not enough available inputs!")
+            return
+        }
         inputNode.removeTap(onBus: 0)
         inputNode.installTap(
             onBus: 0,
