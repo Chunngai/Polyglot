@@ -28,6 +28,12 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController {
             if isProducingSpeech {
                 isRecordingSpeech = false
                 if !speechSynthesizer.isSpeaking {
+                    // Should clear the previously enqueued utterance first.
+                    // This is necessary when the speaker becomes ready to speak after being
+                    // occupied by other apps, e.g., speech recognition of sougou input.
+                    // Without the clearing, the app will crash with the error:
+                    // An AVSpeechUtterance shall not be enqueued twice
+                    speechSynthesizer.stopSpeaking(at: .immediate)
                     speechSynthesizer.speak(utterance)
                 } else {
                     speechSynthesizer.continueSpeaking()
@@ -304,7 +310,17 @@ extension ListeningPracticeViewController {
         }
         
         // Configure the microphone input.
-        let recordingFormat = inputNode.outputFormat(forBus: 0)
+        var recordingFormat = inputNode.outputFormat(forBus: 0)
+        if audioSession.sampleRate != recordingFormat.sampleRate {  // Get hardware (hw) sample rate: https://stackoverflow.com/questions/50712088/how-to-get-hardware-samplerate-from-ios-device
+            // Make the hw sample rate consistent with that of the recording format.
+            // Sample rate inconsistency will occur when the mic is used by other apps, e.g., speech recognition of sougou input.
+            // Without making them consistent, the app will crash with the error:
+            // required condition is false: IsFormatSampleRateAndChannelCountValid(format)
+            guard let updatedFormat = AVAudioFormat(standardFormatWithSampleRate: audioSession.sampleRate, channels: 1) else {
+                return
+            }
+            recordingFormat = updatedFormat
+        }
         guard recordingFormat.sampleRate != 0 && recordingFormat.channelCount != 0 else {
             // Handle random crash (after using the mic with Siri?)
             // https://stackoverflow.com/questions/41805381/avaudioengine-inputnode-installtap-crash-when-restarting-recording
