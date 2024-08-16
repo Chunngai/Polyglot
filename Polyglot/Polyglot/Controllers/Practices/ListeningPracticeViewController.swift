@@ -264,6 +264,7 @@ extension ListeningPracticeViewController: AVSpeechSynthesizerDelegate {
      
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
         isProducingSpeech = false
+        isRecordingSpeech = true
     }
 }
 
