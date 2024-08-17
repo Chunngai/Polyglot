@@ -31,6 +31,8 @@
 		C69DB5F02B73D3A800B3BC66 /* SpeechRecognitionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69DB5EF2B73D3A800B3BC66 /* SpeechRecognitionViewController.swift */; };
 		C69F76662B7D198F0006828A /* TextMeaningPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69F76652B7D198F0006828A /* TextMeaningPractice.swift */; };
 		C69F76682B7D1F9F0006828A /* ListeningPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69F76672B7D1F9F0006828A /* ListeningPractice.swift */; };
+		C6A22FEE2C7118A200484B59 /* BaiduTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A22FED2C7118A200484B59 /* BaiduTranslator.swift */; };
+		C6A22FF22C712DBC00484B59 /* LangCodeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A22FF12C712DBC00484B59 /* LangCodeExtensions.swift */; };
 		C6A666F72B75EC03002B4DEE /* US2UKSpellingMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A666F62B75EC03002B4DEE /* US2UKSpellingMapping.swift */; };
 		C6B5187C2AF2C19C00451B90 /* TextViewWithPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B5187B2AF2C19C00451B90 /* TextViewWithPrompt.swift */; };
 		C6B9DE8C2B7E177E004F0C88 /* SpeakingPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B9DE8B2B7E177E004F0C88 /* SpeakingPractice.swift */; };
@@ -64,7 +66,6 @@
 		FF4964CD2958BE8900414AC5 /* TimeIntervalExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4964CC2958BE8900414AC5 /* TimeIntervalExtensions.swift */; };
 		FF4964CF2958CE4400414AC5 /* Word.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4964CE2958CE4400414AC5 /* Word.swift */; };
 		FF4AB0032A9B4C4400908062 /* ContentCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4AB0022A9B4C4400908062 /* ContentCreator.swift */; };
-		FF4AB0072A9B4DE600908062 /* APIKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4AB0062A9B4DE600908062 /* APIKeys.swift */; };
 		FF4B382B29525A4300BB3FFD /* ReadingEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4B382A29525A4300BB3FFD /* ReadingEditViewController.swift */; };
 		FF4B382F29525BD400BB3FFD /* ReadingEditTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4B382E29525BD400BB3FFD /* ReadingEditTableCell.swift */; };
 		FF4CA730295E869900423946 /* TranslationPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4CA72F295E869900423946 /* TranslationPracticeViewController.swift */; };
@@ -185,6 +186,8 @@
 		C69DB5EF2B73D3A800B3BC66 /* SpeechRecognitionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionViewController.swift; sourceTree = "<group>"; };
 		C69F76652B7D198F0006828A /* TextMeaningPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextMeaningPractice.swift; sourceTree = "<group>"; };
 		C69F76672B7D1F9F0006828A /* ListeningPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningPractice.swift; sourceTree = "<group>"; };
+		C6A22FED2C7118A200484B59 /* BaiduTranslator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaiduTranslator.swift; sourceTree = "<group>"; };
+		C6A22FF12C712DBC00484B59 /* LangCodeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCodeExtensions.swift; sourceTree = "<group>"; };
 		C6A666F62B75EC03002B4DEE /* US2UKSpellingMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = US2UKSpellingMapping.swift; sourceTree = "<group>"; };
 		C6B5187B2AF2C19C00451B90 /* TextViewWithPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewWithPrompt.swift; sourceTree = "<group>"; };
 		C6B9DE8B2B7E177E004F0C88 /* SpeakingPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingPractice.swift; sourceTree = "<group>"; };
@@ -223,7 +226,6 @@
 		FF4964CC2958BE8900414AC5 /* TimeIntervalExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeIntervalExtensions.swift; sourceTree = "<group>"; };
 		FF4964CE2958CE4400414AC5 /* Word.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Word.swift; sourceTree = "<group>"; };
 		FF4AB0022A9B4C4400908062 /* ContentCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCreator.swift; sourceTree = "<group>"; };
-		FF4AB0062A9B4DE600908062 /* APIKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIKeys.swift; sourceTree = "<group>"; };
 		FF4B382A29525A4300BB3FFD /* ReadingEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingEditViewController.swift; sourceTree = "<group>"; };
 		FF4B382E29525BD400BB3FFD /* ReadingEditTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingEditTableCell.swift; sourceTree = "<group>"; };
 		FF4CA72F295E869900423946 /* TranslationPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeViewController.swift; sourceTree = "<group>"; };
@@ -449,6 +451,7 @@
 			children = (
 				FF495E982959039A00EA7EA9 /* WordExtensions.swift */,
 				FF4964BF29579DA100414AC5 /* ArticleExtensions.swift */,
+				C6A22FF12C712DBC00484B59 /* LangCodeExtensions.swift */,
 				C696B9502B6DEDA600B00A02 /* ContentCardsExtensions.swift */,
 			);
 			path = ModelExtensions;
@@ -609,10 +612,10 @@
 			isa = PBXGroup;
 			children = (
 				FF58518E29819CF8004EB63C /* GoogleTranslator.swift */,
+				C6A22FED2C7118A200484B59 /* BaiduTranslator.swift */,
 				FF4AB0022A9B4C4400908062 /* ContentCreator.swift */,
 				C67B85A12AED943200F7657A /* JapaneseAccentAnalyzer.swift */,
 				C67B85A32AED94B800F7657A /* RussianAccentAnalyzer.swift */,
-				FF4AB0062A9B4DE600908062 /* APIKeys.swift */,
 			);
 			path = APIs;
 			sourceTree = "<group>";
@@ -932,10 +935,12 @@
 				FF4964BA29579C5A00414AC5 /* UISearchBarExtensions.swift in Sources */,
 				FF5844312967217700137E00 /* ListViewController.swift in Sources */,
 				FF5D129529577CB3005DEEDE /* RoundButtonWithShadow.swift in Sources */,
+				C6A22FEE2C7118A200484B59 /* BaiduTranslator.swift in Sources */,
 				FF4964C029579DA100414AC5 /* ArticleExtensions.swift in Sources */,
 				FF1780CF2A48EDCD005F588B /* Notifications.swift in Sources */,
 				C6C8C3152B75F96A00FBC43B /* CFRangeExtensions.swift in Sources */,
 				FF4964C92958B05300414AC5 /* RoundButton.swift in Sources */,
+				C6A22FF22C712DBC00484B59 /* LangCodeExtensions.swift in Sources */,
 				C69B190A2C18A91800E41C86 /* SettingsSlidingCell.swift in Sources */,
 				C67B85A22AED943200F7657A /* JapaneseAccentAnalyzer.swift in Sources */,
 				FF5690142980367A00CA2C7B /* LangCode.swift in Sources */,
@@ -973,7 +978,6 @@
 				C6C8C3132B75F95500FBC43B /* CFStringExtensions.swift in Sources */,
 				FF52921229520D1200858B55 /* UINavigationBarExtensions.swift in Sources */,
 				C6F5FB762B71079C0040A26B /* ClozeViewController.swift in Sources */,
-				FF4AB0072A9B4DE600908062 /* APIKeys.swift in Sources */,
 				FF5882BE29604E0300FC33CF /* NewWordAddingTextView.swift in Sources */,
 				FF495EA029591DEC00EA7EA9 /* TableHeaderView.swift in Sources */,
 				FFD7DF72299D509B00019D51 /* CGRectExtensions.swift in Sources */,

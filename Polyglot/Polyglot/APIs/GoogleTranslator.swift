@@ -124,6 +124,7 @@ extension GoogleTranslator {
     static private let host = "translate.googleapis.com"
     static private let path = "/translate_a/single"
     static private let queryItems: [String: String] = [
+        // https://stackoverflow.com/questions/26714426/what-is-the-meaning-of-google-translate-query-params
         "client": "gtx",
         "dt": "at",
         "ie": "UTF-8",
