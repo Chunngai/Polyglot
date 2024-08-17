@@ -322,7 +322,7 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
         textView.attributedText = newAttributes
         
         if matchedClozeRanges.count == clozeRanges.count {
-            delegate.canSubmit()
+            delegate.submitAndNext()
         }
     }
     
@@ -363,6 +363,9 @@ extension ListenAndRepeatPracticeView {
 
 protocol ListenAndRepeatPracticeViewDelegate {
     
-    func canSubmit()
+    var countingButtons: [UIButton] { get }
+    var shouldUpdatePractice: Bool { get set }
+    
+    func submitAndNext()
     
 }

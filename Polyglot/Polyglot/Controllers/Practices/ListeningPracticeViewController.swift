@@ -11,7 +11,7 @@ import IQKeyboardManagerSwift
 import AVFoundation
 import Speech
 
-class ListeningPracticeViewController: TextMeaningPracticeViewController {
+class ListeningPracticeViewController: TextMeaningPracticeViewController, ListenAndRepeatPracticeViewDelegate {
     
     private lazy var practiceProducer: ListeningPracticeProducer = ListeningPracticeProducer(
         words: words,
@@ -89,11 +89,60 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController {
         }
     }
     
+    // MARK: - ListenAndRepeatPracticeViewDelegate.
+    var countingButtons: [UIButton] = {
+        var buttons: [UIButton] = [3, 2, 1].map { count in
+            let button = RoundButton(radius: Sizes.roundButtonRadius)
+            button.setTitle(String(count), for: .normal)
+            button.setTitleColor(Colors.weakTextColor, for: .normal)
+            button.titleLabel?.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
+            button.backgroundColor = Colors.lightBlue
+            button.layer.borderColor = Colors.borderColor.cgColor
+            button.layer.borderWidth = Sizes.defaultBorderWidth
+            button.isHidden = true
+            return button
+        }
+        return buttons
+    }()
+    var shouldUpdatePractice: Bool = false
+    
     // MARK: - Views
     
     var listenButton: UIButton!
     var speakButton: UIButton!
+       
+    // MARK: - Init
+    
+    override func updateSetups() {
+        super.updateSetups()
         
+        for button in countingButtons {
+            button.addTarget(
+                self,
+                action: #selector(countingButtonTapped),
+                for: .touchUpInside
+            )
+        }
+    }
+    
+    override func updateViews() {
+        super.updateViews()
+        
+        for button in countingButtons {
+            mainView.addSubview(button)
+        }
+    }
+    
+    override func updateLayouts() {
+        super.updateLayouts()
+        
+        for button in countingButtons {
+            button.snp.makeConstraints { (make) in
+                make.edges.equalTo(doneButton.snp.edges)
+            }
+        }
+    }
+    
     // MARK: - Methods from the Super Class
     
     override func makePrompt() -> String {
@@ -248,12 +297,40 @@ extension ListeningPracticeViewController {
     private func speakButtonTapped() {
         isRecordingSpeech.toggle()
     }
+    
+    @objc
+    private func countingButtonTapped() {
+        shouldUpdatePractice = false
+        mainView.bringSubviewToFront(self.nextButton)
+    }
 }
 
-extension ListeningPracticeViewController: ListenAndRepeatPracticeViewDelegate {
+extension ListeningPracticeViewController {
     
-    func canSubmit() {
+    func submitAndNext() {
         doneButtonTapped()
+        
+        shouldUpdatePractice = true
+        for buttonIndex in 0..<countingButtons.count {
+            let button = countingButtons[buttonIndex]
+            // https://stackoverflow.com/questions/38031137/how-to-program-a-delay-in-swift-3
+            DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .seconds(buttonIndex))) {
+                if !self.shouldUpdatePractice {
+                    self.mainView.bringSubviewToFront(self.nextButton)
+                    return
+                }
+                button.isHidden = false
+                self.mainView.bringSubviewToFront(button)
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .seconds(self.countingButtons.count))) {
+            if !self.shouldUpdatePractice {
+                return
+            }
+            self.nextButtonTapped()
+        }
+        
     }
     
 }
