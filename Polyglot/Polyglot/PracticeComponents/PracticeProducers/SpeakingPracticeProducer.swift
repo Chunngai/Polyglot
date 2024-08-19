@@ -90,7 +90,8 @@ extension SpeakingPracticeProducer {
         text: String,
         meaning: String,
         textSource: TextSource,
-        isTextMachineTranslated: Bool
+        isTextMachineTranslated: Bool,
+        machineTranslatorType: MachineTranslatorType
     ) -> SpeakingPractice? {
         
         let (existingPhraseRanges, existingPhraseMeanings) = findExistingPhraseRangesAndMeanings(
@@ -113,6 +114,7 @@ extension SpeakingPracticeProducer {
             meaningLang: meaningLang,
             textSource: textSource,
             isTextMachineTranslated: isTextMachineTranslated,
+            machineTranslatorType: machineTranslatorType,
             existingPhraseRanges: existingPhraseRanges,
             existingPhraseMeanings: existingPhraseMeanings,
             totalRepetitions: LangCode.currentLanguage.configs.practiceRepetition,
@@ -129,14 +131,15 @@ extension SpeakingPracticeProducer {
         generateTextMeaning(
             randomWord: randomWord,
             granularity: granularity,
-            translator: self.translator,
+            machineTranslator: self.machineTranslator,
             contentCreator: self.contentCreator
-        ) { text, meaning, textSource, isTextMachineTranslated in
+        ) { text, meaning, textSource, isTextMachineTranslated, machineTranslatorType in
             guard let practice = self.makePractice(
                 text: text,
                 meaning: meaning,
                 textSource: textSource,
-                isTextMachineTranslated: isTextMachineTranslated
+                isTextMachineTranslated: isTextMachineTranslated,
+                machineTranslatorType: machineTranslatorType
             ) else {
                 return
             }

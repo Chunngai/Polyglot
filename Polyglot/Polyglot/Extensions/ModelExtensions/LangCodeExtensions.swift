@@ -147,6 +147,9 @@ struct Configs {
     var ChatGPTAPIURL: String?
     var ChatGPTAPIKey: String?
     
+    var baiduTranslateAPPID: String?
+    var baiduTranslateAPIKey: String?
+    
     var backupEmailAddr: String?
     
 }
@@ -167,6 +170,9 @@ extension Configs: Codable {
         case ChatGPTAPIURL
         case ChatGPTAPIKey
         
+        case baiduTranslateAPPID
+        case baiduTranslateAPIKey
+        
         case backupEmailAddr
     }
     
@@ -184,6 +190,9 @@ extension Configs: Codable {
         try container.encode(canGenerateTextsWithLLMsForPractices, forKey: .canGenerateTextsWithLLMsForPractices)
         try container.encode(ChatGPTAPIURL, forKey: .ChatGPTAPIURL)
         try container.encode(ChatGPTAPIKey, forKey: .ChatGPTAPIKey)
+        
+        try container.encode(baiduTranslateAPPID, forKey: .baiduTranslateAPPID)
+        try container.encode(baiduTranslateAPIKey, forKey: .baiduTranslateAPIKey)
         
         try container.encode(backupEmailAddr, forKey: .backupEmailAddr)
     }
@@ -214,6 +223,17 @@ extension Configs: Codable {
         canGenerateTextsWithLLMsForPractices = try values.decode(Bool.self, forKey: .canGenerateTextsWithLLMsForPractices)
         ChatGPTAPIURL = try values.decode(String?.self, forKey: .ChatGPTAPIURL)
         ChatGPTAPIKey = try values.decode(String?.self, forKey: .ChatGPTAPIKey)
+        
+        do {
+            baiduTranslateAPPID = try values.decode(String?.self, forKey: .baiduTranslateAPPID)
+        } catch {
+            baiduTranslateAPPID = nil
+        }
+        do {
+            baiduTranslateAPIKey = try values.decode(String?.self, forKey: .baiduTranslateAPIKey)
+        } catch {
+            baiduTranslateAPIKey = nil
+        }
         
         backupEmailAddr = try values.decode(String?.self, forKey: .backupEmailAddr)
     }

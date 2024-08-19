@@ -16,6 +16,7 @@ class TextMeaningPracticeView: BasePracticeView {
     var meaningLang: LangCode!
     var textSource: TextSource!
     var isTextMachineTranslated: Bool!
+    var machineTranslatorType: MachineTranslatorType!
     var existingPhraseRanges: [NSRange]!
     var existingPhraseMeanings: [String]!
     var totalRepetitions: Int!
@@ -25,6 +26,13 @@ class TextMeaningPracticeView: BasePracticeView {
         return textView.newWordsInfo
     }
     
+    var translatorIcon: UIImage {
+        switch machineTranslatorType {
+        case .google: return Icons.googleTranslateIcon
+        case .baidu: return Icons.baiduTranslateIcon
+        default: return UIImage.init(systemName: "questionmark.square.dashed")!
+        }
+    }
     var unselectableRanges: [NSRange] = []
     
     var shouldReinforce: Bool = false {
@@ -114,6 +122,7 @@ class TextMeaningPracticeView: BasePracticeView {
         meaningLang: LangCode,
         textSource: TextSource,
         isTextMachineTranslated: Bool,
+        machineTranslatorType: MachineTranslatorType,
         existingPhraseRanges: [NSRange],
         existingPhraseMeanings: [String],
         totalRepetitions: Int,
@@ -127,6 +136,7 @@ class TextMeaningPracticeView: BasePracticeView {
         self.meaningLang = meaningLang
         self.textSource = textSource
         self.isTextMachineTranslated = isTextMachineTranslated
+        self.machineTranslatorType = machineTranslatorType
         self.existingPhraseRanges = existingPhraseRanges
         self.existingPhraseMeanings = existingPhraseMeanings
         self.totalRepetitions = totalRepetitions

@@ -26,9 +26,11 @@ class SettingsViewController: UIViewController {
         "Practice duration",
         "Repetition for listening/speaking practices",
         "Text generation with LLMs",
+        "Baidu translate",
         "Data backup"
     ]
     lazy var cells: [[UITableViewCell]] = [
+        // Language for translation.
         [
             {
                 let cell = UITableViewCell(
@@ -51,6 +53,7 @@ class SettingsViewController: UIViewController {
                 return cell
             }()
         ],
+        // Voice rate.
         [
             {
                 let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
@@ -66,6 +69,7 @@ class SettingsViewController: UIViewController {
                 return cell
             }()
         ],
+        // Practice duration.
         [
             {
                 let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
@@ -107,6 +111,7 @@ class SettingsViewController: UIViewController {
                 return cell
             }()
         ],
+        // Practice repetition.
         [
             {
                 let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
@@ -122,6 +127,7 @@ class SettingsViewController: UIViewController {
                 return cell
             }()
         ],
+        // Text generation with llms.
         [
             {
                 let cell = SettingsSwitchingCell(style: .default, reuseIdentifier: "")
@@ -152,6 +158,23 @@ class SettingsViewController: UIViewController {
                 return cell
             }(),
         ],
+        [
+            {
+                let cell = SettingsInputCell(style: .default, reuseIdentifier: "")
+                cell.imageView?.image = UIImage(systemName: "app")!
+                cell.textField.placeholder = "APP ID"  // TODO: - Update localization
+                cell.textField.text = LangCode.currentLanguage.configs.baiduTranslateAPPID
+                return cell
+            }(),
+            {
+                let cell = SettingsInputCell(style: .default, reuseIdentifier: "")
+                cell.imageView?.image = UIImage(systemName: "key")!
+                cell.textField.placeholder = "API key"  // TODO: - Update localization
+                cell.textField.text = LangCode.currentLanguage.configs.baiduTranslateAPIKey
+                return cell
+            }()
+        ],
+        // Data backup.
         [
             {
                 let cell = SettingsInputCell(style: .default, reuseIdentifier: "")
@@ -203,7 +226,9 @@ class SettingsViewController: UIViewController {
             canGenerateTextsWithLLMsForPractices: (cells[4][0] as! SettingsSwitchingCell).switchView.isOn,
             ChatGPTAPIURL: (cells[4][1] as! SettingsInputCell).textField.text?.strip(),
             ChatGPTAPIKey: (cells[4][2] as! SettingsInputCell).textField.text?.strip(),
-            backupEmailAddr: (cells[5][0] as! SettingsInputCell).textField.text?.strip()
+            baiduTranslateAPPID: (cells[5][0] as! SettingsInputCell).textField.text?.strip(),
+            baiduTranslateAPIKey: (cells[5][1] as! SettingsInputCell).textField.text?.strip(),
+            backupEmailAddr: (cells[6][0] as! SettingsInputCell).textField.text?.strip()
         )
     }
     

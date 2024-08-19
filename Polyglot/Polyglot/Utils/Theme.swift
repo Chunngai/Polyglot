@@ -109,6 +109,7 @@ struct Icons {
     static let pauseIcon = UIImage(imageLiteralResourceName: "pause")
     static let chatgptIcon = UIImage(imageLiteralResourceName: "chatgpt").whiteBackgroundToTransparent()!
     static let googleTranslateIcon = UIImage(imageLiteralResourceName: "google-translate")
+    static let baiduTranslateIcon = UIImage(imageLiteralResourceName: "baidu-translate")
     
     // Ref: https://stackoverflow.com/questions/31803157/how-can-i-color-a-uiimage-in-swift
     static let start1Icon = UIImage(imageLiteralResourceName: "start_1").withRenderingMode(.alwaysTemplate)

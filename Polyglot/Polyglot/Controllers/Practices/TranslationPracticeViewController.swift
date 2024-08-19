@@ -39,6 +39,7 @@ class TranslationPracticeViewController: TextMeaningPracticeViewController {
             meaningLang: practice.meaningLang,
             textSource: practice.textSource,
             isTextMachineTranslated: practice.isTextMachineTranslated,
+            machineTranslatorType: practice.machineTranslatorType,
             existingPhraseRanges: practice.existingPhraseRanges,
             existingPhraseMeanings: practice.existingPhraseMeanings,
             totalRepetitions: practice.totalRepetitions,

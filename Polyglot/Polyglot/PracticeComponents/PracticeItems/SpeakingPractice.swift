@@ -18,6 +18,7 @@ class SpeakingPractice: TextMeaningPractice {
             meaningLang: another.meaningLang,
             textSource: another.textSource,
             isTextMachineTranslated: another.isTextMachineTranslated,
+            machineTranslatorType: another.machineTranslatorType,
             existingPhraseRanges: another.existingPhraseRanges,
             existingPhraseMeanings: another.existingPhraseMeanings,
             totalRepetitions: another.totalRepetitions,

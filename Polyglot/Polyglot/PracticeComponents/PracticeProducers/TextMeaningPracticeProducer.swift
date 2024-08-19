@@ -15,6 +15,10 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
             if self.practiceList.isEmpty {
                 self.practiceList.append(contentsOf: self.make())
             }
+            while self.practiceList.isEmpty {  // TODO: - improve here.
+                
+            }
+            
             return self.practiceList[self.currentPracticeIndex]
         }
         set {
@@ -24,7 +28,7 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
     
     var groupedArticles: [GroupedArticles]!
     
-    var translator: GoogleTranslator = GoogleTranslator(
+    var machineTranslator: MachineTranslator = MachineTranslator(
         srcLang: LangCode.currentLanguage,
         trgLang: LangCode.currentLanguage.configs.languageForTranslation
     )
@@ -38,6 +42,13 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
     }
     
     override func next() {
+        if self.practiceList.isEmpty {
+            self.practiceList.append(contentsOf: self.make())
+        }
+        while self.practiceList.isEmpty {  // TODO: - Improve here.
+            
+        }
+        
         self.currentPracticeIndex = (0..<self.practiceList.count).randomElement()!
         
         if self.practiceList.count <= batchSize {
@@ -110,38 +121,43 @@ extension TextMeaningPracticeProducer {
     
     private func maybeTranslate(text: String, meaning: String? = nil, callBack: @escaping (
         String,  // Translated text (meaning).
-        Bool  // isTranslated.
+        Bool,  // isTranslated.
+        MachineTranslatorType  // Translator type.
     ) -> Void ) {
         
         if let meaning = meaning {
             if LangCode.init(detectedFrom: meaning) == LangCode.currentLanguage.configs.languageForTranslation {
                 callBack(
                     meaning,
-                    false
+                    false,
+                    MachineTranslatorType.none
                 )
             } else {
-                translator.translate(query: text) { translations in
+                machineTranslator.translate(query: text) { translations, translatorType in
                     if let translation = translations.first {
                         callBack(
                             "\(translation) (\(meaning))",
-                            true
+                            true,
+                            translatorType
                         )
                     } else {
                         callBack(
                             meaning,
-                            false
+                            false,
+                            MachineTranslatorType.none
                         )
                     }
                 }
             }
         } else {
-            translator.translate(query: text) { translations in
+            machineTranslator.translate(query: text) { translations, translatorType in
                 guard let translation = translations.first else {
                     return
                 }
                 callBack(
                     translation,
-                    true
+                    true,
+                    translatorType
                 )
             }
         }
@@ -150,13 +166,14 @@ extension TextMeaningPracticeProducer {
     func generateTextMeaning(
         randomWord: Word?,
         granularity: TextGranularity,
-        translator: GoogleTranslator,
+        machineTranslator: MachineTranslator,
         contentCreator: ContentCreator,
         callBack: @escaping (
             String,  // text
             String,  // meaning
             TextSource,
-            Bool  // isTextMachineTranslated
+            Bool,  // isTextMachineTranslated
+            MachineTranslatorType  // machineTranslatorType
         ) -> Void
     ) {
         
@@ -226,12 +243,13 @@ extension TextMeaningPracticeProducer {
             maybeTranslate(
                 text: text,
                 meaning: meaning  // May be nil.
-            ) { updatedMeaning, isTranslated in
+            ) { updatedMeaning, isTranslated, translatorType in
                 callBack(
                     text,
                     updatedMeaning,
                     textSource,
-                    isTranslated
+                    isTranslated,
+                    translatorType
                 )
             }
         } else {
@@ -244,24 +262,26 @@ extension TextMeaningPracticeProducer {
                     in: granularity
                 ) { content in
                     if let content = content {
-                        self.maybeTranslate(text: content) { contentMeaning, isTranslated in
+                        self.maybeTranslate(text: content) { contentMeaning, isTranslated, translatorType in
                             callBack(
                                 content,
                                 contentMeaning,
                                 TextSource.chatGpt,
-                                isTranslated
+                                isTranslated,
+                                translatorType
                             )
                         }
                     } else {
                         self.maybeTranslate(
                             text: randomWord.text,
                             meaning: randomWord.meaning
-                        ) { updatedMeaning, isTranslated in
+                        ) { updatedMeaning, isTranslated, translatorType in
                             callBack(
                                 randomWord.text,
                                 updatedMeaning,
                                 TextSource.none,
-                                isTranslated
+                                isTranslated,
+                                translatorType
                             )
                         }
                     }
@@ -270,107 +290,18 @@ extension TextMeaningPracticeProducer {
                 self.maybeTranslate(
                     text: randomWord.text,
                     meaning: randomWord.meaning
-                ) { updatedMeaning, isTranslated in
+                ) { updatedMeaning, isTranslated, translatorType in
                     callBack(
                         randomWord.text,
                         updatedMeaning,
                         TextSource.none,
-                        isTranslated
+                        isTranslated,
+                        translatorType
                     )
                 }
             }
         }
-        
-//        if let text = text, let meaning = meaning {
-//            if LangCode.init(detectedFrom: meaning) == LangCode.currentLanguage.configs.languageForTranslation {
-//                callBack(
-//                    text,
-//                    meaning,
-//                    TextSource.article(
-//                        articleId: articleId!,
-//                        paragraphId: paragraphId!,
-//                        sentenceId: sentenceIndex
-//                    ),
-//                    false
-//                )
-//            } else {
-//                translator.translate(query: meaning) { translations in
-//                    if let meaningTranslation = translations.first {
-//                        callBack(
-//                            text,
-//                            meaning + " / " + meaningTranslation,
-//                            TextSource.article(
-//                                articleId: articleId!,
-//                                paragraphId: paragraphId!,
-//                                sentenceId: sentenceIndex
-//                            ),
-//                            true
-//                        )
-//                    } else {
-//                        callBack(
-//                            text,
-//                            meaning,
-//                            TextSource.article(
-//                                articleId: articleId!,
-//                                paragraphId: paragraphId!,
-//                                sentenceId: sentenceIndex
-//                            ),
-//                            false
-//                        )
-//                    }
-//                }
-//            }
-//        } else if let text = text, meaning == nil {
-//            translator.translate(query: text) { translations in
-//                guard let meaning = translations.first else {
-//                    return
-//                }
-//                callBack(
-//                    text,
-//                    meaning,
-//                    TextSource.article(
-//                        articleId: articleId!,
-//                        paragraphId: paragraphId!,
-//                        sentenceId: sentenceIndex
-//                    ),
-//                    true
-//                )
-//            }
-//        } else if text == nil && meaning == nil {
-//            guard let randomWord = randomWord else {
-//                return
-//            }
-//            if !LangCode.currentLanguage.configs.canGenerateTextsWithLLMsForPractices {
-//                callBack(
-//                    randomWord.text,
-//                    randomWord.meaning,
-//                    TextSource.none,
-//                    false
-//                )
-//                return
-//            }
-//            contentCreator.createContent(
-//                for: [randomWord.text],
-//                in: granularity
-//            ) { content in
-//                guard let content = content else {
-//                    return
-//                }
-//                translator.translate(
-//                    query: content
-//                ) { translations in
-//                    guard let meaning = translations.first else {
-//                        return
-//                    }
-//                    callBack(
-//                        content,
-//                        meaning,
-//                        TextSource.chatGpt,
-//                        true
-//                    )
-//                }
-//            }
-//        }
+
     }
 
 }

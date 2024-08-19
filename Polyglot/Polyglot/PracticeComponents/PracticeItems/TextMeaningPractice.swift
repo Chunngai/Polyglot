@@ -31,6 +31,7 @@ class TextMeaningPractice: BasePractice, Codable {
     var meaningLang: LangCode
     var textSource: TextSource
     var isTextMachineTranslated: Bool
+    var machineTranslatorType: MachineTranslatorType
     var existingPhraseRanges: [NSRange]
     var existingPhraseMeanings: [String]
     var totalRepetitions: Int
@@ -43,6 +44,7 @@ class TextMeaningPractice: BasePractice, Codable {
         meaningLang: LangCode,
         textSource: TextSource,
         isTextMachineTranslated: Bool,
+        machineTranslatorType: MachineTranslatorType,
         existingPhraseRanges: [NSRange],
         existingPhraseMeanings: [String],
         totalRepetitions: Int,
@@ -54,6 +56,7 @@ class TextMeaningPractice: BasePractice, Codable {
         self.meaningLang = meaningLang
         self.textSource = textSource
         self.isTextMachineTranslated = isTextMachineTranslated
+        self.machineTranslatorType = machineTranslatorType
         self.existingPhraseRanges = existingPhraseRanges
         self.existingPhraseMeanings = existingPhraseMeanings
         self.totalRepetitions = totalRepetitions
@@ -68,6 +71,7 @@ class TextMeaningPractice: BasePractice, Codable {
             meaningLang: another.meaningLang,
             textSource: another.textSource,
             isTextMachineTranslated: another.isTextMachineTranslated,
+            machineTranslatorType: another.machineTranslatorType,
             existingPhraseRanges: another.existingPhraseRanges,
             existingPhraseMeanings: another.existingPhraseMeanings,
             totalRepetitions: another.totalRepetitions,
@@ -83,6 +87,7 @@ class TextMeaningPractice: BasePractice, Codable {
         case meaningLang
         case textSource
         case isTextMachineTranslated
+        case machineTranslatorType
         case existingPhraseRanges
         case existingPhraseMeanings
         case totalRepetitions
@@ -98,6 +103,7 @@ class TextMeaningPractice: BasePractice, Codable {
         try container.encode(meaningLang, forKey: .meaningLang)
         try container.encode(textSource, forKey: .textSource)
         try container.encode(isTextMachineTranslated, forKey: .isTextMachineTranslated)
+        try container.encode(machineTranslatorType, forKey: .machineTranslatorType)
         try container.encode(existingPhraseRanges.map(CodableRange.init(from:)), forKey: .existingPhraseRanges)
         try container.encode(existingPhraseMeanings, forKey: .existingPhraseMeanings)
         try container.encode(totalRepetitions, forKey: .totalRepetitions)
@@ -113,6 +119,11 @@ class TextMeaningPractice: BasePractice, Codable {
         meaningLang = try container.decode(LangCode.self, forKey: .meaningLang)
         textSource = try container.decode(TextSource.self, forKey: .textSource)
         isTextMachineTranslated = try container.decode(Bool.self, forKey: .isTextMachineTranslated)
+        do {
+            machineTranslatorType = try container.decode(MachineTranslatorType.self, forKey: .machineTranslatorType)
+        } catch {
+            machineTranslatorType = MachineTranslatorType.none
+        }
         existingPhraseRanges = (try container.decode([CodableRange].self, forKey: .existingPhraseRanges)).map { $0.nsRange }
         existingPhraseMeanings = try container.decode([String].self, forKey: .existingPhraseMeanings)
         totalRepetitions = try container.decode(Int.self, forKey: .totalRepetitions)

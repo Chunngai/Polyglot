@@ -44,6 +44,7 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
         meaningLang: LangCode,
         textSource: TextSource,
         isTextMachineTranslated: Bool,
+        machineTranslatorType: MachineTranslatorType,
         clozeRanges: [NSRange],
         existingPhraseRanges: [NSRange],
         existingPhraseMeanings: [String],
@@ -58,6 +59,7 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
             meaningLang: meaningLang,
             textSource: textSource,
             isTextMachineTranslated: isTextMachineTranslated,
+            machineTranslatorType: machineTranslatorType,
             existingPhraseRanges: existingPhraseRanges,
             existingPhraseMeanings: existingPhraseMeanings,
             totalRepetitions: totalRepetitions,
@@ -151,7 +153,7 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
             )
             unselectableRanges.append(iconRange)
             
-            let imageAttrString = makeImageAttributedString(with: Icons.googleTranslateIcon)
+            let imageAttrString = makeImageAttributedString(with: translatorIcon)
             attributedText.append(imageAttrString)
             attributedText.append(NSAttributedString(string: " "))
             attributedText.addAttributes(

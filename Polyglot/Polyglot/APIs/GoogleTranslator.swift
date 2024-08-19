@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct GoogleTranslator {
+struct GoogleTranslator: TranslationProtocol {
     
     var srcLang: LangCode
     var trgLang: LangCode
@@ -47,6 +47,7 @@ struct GoogleTranslator {
         }
         
         guard let url = constructUrl(from: query) else {
+            completion([])
             return
         }
         
@@ -56,7 +57,7 @@ struct GoogleTranslator {
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             
             guard let data = data, error == nil else {
-                print(error?.localizedDescription ?? "Unknown error.")
+                print("\(Self.self): \(error?.localizedDescription ?? "Unknown error.")")
                 
                 completion([])
                 return
@@ -65,6 +66,7 @@ struct GoogleTranslator {
             do {
                 // TODO: - Are there better ways to handle the json data?
                 guard let jsonArray = try JSONSerialization.jsonObject(with: data, options: []) as? [Any] else {
+                    completion([])
                     return
                 }
                 
@@ -109,7 +111,7 @@ struct GoogleTranslator {
                     completion([translation])
                 }
             } catch {
-                print(error.localizedDescription)
+                print("\(Self.self): \(error.localizedDescription)")
                 completion([])
             }
             

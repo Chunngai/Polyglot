@@ -9,7 +9,7 @@
 import Foundation
 import Alamofire
 
-struct BaiduTranslator {
+struct BaiduTranslator: TranslationProtocol {
     
     var srcLang: LangCode
     var trgLang: LangCode
@@ -27,10 +27,11 @@ struct BaiduTranslator {
         queryItems["q"] = query
         queryItems["from"] = srcLang.baiduTranslateLangCode
         queryItems["to"] = trgLang.baiduTranslateLangCode
+        queryItems["appid"] = LangCode.currentLanguage.configs.baiduTranslateAPPID ?? ""
         queryItems["salt"] = String((0..<16).map({ _ in  // https://stackoverflow.com/questions/60634806/how-to-create-15-digit-length-random-string-in-swift
             "0123456789".randomElement()!
         }))
-        queryItems["sign"] = "\(queryItems["appid"]!)\(queryItems["q"]!)\(queryItems["salt"]!)\(BaiduTranslator.key)".md5
+        queryItems["sign"] = "\(queryItems["appid"]!)\(queryItems["q"]!)\(queryItems["salt"]!)\(LangCode.currentLanguage.configs.baiduTranslateAPIKey ?? "")".md5
 
         var components = URLComponents()
         components.scheme = BaiduTranslator.scheme
@@ -43,6 +44,49 @@ struct BaiduTranslator {
         return components.url
     }
 
+    private func request(url: URL, completion: @escaping ([String]) -> Void, nTries: Int) {
+        if nTries >= 100 {
+            completion([])
+            return
+        } else {
+            AF.request(
+                url,
+                method: .post
+            ).response { response in
+                guard let data = response.data,
+                      let json = try? JSONSerialization.jsonObject(
+                        with: data,
+                        options: []
+                      ) as? [String: Any] else {
+                    completion([])
+                    return
+                }
+                
+                if let transResult = json["trans_result"] as? [[String: String]],
+                   transResult.count != 0 {
+                    completion(transResult.compactMap { d in
+                        d["dst"]
+                    })
+                    return
+                } else if let errorDict = json as? [String: String] {
+                    if errorDict["error_code"] == "54003" {  // Invalid Access Limit.
+                        request(
+                            url: url,
+                            completion: completion,
+                            nTries: nTries + 1
+                        )
+                    } else {
+                        print("\(Self.self): \(errorDict)")
+                        completion([])
+                        return
+                    }
+                }
+                
+            }
+            
+        }
+    }
+    
     func translate(query: String, completion: @escaping ([String]) -> Void) {
         
         guard !query.strip().isEmpty else {
@@ -51,24 +95,15 @@ struct BaiduTranslator {
         }
         
         guard let url = constructUrl(from: query) else {
+            completion([query])
             return
         }
         
-        AF.request(
-            url,
-            method: .post
-        ).response { response in
-            guard let data = response.data,
-                  let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
-                  let transResult = json["trans_result"] as? [[String: String]],
-                    transResult.count != 0 else {
-                completion([])
-                return
-            }
-            completion(transResult.compactMap { d in
-                d["dst"]
-            })
-        }
+        self.request(
+            url: url,
+            completion: completion,
+            nTries: 1
+        )
     }
 }
 
@@ -81,10 +116,9 @@ extension BaiduTranslator {
         "q": "",
         "from": "",
         "to": "",
-        "appid": "20240817002125900",
+        "appid": "",
         "salt": "",
         "sign": "",
     ]
-    static private let key: String = "MUXMCSfOSs2s39DAZ1x5"
     
 }

@@ -119,7 +119,8 @@ extension ListeningPracticeProducer {
         text: String,
         meaning: String,
         textSource: TextSource,
-        isTextMachineTranslated: Bool
+        isTextMachineTranslated: Bool,
+        machineTranslatorType: MachineTranslatorType
     ) -> ListeningPractice? {
                     
         var clozeRanges: [NSRange] = text.tokenRanges.compactMap { tokenRange in
@@ -151,6 +152,7 @@ extension ListeningPracticeProducer {
             meaningLang: LangCode.currentLanguage.configs.languageForTranslation,
             textSource: textSource,
             isTextMachineTranslated: isTextMachineTranslated,
+            machineTranslatorType: machineTranslatorType,
             clozeRanges: clozeRanges,
             existingPhraseRanges: existingPhraseRanges,
             existingPhraseMeanings: existingPhraseMeanings,
@@ -169,15 +171,16 @@ extension ListeningPracticeProducer {
         generateTextMeaning(
             randomWord: randomWord,
             granularity: granularity,
-            translator: self.translator,
+            machineTranslator: self.machineTranslator,
             contentCreator: self.contentCreator
-        ) { text, meaning, textSource, isTextMachineTranslated in
+        ) { text, meaning, textSource, isTextMachineTranslated, machineTranslatorType in
             guard let practice = self.makePractice(
                 practiceType: practiceType,
                 text: text,
                 meaning: meaning,
                 textSource: textSource,
-                isTextMachineTranslated: isTextMachineTranslated
+                isTextMachineTranslated: isTextMachineTranslated,
+                machineTranslatorType: machineTranslatorType
             ) else {
                 return
             }
