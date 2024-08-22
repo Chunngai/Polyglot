@@ -104,7 +104,11 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController, Listen
         }
         return buttons
     }()
-    var shouldUpdatePractice: Bool = false
+    var shouldUpdatePractice: Bool = false {
+        didSet {
+            mainView.bringSubviewToFront(self.nextButton)
+        }
+    }
     
     // MARK: - Views
     
@@ -112,6 +116,29 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController, Listen
     var speakButton: UIButton!
        
     // MARK: - Init
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        // https://stackoverflow.com/questions/45955583/detect-when-a-view-controller-goes-to-background-and-gets-resumed
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIApplication.willResignActiveNotification,
+            object: nil
+        )
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        // Detect if the app will move to background.
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(applicationWillResignActive),
+            name: UIApplication.willResignActiveNotification,
+            object: nil
+        )
+    }
     
     override func updateSetups() {
         super.updateSetups()
@@ -303,7 +330,14 @@ extension ListeningPracticeViewController {
     @objc
     private func countingButtonTapped() {
         shouldUpdatePractice = false
-        mainView.bringSubviewToFront(self.nextButton)
+    }
+    
+    @objc
+    private func applicationWillResignActive()  {
+        isProducingSpeech = false
+        isRecordingSpeech = false
+        
+        shouldUpdatePractice = false
     }
 }
 
@@ -318,7 +352,6 @@ extension ListeningPracticeViewController {
             // https://stackoverflow.com/questions/38031137/how-to-program-a-delay-in-swift-3
             DispatchQueue.main.asyncAfter(deadline: .now().advanced(by: .seconds(buttonIndex))) {
                 if !self.shouldUpdatePractice {
-                    self.mainView.bringSubviewToFront(self.nextButton)
                     return
                 }
                 button.isHidden = false
