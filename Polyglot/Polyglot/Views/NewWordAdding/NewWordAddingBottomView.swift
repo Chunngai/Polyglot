@@ -29,7 +29,7 @@ class NewWordAddingBottomView: UIView {
     var offset: CGFloat!
     var isFloatingUp: Bool = false
 
-    private var translator: GoogleTranslator!
+    private var translator: MachineTranslator!
     private var translations: [String] = []
     private var translationIndex: Int = 0 {
         didSet {
@@ -118,7 +118,7 @@ class NewWordAddingBottomView: UIView {
     init(frame: CGRect = .zero, wordLang: LangCode, meaningLang: LangCode) {
         super.init(frame: frame)
         
-        translator = GoogleTranslator(srcLang: wordLang, trgLang: meaningLang)
+        translator = MachineTranslator(srcLang: wordLang, trgLang: meaningLang)
         
         updateSetups()
         updateViews()
@@ -276,7 +276,7 @@ extension NewWordAddingBottomView {
         if self.translations.isEmpty {
             
             isTranslating = true
-            self.translator.translate(query: self.word) { (translations) in
+            self.translator.translate(query: self.word) { (translations, _) in
                 
                 self.translations = translations
                 

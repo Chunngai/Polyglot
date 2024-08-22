@@ -150,10 +150,10 @@ class ReorderingPracticeView: WordPracticeView {
     
     func updateValues(words: [String]) {
         
-        GoogleTranslator(
+        MachineTranslator(
             srcLang: LangCode.currentLanguage,
             trgLang: LangCode.currentLanguage.configs.languageForTranslation
-        ).translate(query: words.joined(separator: Strings.wordSeparator)) { (res) in
+        ).translate(query: words.joined(separator: Strings.wordSeparator)) { (res, _) in
             if let translation = res.first {
                 DispatchQueue.main.async {
                     self.translationLabel.text = translation

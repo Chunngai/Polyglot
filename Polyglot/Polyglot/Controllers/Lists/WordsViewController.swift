@@ -328,13 +328,13 @@ extension WordsViewController {
                 trgLang = LangCode.currentLanguage
             }
             // Make a translator.
-            let translator = GoogleTranslator(
+            let translator = MachineTranslator(
                 srcLang: srcLang,
                 trgLang: trgLang
             )
             // Translation.
             isTranslating = true
-            translator.translate(query: firstTextFieldText) { (translations) in
+            translator.translate(query: firstTextFieldText) { (translations, _) in
                 guard !translations.isEmpty else {
                     // The didSet of isTranslating
                     // contains code for updating views,

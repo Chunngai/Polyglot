@@ -428,6 +428,7 @@ extension ListeningPracticeViewController {
     
     override func stopPracticing() {
         practiceProducer.cache()  // Finished all / tapped the cancel button.
+        shouldUpdatePractice = false
         super.stopPracticing()
     }
     

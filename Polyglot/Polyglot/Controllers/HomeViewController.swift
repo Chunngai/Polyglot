@@ -811,10 +811,10 @@ extension HomeViewController: CardCellDelegate {
         
         if isDisplayMeanings {
             // Translation.
-            GoogleTranslator(
+            MachineTranslator(
                 srcLang: config.lang!,
                 trgLang: LangCode.zh
-            ).translate(query: config.content!) { translations in
+            ).translate(query: config.content!) { translations, _ in
                 guard let translation = translations.first else {
                     return
                 }
