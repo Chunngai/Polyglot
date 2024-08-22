@@ -77,6 +77,8 @@ struct Images {
     static let listeningPracticeImage: UIImage = UIImage.init(systemName: "beats.headphones")!
     static let translationPracticeImage: UIImage = UIImage.init(systemName: "bubble")!
     
+    static let configImage: UIImage = UIImage(systemName: "slider.horizontal.3")!
+    
     // Content card images.
     
     static let contentCardProduceSpeechImage: UIImage = UIImage.init(systemName: "play.circle")!
@@ -93,6 +95,10 @@ struct Images {
 //    static let listeningPracticeDisallowSpeechRecordingImage: UIImage = UIImage.init(systemName: "mic.slash")!
  
     static let textMeaningPracticeReinforceImage: UIImage = Icons.refreshIcon
+    
+    // Settings images.
+    
+    static let settingsImage: UIImage = UIImage.init(systemName: "gearshape")!
 }
 
 struct Icons {

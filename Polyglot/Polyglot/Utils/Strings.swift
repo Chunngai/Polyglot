@@ -231,6 +231,18 @@ extension Strings {
     static var recentPractice: String {
         return Strings._recentPractice[LangCode.currentLanguage]!
     }
+    
+    static let _configurations: [LangCode : String] = [
+        LangCode.en : "Configurations",
+        LangCode.ja : "設定",
+        LangCode.es : "Configuraciones",
+        LangCode.ru : "Конфигурации",
+        LangCode.ko : "설정",
+        LangCode.de : "Konfigurationen",
+    ]
+    static var configurations: String {
+        return Strings._configurations[LangCode.currentLanguage]!
+    }
 }
 
 extension Strings {

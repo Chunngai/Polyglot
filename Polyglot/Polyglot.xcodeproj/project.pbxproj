@@ -19,6 +19,8 @@
 		C60626112B8076AF00429BAF /* TextSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60626102B8076AF00429BAF /* TextSource.swift */; };
 		C619E68F2AC8154F00A30B27 /* LangCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C619E68E2AC8154F00A30B27 /* LangCell.swift */; };
 		C619E6932AC830CB00A30B27 /* CardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C619E6922AC830CB00A30B27 /* CardCell.swift */; };
+		C6357CD32C7729D700F63CE1 /* LanguageSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6357CD22C7729D700F63CE1 /* LanguageSettingsViewController.swift */; };
+		C6357CD52C772A3600F63CE1 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6357CD42C772A3600F63CE1 /* SettingsViewController.swift */; };
 		C642A6082B7B8008003893B8 /* LanguageSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C642A6072B7B8008003893B8 /* LanguageSelectionViewController.swift */; };
 		C67B85A22AED943200F7657A /* JapaneseAccentAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67B85A12AED943200F7657A /* JapaneseAccentAnalyzer.swift */; };
 		C67B85A42AED94B800F7657A /* RussianAccentAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67B85A32AED94B800F7657A /* RussianAccentAnalyzer.swift */; };
@@ -42,7 +44,7 @@
 		C6C8C3152B75F96A00FBC43B /* CFRangeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C8C3142B75F96A00FBC43B /* CFRangeExtensions.swift */; };
 		C6C8C3172B7617F200FBC43B /* Text.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C8C3162B7617F200FBC43B /* Text.swift */; };
 		C6E1E0312AC5C2F600E4AF72 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E1E0302AC5C2F600E4AF72 /* HomeViewController.swift */; };
-		C6F3F6A72C121AC800346A70 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F3F6A62C121AC800346A70 /* SettingsViewController.swift */; };
+		C6F3F6A72C121AC800346A70 /* GlobalSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F3F6A62C121AC800346A70 /* GlobalSettingsViewController.swift */; };
 		C6F3F6AB2C12239C00346A70 /* SettingsInputCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F3F6AA2C12239C00346A70 /* SettingsInputCell.swift */; };
 		C6F3F6AD2C12242E00346A70 /* SettingsButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F3F6AC2C12242E00346A70 /* SettingsButtonCell.swift */; };
 		C6F5FB762B71079C0040A26B /* ClozeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F5FB752B71079C0040A26B /* ClozeViewController.swift */; };
@@ -176,6 +178,8 @@
 		C60626102B8076AF00429BAF /* TextSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextSource.swift; sourceTree = "<group>"; };
 		C619E68E2AC8154F00A30B27 /* LangCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCell.swift; sourceTree = "<group>"; };
 		C619E6922AC830CB00A30B27 /* CardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardCell.swift; sourceTree = "<group>"; };
+		C6357CD22C7729D700F63CE1 /* LanguageSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageSettingsViewController.swift; sourceTree = "<group>"; };
+		C6357CD42C772A3600F63CE1 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		C642A6072B7B8008003893B8 /* LanguageSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageSelectionViewController.swift; sourceTree = "<group>"; };
 		C67B85A12AED943200F7657A /* JapaneseAccentAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JapaneseAccentAnalyzer.swift; sourceTree = "<group>"; };
 		C67B85A32AED94B800F7657A /* RussianAccentAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RussianAccentAnalyzer.swift; sourceTree = "<group>"; };
@@ -199,7 +203,7 @@
 		C6C8C3142B75F96A00FBC43B /* CFRangeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CFRangeExtensions.swift; sourceTree = "<group>"; };
 		C6C8C3162B7617F200FBC43B /* Text.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Text.swift; sourceTree = "<group>"; };
 		C6E1E0302AC5C2F600E4AF72 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
-		C6F3F6A62C121AC800346A70 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
+		C6F3F6A62C121AC800346A70 /* GlobalSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalSettingsViewController.swift; sourceTree = "<group>"; };
 		C6F3F6AA2C12239C00346A70 /* SettingsInputCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInputCell.swift; sourceTree = "<group>"; };
 		C6F3F6AC2C12242E00346A70 /* SettingsButtonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsButtonCell.swift; sourceTree = "<group>"; };
 		C6F5FB752B71079C0040A26B /* ClozeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClozeViewController.swift; sourceTree = "<group>"; };
@@ -356,6 +360,16 @@
 				C69B190D2C18B76600E41C86 /* SettingsSwitchingCell.swift */,
 			);
 			path = Cells;
+			sourceTree = "<group>";
+		};
+		C6357CD62C772BCD00F63CE1 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				C6357CD42C772A3600F63CE1 /* SettingsViewController.swift */,
+				C6F3F6A62C121AC800346A70 /* GlobalSettingsViewController.swift */,
+				C6357CD22C7729D700F63CE1 /* LanguageSettingsViewController.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 		C69D97E02AC7FE5600AC2CD9 /* Lists */ = {
@@ -554,9 +568,9 @@
 				FF5D129029577AC4005DEEDE /* NavController.swift */,
 				C6E1E0302AC5C2F600E4AF72 /* HomeViewController.swift */,
 				C642A6072B7B8008003893B8 /* LanguageSelectionViewController.swift */,
-				C6F3F6A62C121AC800346A70 /* SettingsViewController.swift */,
 				C69D97E02AC7FE5600AC2CD9 /* Lists */,
 				C69D97E12AC7FE6B00AC2CD9 /* Practices */,
+				C6357CD62C772BCD00F63CE1 /* Settings */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -953,6 +967,7 @@
 				FF5690142980367A00CA2C7B /* LangCode.swift in Sources */,
 				C6F5FB7A2B7202AF0040A26B /* ListeningPracticeViewController.swift in Sources */,
 				C619E6932AC830CB00A30B27 /* CardCell.swift in Sources */,
+				C6357CD52C772A3600F63CE1 /* SettingsViewController.swift in Sources */,
 				C6A666F72B75EC03002B4DEE /* US2UKSpellingMapping.swift in Sources */,
 				FF495E8E2958F38800EA7EA9 /* UITableViewExtensions.swift in Sources */,
 				FF4AB0032A9B4C4400908062 /* ContentCreator.swift in Sources */,
@@ -963,6 +978,7 @@
 				C69F76662B7D198F0006828A /* TextMeaningPractice.swift in Sources */,
 				FF4B382F29525BD400BB3FFD /* ReadingEditTableCell.swift in Sources */,
 				FF63DE00299AD2F90088C10B /* WordBankItem.swift in Sources */,
+				C6357CD32C7729D700F63CE1 /* LanguageSettingsViewController.swift in Sources */,
 				C6E1E0312AC5C2F600E4AF72 /* HomeViewController.swift in Sources */,
 				FF50251429524D100097C2CB /* ReadingTableCell.swift in Sources */,
 				FF491E802959ED730088FD13 /* Separator.swift in Sources */,
@@ -1004,7 +1020,7 @@
 				FF706E032951549C00DBCF8E /* UIImageExtensions.swift in Sources */,
 				C606260F2B8076A000429BAF /* TextGranularity.swift in Sources */,
 				FF5FE946297431C30002691C /* ArrayExtensions.swift in Sources */,
-				C6F3F6A72C121AC800346A70 /* SettingsViewController.swift in Sources */,
+				C6F3F6A72C121AC800346A70 /* GlobalSettingsViewController.swift in Sources */,
 				FF5D129129577AC4005DEEDE /* NavController.swift in Sources */,
 				FF4964C22957B01100414AC5 /* UITextViewExtensions.swift in Sources */,
 				FF495E9E2959084200EA7EA9 /* DateExtensions.swift in Sources */,

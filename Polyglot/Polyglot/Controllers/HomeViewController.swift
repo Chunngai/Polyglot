@@ -96,6 +96,13 @@ class HomeViewController: UIViewController {
         )
     ]}
     
+    var settingsItem: HomeItem {
+        HomeItem(
+            image: Images.configImage,
+            text: Strings.configurations
+        )
+    }
+    
     var isPracticeEnabled: Bool {
         let wordCount = Int(wordMetaData["count"] ?? "0")
         let articleCount = Int(articleMetaData["count"] ?? "0")
@@ -244,7 +251,7 @@ class HomeViewController: UIViewController {
         navigationItem.title = Strings.homeTitle
         navigationItem.largeTitleDisplayMode = .always
         navigationItem.rightBarButtonItem = UIBarButtonItem(
-            image: UIImage(systemName: "gearshape"),
+            image: Images.settingsImage,
             style: .plain,
             target: self,
             action: #selector(settingsTapped)
@@ -262,7 +269,7 @@ extension HomeViewController {
     
     @objc
     private func settingsTapped() {
-        let settingsVC = SettingsViewController()
+        let settingsVC = GlobalSettingsViewController()
         navigationController?.pushViewController(
             settingsVC,
             animated: true
@@ -510,7 +517,8 @@ extension HomeViewController {
             
             if sectionIndex == HomeViewController.languageSection ||
                 sectionIndex == HomeViewController.listSection ||
-                sectionIndex == HomeViewController.practiceSection {
+                sectionIndex == HomeViewController.practiceSection ||
+                sectionIndex == HomeViewController.settingsSection {
                 
                 let configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
                 
@@ -576,7 +584,9 @@ extension HomeViewController {
             }
             cell.backgroundConfiguration = background
             
-            if indexPath.section == HomeViewController.languageSection || indexPath.section == HomeViewController.listSection {
+            if indexPath.section == HomeViewController.languageSection 
+                || indexPath.section == HomeViewController.listSection
+                || indexPath.section == HomeViewController.settingsSection {
                 cell.accessories = [UICellAccessory.disclosureIndicator()]
             } else {
                 cell.accessories = []
@@ -643,19 +653,10 @@ extension HomeViewController {
             
             let section = indexPath.section
             
-            if section == HomeViewController.languageSection {
-                return collectionView.dequeueConfiguredReusableCell(
-                    using: listCellRegistration,
-                    for: indexPath,
-                    item: item
-                )
-            } else if section == HomeViewController.listSection {
-                return collectionView.dequeueConfiguredReusableCell(
-                    using: listCellRegistration,
-                    for: indexPath,
-                    item: item
-                )
-            } else if section == HomeViewController.practiceSection {
+            if section == HomeViewController.languageSection ||
+                section == HomeViewController.listSection ||
+                section == HomeViewController.practiceSection ||
+                section == HomeViewController.settingsSection {
                 return collectionView.dequeueConfiguredReusableCell(
                     using: listCellRegistration,
                     for: indexPath,
@@ -683,6 +684,7 @@ extension HomeViewController {
             HomeViewController.languageSection,
             HomeViewController.listSection,
             HomeViewController.practiceSection,
+            HomeViewController.settingsSection
         ]
         var snapshot = NSDiffableDataSourceSnapshot<Int, HomeItem>()
         snapshot.appendSections(sections)
@@ -696,12 +698,14 @@ extension HomeViewController {
             [
                 HomeViewController.languageSection,
                 HomeViewController.listSection,
-                HomeViewController.practiceSection
+                HomeViewController.practiceSection,
+                HomeViewController.settingsSection
             ],
             [
                 [languageItem],
                 listItems,
-                practiceItems
+                practiceItems,
+                [settingsItem]
             ]
         ) {
             var snapshot = dataSource.snapshot(for: section)
@@ -780,6 +784,12 @@ extension HomeViewController: UICollectionViewDelegate {
                 completion: nil
             )
             
+        } else if section == HomeViewController.settingsSection {
+            let settingsVC = LanguageSettingsViewController()
+            navigationController?.pushViewController(
+                settingsVC,
+                animated: true
+            )
         }
     }
 }
@@ -871,5 +881,6 @@ extension HomeViewController {
     static let languageSection: Int = 0
     static let listSection: Int = 1
     static let practiceSection: Int = 2
+    static let settingsSection: Int = 3
     
 }
