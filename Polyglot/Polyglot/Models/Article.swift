@@ -106,12 +106,15 @@ extension Article {
         let paraStrings = body
             .strip()
             .normalizeQuotes()
-            .normalizeBlankLines()
             .replaceMultipleBlankLinesWithSingleLine()
+            .replaceMultipleSpacesWithSingleOne()
             .split(with: Article.paraSeparator)
         
         var paras: [Paragraph] = []
         for paraString in paraStrings {
+            if paraString.strip().isEmpty {
+                continue
+            }
             paras.append(Paragraph(from: paraString))
         }
         
@@ -124,10 +127,14 @@ extension Article {
             .strip()
             .normalizeQuotes()
             .replaceMultipleBlankLinesWithSingleLine()
+            .replaceMultipleSpacesWithSingleOne()
             .split(with: Article.paraSeparator)
         
         var newParas: [Paragraph] = []
         for paraStringInNewBody in paraStringsInNewBody {
+            if paraStringInNewBody.strip().isEmpty {
+                continue
+            }
             let paraInNewBody: Paragraph = Paragraph(from: paraStringInNewBody)
             
             // Check if the para is in the original paras.
