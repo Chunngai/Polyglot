@@ -36,7 +36,7 @@ class ListeningPracticeProducer: TextMeaningPracticeProducer {
                 makePractice(
                     ofType: .listenAndRepeat,
                     for: self.words.randomElement()!,
-                    inGranularity: TextGranularity.sentence,
+                    inGranularity: TextGranularity.subsentence,
                     callBack: { listenAndRepeatPractice in
                         practiceList.append(listenAndRepeatPractice)
                     }
@@ -44,7 +44,7 @@ class ListeningPracticeProducer: TextMeaningPracticeProducer {
             } else if n == 1 {
                 makePractice(
                     ofType: .listenAndRepeat,
-                    inGranularity: TextGranularity.sentence,
+                    inGranularity: TextGranularity.subsentence,
                     callBack: { listenAndRepeatPractice in
                         practiceList.append(listenAndRepeatPractice)
                     }
@@ -116,49 +116,93 @@ extension ListeningPracticeProducer {
     
     private func makePractice(
         practiceType: ListeningPractice.PracticeType,
+        granularity: TextGranularity,
         text: String,
         meaning: String,
         textSource: TextSource,
         isTextMachineTranslated: Bool,
         machineTranslatorType: MachineTranslatorType
-    ) -> ListeningPractice? {
+    ) -> [ListeningPractice] {
                     
         var clozeRanges: [NSRange] = text.tokenRanges.compactMap { tokenRange in
             let token = (text as NSString).substring(with: tokenRange)
-            if !LangCode.currentLanguage.clozeFilter(token) {
+            if !LangCode.currentLanguage.shouldFilter(token) {
                 return tokenRange
             } else {
                 return nil
             }
         }
-        if clozeRanges.isEmpty {
-            return nil
-        }
-        if practiceType == .listenAndComplete && clozeRanges.count >= ListeningPracticeProducer.maxClozeNumForListenAndComplete {
-            clozeRanges = clozeRanges.randomElements(of: ListeningPracticeProducer.maxClozeNumForListenAndComplete)
+        
+        var subtexts: [String] = []
+        if granularity == .subsentence {
+            var subsentences = text.split(with: Strings.subsentenceSeparator)
+            if subsentences.count == 1 {
+                subtexts = [text]
+            } else {
+                subtexts = [""]
+                var currentSubsentenceIndex: Int = 0
+                var tokenCountOfLastSubsentence: Int = 0
+                while currentSubsentenceIndex < subsentences.count {
+                    
+                    let currentSubsentence = subsentences[currentSubsentenceIndex].strip()
+                    let tokenCountOfCurrentSubsentence = currentSubsentence.tokenized(with: LangCode.currentLanguage.wordTokenizer).count
+                    if tokenCountOfCurrentSubsentence <= ListeningPracticeProducer.minSubsentenceWordCountThreshold
+                        || tokenCountOfLastSubsentence <= ListeningPracticeProducer.minSubsentenceWordCountThreshold {
+                        subtexts[subtexts.count - 1] += "\(Strings.subsentenceSeparator)\(Strings.wordSeparator)\(currentSubsentence)"
+                    } else {
+                        subtexts.append(currentSubsentence)
+                    }
+                    currentSubsentenceIndex += 1
+                    tokenCountOfLastSubsentence = tokenCountOfCurrentSubsentence
+                    
+                }
+            }
+        } else {
+            subtexts = [text]
         }
         
-        let (existingPhraseRanges, existingPhraseMeanings) = findExistingPhraseRangesAndMeanings(
-            for: text,
-            from: self.words
-        )
-        
-        return ListeningPractice(
-            practiceType: practiceType,
-            prompt: makePrompt(for: practiceType),
-            text: text,
-            meaning: meaning,
-            textLang: LangCode.currentLanguage,
-            meaningLang: LangCode.currentLanguage.configs.languageForTranslation,
-            textSource: textSource,
-            isTextMachineTranslated: isTextMachineTranslated,
-            machineTranslatorType: machineTranslatorType,
-            clozeRanges: clozeRanges,
-            existingPhraseRanges: existingPhraseRanges,
-            existingPhraseMeanings: existingPhraseMeanings,
-            totalRepetitions: LangCode.currentLanguage.configs.practiceRepetition,
-            currentRepetition: 0
-        )
+        var practices: [ListeningPractice] = []
+        for subtext in subtexts {
+            let subtextRange = (text as NSString).range(of: subtext)
+            var subtextClozeRanges = clozeRanges.compactMap { clozeRange in
+                if subtextRange.intersection(clozeRange) != nil {
+                    return clozeRange
+                } else {
+                    return nil
+                }
+            }
+            
+            if subtextClozeRanges.isEmpty {
+                continue
+            }
+            if practiceType == .listenAndComplete 
+                && subtextClozeRanges.count >= ListeningPracticeProducer.maxClozeNumForListenAndComplete {
+                subtextClozeRanges = subtextClozeRanges.randomElements(of: ListeningPracticeProducer.maxClozeNumForListenAndComplete)
+            }
+            
+            let (existingPhraseRanges, existingPhraseMeanings) = findExistingPhraseRangesAndMeanings(
+                for: text,
+                from: self.words
+            )
+            
+            practices.append(ListeningPractice(
+                practiceType: practiceType,
+                prompt: makePrompt(for: practiceType),
+                text: text,
+                meaning: meaning,
+                textLang: LangCode.currentLanguage,
+                meaningLang: LangCode.currentLanguage.configs.languageForTranslation,
+                textSource: textSource,
+                isTextMachineTranslated: isTextMachineTranslated,
+                machineTranslatorType: machineTranslatorType,
+                clozeRanges: subtextClozeRanges,
+                existingPhraseRanges: existingPhraseRanges,
+                existingPhraseMeanings: existingPhraseMeanings,
+                totalRepetitions: LangCode.currentLanguage.configs.practiceRepetition,
+                currentRepetition: 0
+            ))
+        }
+        return practices
     }
     
     private func makePractice(
@@ -174,17 +218,17 @@ extension ListeningPracticeProducer {
             machineTranslator: self.machineTranslator,
             contentCreator: self.contentCreator
         ) { text, meaning, textSource, isTextMachineTranslated, machineTranslatorType in
-            guard let practice = self.makePractice(
+            for practice in self.makePractice(
                 practiceType: practiceType,
+                granularity: granularity,
                 text: text,
                 meaning: meaning,
                 textSource: textSource,
                 isTextMachineTranslated: isTextMachineTranslated,
                 machineTranslatorType: machineTranslatorType
-            ) else {
-                return
+            ) {
+                callBack(practice)
             }
-            callBack(practice)
         }
         
     }
@@ -229,5 +273,6 @@ extension ListeningPracticeProducer {
     
     static let maxClozeNumForListenAndComplete: Int = 10
     static let listenAndRepeatRedoThredshold: Float = 0.6
+    static let minSubsentenceWordCountThreshold: Int = 5
     
 }

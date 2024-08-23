@@ -9,6 +9,7 @@
 import Foundation
 
 enum TextGranularity: String {
+    case subsentence
     case sentence
     case paragraph
 }

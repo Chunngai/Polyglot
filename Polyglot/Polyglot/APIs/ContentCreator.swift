@@ -72,7 +72,7 @@ struct ContentCreator {
         
         var prompt: String
         if words.count == 1 {
-            if granularity == .sentence {
+            if granularity == .sentence || granularity == .subsentence {
                 prompt = makeSentenceGenerationPrompt(for: words[0])
             } else if granularity == .paragraph {
                 prompt = makeParagraphGenerationPrompt(for: words[0])

@@ -97,7 +97,7 @@ extension LangCode {
         return mayBeAbbr(text) || text.isNumericText
     }
     
-    var clozeFilter: (String) -> Bool {
+    var shouldFilter: (String) -> Bool {
         switch self {
         case .zh: return clozeFilterForZhJaKo
         case .en: return clozeFilterForOtherLangs

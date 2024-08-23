@@ -192,7 +192,7 @@ extension TextMeaningPracticeProducer {
                 articleId = paraCandidate.articleId
                 paragraphId = paraCandidate.paraId
                 
-                if granularity == .sentence {
+                if granularity == .sentence || granularity == .subsentence {
                     let sentences = paragraphText.tokenized(with: LangCode.currentLanguage.sentenceTokenizer)
                     if sentences.count == 1 {
                         text = paragraphText
@@ -219,7 +219,7 @@ extension TextMeaningPracticeProducer {
             articleId = randomArticle.id
             paragraphId = randomParagraph.id
             
-            if granularity == .sentence {
+            if granularity == .sentence || granularity == .subsentence {
                 let sentences = paragraphText.tokenized(with: LangCode.currentLanguage.sentenceTokenizer)
                 if sentences.count == 1 {
                     text = paragraphText
