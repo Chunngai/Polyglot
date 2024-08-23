@@ -16,7 +16,7 @@ class ListeningPracticeProducer: TextMeaningPracticeProducer {
         super.init(words: words, articles: articles)
         
         // Override the batch size.
-        self.batchSize = LangCode.currentLanguage.configs.listeningPracticeDuration
+        self.batchSize = LangCode.currentLanguage.configs.listeningPracticeDuration * 2
         
         let cachedListeningPractices = ListeningPracticeProducer.loadCachedPractices(for: LangCode.currentLanguage)
         if !cachedListeningPractices.isEmpty {
