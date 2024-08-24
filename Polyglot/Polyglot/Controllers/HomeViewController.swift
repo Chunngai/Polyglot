@@ -19,6 +19,7 @@ struct HomeItem: Hashable {
     let image: UIImage?
     let text: String?
     let secondaryText: String?
+    let trinaryText: String?
     
     let header: String?
     let lang: LangCode?
@@ -29,12 +30,13 @@ struct HomeItem: Hashable {
     let contentSource: String?
     
     init(
-        image: UIImage? = nil, text: String? = nil, secondaryText: String? = nil,
+        image: UIImage? = nil, text: String? = nil, secondaryText: String? = nil, trinaryText: String? = nil,
         header: String? = nil, lang: LangCode? = nil, words: [String]? = nil, meanings: [String]? = nil, pronunciations: [String]? = nil, content: String? = nil, contentSource: String? = nil
     ) {
         self.image = image
         self.text = text
         self.secondaryText = secondaryText
+        self.trinaryText = trinaryText
         
         self.header = header
         self.lang = lang
@@ -47,6 +49,28 @@ struct HomeItem: Hashable {
 }
 
 class HomeViewController: UIViewController {
+    
+    var shouldAddArticle: Bool {
+        guard let newestCDateString = articleMetaData["newestCDate"],
+              let newestCDate = Date.from(
+                string: newestCDateString,
+                of: Date.defaultDateFormatter
+              )
+        else {
+            return false
+        }
+        
+        let difference = Calendar.current.dateComponents(
+            [.day],
+            from: newestCDate,
+            to: Date()
+        )
+        if let days = difference.day, days > 7 {
+            return true
+        } else {
+            return false
+        }
+    }
     
     // Collection view.
     
@@ -63,12 +87,13 @@ class HomeViewController: UIViewController {
         HomeItem(
             image: Images.wordsImage,
             text: Strings.phrases,
-            secondaryText: wordMetaData["count"]
+            trinaryText: wordMetaData["count"]
         ),
         HomeItem(
             image: Images.articlesImage,
             text: Strings.articles,
-            secondaryText: articleMetaData["count"]
+            secondaryText: shouldAddArticle && LangCode.currentLanguage.configs.shouldRemindToAddNewArticles ? "⚠︎ \(Strings.articleAdding)" : nil,
+            trinaryText: articleMetaData["count"]
         )
     ]}
     
@@ -153,6 +178,9 @@ class HomeViewController: UIViewController {
             Article.save(&newValue, for: LangCode.currentLanguage)
             
             articleMetaData["count"] = String(newValue.count)
+            articleMetaData["newestCDate"] = newValue.map({ article in
+                article.cDate
+            }).max()?.repr(from: Date.defaultDateFormatter)
         }
     }
     
@@ -561,16 +589,14 @@ extension HomeViewController {
             item: HomeItem
         ) in
             
-            var content: UIListContentConfiguration
-            if indexPath.section == HomeViewController.listSection {
-                content = UIListContentConfiguration.valueCell()
-            } else {
-                content = UIListContentConfiguration.sidebarSubtitleCell()
-            }
+            var content: UIListContentConfiguration = UIListContentConfiguration.sidebarSubtitleCell()
             content.image = item.image
             content.text = item.text
             content.secondaryText = item.secondaryText
             content.textProperties.color = Colors.normalTextColor
+            if indexPath.section == HomeViewController.listSection && indexPath.row == 1 {
+                content.secondaryTextProperties.color = .systemYellow
+            }
             if indexPath.section == HomeViewController.practiceSection {
                 content.textProperties.color = self.isPracticeEnabled ? Colors.normalTextColor : Colors.weakTextColor
             }
@@ -584,13 +610,24 @@ extension HomeViewController {
             }
             cell.backgroundConfiguration = background
             
-            if indexPath.section == HomeViewController.languageSection 
+            var cellAccessories: [UICellAccessory] = []
+            if indexPath.section == HomeViewController.listSection {
+                cellAccessories.append(UICellAccessory.customView(configuration: .init(
+                    customView: {
+                        let trailingLabel = UILabel()
+                        trailingLabel.text = item.trinaryText
+                        trailingLabel.textColor = .lightGray
+                        return trailingLabel
+                    }(),
+                    placement: .trailing(displayed: .always)
+                )))
+            }
+            if indexPath.section == HomeViewController.languageSection
                 || indexPath.section == HomeViewController.listSection
                 || indexPath.section == HomeViewController.settingsSection {
-                cell.accessories = [UICellAccessory.disclosureIndicator()]
-            } else {
-                cell.accessories = []
+                cellAccessories.append(UICellAccessory.disclosureIndicator())
             }
+            cell.accessories = cellAccessories
         }
     }
     

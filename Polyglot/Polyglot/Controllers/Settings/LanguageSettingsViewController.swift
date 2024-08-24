@@ -31,7 +31,9 @@ class LanguageSettingsViewController: SettingsViewController {
             
             practiceRepetition: Int((cells[3][0] as! SettingsSlidingCell).slider.value),
             
-            canGenerateTextsWithLLMsForPractices: (cells[4][0] as! SettingsSwitchingCell).switchView.isOn,
+            canGenerateTextsWithLLMsForPractices: (cells[4][0] as! SettingsSwitchingCell).switchView.isOn, 
+            
+            shouldRemindToAddNewArticles: (cells[5][0] as! SettingsSwitchingCell).switchView.isOn,
             
             ChatGPTAPIURL: LangCode.currentLanguage.configs.ChatGPTAPIURL,
             ChatGPTAPIKey: LangCode.currentLanguage.configs.ChatGPTAPIKey,
@@ -54,6 +56,7 @@ class LanguageSettingsViewController: SettingsViewController {
             "Practice Duration",
             "Repetition for Listening/Speaking Practices",
             "Content Generation",
+            "Reminders",
         ]
         cells = [
             // Language for translation.
@@ -160,6 +163,16 @@ class LanguageSettingsViewController: SettingsViewController {
                     cell.imageView?.image = Icons.chatgptIcon.scaledToListIconSize()
                     cell.switchView.isOn = LangCode.currentLanguage.configs.canGenerateTextsWithLLMsForPractices
                     cell.label.text = "Allow LLM Text Genetation"  // TODO: - Update localization
+                    return cell
+                }()
+            ],
+            // Reminders.
+            [
+                {
+                    let cell = SettingsSwitchingCell(style: .default, reuseIdentifier: "")
+                    cell.imageView?.image = Images.articlesImage
+                    cell.switchView.isOn = LangCode.currentLanguage.configs.shouldRemindToAddNewArticles
+                    cell.label.text = "Remind to add new articles"  // TODO: - Update localization
                     return cell
                 }()
             ]

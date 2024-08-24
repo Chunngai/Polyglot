@@ -150,26 +150,26 @@ extension Strings {
     
     static let _articles: [LangCode : String] = [
         LangCode.en : "Articles",
-        LangCode.ja : "文章",
+        LangCode.ja : "記事",
         LangCode.es : "Artículos",
         LangCode.ru : "Статьи",
-        LangCode.ko : "문장",
+        LangCode.ko : "기사",
         LangCode.de : "Artikel",
     ]
     static var articles: String {
         return Strings._articles[LangCode.currentLanguage]!
     }
     
-    static let _newArticle: [LangCode : String] = [
-        LangCode.en : "New Article",
-        LangCode.ja : "新しい文章",
-        LangCode.es : "Articulo Nuevo",
-        LangCode.ru : "Новая Статья",
-        LangCode.ko : "새 문장",
-        LangCode.de : "Neuer Artikel",
+    static let _articleAdding: [LangCode : String] = [
+        LangCode.en : "Add a new article",
+        LangCode.ja : "新しい記事を追加してください",
+        LangCode.es : "Añade un nuevo artículo",
+        LangCode.ru : "Добавьте новую статью",
+        LangCode.ko : "새로운 기사를 추가하세요",
+        LangCode.de : "Neuen Artikel hinzufügen",
     ]
-    static var newArticle: String {
-        return Strings._articles[LangCode.currentLanguage]!
+    static var articleAdding: String {
+        return Strings._articleAdding[LangCode.currentLanguage]!
     }
     
     static let _phraseReview: [LangCode : String] = [
@@ -457,10 +457,10 @@ extension Strings {
     
     private static let _articleEditingTitles: [LangCode : String] = [
         LangCode.en : "Article Editing",
-        LangCode.ja : "文章編集",
+        LangCode.ja : "記事編集",
         LangCode.es : "Edición de Artículos",
         LangCode.ru : "Редактирование Статьи",
-        LangCode.ko : "문장 편집",
+        LangCode.ko : "기사 편집",
         LangCode.de : "Artikelbearbeitung",
     ]
     static var articleEditingTitle: String {

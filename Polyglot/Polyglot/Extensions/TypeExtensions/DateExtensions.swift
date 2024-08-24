@@ -77,6 +77,10 @@ extension Date {
         return calendar.date(from: components)
     }
     
+    static func from(string: String, of formatter: DateFormatter) -> Date? {
+        return formatter.date(from: string)
+    }
+    
     func nextNDays(n: Int, from calendar: Calendar = Calendar.current) -> [Date] {
         // https://stackoverflow.com/questions/26996330/swift-get-last-7-days-starting-from-today-in-array
         

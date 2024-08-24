@@ -21,6 +21,7 @@ class GlobalSettingsViewController: SettingsViewController {
             speakingPracticeDuration: LangCode.currentLanguage.configs.speakingPracticeDuration,
             practiceRepetition: LangCode.currentLanguage.configs.practiceRepetition,
             canGenerateTextsWithLLMsForPractices: LangCode.currentLanguage.configs.canGenerateTextsWithLLMsForPractices,
+            shouldRemindToAddNewArticles: LangCode.currentLanguage.configs.shouldRemindToAddNewArticles,
             
             ChatGPTAPIURL: (cells[0][0] as! SettingsInputCell).textField.text?.strip(),
             ChatGPTAPIKey: (cells[0][1] as! SettingsInputCell).textField.text?.strip(),

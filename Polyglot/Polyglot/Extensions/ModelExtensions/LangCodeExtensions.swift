@@ -135,15 +135,24 @@ extension LangCode {
 
 struct Configs {
     
+    // Local.
+    
     var languageForTranslation: LangCode
+    
     var voiceRate: Float
     
     var phraseReviewPracticeDuration: Int
     var listeningPracticeDuration: Int
     var speakingPracticeDuration: Int
+    
     var practiceRepetition: Int
     
     var canGenerateTextsWithLLMsForPractices: Bool
+    
+    var shouldRemindToAddNewArticles: Bool
+    
+    // Global.
+    
     var ChatGPTAPIURL: String?
     var ChatGPTAPIKey: String?
     
@@ -158,15 +167,24 @@ extension Configs: Codable {
     
     enum CodingKeys: String, CodingKey {
         
+        // Local.
+        
         case languageForTranslation
+        
         case voiceRate
         
         case phraseReviewPracticeDuration
         case listeningPracticeDuration
         case speakingPracticeDuration
+        
         case practiceRepetition
         
         case canGenerateTextsWithLLMsForPractices
+        
+        case shouldRemindToAddNewArticles
+        
+        // Global.
+        
         case ChatGPTAPIURL
         case ChatGPTAPIKey
         
@@ -181,19 +199,17 @@ extension Configs: Codable {
         
         try container.encode(languageForTranslation, forKey: .languageForTranslation)
         try container.encode(voiceRate, forKey: .voiceRate)
-        
         try container.encode(phraseReviewPracticeDuration, forKey: .phraseReviewPracticeDuration)
         try container.encode(listeningPracticeDuration, forKey: .listeningPracticeDuration)
         try container.encode(speakingPracticeDuration, forKey: .speakingPracticeDuration)
         try container.encode(practiceRepetition, forKey: .practiceRepetition)
-        
         try container.encode(canGenerateTextsWithLLMsForPractices, forKey: .canGenerateTextsWithLLMsForPractices)
+        try container.encode(shouldRemindToAddNewArticles, forKey: .shouldRemindToAddNewArticles)
+        
         try container.encode(ChatGPTAPIURL, forKey: .ChatGPTAPIURL)
         try container.encode(ChatGPTAPIKey, forKey: .ChatGPTAPIKey)
-        
         try container.encode(baiduTranslateAPPID, forKey: .baiduTranslateAPPID)
         try container.encode(baiduTranslateAPIKey, forKey: .baiduTranslateAPIKey)
-        
         try container.encode(backupEmailAddr, forKey: .backupEmailAddr)
     }
     
@@ -202,7 +218,6 @@ extension Configs: Codable {
         
         languageForTranslation = try values.decode(LangCode.self, forKey: .languageForTranslation)
         voiceRate = try values.decode(Float.self, forKey: .voiceRate)
-        
         do {
             phraseReviewPracticeDuration = try values.decode(Int.self, forKey: .phraseReviewPracticeDuration)
         } catch {
@@ -219,11 +234,15 @@ extension Configs: Codable {
             speakingPracticeDuration = 5
         }
         practiceRepetition = try values.decode(Int.self, forKey: .practiceRepetition)
-        
         canGenerateTextsWithLLMsForPractices = try values.decode(Bool.self, forKey: .canGenerateTextsWithLLMsForPractices)
+        do {
+            shouldRemindToAddNewArticles = try values.decode(Bool.self, forKey: .shouldRemindToAddNewArticles)
+        } catch {
+            shouldRemindToAddNewArticles = true
+        }
+        
         ChatGPTAPIURL = try values.decode(String?.self, forKey: .ChatGPTAPIURL)
         ChatGPTAPIKey = try values.decode(String?.self, forKey: .ChatGPTAPIKey)
-        
         do {
             baiduTranslateAPPID = try values.decode(String?.self, forKey: .baiduTranslateAPPID)
         } catch {
@@ -234,7 +253,6 @@ extension Configs: Codable {
         } catch {
             baiduTranslateAPIKey = nil
         }
-        
         backupEmailAddr = try values.decode(String?.self, forKey: .backupEmailAddr)
     }
 }
@@ -284,7 +302,8 @@ extension Configs {
         listeningPracticeDuration: 5,
         speakingPracticeDuration: 5,
         practiceRepetition: 2,
-        canGenerateTextsWithLLMsForPractices: true
+        canGenerateTextsWithLLMsForPractices: true,
+        shouldRemindToAddNewArticles: true
     )
     
 }
