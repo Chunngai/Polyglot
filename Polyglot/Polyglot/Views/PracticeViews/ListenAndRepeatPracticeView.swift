@@ -273,10 +273,13 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
         if textLang == LangCode.ja {
             text = convertJapaneseToRomaji(text: text)
         }
+        text = text.lowercased()
         if textLang == LangCode.en {
             text = convertUSSpellingToUKSpelling(text: text)
         }
-        text = text.lowercased()
+        if textLang == LangCode.ru {
+            text = convertRussianJoToJe(text: text)
+        }
         if text.isNumericText {
             text = text.numericRepresentation ?? text
         }

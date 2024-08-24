@@ -61,3 +61,7 @@ func convertJapaneseToRomaji(text: String) -> String {
 func convertUSSpellingToUKSpelling(text: String) -> String {
     return us2ukSpellingMapping[text] ?? us2ukSpellingMapping2[text] ?? text
 }
+
+func convertRussianJoToJe(text: String) -> String {
+    return text.replacingOccurrences(of: "ё", with: "е")
+}
