@@ -19,7 +19,7 @@ class LanguageSettingsViewController: SettingsViewController {
     var selectedTranslationLang = LangCode.currentLanguage.configs.languageForTranslation
     
     override func saveSettings() {
-        LangCode.currentLanguage.configs = Configs(
+        LangCode.currentLanguage.configs = LangConfigs(
             
             languageForTranslation: selectedTranslationLang,
             
@@ -33,13 +33,7 @@ class LanguageSettingsViewController: SettingsViewController {
             
             canGenerateTextsWithLLMsForPractices: (cells[4][0] as! SettingsSwitchingCell).switchView.isOn, 
             
-            shouldRemindToAddNewArticles: (cells[5][0] as! SettingsSwitchingCell).switchView.isOn,
-            
-            ChatGPTAPIURL: LangCode.currentLanguage.configs.ChatGPTAPIURL,
-            ChatGPTAPIKey: LangCode.currentLanguage.configs.ChatGPTAPIKey,
-            baiduTranslateAPPID: LangCode.currentLanguage.configs.baiduTranslateAPPID,
-            baiduTranslateAPIKey: LangCode.currentLanguage.configs.baiduTranslateAPIKey,
-            backupEmailAddr: LangCode.currentLanguage.configs.backupEmailAddr
+            shouldRemindToAddNewArticles: (cells[5][0] as! SettingsSwitchingCell).switchView.isOn
             
         )
     }

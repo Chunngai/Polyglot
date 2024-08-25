@@ -27,11 +27,11 @@ struct BaiduTranslator: TranslationProtocol {
         queryItems["q"] = query
         queryItems["from"] = srcLang.baiduTranslateLangCode
         queryItems["to"] = trgLang.baiduTranslateLangCode
-        queryItems["appid"] = LangCode.currentLanguage.configs.baiduTranslateAPPID ?? ""
+        queryItems["appid"] = globalConfigs.baiduTranslateAPPID ?? ""
         queryItems["salt"] = String((0..<16).map({ _ in  // https://stackoverflow.com/questions/60634806/how-to-create-15-digit-length-random-string-in-swift
             "0123456789".randomElement()!
         }))
-        queryItems["sign"] = "\(queryItems["appid"]!)\(queryItems["q"]!)\(queryItems["salt"]!)\(LangCode.currentLanguage.configs.baiduTranslateAPIKey ?? "")".md5
+        queryItems["sign"] = "\(queryItems["appid"]!)\(queryItems["q"]!)\(queryItems["salt"]!)\(globalConfigs.baiduTranslateAPIKey ?? "")".md5
 
         var components = URLComponents()
         components.scheme = BaiduTranslator.scheme

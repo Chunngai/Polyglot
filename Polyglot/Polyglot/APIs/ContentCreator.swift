@@ -60,12 +60,12 @@ struct ContentCreator {
         }
         
         
-        guard let urlString = LangCode.currentLanguage.configs.ChatGPTAPIURL,
+        guard let urlString = globalConfigs.ChatGPTAPIURL,
               let url = URL(string: urlString) else {
             completion(nil)
             return
         }
-        guard let apiKey = LangCode.currentLanguage.configs.ChatGPTAPIKey else {
+        guard let apiKey = globalConfigs.ChatGPTAPIKey else {
             completion(nil)
             return
         }

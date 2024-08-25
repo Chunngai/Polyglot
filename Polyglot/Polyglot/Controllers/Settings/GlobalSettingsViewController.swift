@@ -9,28 +9,125 @@
 import UIKit
 import MessageUI
 
-class GlobalSettingsViewController: SettingsViewController {
+struct GlobalConfigs: Codable {
     
+    var ChatGPTAPIURL: String?
+    var ChatGPTAPIKey: String?
+    
+    var baiduTranslateAPPID: String?
+    var baiduTranslateAPIKey: String?
+    
+    var backupEmailAddr: String?
+        
+    init(
+        ChatGPTAPIURL: String? = nil, ChatGPTAPIKey: String? = nil,
+        baiduTranslateAPPID: String? = nil, baiduTranslateAPIKey: String? = nil,
+        backupEmailAddr: String? = nil
+    ) {
+        self.ChatGPTAPIURL = ChatGPTAPIURL
+        self.ChatGPTAPIKey = ChatGPTAPIKey
+        self.baiduTranslateAPPID = baiduTranslateAPPID
+        self.baiduTranslateAPIKey = baiduTranslateAPIKey
+        self.backupEmailAddr = backupEmailAddr
+    }
+    
+    // MARK: - Codable
+    
+    enum CodingKeys: String, CodingKey {
+    
+        case ChatGPTAPIURL
+        case ChatGPTAPIKey
+        
+        case baiduTranslateAPPID
+        case baiduTranslateAPIKey
+        
+        case backupEmailAddr
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(ChatGPTAPIURL, forKey: .ChatGPTAPIURL)
+        try container.encode(ChatGPTAPIKey, forKey: .ChatGPTAPIKey)
+        try container.encode(baiduTranslateAPPID, forKey: .baiduTranslateAPPID)
+        try container.encode(baiduTranslateAPIKey, forKey: .baiduTranslateAPIKey)
+        try container.encode(backupEmailAddr, forKey: .backupEmailAddr)
+    }
+    
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        
+        ChatGPTAPIURL = try values.decode(String?.self, forKey: .ChatGPTAPIURL)
+        ChatGPTAPIKey = try values.decode(String?.self, forKey: .ChatGPTAPIKey)
+        do {
+            baiduTranslateAPPID = try values.decode(String?.self, forKey: .baiduTranslateAPPID)
+        } catch {
+            baiduTranslateAPPID = nil
+        }
+        do {
+            baiduTranslateAPIKey = try values.decode(String?.self, forKey: .baiduTranslateAPIKey)
+        } catch {
+            baiduTranslateAPIKey = nil
+        }
+        backupEmailAddr = try values.decode(String?.self, forKey: .backupEmailAddr)
+    }
+    
+    // MARK: - IO
+    
+    static let fileName: String = "global_configs.json"
+    
+    static func load() -> GlobalConfigs {
+        do {
+            if let configs = try readDataFromJson(
+                fileName: Self.fileName,
+                type: GlobalConfigs.self
+            ) as? GlobalConfigs {
+                return configs
+            }
+            
+            if let configs = try readDataFromJson(
+                fileName: "configs.en.json",  // Compatibility.
+                type: GlobalConfigs.self
+            ) as? GlobalConfigs {
+                return configs
+            }
+            
+            return GlobalConfigs()
+        } catch {
+            print(error)
+            exit(1)
+        }
+    }
+    
+    static func save(_ configs: inout GlobalConfigs) {
+        do {
+            try writeDataToJson(
+                fileName: Self.fileName,
+                data: configs
+            )
+        } catch {
+            print(error)
+            exit(1)
+        }
+    }
+    
+}
+
+var globalConfigs: GlobalConfigs = GlobalConfigs.load() {
+    didSet {
+        GlobalConfigs.save(&globalConfigs)
+    }
+}
+
+class GlobalSettingsViewController: SettingsViewController {
+        
     override func saveSettings() {
-        LangCode.currentLanguage.configs = Configs(
-            
-            languageForTranslation: LangCode.currentLanguage.configs.languageForTranslation,
-            voiceRate: LangCode.currentLanguage.configs.voiceRate,
-            phraseReviewPracticeDuration: LangCode.currentLanguage.configs.phraseReviewPracticeDuration,
-            listeningPracticeDuration: LangCode.currentLanguage.configs.listeningPracticeDuration,
-            speakingPracticeDuration: LangCode.currentLanguage.configs.speakingPracticeDuration,
-            practiceRepetition: LangCode.currentLanguage.configs.practiceRepetition,
-            canGenerateTextsWithLLMsForPractices: LangCode.currentLanguage.configs.canGenerateTextsWithLLMsForPractices,
-            shouldRemindToAddNewArticles: LangCode.currentLanguage.configs.shouldRemindToAddNewArticles,
-            
+        globalConfigs = GlobalConfigs(
             ChatGPTAPIURL: (cells[0][0] as! SettingsInputCell).textField.text?.strip(),
             ChatGPTAPIKey: (cells[0][1] as! SettingsInputCell).textField.text?.strip(),
-            
             baiduTranslateAPPID: (cells[1][0] as! SettingsInputCell).textField.text?.strip(),
             baiduTranslateAPIKey: (cells[1][1] as! SettingsInputCell).textField.text?.strip(),
-            
             backupEmailAddr: (cells[2][0] as! SettingsInputCell).textField.text?.strip()
-            
         )
     }
     
@@ -52,14 +149,14 @@ class GlobalSettingsViewController: SettingsViewController {
                     let cell = SettingsInputCell(style: .default, reuseIdentifier: "")
                     cell.imageView?.image = UIImage(systemName: "link")!
                     cell.textField.placeholder = "ChatGPT API URL"  // TODO: - Update localization
-                    cell.textField.text = LangCode.currentLanguage.configs.ChatGPTAPIURL
+                    cell.textField.text = globalConfigs.ChatGPTAPIURL
                     return cell
                 }(),
                 {
                     let cell = SettingsInputCell(style: .default, reuseIdentifier: "")
                     cell.imageView?.image = UIImage(systemName: "key")!
                     cell.textField.placeholder = "ChatGPT API key"  // TODO: - Update localization
-                    cell.textField.text = LangCode.currentLanguage.configs.ChatGPTAPIKey
+                    cell.textField.text = globalConfigs.ChatGPTAPIKey
                     return cell
                 }(),
             ],
@@ -68,14 +165,14 @@ class GlobalSettingsViewController: SettingsViewController {
                     let cell = SettingsInputCell(style: .default, reuseIdentifier: "")
                     cell.imageView?.image = UIImage(systemName: "app")!
                     cell.textField.placeholder = "Baidu translate APP ID"  // TODO: - Update localization
-                    cell.textField.text = LangCode.currentLanguage.configs.baiduTranslateAPPID
+                    cell.textField.text = globalConfigs.baiduTranslateAPPID
                     return cell
                 }(),
                 {
                     let cell = SettingsInputCell(style: .default, reuseIdentifier: "")
                     cell.imageView?.image = UIImage(systemName: "key")!
                     cell.textField.placeholder = "Baidu translate API key"  // TODO: - Update localization
-                    cell.textField.text = LangCode.currentLanguage.configs.baiduTranslateAPIKey
+                    cell.textField.text = globalConfigs.baiduTranslateAPIKey
                     return cell
                 }()
             ],
@@ -85,7 +182,7 @@ class GlobalSettingsViewController: SettingsViewController {
                     let cell = SettingsInputCell(style: .default, reuseIdentifier: "")
                     cell.imageView?.image = UIImage(systemName: "envelope")!
                     cell.textField.placeholder = "Email address"  // TODO: - Update localization
-                    cell.textField.text = LangCode.currentLanguage.configs.backupEmailAddr
+                    cell.textField.text = globalConfigs.backupEmailAddr
                     return cell
                 }(),
                 {
@@ -158,7 +255,7 @@ extension GlobalSettingsViewController {
             
         }
         
-        mailComposer.setToRecipients([LangCode.currentLanguage.configs.backupEmailAddr ?? ""])
+        mailComposer.setToRecipients([globalConfigs.backupEmailAddr ?? ""])
         mailComposer.setSubject("Data Copy \(Date().repr(of: Date.defaultDateFormat))")
         mailComposer.setMessageBody("", isHTML: false)
         

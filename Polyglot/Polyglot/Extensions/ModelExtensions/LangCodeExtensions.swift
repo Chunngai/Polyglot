@@ -116,26 +116,24 @@ extension LangCode {
     
     // MARK: - Lang Configs
     
-    private static var lang2configs: [LangCode: Configs] = [:]
-    var configs: Configs {
+    private static var lang2configs: [LangCode: LangConfigs] = [:]
+    var configs: LangConfigs {
         get {
             if !LangCode.lang2configs.keys.contains(self) {
-                LangCode.lang2configs[self] = Configs.load(for: self)
+                LangCode.lang2configs[self] = LangConfigs.load(for: self)
             }
             return LangCode.lang2configs[self]!
         }
         set {
             var newConfigs = newValue
-            Configs.save(&newConfigs, for: self)
+            LangConfigs.save(&newConfigs, for: self)
             LangCode.lang2configs[self] = newConfigs
         }
     }
     
 }
 
-struct Configs {
-    
-    // Local.
+struct LangConfigs: Codable {
     
     var languageForTranslation: LangCode
     
@@ -151,24 +149,28 @@ struct Configs {
     
     var shouldRemindToAddNewArticles: Bool
     
-    // Global.
-    
-    var ChatGPTAPIURL: String?
-    var ChatGPTAPIKey: String?
-    
-    var baiduTranslateAPPID: String?
-    var baiduTranslateAPIKey: String?
-    
-    var backupEmailAddr: String?
-    
-}
-
-extension Configs: Codable {
+    init(
+        languageForTranslation: LangCode,
+        voiceRate: Float,
+        phraseReviewPracticeDuration: Int,
+        listeningPracticeDuration: Int,
+        speakingPracticeDuration: Int,
+        practiceRepetition: Int,
+        canGenerateTextsWithLLMsForPractices: Bool,
+        shouldRemindToAddNewArticles: Bool
+    ) {
+        self.languageForTranslation = languageForTranslation
+        self.voiceRate = voiceRate
+        self.phraseReviewPracticeDuration = phraseReviewPracticeDuration
+        self.listeningPracticeDuration = listeningPracticeDuration
+        self.speakingPracticeDuration = speakingPracticeDuration
+        self.practiceRepetition = practiceRepetition
+        self.canGenerateTextsWithLLMsForPractices = canGenerateTextsWithLLMsForPractices
+        self.shouldRemindToAddNewArticles = shouldRemindToAddNewArticles
+    }
     
     enum CodingKeys: String, CodingKey {
-        
-        // Local.
-        
+                
         case languageForTranslation
         
         case voiceRate
@@ -183,15 +185,6 @@ extension Configs: Codable {
         
         case shouldRemindToAddNewArticles
         
-        // Global.
-        
-        case ChatGPTAPIURL
-        case ChatGPTAPIKey
-        
-        case baiduTranslateAPPID
-        case baiduTranslateAPIKey
-        
-        case backupEmailAddr
     }
     
     func encode(to encoder: Encoder) throws {
@@ -205,12 +198,7 @@ extension Configs: Codable {
         try container.encode(practiceRepetition, forKey: .practiceRepetition)
         try container.encode(canGenerateTextsWithLLMsForPractices, forKey: .canGenerateTextsWithLLMsForPractices)
         try container.encode(shouldRemindToAddNewArticles, forKey: .shouldRemindToAddNewArticles)
-        
-        try container.encode(ChatGPTAPIURL, forKey: .ChatGPTAPIURL)
-        try container.encode(ChatGPTAPIKey, forKey: .ChatGPTAPIKey)
-        try container.encode(baiduTranslateAPPID, forKey: .baiduTranslateAPPID)
-        try container.encode(baiduTranslateAPIKey, forKey: .baiduTranslateAPIKey)
-        try container.encode(backupEmailAddr, forKey: .backupEmailAddr)
+    
     }
     
     init(from decoder: Decoder) throws {
@@ -221,43 +209,27 @@ extension Configs: Codable {
         do {
             phraseReviewPracticeDuration = try values.decode(Int.self, forKey: .phraseReviewPracticeDuration)
         } catch {
-            phraseReviewPracticeDuration = 5
+            phraseReviewPracticeDuration = Self.defaultConfigs.phraseReviewPracticeDuration
         }
         do {
             listeningPracticeDuration = try values.decode(Int.self, forKey: .listeningPracticeDuration)
         } catch {
-            listeningPracticeDuration = 5
+            listeningPracticeDuration = Self.defaultConfigs.listeningPracticeDuration
         }
         do {
             speakingPracticeDuration = try values.decode(Int.self, forKey: .speakingPracticeDuration)
         } catch {
-            speakingPracticeDuration = 5
+            speakingPracticeDuration = Self.defaultConfigs.speakingPracticeDuration
         }
         practiceRepetition = try values.decode(Int.self, forKey: .practiceRepetition)
         canGenerateTextsWithLLMsForPractices = try values.decode(Bool.self, forKey: .canGenerateTextsWithLLMsForPractices)
         do {
             shouldRemindToAddNewArticles = try values.decode(Bool.self, forKey: .shouldRemindToAddNewArticles)
         } catch {
-            shouldRemindToAddNewArticles = true
+            shouldRemindToAddNewArticles = Self.defaultConfigs.shouldRemindToAddNewArticles
         }
         
-        ChatGPTAPIURL = try values.decode(String?.self, forKey: .ChatGPTAPIURL)
-        ChatGPTAPIKey = try values.decode(String?.self, forKey: .ChatGPTAPIKey)
-        do {
-            baiduTranslateAPPID = try values.decode(String?.self, forKey: .baiduTranslateAPPID)
-        } catch {
-            baiduTranslateAPPID = nil
-        }
-        do {
-            baiduTranslateAPIKey = try values.decode(String?.self, forKey: .baiduTranslateAPIKey)
-        } catch {
-            baiduTranslateAPIKey = nil
-        }
-        backupEmailAddr = try values.decode(String?.self, forKey: .backupEmailAddr)
     }
-}
-
-extension Configs {
     
     // MARK: - IO
     
@@ -265,12 +237,12 @@ extension Configs {
         return "configs.\(lang.rawValue).json"
     }
     
-    static func load(for lang: LangCode) -> Configs {
+    static func load(for lang: LangCode) -> LangConfigs {
         do {
             let configs = try readDataFromJson(
-                fileName: Configs.fileName(for: lang),
-                type: Configs.self
-            ) as? Configs ?? Configs.defaultConfigs
+                fileName: LangConfigs.fileName(for: lang),
+                type: LangConfigs.self
+            ) as? LangConfigs ?? LangConfigs.defaultConfigs
             return configs
         } catch {
             print(error)
@@ -278,10 +250,10 @@ extension Configs {
         }
     }
     
-    static func save(_ configs: inout Configs, for lang: LangCode) {
+    static func save(_ configs: inout LangConfigs, for lang: LangCode) {
         do {
             try writeDataToJson(
-                fileName: Configs.fileName(for: lang),
+                fileName: LangConfigs.fileName(for: lang),
                 data: configs
             )
         } catch {
@@ -289,13 +261,8 @@ extension Configs {
             exit(1)
         }
     }
-}
-
-extension Configs {
     
-    // MARK: - Constants
-    
-    static let defaultConfigs = Configs(
+    static let defaultConfigs = LangConfigs(
         languageForTranslation: LangCode.zh,
         voiceRate: 0.5,
         phraseReviewPracticeDuration: 5,
