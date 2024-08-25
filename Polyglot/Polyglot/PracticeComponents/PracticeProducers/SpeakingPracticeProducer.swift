@@ -50,13 +50,8 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
             }
         }
         
-        let startTime = Date()
         while true {
             if practiceList.count >= batchSize {
-                break
-            }
-            
-            if Date().timeIntervalSince(startTime) >= SpeakingPracticeProducer.practiceMakingTimeThredshold {
                 break
             }
             Thread.sleep(forTimeInterval: 0.1)  // For avoiding high CPU usage.

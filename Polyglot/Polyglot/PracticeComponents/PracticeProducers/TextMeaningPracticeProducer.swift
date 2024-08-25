@@ -15,9 +15,6 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
             if self.practiceList.isEmpty {
                 self.practiceList.append(contentsOf: self.make())
             }
-            while self.practiceList.isEmpty {  // TODO: - improve here.
-                
-            }
             
             return self.practiceList[self.currentPracticeIndex]
         }
@@ -44,9 +41,6 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
     override func next() {
         if self.practiceList.isEmpty {
             self.practiceList.append(contentsOf: self.make())
-        }
-        while self.practiceList.isEmpty {  // TODO: - Improve here.
-            
         }
         
         self.currentPracticeIndex = (0..<self.practiceList.count).randomElement()!
@@ -119,10 +113,11 @@ extension TextMeaningPracticeProducer {
         )
     }
     
-    private func maybeTranslate(text: String, meaning: String? = nil, callBack: @escaping (
+    func maybeTranslate(text: String, meaning: String? = nil, callBack: @escaping (
         String,  // Translated text (meaning).
         Bool,  // isTranslated.
-        MachineTranslatorType  // Translator type.
+        MachineTranslatorType,  // Translator type.
+        String  // Translation query.
     ) -> Void ) {
         
         if let meaning = meaning {
@@ -130,7 +125,8 @@ extension TextMeaningPracticeProducer {
                 callBack(
                     meaning,
                     false,
-                    MachineTranslatorType.none
+                    MachineTranslatorType.none,
+                    text
                 )
             } else {
                 machineTranslator.translate(query: text) { translations, translatorType in
@@ -138,13 +134,15 @@ extension TextMeaningPracticeProducer {
                         callBack(
                             "\(translation) (\(meaning))",
                             true,
-                            translatorType
+                            translatorType,
+                            text
                         )
                     } else {
                         callBack(
                             meaning,
                             false,
-                            MachineTranslatorType.none
+                            MachineTranslatorType.none,
+                            text
                         )
                     }
                 }
@@ -157,7 +155,8 @@ extension TextMeaningPracticeProducer {
                 callBack(
                     translation,
                     true,
-                    translatorType
+                    translatorType,
+                    text
                 )
             }
         }
@@ -243,7 +242,7 @@ extension TextMeaningPracticeProducer {
             maybeTranslate(
                 text: text,
                 meaning: meaning  // May be nil.
-            ) { updatedMeaning, isTranslated, translatorType in
+            ) { updatedMeaning, isTranslated, translatorType, _ in
                 callBack(
                     text,
                     updatedMeaning,
@@ -262,7 +261,7 @@ extension TextMeaningPracticeProducer {
                     in: granularity
                 ) { content in
                     if let content = content {
-                        self.maybeTranslate(text: content) { contentMeaning, isTranslated, translatorType in
+                        self.maybeTranslate(text: content) { contentMeaning, isTranslated, translatorType, _ in
                             callBack(
                                 content,
                                 contentMeaning,
@@ -275,7 +274,7 @@ extension TextMeaningPracticeProducer {
                         self.maybeTranslate(
                             text: randomWord.text,
                             meaning: randomWord.meaning
-                        ) { updatedMeaning, isTranslated, translatorType in
+                        ) { updatedMeaning, isTranslated, translatorType, _ in
                             callBack(
                                 randomWord.text,
                                 updatedMeaning,
@@ -290,7 +289,7 @@ extension TextMeaningPracticeProducer {
                 self.maybeTranslate(
                     text: randomWord.text,
                     meaning: randomWord.meaning
-                ) { updatedMeaning, isTranslated, translatorType in
+                ) { updatedMeaning, isTranslated, translatorType, _ in
                     callBack(
                         randomWord.text,
                         updatedMeaning,

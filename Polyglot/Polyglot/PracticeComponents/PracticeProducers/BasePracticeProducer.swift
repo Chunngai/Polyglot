@@ -51,14 +51,6 @@ class BasePracticeProducer {
 
 extension BasePracticeProducer {
     
-    // MARK: - Constants
-    
-    static var practiceMakingTimeThredshold: TimeInterval = 5
-
-}
-
-extension BasePracticeProducer {
-    
     // MARK: - IO
     
     static func metaDataFileName(for lang: LangCode) -> String {

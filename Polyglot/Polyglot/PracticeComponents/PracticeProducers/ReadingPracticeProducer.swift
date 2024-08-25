@@ -65,35 +65,54 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
         var practiceList: [ReadingPractice] = []
         for _ in 0..<batchSize {
              
-            if paraIndex < randomArticle.paras.count {
-                let para = randomArticle.paras[paraIndex]
-                
-                let (existingPhraseRanges, existingPhraseMeanings) = findExistingPhraseRangesAndMeanings(
-                    for: para.text,
-                    from: self.words
-                )
-                
-                practiceList.append(ReadingPractice(
-                    text: para.text,
-                    meaning: "",
-                    textLang: LangCode.currentLanguage,
-                    meaningLang: LangCode.currentLanguage.configs.languageForTranslation,
-                    textSource: .article(
-                        articleId: randomArticle.id,
-                        paragraphId: para.id,
-                        sentenceId: nil
-                    ),
-                    isTextMachineTranslated: false,
-                    machineTranslatorType: .none,
-                    existingPhraseRanges: existingPhraseRanges,
-                    existingPhraseMeanings: existingPhraseMeanings
-                ))
-                
-                paraIndex += 1
-            } else {
+            if paraIndex >= randomArticle.paras.count {
                 break
             }
             
+            let para = randomArticle.paras[paraIndex]
+            
+            let (existingPhraseRanges, existingPhraseMeanings) = findExistingPhraseRangesAndMeanings(
+                for: para.text,
+                from: self.words
+            )
+            
+            practiceList.append(ReadingPractice(
+                text: para.text,
+                meaning: para.meaning ?? "",
+                textLang: LangCode.currentLanguage,
+                meaningLang: LangCode.currentLanguage.configs.languageForTranslation,
+                textSource: .article(
+                    articleId: randomArticle.id,
+                    paragraphId: para.id,
+                    sentenceId: nil
+                ),
+                isTextMachineTranslated: false,
+                machineTranslatorType: .none,
+                existingPhraseRanges: existingPhraseRanges,
+                existingPhraseMeanings: existingPhraseMeanings
+            ))
+            maybeTranslate(text: para.text, meaning: para.meaning) { translation, isTranslated, translatorType, translationQuery in
+                for practice in self.practiceList {
+                    guard let practice = practice as? ReadingPractice else {
+                        continue
+                    }
+                    if practice.text == translationQuery {
+                        practice.meaning = translation
+                        practice.isTextMachineTranslated = isTranslated
+                        practice.machineTranslatorType = translatorType
+                    }
+                }
+            }
+            
+            paraIndex += 1
+            
+        }
+        
+        while true {
+            if practiceList.count >= batchSize {
+                break
+            }
+            Thread.sleep(forTimeInterval: 0.1)  // For avoiding high CPU usage.
         }
         
         return practiceList
