@@ -186,11 +186,11 @@ extension Strings {
     
     static let _reading: [LangCode : String] = [
         LangCode.en : "Reading",
-        LangCode.ja : "読解",
+        LangCode.ja : "読むこと",
         LangCode.es : "Leer",
         LangCode.ru : "Чтение",
-        LangCode.ko : "독해",
-        LangCode.de : "Lektüre",
+        LangCode.ko : "읽기",
+        LangCode.de : "Lesen",
     ]
     static var reading: String {
         return Strings._reading[LangCode.currentLanguage]!
@@ -574,18 +574,6 @@ extension Strings {
         return Strings._listenAndCompletePracticePrompts[LangCode.currentLanguage]!
     }
     
-    private static let _translationPracticePrompts: [LangCode : String] = [
-        LangCode.en : "Interpret the paragraph.",
-        LangCode.ja : "この段落を通訳してください。",
-        LangCode.es : "Interprete el párrafo.",
-        LangCode.ru : "интерпретировать пункт.",
-        LangCode.ko : "이 단락을 통역하십시오.",
-        LangCode.de : "Interpretieren Sie den Absatz.",
-    ]
-    static var translationPracticePrompt: String {
-        return Strings._translationPracticePrompts[LangCode.currentLanguage]!
-    }
-    
     static let _interpretationPracticePrompt: [LangCode : String] = [
         LangCode.en : "Interpretation",
         LangCode.ja : "通訳",
@@ -596,6 +584,18 @@ extension Strings {
     ]
     static var interpretationPracticePrompt: String {
         return Strings._interpretationPracticePrompt[LangCode.currentLanguage]!
+    }
+    
+    static let _readingPracticePrompt: [LangCode : String] = [
+        LangCode.en : "Read the text",
+        LangCode.ja : "テキストを読んでください",
+        LangCode.es : "Lee el texto",
+        LangCode.ru : "Прочитайте текст",
+        LangCode.ko : "텍스트를 읽어보세요",
+        LangCode.de : "Lies den Text",
+    ]
+    static var readingPracticePrompt: String {
+        return Strings._readingPracticePrompt[LangCode.currentLanguage]!
     }
     
     private static let _translationTokens: [LangCode : String] = [

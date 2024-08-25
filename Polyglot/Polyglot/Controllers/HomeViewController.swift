@@ -118,6 +118,13 @@ class HomeViewController: UIViewController {
             secondaryText: practiceMetaData["recentTranslationPracticeDate"] != nil
             ? "\(Strings.recentPractice): \(practiceMetaData["recentTranslationPracticeDate"]!)"
             : nil
+        ),
+        HomeItem(
+            image: Images.readingPracticeImage,
+            text: Strings.reading,
+            secondaryText: practiceMetaData["recentReadingPracticeDate"] != nil
+            ? "\(Strings.recentPractice): \(practiceMetaData["recentReadingPracticeDate"]!)"
+            : nil
         )
     ]}
     
@@ -810,7 +817,10 @@ extension HomeViewController: UICollectionViewDelegate {
             } else if row == 2 {
                 vc = TranslationPracticeViewController()
                 vc.practiceDuration = LangCode.currentLanguage.configs.speakingPracticeDuration
-            } else {
+            } else if row == 3 {
+                vc = ReadingPracticeViewController()
+                vc.practiceDuration = LangCode.currentLanguage.configs.readingPracticeDuration
+            }else {
                 fatalError("Not Implemented.")
             }
             vc.delegate = self

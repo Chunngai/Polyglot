@@ -33,6 +33,10 @@
 		C69DB5F02B73D3A800B3BC66 /* SpeechRecognitionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69DB5EF2B73D3A800B3BC66 /* SpeechRecognitionViewController.swift */; };
 		C69F76662B7D198F0006828A /* TextMeaningPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69F76652B7D198F0006828A /* TextMeaningPractice.swift */; };
 		C69F76682B7D1F9F0006828A /* ListeningPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69F76672B7D1F9F0006828A /* ListeningPractice.swift */; };
+		C6A1FC402C7B4B9700F01632 /* ReadingPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A1FC3F2C7B4B9700F01632 /* ReadingPractice.swift */; };
+		C6A1FC422C7B4C6900F01632 /* ReadingPracticeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A1FC412C7B4C6900F01632 /* ReadingPracticeProducer.swift */; };
+		C6A1FC442C7B4E7700F01632 /* ReadingPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A1FC432C7B4E7700F01632 /* ReadingPracticeView.swift */; };
+		C6A1FC462C7B4F7400F01632 /* ReadingPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A1FC452C7B4F7400F01632 /* ReadingPracticeViewController.swift */; };
 		C6A22FEE2C7118A200484B59 /* BaiduTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A22FED2C7118A200484B59 /* BaiduTranslator.swift */; };
 		C6A22FF22C712DBC00484B59 /* LangCodeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A22FF12C712DBC00484B59 /* LangCodeExtensions.swift */; };
 		C6A666F72B75EC03002B4DEE /* US2UKSpellingMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A666F62B75EC03002B4DEE /* US2UKSpellingMapping.swift */; };
@@ -72,7 +76,7 @@
 		FF4AB0032A9B4C4400908062 /* ContentCreator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4AB0022A9B4C4400908062 /* ContentCreator.swift */; };
 		FF4B382B29525A4300BB3FFD /* ReadingEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4B382A29525A4300BB3FFD /* ReadingEditViewController.swift */; };
 		FF4B382F29525BD400BB3FFD /* ReadingEditTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4B382E29525BD400BB3FFD /* ReadingEditTableCell.swift */; };
-		FF4CA730295E869900423946 /* TranslationPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4CA72F295E869900423946 /* TranslationPracticeViewController.swift */; };
+		FF4CA730295E869900423946 /* SpeakingPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4CA72F295E869900423946 /* SpeakingPracticeViewController.swift */; };
 		FF4D7CC62953952C009F6894 /* NSMutableAttributedStringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4D7CC52953952C009F6894 /* NSMutableAttributedStringExtensions.swift */; };
 		FF4FA0C82AADDAA0001EA18C /* ContentCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4FA0C72AADDAA0001EA18C /* ContentCards.swift */; };
 		FF50250E295244F10097C2CB /* ReadingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF50250D295244F10097C2CB /* ReadingViewController.swift */; };
@@ -113,7 +117,7 @@
 		FFBD60452969D733004165FC /* SpeakingPracticeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFBD60442969D733004165FC /* SpeakingPracticeProducer.swift */; };
 		FFCBB0D7296B0AA200E5B9D9 /* PracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0D6296B0AA200E5B9D9 /* PracticeViewController.swift */; };
 		FFCBB0DB296B1A6700E5B9D9 /* BasePracticeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0DA296B1A6700E5B9D9 /* BasePracticeProducer.swift */; };
-		FFCBB0E0296B45F300E5B9D9 /* TranslationPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0DF296B45F300E5B9D9 /* TranslationPracticeView.swift */; };
+		FFCBB0E0296B45F300E5B9D9 /* SpeakingPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFCBB0DF296B45F300E5B9D9 /* SpeakingPracticeView.swift */; };
 		FFD7DF6D299D376000019D51 /* RowStackItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD7DF6C299D376000019D51 /* RowStackItem.swift */; };
 		FFD7DF72299D509B00019D51 /* CGRectExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD7DF71299D509B00019D51 /* CGRectExtensions.swift */; };
 		FFD7DF7D299DA18000019D51 /* ReorderingPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFD7DF7C299DA18000019D51 /* ReorderingPracticeView.swift */; };
@@ -192,6 +196,10 @@
 		C69DB5EF2B73D3A800B3BC66 /* SpeechRecognitionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechRecognitionViewController.swift; sourceTree = "<group>"; };
 		C69F76652B7D198F0006828A /* TextMeaningPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextMeaningPractice.swift; sourceTree = "<group>"; };
 		C69F76672B7D1F9F0006828A /* ListeningPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningPractice.swift; sourceTree = "<group>"; };
+		C6A1FC3F2C7B4B9700F01632 /* ReadingPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPractice.swift; sourceTree = "<group>"; };
+		C6A1FC412C7B4C6900F01632 /* ReadingPracticeProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPracticeProducer.swift; sourceTree = "<group>"; };
+		C6A1FC432C7B4E7700F01632 /* ReadingPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPracticeView.swift; sourceTree = "<group>"; };
+		C6A1FC452C7B4F7400F01632 /* ReadingPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPracticeViewController.swift; sourceTree = "<group>"; };
 		C6A22FED2C7118A200484B59 /* BaiduTranslator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaiduTranslator.swift; sourceTree = "<group>"; };
 		C6A22FF12C712DBC00484B59 /* LangCodeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCodeExtensions.swift; sourceTree = "<group>"; };
 		C6A666F62B75EC03002B4DEE /* US2UKSpellingMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = US2UKSpellingMapping.swift; sourceTree = "<group>"; };
@@ -236,7 +244,7 @@
 		FF4AB0022A9B4C4400908062 /* ContentCreator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCreator.swift; sourceTree = "<group>"; };
 		FF4B382A29525A4300BB3FFD /* ReadingEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingEditViewController.swift; sourceTree = "<group>"; };
 		FF4B382E29525BD400BB3FFD /* ReadingEditTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingEditTableCell.swift; sourceTree = "<group>"; };
-		FF4CA72F295E869900423946 /* TranslationPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeViewController.swift; sourceTree = "<group>"; };
+		FF4CA72F295E869900423946 /* SpeakingPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingPracticeViewController.swift; sourceTree = "<group>"; };
 		FF4D7CC52953952C009F6894 /* NSMutableAttributedStringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSMutableAttributedStringExtensions.swift; sourceTree = "<group>"; };
 		FF4FA0C72AADDAA0001EA18C /* ContentCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCards.swift; sourceTree = "<group>"; };
 		FF50250D295244F10097C2CB /* ReadingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingViewController.swift; sourceTree = "<group>"; };
@@ -282,7 +290,7 @@
 		FFBD60442969D733004165FC /* SpeakingPracticeProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingPracticeProducer.swift; sourceTree = "<group>"; };
 		FFCBB0D6296B0AA200E5B9D9 /* PracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeViewController.swift; sourceTree = "<group>"; };
 		FFCBB0DA296B1A6700E5B9D9 /* BasePracticeProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasePracticeProducer.swift; sourceTree = "<group>"; };
-		FFCBB0DF296B45F300E5B9D9 /* TranslationPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationPracticeView.swift; sourceTree = "<group>"; };
+		FFCBB0DF296B45F300E5B9D9 /* SpeakingPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingPracticeView.swift; sourceTree = "<group>"; };
 		FFD7DF6C299D376000019D51 /* RowStackItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RowStackItem.swift; sourceTree = "<group>"; };
 		FFD7DF71299D509B00019D51 /* CGRectExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGRectExtensions.swift; sourceTree = "<group>"; };
 		FFD7DF7C299DA18000019D51 /* ReorderingPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReorderingPracticeView.swift; sourceTree = "<group>"; };
@@ -339,9 +347,10 @@
 				FF491E742959C4320088FD13 /* SelectionPracticeView.swift */,
 				FF491E762959CC960088FD13 /* FillingPracticeView.swift */,
 				FFD7DF7C299DA18000019D51 /* ReorderingPracticeView.swift */,
-				FFCBB0DF296B45F300E5B9D9 /* TranslationPracticeView.swift */,
 				C69DB5EB2B73C05700B3BC66 /* ListenAndRepeatPracticeView.swift */,
 				C69DB5ED2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift */,
+				FFCBB0DF296B45F300E5B9D9 /* SpeakingPracticeView.swift */,
+				C6A1FC432C7B4E7700F01632 /* ReadingPracticeView.swift */,
 			);
 			path = PracticeViews;
 			sourceTree = "<group>";
@@ -389,8 +398,9 @@
 				FFCBB0D6296B0AA200E5B9D9 /* PracticeViewController.swift */,
 				C60625F62B7FB5E800429BAF /* TextMeaningPracticeViewController.swift */,
 				FF495EA12959244C00EA7EA9 /* WordsPracticeViewController.swift */,
-				FF4CA72F295E869900423946 /* TranslationPracticeViewController.swift */,
 				C6F5FB792B7202AF0040A26B /* ListeningPracticeViewController.swift */,
+				FF4CA72F295E869900423946 /* SpeakingPracticeViewController.swift */,
+				C6A1FC452C7B4F7400F01632 /* ReadingPracticeViewController.swift */,
 			);
 			path = Practices;
 			sourceTree = "<group>";
@@ -402,6 +412,7 @@
 				C69F76652B7D198F0006828A /* TextMeaningPractice.swift */,
 				C69F76672B7D1F9F0006828A /* ListeningPractice.swift */,
 				C6B9DE8B2B7E177E004F0C88 /* SpeakingPractice.swift */,
+				C6A1FC3F2C7B4B9700F01632 /* ReadingPractice.swift */,
 			);
 			path = PracticeItems;
 			sourceTree = "<group>";
@@ -610,8 +621,9 @@
 				FFCBB0DA296B1A6700E5B9D9 /* BasePracticeProducer.swift */,
 				C606260C2B80765E00429BAF /* TextMeaningPracticeProducer.swift */,
 				FFBD60402969D713004165FC /* WordPracticeProducer.swift */,
-				FFBD60442969D733004165FC /* SpeakingPracticeProducer.swift */,
 				C6F5FB7D2B72067F0040A26B /* ListeningPracticeProducer.swift */,
+				FFBD60442969D733004165FC /* SpeakingPracticeProducer.swift */,
+				C6A1FC412C7B4C6900F01632 /* ReadingPracticeProducer.swift */,
 			);
 			path = PracticeProducers;
 			sourceTree = "<group>";
@@ -939,11 +951,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				C6F3F6AD2C12242E00346A70 /* SettingsButtonCell.swift in Sources */,
+				C6A1FC422C7B4C6900F01632 /* ReadingPracticeProducer.swift in Sources */,
 				C60625F72B7FB5E800429BAF /* TextMeaningPracticeViewController.swift in Sources */,
 				C6F3F6AB2C12239C00346A70 /* SettingsInputCell.swift in Sources */,
 				FF591ED62967960C0004CB80 /* WordPractice.swift in Sources */,
 				FFBD60412969D713004165FC /* WordPracticeProducer.swift in Sources */,
 				C6BC063D2C726D2C00B2DF44 /* MachineTranslator.swift in Sources */,
+				C6A1FC402C7B4B9700F01632 /* ReadingPractice.swift in Sources */,
 				FF495E962958FFE600EA7EA9 /* WordsViewController.swift in Sources */,
 				FF502512295248D10097C2CB /* Article.swift in Sources */,
 				C6C8C3172B7617F200FBC43B /* Text.swift in Sources */,
@@ -951,7 +965,7 @@
 				FF491E772959CC960088FD13 /* FillingPracticeView.swift in Sources */,
 				C69DB5EA2B73BE9B00B3BC66 /* TextMeaningPracticeView.swift in Sources */,
 				FF491E752959C4320088FD13 /* SelectionPracticeView.swift in Sources */,
-				FFCBB0E0296B45F300E5B9D9 /* TranslationPracticeView.swift in Sources */,
+				FFCBB0E0296B45F300E5B9D9 /* SpeakingPracticeView.swift in Sources */,
 				C69B190E2C18B76600E41C86 /* SettingsSwitchingCell.swift in Sources */,
 				FF4964BA29579C5A00414AC5 /* UISearchBarExtensions.swift in Sources */,
 				FF5844312967217700137E00 /* ListViewController.swift in Sources */,
@@ -1003,8 +1017,10 @@
 				C6F5FB762B71079C0040A26B /* ClozeViewController.swift in Sources */,
 				FF5882BE29604E0300FC33CF /* NewWordAddingTextView.swift in Sources */,
 				FF495EA029591DEC00EA7EA9 /* TableHeaderView.swift in Sources */,
+				C6A1FC462C7B4F7400F01632 /* ReadingPracticeViewController.swift in Sources */,
 				FFD7DF72299D509B00019D51 /* CGRectExtensions.swift in Sources */,
 				C6B5187C2AF2C19C00451B90 /* TextViewWithPrompt.swift in Sources */,
+				C6A1FC442C7B4E7700F01632 /* ReadingPracticeView.swift in Sources */,
 				C6BC06412C726D9E00B2DF44 /* TranslationProtocol.swift in Sources */,
 				FF62C9A929513A5000D41797 /* Theme.swift in Sources */,
 				FFBD60452969D733004165FC /* SpeakingPracticeProducer.swift in Sources */,
@@ -1013,7 +1029,7 @@
 				C60626082B8069F100429BAF /* WordPracticeView.swift in Sources */,
 				FF63DDFC299AC17C0088C10B /* WordBank.swift in Sources */,
 				FF62C9762951382500D41797 /* AppDelegate.swift in Sources */,
-				FF4CA730295E869900423946 /* TranslationPracticeViewController.swift in Sources */,
+				FF4CA730295E869900423946 /* SpeakingPracticeViewController.swift in Sources */,
 				FF4D7CC62953952C009F6894 /* NSMutableAttributedStringExtensions.swift in Sources */,
 				FF495E992959039A00EA7EA9 /* WordExtensions.swift in Sources */,
 				FF4964CF2958CE4400414AC5 /* Word.swift in Sources */,

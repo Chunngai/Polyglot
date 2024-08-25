@@ -76,6 +76,7 @@ struct Images {
     static let wordPracticeImage: UIImage = UIImage.init(systemName: "square.and.pencil")!
     static let listeningPracticeImage: UIImage = UIImage.init(systemName: "beats.headphones")!
     static let translationPracticeImage: UIImage = UIImage.init(systemName: "bubble")!
+    static let readingPracticeImage: UIImage = UIImage.init(systemName: "book.closed")!
     
     static let configImage: UIImage = UIImage(systemName: "slider.horizontal.3")!
     

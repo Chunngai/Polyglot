@@ -142,6 +142,7 @@ struct LangConfigs: Codable {
     var phraseReviewPracticeDuration: Int
     var listeningPracticeDuration: Int
     var speakingPracticeDuration: Int
+    var readingPracticeDuration: Int
     
     var practiceRepetition: Int
     
@@ -155,6 +156,7 @@ struct LangConfigs: Codable {
         phraseReviewPracticeDuration: Int,
         listeningPracticeDuration: Int,
         speakingPracticeDuration: Int,
+        readingPracticeDuration: Int,
         practiceRepetition: Int,
         canGenerateTextsWithLLMsForPractices: Bool,
         shouldRemindToAddNewArticles: Bool
@@ -164,6 +166,7 @@ struct LangConfigs: Codable {
         self.phraseReviewPracticeDuration = phraseReviewPracticeDuration
         self.listeningPracticeDuration = listeningPracticeDuration
         self.speakingPracticeDuration = speakingPracticeDuration
+        self.readingPracticeDuration = readingPracticeDuration
         self.practiceRepetition = practiceRepetition
         self.canGenerateTextsWithLLMsForPractices = canGenerateTextsWithLLMsForPractices
         self.shouldRemindToAddNewArticles = shouldRemindToAddNewArticles
@@ -178,6 +181,7 @@ struct LangConfigs: Codable {
         case phraseReviewPracticeDuration
         case listeningPracticeDuration
         case speakingPracticeDuration
+        case readingPracticeDuration
         
         case practiceRepetition
         
@@ -195,6 +199,7 @@ struct LangConfigs: Codable {
         try container.encode(phraseReviewPracticeDuration, forKey: .phraseReviewPracticeDuration)
         try container.encode(listeningPracticeDuration, forKey: .listeningPracticeDuration)
         try container.encode(speakingPracticeDuration, forKey: .speakingPracticeDuration)
+        try container.encode(readingPracticeDuration, forKey: .readingPracticeDuration)
         try container.encode(practiceRepetition, forKey: .practiceRepetition)
         try container.encode(canGenerateTextsWithLLMsForPractices, forKey: .canGenerateTextsWithLLMsForPractices)
         try container.encode(shouldRemindToAddNewArticles, forKey: .shouldRemindToAddNewArticles)
@@ -220,6 +225,11 @@ struct LangConfigs: Codable {
             speakingPracticeDuration = try values.decode(Int.self, forKey: .speakingPracticeDuration)
         } catch {
             speakingPracticeDuration = Self.defaultConfigs.speakingPracticeDuration
+        }
+        do {
+            readingPracticeDuration = try values.decode(Int.self, forKey: .readingPracticeDuration)
+        } catch {
+            readingPracticeDuration = Self.defaultConfigs.readingPracticeDuration
         }
         practiceRepetition = try values.decode(Int.self, forKey: .practiceRepetition)
         canGenerateTextsWithLLMsForPractices = try values.decode(Bool.self, forKey: .canGenerateTextsWithLLMsForPractices)
@@ -268,6 +278,7 @@ struct LangConfigs: Codable {
         phraseReviewPracticeDuration: 5,
         listeningPracticeDuration: 5,
         speakingPracticeDuration: 5,
+        readingPracticeDuration: 5,
         practiceRepetition: 2,
         canGenerateTextsWithLLMsForPractices: true,
         shouldRemindToAddNewArticles: true
