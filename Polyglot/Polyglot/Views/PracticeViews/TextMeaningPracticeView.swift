@@ -22,17 +22,13 @@ class TextMeaningPracticeView: BasePracticeView {
     var totalRepetitions: Int!
     var currentRepetition: Int!
     
+    var upperString: String!
+    var lowerString: String!
+    
     var newWordsInfo: [NewWordInfo] {
         return textView.newWordsInfo
     }
     
-    var translatorIcon: UIImage {
-        switch machineTranslatorType {
-        case .google: return Icons.googleTranslateIcon
-        case .baidu: return Icons.baiduTranslateIcon
-        default: return UIImage.init(systemName: "questionmark.square.dashed")!
-        }
-    }
     var unselectableRanges: [NSRange] = []
     
     var shouldReinforce: Bool = false {
@@ -112,6 +108,17 @@ class TextMeaningPracticeView: BasePracticeView {
         return label
     }()
     
+    var translatorIcon: UIImage {
+        switch machineTranslatorType {
+        case .google: return Icons.googleTranslateIcon
+        case .baidu: return Icons.baiduTranslateIcon
+        default: return UIImage.init(systemName: "questionmark.square.dashed")!
+        }
+    }
+    
+    var upperIcon: UIImage?
+    var lowerIcon: UIImage?
+    
     // MARK: - Init
     
     init(
@@ -181,6 +188,8 @@ class TextMeaningPracticeView: BasePracticeView {
         mainView.addSubview(reinforceButton)
         mainView.addSubview(reinforceTextButton)
         mainView.addSubview(repetitionsLabel)
+        
+        displayUpper()
     }
     
     func updateLayouts() {
@@ -218,12 +227,59 @@ class TextMeaningPracticeView: BasePracticeView {
         }
     }
     
-    func displayText() {
-        fatalError("displayText() has not been implemented.")
+    func displayUpper() {
+        let attributedText = NSMutableAttributedString(string: "")
+        if let upperIcon = upperIcon {
+            unselectableRanges.append(NSRange(
+                location: attributedText.length,
+                length: 2  // Icon + space.
+            ))
+            
+            attributedText.append(makeImageAttributedString(with: upperIcon))
+            attributedText.append(NSAttributedString(string: " "))
+        }
+        attributedText.append(NSAttributedString(string: upperString))
+        // Without this the text attributes are cleared after attaching the icon.
+        attributedText.addAttributes(
+            Attributes.leftAlignedLongTextAttributes,
+            range: NSRange(
+                location: 0,
+                length: attributedText.length
+            )
+        )
+        
+        textView.attributedText = attributedText
     }
     
-    func displayMeaning() {
-        fatalError("displayMeaning() has not been implemented.")
+    func displayLower() {
+        let attributedText = NSMutableAttributedString(attributedString: textView.attributedText!)
+        attributedText.append(NSAttributedString(string: "\n"))
+        if let lowerIcon = lowerIcon {
+            unselectableRanges.append(NSRange(
+                location: attributedText.length,
+                length: 2  // Icon + space.
+            ))
+            
+            attributedText.append(makeImageAttributedString(with: lowerIcon))
+            attributedText.append(NSAttributedString(string: " "))
+//            attributedText.addAttributes(
+//                Attributes.leftAlignedLongTextAttributes,
+//                range: NSRange(
+//                    location: attributedText.length - 2,
+//                    length: 2
+//                )
+//            )
+        }
+        attributedText.append(NSAttributedString(string: lowerString))
+        attributedText.addAttributes(
+            Attributes.leftAlignedLongTextAttributes,
+            range: NSRange(
+                location: 0,
+                length: attributedText.length
+            )
+        )
+        
+        textView.attributedText = attributedText
     }
     
     func submit() -> Any {
@@ -236,6 +292,8 @@ class TextMeaningPracticeView: BasePracticeView {
         
         reinforceButton.isHidden = false
         reinforceTextButton.isHidden = false
+        
+        displayLower()
         
         currentRepetition += 1
         updateRepetitionLabelText()

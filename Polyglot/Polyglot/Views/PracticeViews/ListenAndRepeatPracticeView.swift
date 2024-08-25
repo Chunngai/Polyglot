@@ -68,6 +68,15 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
         
         self.clozeRanges = clozeRanges
         
+        upperString = text
+        lowerString = meaning
+        if textSource == .chatGpt {
+            upperIcon = Icons.chatgptIcon
+        }
+        if isTextMachineTranslated {
+            lowerIcon = translatorIcon
+        }
+        
         updateSetups()
         updateViews()
         updateLayouts()
@@ -97,25 +106,16 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
     override func updateViews() {
         super.updateViews()
         
-        displayText()
         makeClozes()
     }
     
     // MARK: - Methods from the Super Class
     
-    override func displayText() {
-        let attributedText = NSMutableAttributedString(string: "")
+    override func displayUpper() {
+        
+        super.displayUpper()
+        
         if textSource == .chatGpt {
-            let iconRange = NSRange(
-                location: attributedText.length,
-                length: 2  // Icon + space.
-            )
-            unselectableRanges.append(iconRange)
-            
-            let imageAttrString = makeImageAttributedString(with: Icons.chatgptIcon)
-            attributedText.append(imageAttrString)
-            attributedText.append(NSAttributedString(string: " "))
-            
             for i in 0..<clozeRanges.count {
                 clozeRanges[i].location += 2  // One for the icon and one for the space.
             }
@@ -129,47 +129,6 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
                 existingPhraseRanges[i].location += 2
             }
         }
-        attributedText.append(NSAttributedString(string: text))
-        // Without this the text attributes are cleared after attaching the icon.
-        attributedText.addAttributes(
-            Attributes.leftAlignedLongTextAttributes,
-            range: NSRange(
-                location: 0,
-                length: attributedText.length
-            )
-        )
-        
-        textView.attributedText = attributedText
-    }
-    
-    override func displayMeaning() {  // TODO: - Merge with the translation counterpart.
-        let attributedText = NSMutableAttributedString(attributedString: textView.attributedText!)
-
-        attributedText.append(NSAttributedString(string: "\n"))
-        if isTextMachineTranslated {
-            let iconRange = NSRange(
-                location: attributedText.length,
-                length: 2  // Icon + space.
-            )
-            unselectableRanges.append(iconRange)
-            
-            let imageAttrString = makeImageAttributedString(with: translatorIcon)
-            attributedText.append(imageAttrString)
-            attributedText.append(NSAttributedString(string: " "))
-            attributedText.addAttributes(
-                Attributes.leftAlignedLongTextAttributes,
-                range: NSRange(
-                    location: attributedText.length - 2,
-                    length: 2
-                )
-            )
-        }
-        attributedText.append(NSAttributedString(
-            string: meaning,
-            attributes: Attributes.leftAlignedLongTextAttributes
-        ))
-        
-        textView.attributedText = attributedText
     }
     
     override func submit() -> Any {
@@ -187,7 +146,6 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
         shouldProcessRecognizedSpeech = false
         
         displayUnmatchedText()
-        displayMeaning()
         highlightExistingPhrases(
             existingPhraseRanges: existingPhraseRanges,
             existingPhraseMeanings: existingPhraseMeanings

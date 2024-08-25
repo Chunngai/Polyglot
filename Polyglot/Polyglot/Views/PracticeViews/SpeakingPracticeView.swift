@@ -41,6 +41,15 @@ class TranslationPracticeView: TextMeaningPracticeView {
             currentRepetition: currentRepetition
         )
         
+        upperString = meaning
+        lowerString = text
+        if isTextMachineTranslated {
+            upperIcon = translatorIcon
+        }
+        if textSource == .chatGpt {
+            lowerIcon = Icons.chatgptIcon
+        }
+        
         updateSetups()
         updateViews()
         updateLayouts()
@@ -50,71 +59,20 @@ class TranslationPracticeView: TextMeaningPracticeView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func updateViews() {
-        super.updateViews()
-        
-        displayMeaning()
-    }
-    
     // MARK: - Methods from the Super Class
     
-    override func displayMeaning() {
-        let attributedText = NSMutableAttributedString(
-            string: "",
+    override func displayLower() {
+        
+        super.displayLower()
+        
+        let upperAttrStr = NSAttributedString(
+            string: (self.upperIcon != nil ? "  " : "") + meaning + "\n" + (self.lowerIcon != nil ? "  " : ""),
             attributes: Attributes.leftAlignedLongTextAttributes
         )
-        if isTextMachineTranslated {
-            let iconRange = NSRange(
-                location: attributedText.length,
-                length: 2  // Icon + space.
-            )
-            unselectableRanges.append(iconRange)
-                        
-            let imageAttrString = makeImageAttributedString(with: translatorIcon)
-            attributedText.append(imageAttrString)
-            attributedText.append(NSAttributedString(string: " "))
-        }
-        attributedText.append(NSAttributedString(string: meaning))
-        attributedText.addAttributes(
-            Attributes.leftAlignedLongTextAttributes,
-            range: NSRange(
-                location: 0,
-                length: attributedText.length
-            )
-        )
-        
-        textView.attributedText = attributedText
-    }
-    
-    override func displayText() {
-        let attributedText = NSMutableAttributedString(attributedString: textView.attributedText!)
-        attributedText.append(NSAttributedString(string: "\n"))
-        if textSource == .chatGpt {
-            let iconRange = NSRange(
-                location: attributedText.length,
-                length: 2  // Icon + space.
-            )
-            unselectableRanges.append(iconRange)
-            
-            let imageAttrString = makeImageAttributedString(with: Icons.chatgptIcon)
-            attributedText.append(imageAttrString)
-            attributedText.append(NSAttributedString(string: " "))
-        }
-        
         for i in 0..<existingPhraseRanges.count {
-            existingPhraseRanges[i].location += attributedText.length
+            existingPhraseRanges[i].location += upperAttrStr.length
         }
         
-        attributedText.append(NSAttributedString(string: text))
-        attributedText.addAttributes(
-            Attributes.leftAlignedLongTextAttributes,
-            range: NSRange(
-                location: 0,
-                length: attributedText.length
-            )
-        )
-        
-        textView.attributedText = attributedText
     }
     
     override func submit() -> Any {
@@ -125,7 +83,6 @@ class TranslationPracticeView: TextMeaningPracticeView {
         
         super.updateViewsAfterSubmission()
         
-        displayText()
         highlightExistingPhrases(
             existingPhraseRanges: existingPhraseRanges,
             existingPhraseMeanings: existingPhraseMeanings
