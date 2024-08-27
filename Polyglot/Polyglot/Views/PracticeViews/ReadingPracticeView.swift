@@ -43,6 +43,12 @@ class ReadingPracticeView: TextMeaningPracticeView {
         
         upperString = text
         lowerString = meaning
+        if textSource == .chatGpt {
+            upperIcon = Icons.chatgptIcon
+        }
+        if isTextMachineTranslated {
+            lowerIcon = translatorIcon
+        }
         
         updateSetups()
         updateViews()
