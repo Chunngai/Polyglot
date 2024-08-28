@@ -36,7 +36,7 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
         
         // self.currentPracticeIndex SHOULD ALWAYS BE 0
         // AS DONE PRACTICES WILL BE REMOVED FROM THE LIST.
-//        self.currentPracticeIndex = 0
+        self.currentPracticeIndex = 0
         
         if self.practiceList.count <= batchSize {
             DispatchQueue.global(qos: .userInitiated).async {
@@ -57,62 +57,56 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
             return []
         }
         
-        paraIndex -= batchSize
-        if paraIndex < 0 {
-            paraIndex = 0
-        }
-        
         var practiceList: [ReadingPractice] = []
-        for _ in 0..<batchSize {
-             
+        while true {
+            
             if paraIndex >= randomArticle.paras.count {
                 break
             }
             
             let para = randomArticle.paras[paraIndex]
-            
-            let (existingPhraseRanges, existingPhraseMeanings) = findExistingPhraseRangesAndMeanings(
-                for: para.text,
-                from: self.words
-            )
-            
-            practiceList.append(ReadingPractice(
-                text: para.text,
-                meaning: para.meaning ?? "",
-                textLang: LangCode.currentLanguage,
-                meaningLang: LangCode.currentLanguage.configs.languageForTranslation,
-                textSource: .article(
-                    articleId: randomArticle.id,
-                    paragraphId: para.id,
-                    sentenceId: nil
-                ),
-                isTextMachineTranslated: false,
-                machineTranslatorType: .none,
-                existingPhraseRanges: existingPhraseRanges,
-                existingPhraseMeanings: existingPhraseMeanings
-            ))
-            maybeTranslate(text: para.text, meaning: para.meaning) { translation, isTranslated, translatorType, translationQuery in
-                for practice in self.practiceList {
-                    guard let practice = practice as? ReadingPractice else {
-                        continue
-                    }
-                    if practice.text == translationQuery {
-                        practice.meaning = translation
-                        practice.isTextMachineTranslated = isTranslated
-                        practice.machineTranslatorType = translatorType
+            let sentences = para.text.tokenized(with: LangCode.currentLanguage.sentenceTokenizer)
+            for (sentenceId, sentence) in sentences.enumerated() {
+                let (existingPhraseRanges, existingPhraseMeanings) = findExistingPhraseRangesAndMeanings(
+                    for: sentence,
+                    from: self.words
+                )
+                practiceList.append(ReadingPractice(
+                    text: sentence,
+                    meaning: "",
+                    textLang: LangCode.currentLanguage,
+                    meaningLang: LangCode.currentLanguage.configs.languageForTranslation,
+                    textSource: .article(
+                        articleId: randomArticle.id,
+                        paragraphId: para.id,
+                        sentenceId: sentenceId
+                    ),
+                    isTextMachineTranslated: false,
+                    machineTranslatorType: .none,
+                    existingPhraseRanges: existingPhraseRanges,
+                    existingPhraseMeanings: existingPhraseMeanings
+                ))
+                maybeTranslate(text: sentence) { translation, isTranslated, translatorType, translationQuery in
+                    for practice in self.practiceList {
+                        guard let practice = practice as? ReadingPractice else {
+                            continue
+                        }
+                        if practice.text == translationQuery {
+                            practice.meaning = translation
+                            practice.isTextMachineTranslated = isTranslated
+                            practice.machineTranslatorType = translatorType
+                        }
                     }
                 }
             }
-            
-            paraIndex += 1
-            
-        }
-        
-        while true {
             if practiceList.count >= batchSize {
                 break
             }
-            Thread.sleep(forTimeInterval: 0.1)  // For avoiding high CPU usage.
+            
+            paraIndex += 1
+        }
+        if practiceList.count < batchSize {
+            practiceList.append(contentsOf: self.make() as! [ReadingPractice])
         }
         
         return practiceList
