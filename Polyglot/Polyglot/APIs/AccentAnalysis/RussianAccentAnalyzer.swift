@@ -50,14 +50,14 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
     // Singleton object.
     static var shared: AccentAnalyzerProtocol = RussianAccentAnalyzer()
     
-    func analyze(for word: Word, completion: @escaping ([Token]) -> Void) {
+    func analyze(for text: String, completion: @escaping ([Token]) -> Void) {
         
         DispatchQueue.global(qos: .userInitiated).async {
             
             var tokens: [Token] = []
             
-            print("Analyzing russian word: \(word.text).")
-            for query in word.text.lowercased().tokensWithPunctMarks {
+            print("Analyzing russian word: \(text).")
+            for query in text.lowercased().tokensWithPunctMarks {
                 
                 let request = RussianAccentEntity.fetchRequest()
                 let predicate = NSPredicate(

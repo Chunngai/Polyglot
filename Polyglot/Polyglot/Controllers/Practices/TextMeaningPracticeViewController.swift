@@ -197,7 +197,7 @@ extension TextMeaningPracticeViewController {
         
         for newWord in newWords {
             if let _ = self.words.add(newWord: newWord) {
-                analyzeAccents(for: newWord) { tokens in
+                analyzeAccents(for: newWord.text) { tokens in
                     guard !tokens.isEmpty else {
                         return
                     }

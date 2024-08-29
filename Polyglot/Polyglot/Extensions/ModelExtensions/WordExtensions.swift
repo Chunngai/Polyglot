@@ -55,19 +55,13 @@ extension Array where Iterator.Element == Token {
 }
 
 extension Word {
-    
-    private var accentedPronunciation: String {
-        if let tokens = tokens {
-            return tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)
-        } else {
-            return self.text
-        }
-    }
-    
-    var textWithAccentedPronunciation: String {
+        
+    var accentedText: String {
         if let tokens = self.tokens {
             
             if LangCode.currentLanguage == .ja {
+                
+                let accentedPronunciation: String = tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)
                 if accentedPronunciation.normalized(
                     caseInsensitive: true,
                     diacriticInsensitive: false
@@ -82,32 +76,13 @@ extension Word {
                 } else {
                     return "\(self.text) (\(accentedPronunciation))"
                 }
+                
             } else if LangCode.currentLanguage == .ru {
                 
-                var s = self.text
-                var curIndexInS: Int = 0
-                var tokenIndex: Int = 0
-                while tokenIndex < tokens.count {
-                    let token = tokens[tokenIndex]
-                    
-                    while !s.substring(from: curIndexInS).starts(with: token.text) {
-                        curIndexInS += 1
-                    }
-                    
-                    if let accentLoc = token.accentLoc {
-                        s.insert(
-                            Token.accentSymbol,
-                            at: s.index(
-                                s.startIndex,
-                                offsetBy: curIndexInS + accentLoc + 1
-                            )
-                        )
-                        curIndexInS += token.text.count
-                    }
-                    tokenIndex += 1
-                }
-                
-                return s
+                return addAccentMarks(
+                    for: self.text,
+                    with: self.tokens ?? []
+                )
                 
             } else {
                 return self.text

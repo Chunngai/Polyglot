@@ -248,7 +248,7 @@ extension WordsViewController {
                 let _ = self.words.add(newWord: newWord)
                 updatedWord = newWord
             }
-            analyzeAccents(for: updatedWord) { tokens in
+            analyzeAccents(for: updatedWord.text) { tokens in
                 guard !tokens.isEmpty else {
                     return
                 }

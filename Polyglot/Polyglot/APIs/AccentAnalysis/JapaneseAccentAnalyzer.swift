@@ -14,10 +14,10 @@ class JapaneseAccentAnalyzer: AccentAnalyzerProtocol {
     
     static var shared: AccentAnalyzerProtocol = JapaneseAccentAnalyzer()
     
-    func analyze(for word: Word, completion: @escaping ([Token]) -> Void) {
+    func analyze(for text: String, completion: @escaping ([Token]) -> Void) {
         
         let json: [String: Any] = [
-            "word": word.text
+            "word": text
         ]
         guard let jsonData = try? JSONSerialization.data(withJSONObject: json) else {
             completion([])

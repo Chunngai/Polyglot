@@ -14,7 +14,7 @@ class WordsTableCell: UITableViewCell {
     
     var word: Word! {
         didSet {
-            let wordLabelText: NSMutableAttributedString = NSMutableAttributedString(string: word.textWithAccentedPronunciation)
+            let wordLabelText: NSMutableAttributedString = NSMutableAttributedString(string: word.accentedText)
             if wordLabelText.string.replacingOccurrences(of: String(Token.accentSymbol), with: "") == word.text {
                 wordLabel.textColor = Colors.normalTextColor
             } else {
