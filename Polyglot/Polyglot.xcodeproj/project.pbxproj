@@ -97,7 +97,6 @@
 		FF5B182C2961E55F00C80DC3 /* IO.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5B182B2961E55F00C80DC3 /* IO.swift */; };
 		FF5D129129577AC4005DEEDE /* NavController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5D129029577AC4005DEEDE /* NavController.swift */; };
 		FF5D129529577CB3005DEEDE /* RoundButtonWithShadow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5D129429577CB3005DEEDE /* RoundButtonWithShadow.swift */; };
-		FF5DB994295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5DB993295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift */; };
 		FF5FE946297431C30002691C /* ArrayExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF5FE945297431C30002691C /* ArrayExtensions.swift */; };
 		FF62C9762951382500D41797 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9752951382500D41797 /* AppDelegate.swift */; };
 		FF62C9782951382500D41797 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF62C9772951382500D41797 /* SceneDelegate.swift */; };
@@ -267,7 +266,6 @@
 		FF5B182B2961E55F00C80DC3 /* IO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IO.swift; sourceTree = "<group>"; };
 		FF5D129029577AC4005DEEDE /* NavController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavController.swift; sourceTree = "<group>"; };
 		FF5D129429577CB3005DEEDE /* RoundButtonWithShadow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoundButtonWithShadow.swift; sourceTree = "<group>"; };
-		FF5DB993295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoResizingTextViewWithPrompt.swift; sourceTree = "<group>"; };
 		FF5FE945297431C30002691C /* ArrayExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrayExtensions.swift; sourceTree = "<group>"; };
 		FF62C9722951382500D41797 /* Polyglot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Polyglot.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FF62C9752951382500D41797 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -619,7 +617,6 @@
 				FF491E7F2959ED730088FD13 /* Separator.swift */,
 				FF4964CA2958BAFD00414AC5 /* TimingBar.swift */,
 				C6B5187B2AF2C19C00451B90 /* TextViewWithPrompt.swift */,
-				FF5DB993295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift */,
 				FFD7DF77299D8D4C00019D51 /* DragAndDrop */,
 				FFD7DF76299D8D3000019D51 /* NewWordAdding */,
 				FFD7DF75299D8D2300019D51 /* RoundButton */,
@@ -1075,7 +1072,6 @@
 				FF52920A2952012E00858B55 /* ThreeButtonSelectionStack.swift in Sources */,
 				C60626112B8076AF00429BAF /* TextSource.swift in Sources */,
 				FF62C9782951382500D41797 /* SceneDelegate.swift in Sources */,
-				FF5DB994295FB973002FA788 /* AutoResizingTextViewWithPrompt.swift in Sources */,
 				FF495EA22959244C00EA7EA9 /* WordsPracticeViewController.swift in Sources */,
 				FFD7DF6D299D376000019D51 /* RowStackItem.swift in Sources */,
 				FF4FA0C82AADDAA0001EA18C /* ContentCards.swift in Sources */,
