@@ -57,7 +57,7 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
             var tokens: [Token] = []
             
             print("Analyzing russian word: \(word.text).")
-            for query in word.text.tokensWithPunctMarks {
+            for query in word.text.lowercased().tokensWithPunctMarks {
                 
                 let request = RussianAccentEntity.fetchRequest()
                 let predicate = NSPredicate(

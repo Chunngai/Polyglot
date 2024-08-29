@@ -19,26 +19,6 @@ protocol AccentAnalyzerProtocol {
 var word2langForAccentAnalysis: [String: LangCode] = [:]
 func analyzeAccents(for word: Word, completion: @escaping ([Token]) -> Void) {
     
-    if LangCode.currentLanguage == LangCode.ja {
-        var shouldUpdateAccent: Bool = false
-        if word.tokens == nil {
-            shouldUpdateAccent = true
-        }
-        if let accentAnalyzer = LangCode.currentLanguage.accentAnalyzer as? JapaneseAccentAnalyzer,
-            accentAnalyzer.isOldAccents(word) {
-            shouldUpdateAccent = true
-        }
-        guard shouldUpdateAccent else {
-            return
-        }
-    }
-    
-    if LangCode.currentLanguage == LangCode.ru  {
-        guard word.tokens == nil else {
-            return
-        }
-    }
-    
     word2langForAccentAnalysis[word.text] = LangCode.currentLanguage
     LangCode.currentLanguage.accentAnalyzer?.analyze(for: word) { tokens in
         guard LangCode.currentLanguage == word2langForAccentAnalysis[word.text] else {

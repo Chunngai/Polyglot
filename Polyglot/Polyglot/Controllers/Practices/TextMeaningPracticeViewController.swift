@@ -196,12 +196,13 @@ extension TextMeaningPracticeViewController {
     func add(newWords: [Word]) {
         
         for newWord in newWords {
-            let _ = self.words.add(newWord: newWord)
-            analyzeAccents(for: newWord) { tokens in
-                guard !tokens.isEmpty else {
-                    return
+            if let _ = self.words.add(newWord: newWord) {
+                analyzeAccents(for: newWord) { tokens in
+                    guard !tokens.isEmpty else {
+                        return
+                    }
+                    let _ = self.words.updateWord(of: newWord.id, newTokens: tokens)
                 }
-                let _ = self.words.updateWord(of: newWord.id, newTokens: tokens)
             }
         }
     }

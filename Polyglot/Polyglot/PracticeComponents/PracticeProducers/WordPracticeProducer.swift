@@ -315,11 +315,11 @@ extension WordPracticeProducer {
             for (i, accent) in accents.enumerated() {
                 tokens[i].accentLoc = accent
             }
-            return tokens.pronunciationWithAccentList.joined(separator: Strings.wordSeparator)
+            return tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)
         }
         
         func generateRandomAccentLocs(for tokens: [Token]) -> [Int?] {
-            return tokens.pronunciationList.map({ (pronunciation) -> Int? in
+            return tokens.pronunciations.map({ (pronunciation) -> Int? in
                 if pronunciation.count > 1 {  // Old jp accent interface.
                     // E.g., if the pronunciation has two chars,
                     // vals will be [0, 1].
@@ -341,12 +341,12 @@ extension WordPracticeProducer {
         
         guard let tokens = wordToPractice.tokens,
             // Not needed for one-syllable words.
-            tokens.pronunciationList.joined(separator: "").count >= 2 else {
+            tokens.pronunciations.joined(separator: "").count >= 2 else {
             return nil
         }
         
-        var selectionAccentsList = [tokens.accentLocList]
-        var selectionTexts = [tokens.pronunciationWithAccentList.joined(separator: Strings.wordSeparator)]
+        var selectionAccentsList = [tokens.accentLocs]
+        var selectionTexts = [tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)]
         // Randomly generate two accent sequences.
         while true {
             // Generate a random accent sequence.
@@ -378,7 +378,7 @@ extension WordPracticeProducer {
             wordInPrompt: wordToPractice.text,
             prompt: makePrompt(for: .accentSelection, withWord: wordToPractice.text),
             selectionTexts: selectionTexts,
-            key: tokens.pronunciationWithAccentList.joined(separator: Strings.wordSeparator)
+            key: tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)
         )
         
     }

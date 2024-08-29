@@ -13,7 +13,7 @@ extension Token {
     // https://stackoverflow.com/questions/31272561/working-with-unicode-code-points-in-swift
     static let accentSymbol: Character = "\u{031A}"
     
-    var pronunciationWithAccent: String {
+    var accentedPronunciation: String {
         
         guard let accentLoc = accentLoc else {
             return pronunciation
@@ -39,11 +39,26 @@ extension Token {
     }
 }
 
+extension Array where Iterator.Element == Token {
+        
+    var accentLocs: [Int?] {
+        self.map { $0.accentLoc }
+    }
+    
+    var pronunciations: [String] {
+        self.map { $0.pronunciation }
+    }
+    
+    var accentedPronunciations: [String] {
+        self.map { $0.accentedPronunciation }
+    }
+}
+
 extension Word {
     
     private var accentedPronunciation: String {
         if let tokens = tokens {
-            return tokens.pronunciationWithAccentList.joined(separator: Strings.wordSeparator)
+            return tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)
         } else {
             return self.text
         }
@@ -70,14 +85,28 @@ extension Word {
             } else if LangCode.currentLanguage == .ru {
                 
                 var s = self.text
-                for token in tokens {
-                    if s.contains(token.text) {
-                        s = s.replacingOccurrences(
-                            of: token.text,
-                            with: token.pronunciationWithAccent
-                        )
+                var curIndexInS: Int = 0
+                var tokenIndex: Int = 0
+                while tokenIndex < tokens.count {
+                    let token = tokens[tokenIndex]
+                    
+                    while !s.substring(from: curIndexInS).starts(with: token.text) {
+                        curIndexInS += 1
                     }
+                    
+                    if let accentLoc = token.accentLoc {
+                        s.insert(
+                            Token.accentSymbol,
+                            at: s.index(
+                                s.startIndex,
+                                offsetBy: curIndexInS + accentLoc + 1
+                            )
+                        )
+                        curIndexInS += token.text.count
+                    }
+                    tokenIndex += 1
                 }
+                
                 return s
                 
             } else {
@@ -87,29 +116,6 @@ extension Word {
         } else {
             return self.text
         }
-    }
-}
-
-extension Array where Iterator.Element == Token {
-        
-    var textList: [String] {
-        self.map { $0.text }
-    }
-    
-    var baseFormList: [String?] {
-        self.map { $0.baseForm }
-    }
-    
-    var pronunciationList: [String] {
-        self.map { $0.pronunciation }
-    }
-    
-    var accentLocList: [Int?] {
-        self.map { $0.accentLoc }
-    }
-    
-    var pronunciationWithAccentList: [String] {
-        self.map { $0.pronunciationWithAccent }
     }
 }
 

@@ -492,7 +492,7 @@ extension HomeViewController {
                 case .success:
                     break
                 case .failure(let error):
-                    print("Error uploading \(fileName): \(error)")
+                    print("Error uploading \(fileName) \(error.errorDescription ?? "")")
                 }
             }
         }
