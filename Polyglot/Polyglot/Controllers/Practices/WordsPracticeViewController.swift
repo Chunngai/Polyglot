@@ -243,23 +243,13 @@ extension WordsPracticeViewController {
             guard word.tokens != nil else {
                 continue
             }
+            analyzeAccents(for: word) { tokens in
+                guard !tokens.isEmpty else {
+                    return
+                }
+                let _ = self.words.updateWord(of: word.id, newTokens: tokens)
+            }
             
-            if LangCode.currentLanguage == LangCode.ja && (word.tokens == nil || JapaneseAccentAnalyzer.isOldAccents(word)) {
-                JapaneseAccentAnalyzer.makeTokens(for: word) { tokens in
-                    guard LangCode.currentLanguage == LangCode.ja else {
-                        return
-                    }
-                    let _ = self.words.updateWord(of: word.id, newTokens: tokens)
-                }
-            }
-            if LangCode.currentLanguage == LangCode.ru && word.tokens == nil {
-                LangCode.currentLanguage.accentAnalyzer?.analyze(for: word) { tokens in
-                    guard LangCode.currentLanguage == LangCode.ru else {
-                        return
-                    }
-                    let _ = self.words.updateWord(of: word.id, newTokens: tokens)
-                }
-            }
         }
         
         navigationController?.dismiss(animated: true, completion: nil)

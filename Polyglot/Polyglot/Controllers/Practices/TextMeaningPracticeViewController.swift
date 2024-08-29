@@ -197,26 +197,11 @@ extension TextMeaningPracticeViewController {
         
         for newWord in newWords {
             let _ = self.words.add(newWord: newWord)
-            
-            if LangCode.currentLanguage == LangCode.ja {
-                JapaneseAccentAnalyzer.makeTokens(for: newWord) { tokens in
-                    guard LangCode.currentLanguage == LangCode.ja else {
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        let _ = self.words.updateWord(of: newWord.id, newTokens: tokens)
-                    }
+            analyzeAccents(for: newWord) { tokens in
+                guard !tokens.isEmpty else {
+                    return
                 }
-            }
-            if LangCode.currentLanguage == LangCode.ru {
-                LangCode.currentLanguage.accentAnalyzer?.analyze(for: newWord) { tokens in
-                    guard LangCode.currentLanguage == LangCode.ru else {
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        let _ = self.words.updateWord(of: newWord.id, newTokens: tokens)
-                    }
-                }
+                let _ = self.words.updateWord(of: newWord.id, newTokens: tokens)
             }
         }
     }

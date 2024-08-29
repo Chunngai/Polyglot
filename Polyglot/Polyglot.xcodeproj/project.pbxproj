@@ -440,6 +440,27 @@
 			path = Resource;
 			sourceTree = "<group>";
 		};
+		C6AB6E852C8068DB00F660C7 /* Translation */ = {
+			isa = PBXGroup;
+			children = (
+				C6BC06402C726D9E00B2DF44 /* TranslationProtocol.swift */,
+				FF58518E29819CF8004EB63C /* GoogleTranslator.swift */,
+				C6A22FED2C7118A200484B59 /* BaiduTranslator.swift */,
+				C6BC063C2C726D2C00B2DF44 /* MachineTranslator.swift */,
+			);
+			path = Translation;
+			sourceTree = "<group>";
+		};
+		C6AB6E862C8068E500F660C7 /* AccentAnalysis */ = {
+			isa = PBXGroup;
+			children = (
+				C6AB6E812C8063EE00F660C7 /* AccentAnalyzerProtocol.swift */,
+				C67B85A12AED943200F7657A /* JapaneseAccentAnalyzer.swift */,
+				C67B85A32AED94B800F7657A /* RussianAccentAnalyzer.swift */,
+			);
+			path = AccentAnalysis;
+			sourceTree = "<group>";
+		};
 		FF24AB75297073AA00129EEF /* Headers */ = {
 			isa = PBXGroup;
 			children = (
@@ -646,14 +667,9 @@
 		FF8E5BB1298DB68F003B6FB1 /* APIs */ = {
 			isa = PBXGroup;
 			children = (
-				C6BC06402C726D9E00B2DF44 /* TranslationProtocol.swift */,
-				FF58518E29819CF8004EB63C /* GoogleTranslator.swift */,
-				C6A22FED2C7118A200484B59 /* BaiduTranslator.swift */,
-				C6BC063C2C726D2C00B2DF44 /* MachineTranslator.swift */,
+				C6AB6E852C8068DB00F660C7 /* Translation */,
+				C6AB6E862C8068E500F660C7 /* AccentAnalysis */,
 				FF4AB0022A9B4C4400908062 /* ContentCreator.swift */,
-				C6AB6E812C8063EE00F660C7 /* AccentAnalyzerProtocol.swift */,
-				C67B85A12AED943200F7657A /* JapaneseAccentAnalyzer.swift */,
-				C67B85A32AED94B800F7657A /* RussianAccentAnalyzer.swift */,
 			);
 			path = APIs;
 			sourceTree = "<group>";

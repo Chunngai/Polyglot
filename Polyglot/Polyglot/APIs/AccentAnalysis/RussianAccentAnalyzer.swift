@@ -15,7 +15,7 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
     // MARK: - Core Data stack
     // https://forums.developer.apple.com/forums/thread/654932
     
-    lazy var persistentContainer: NSPersistentContainer = {
+    var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "RussianAccentRetrievalModel")
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error as NSError? {
@@ -52,46 +52,49 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
     
     func analyze(for word: Word, completion: @escaping ([Token]) -> Void) {
         
-        var tokens: [Token] = []
-        
-        print("Analyzing russian word: \(word.text).")
-        for query in word.text.tokensWithPunctMarks {
+        DispatchQueue.global(qos: .userInitiated).async {
             
-            let request = RussianAccentEntity.fetchRequest()
-            let predicate = NSPredicate(
-                format: "bare_form = %@",
-                query
-            )
-            request.predicate = predicate
+            var tokens: [Token] = []
             
-            do {
-                let r = try context.fetch(request)
+            print("Analyzing russian word: \(word.text).")
+            for query in word.text.tokensWithPunctMarks {
                 
-                var baseForm: String? = nil
-                var accentLoc: Int? = nil
-                if !r.isEmpty {
-                    if let base_form = r[0].base_form {
-                        baseForm = base_form
-                    }
-                    if r[0].accent_pos != -1 {  // Has accent pos when != -1.
-                        accentLoc = Int(r[0].accent_pos - 1)
-                    }
-                }
-                
-                let token = Token(
-                    text: query,
-                    baseForm: baseForm,
-                    pronunciation: query,
-                    accentLoc: accentLoc
+                let request = RussianAccentEntity.fetchRequest()
+                let predicate = NSPredicate(
+                    format: "bare_form = %@",
+                    query
                 )
-                tokens.append(token)
+                request.predicate = predicate
                 
-            } catch let error {
-                print(error.localizedDescription)
+                do {
+                    let r = try self.context.fetch(request)
+                    
+                    var baseForm: String? = nil
+                    var accentLoc: Int? = nil
+                    if !r.isEmpty {
+                        if let base_form = r[0].base_form {
+                            baseForm = base_form
+                        }
+                        if r[0].accent_pos != -1 {  // Has accent pos when != -1.
+                            accentLoc = Int(r[0].accent_pos - 1)
+                        }
+                    }
+                    
+                    let token = Token(
+                        text: query,
+                        baseForm: baseForm,
+                        pronunciation: query,
+                        accentLoc: accentLoc
+                    )
+                    tokens.append(token)
+                    
+                } catch let error {
+                    print(error.localizedDescription)
+                }
             }
+            
+            completion(tokens)
         }
-        
-        completion(tokens)
         
     }
     

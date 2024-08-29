@@ -106,10 +106,6 @@ class WordsViewController: ListViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        DispatchQueue.global(qos: .userInitiated).async {
-            self.updateSomeAccents()
-        }
-        
         updateSetups()
         updateViews()
         updateLayouts()
@@ -252,26 +248,11 @@ extension WordsViewController {
                 let _ = self.words.add(newWord: newWord)
                 updatedWord = newWord
             }
-            
-            if LangCode.currentLanguage == LangCode.ja {
-                JapaneseAccentAnalyzer.makeTokens(for: updatedWord) { tokens in
-                    guard LangCode.currentLanguage == LangCode.ja else {
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        let _ = self.words.updateWord(of: updatedWord.id, newTokens: tokens)
-                    }
+            analyzeAccents(for: updatedWord) { tokens in
+                guard !tokens.isEmpty else {
+                    return
                 }
-            }
-            if LangCode.currentLanguage == LangCode.ru {
-                LangCode.currentLanguage.accentAnalyzer?.analyze(for: updatedWord) { tokens in
-                    guard LangCode.currentLanguage == LangCode.ru else {
-                        return
-                    }
-                    DispatchQueue.main.async {
-                        let _ = self.words.updateWord(of: updatedWord.id, newTokens: tokens)
-                    }
-                }
+                let _ = self.words.updateWord(of: updatedWord.id, newTokens: tokens)
             }
             
             self.clearTranslations()
@@ -376,50 +357,7 @@ extension WordsViewController {
         self.lastlyTypedWord = ""
         self.isText2Meaning = nil
     }
-    
-    private func updateSomeAccents(n: Int = 10) {
-        if LangCode.currentLanguage == LangCode.ja {
-            var counter: Int = 0
-            for word in words {
-                if word.tokens == nil || JapaneseAccentAnalyzer.isOldAccents(word) {
-                    JapaneseAccentAnalyzer.makeTokens(for: word) { tokens in
-                        guard LangCode.currentLanguage == LangCode.ja else {
-                            return
-                        }
-                        DispatchQueue.main.async {
-                            let _ = self.words.updateWord(of: word.id, newTokens: tokens)
-                        }
-                    }
-                    
-                    counter += 1
-                    if counter >= n {
-                        break
-                    }
-                }
-            }
-        }
-        
-        if LangCode.currentLanguage == LangCode.ru {
-            var counter: Int = 0
-            for word in words {
-                if word.tokens == nil {
-                    LangCode.currentLanguage.accentAnalyzer?.analyze(for: word) { tokens in
-                        guard LangCode.currentLanguage == LangCode.ru else {
-                            return
-                        }
-                        DispatchQueue.main.async {
-                            let _ = self.words.updateWord(of: word.id, newTokens: tokens)
-                        }
-                    }
-                    
-                    counter += 1
-                    if counter >= n {
-                        break
-                    }
-                }
-            }
-        }
-    }
+
 }
 
 extension WordsViewController: UISearchResultsUpdating {

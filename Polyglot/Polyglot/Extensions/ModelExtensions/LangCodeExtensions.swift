@@ -70,7 +70,7 @@ extension LangCode {
         switch self {
         case .zh: return nil
         case .en: return nil
-        case .ja: return nil
+        case .ja: return JapaneseAccentAnalyzer.shared
         case .es: return nil
         case .ru: return RussianAccentAnalyzer.shared
         case .ko: return nil

@@ -41,7 +41,7 @@ extension Token {
 
 extension Word {
     
-    var accentedPronunciation: String {
+    private var accentedPronunciation: String {
         if let tokens = tokens {
             return tokens.pronunciationWithAccentList.joined(separator: Strings.wordSeparator)
         } else {
@@ -51,20 +51,39 @@ extension Word {
     
     var textWithAccentedPronunciation: String {
         if let tokens = self.tokens {
-            if accentedPronunciation.normalized(
-                caseInsensitive: true,
-                diacriticInsensitive: false
-            ).replacingOccurrences(
-                of: String(Token.accentSymbol),
-                with: ""
-            ) == self.text.normalized(
-                caseInsensitive: true,
-                diacriticInsensitive: false
-            ) {  // E.g., russian words, japanese words with katakana only.
-                return accentedPronunciation
+            
+            if LangCode.currentLanguage == .ja {
+                if accentedPronunciation.normalized(
+                    caseInsensitive: true,
+                    diacriticInsensitive: false
+                ).replacingOccurrences(
+                    of: String(Token.accentSymbol),
+                    with: ""
+                ) == self.text.normalized(
+                    caseInsensitive: true,
+                    diacriticInsensitive: false
+                ) {  // E.g., japanese words with katakana only.
+                    return accentedPronunciation
+                } else {
+                    return "\(self.text) (\(accentedPronunciation))"
+                }
+            } else if LangCode.currentLanguage == .ru {
+                
+                var s = self.text
+                for token in tokens {
+                    if s.contains(token.text) {
+                        s = s.replacingOccurrences(
+                            of: token.text,
+                            with: token.pronunciationWithAccent
+                        )
+                    }
+                }
+                return s
+                
             } else {
-                return "\(self.text) (\(accentedPronunciation))"
+                return self.text
             }
+            
         } else {
             return self.text
         }
