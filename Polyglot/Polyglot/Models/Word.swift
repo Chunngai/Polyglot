@@ -11,14 +11,18 @@ import Foundation
 struct Token: Codable {
     
     var text: String
-    var baseForm: String
+    var baseForm: String?
     var pronunciation: String
     var accentLoc: Int?
     
-    init(text: String, baseForm: String, pronunciation: String, accentLoc: Int?) {
+    init(text: String, baseForm: String?, pronunciation: String, accentLoc: Int?) {
         
         self.text = text.lowercased().strip()
-        self.baseForm = baseForm.lowercased().strip()
+        if let baseForm = baseForm {
+            self.baseForm = baseForm.lowercased().strip()
+        } else {
+            self.baseForm = nil
+        }
         self.pronunciation = pronunciation.lowercased().strip()
         self.accentLoc = accentLoc
         

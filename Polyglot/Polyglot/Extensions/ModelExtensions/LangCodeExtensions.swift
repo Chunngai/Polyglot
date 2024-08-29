@@ -65,6 +65,21 @@ extension LangCode {
         
     }
     
+    var accentAnalyzer: AccentAnalyzerProtocol? {
+        
+        switch self {
+        case .zh: return nil
+        case .en: return nil
+        case .ja: return nil
+        case .es: return nil
+        case .ru: return RussianAccentAnalyzer.shared
+        case .ko: return nil
+        case .de: return nil
+        case .undetermined: return nil
+        }
+        
+    }
+    
 }
 
 extension LangCode {

@@ -166,6 +166,124 @@ extension String {
         return components
     }
     
+    var tokensWithPunctMarks: [String] {
+        
+        // Example:
+        let _ = """
+        Ру́сский язы́к (МФА: [ˈruskʲɪi̯ jɪˈzɨk]о файле)[~ 3][⇨] — язык восточнославянской группы славянской ветви индоевропейской языковой семьи, национальный язык русского народа. Является одним из наиболее распространённых языков мира — восьмым среди всех языков мира по общей численности говорящих[5] и седьмым по численности владеющих им как родным (2022)[2]. Русский является также самым распространённым славянским языком[8] и самым распространённым языком в Европе — географически и по числу носителей языка как родного[6].
+        """
+        
+        guard self.count != 0 else {
+            return []
+        }
+        
+        let tokens = self.tokenized(with: LangCode.currentLanguage.wordTokenizer)
+        guard tokens.count != 0 else {
+            return [self]
+        }
+        
+        var tokensWithPunctMarks: [String] = []
+        
+        var substringStartingIndex: Int = 0
+        var currentTokenIndex: Int = 0
+        while true {
+            
+            if substringStartingIndex >= self.count {
+                break
+            }
+            if currentTokenIndex >= tokens.count {
+                // At this point, there may be a remaining substring ("]." in the example),
+                // which is skipped by the built-in word tokenizer.
+                if substringStartingIndex < self.count {
+                    let remainingSubstring = String(self.substring(from: substringStartingIndex))
+                    tokensWithPunctMarks.append(remainingSubstring)
+                }
+                
+                break
+            }
+            
+            let currentToken: String = tokens[currentTokenIndex]
+            // https://stackoverflow.com/questions/24029163/finding-index-of-character-in-swift-string
+            // Note that: `let indexOfCurrentTokenInString = (self as! NSString).range(of: currentToken).location`
+            // does not work properly with characters like у́.
+            guard let rangeOfCurrentTokenInString = self.range(
+                of: currentToken,
+                // Skip the previously processed substring.
+                // Without providing the `range` arg, errors may be raised.
+                // E.g., when reaching "славянской" in the example,
+                // an error will be raised without this arg, as the string "славянской"
+                // also appears in the previously processed substring "восточнославянской".
+                range: self.index(
+                    self.startIndex,
+                    offsetBy: substringStartingIndex
+                )..<self.endIndex
+            ) else {
+                return []
+            }
+            let indexOfCurrentTokenInString = self.distance(
+                from: self.startIndex,
+                to: rangeOfCurrentTokenInString.lowerBound
+            )
+            
+            if indexOfCurrentTokenInString == substringStartingIndex {  // Found a token (e.g., "Ру́сский" in the example).
+                tokensWithPunctMarks.append(currentToken)
+                
+                substringStartingIndex += currentToken.count  // Move on.
+                currentTokenIndex += 1  // Consider the next token.
+            } else {
+                // Find the substring skipped by the built-in word tokenizer.
+                // E.g., " (" in the example.
+                // https://stackoverflow.com/questions/39677330/how-does-string-substring-work-in-swift
+                let skippedStringInWordTokenization = String(self.substring(from: substringStartingIndex, to: indexOfCurrentTokenInString))
+                tokensWithPunctMarks.append(skippedStringInWordTokenization)
+                
+                substringStartingIndex += skippedStringInWordTokenization.count  // Move on.
+            }
+            
+            // Skip white spaces.
+            while true {
+                
+                if substringStartingIndex >= self.count {
+                    break
+                }
+                
+                let nextChar = self.character(at: substringStartingIndex)
+                if nextChar == " " {
+                    substringStartingIndex += 1  // Move on.
+                } else {
+                    break
+                }
+            }
+            
+        }
+        
+        return tokensWithPunctMarks
+        
+    }
+    
+}
+
+extension String {
+    
+    func character(at index: Int) -> Character {
+        return self[self.index(
+            self.startIndex,
+            offsetBy: index
+        )]
+    }
+    
+    func substring(from startIndex: Int? = nil, to endIndex: Int? = nil) -> Substring {
+        let startIndex = startIndex ?? 0
+        let endIndex = endIndex ?? self.count
+        return self[self.index(
+            self.startIndex, 
+            offsetBy: startIndex
+        )..<self.index(
+            self.startIndex,
+            offsetBy: endIndex
+        )]
+    }
+    
 }
 
 extension String {

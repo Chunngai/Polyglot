@@ -249,15 +249,15 @@ extension WordsPracticeViewController {
                     guard LangCode.currentLanguage == LangCode.ja else {
                         return
                     }
-                    self.words.updateWord(of: word.id, newTokens: tokens)
+                    let _ = self.words.updateWord(of: word.id, newTokens: tokens)
                 }
             }
             if LangCode.currentLanguage == LangCode.ru && word.tokens == nil {
-                RussianAccentAnalyzer.makeTokens(for: word) { tokens in
+                LangCode.currentLanguage.accentAnalyzer?.analyze(for: word) { tokens in
                     guard LangCode.currentLanguage == LangCode.ru else {
                         return
                     }
-                    self.words.updateWord(of: word.id, newTokens: tokens)
+                    let _ = self.words.updateWord(of: word.id, newTokens: tokens)
                 }
             }
         }

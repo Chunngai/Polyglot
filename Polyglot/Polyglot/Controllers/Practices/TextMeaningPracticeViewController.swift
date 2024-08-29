@@ -196,7 +196,7 @@ extension TextMeaningPracticeViewController {
     func add(newWords: [Word]) {
         
         for newWord in newWords {
-            self.words.add(newWord: newWord)
+            let _ = self.words.add(newWord: newWord)
             
             if LangCode.currentLanguage == LangCode.ja {
                 JapaneseAccentAnalyzer.makeTokens(for: newWord) { tokens in
@@ -204,17 +204,17 @@ extension TextMeaningPracticeViewController {
                         return
                     }
                     DispatchQueue.main.async {
-                        self.words.updateWord(of: newWord.id, newTokens: tokens)
+                        let _ = self.words.updateWord(of: newWord.id, newTokens: tokens)
                     }
                 }
             }
             if LangCode.currentLanguage == LangCode.ru {
-                RussianAccentAnalyzer.makeTokens(for: newWord) { tokens in
+                LangCode.currentLanguage.accentAnalyzer?.analyze(for: newWord) { tokens in
                     guard LangCode.currentLanguage == LangCode.ru else {
                         return
                     }
                     DispatchQueue.main.async {
-                        self.words.updateWord(of: newWord.id, newTokens: tokens)
+                        let _ = self.words.updateWord(of: newWord.id, newTokens: tokens)
                     }
                 }
             }

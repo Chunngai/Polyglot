@@ -39,8 +39,12 @@
 		C6A22FEE2C7118A200484B59 /* BaiduTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A22FED2C7118A200484B59 /* BaiduTranslator.swift */; };
 		C6A22FF22C712DBC00484B59 /* LangCodeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A22FF12C712DBC00484B59 /* LangCodeExtensions.swift */; };
 		C6A666F72B75EC03002B4DEE /* US2UKSpellingMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A666F62B75EC03002B4DEE /* US2UKSpellingMapping.swift */; };
+		C6AB6E822C8063EE00F660C7 /* AccentAnalyzerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6AB6E812C8063EE00F660C7 /* AccentAnalyzerProtocol.swift */; };
 		C6B5187C2AF2C19C00451B90 /* TextViewWithPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B5187B2AF2C19C00451B90 /* TextViewWithPrompt.swift */; };
 		C6B9DE8C2B7E177E004F0C88 /* SpeakingPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B9DE8B2B7E177E004F0C88 /* SpeakingPractice.swift */; };
+		C6BA7AA72C7F52CA00C6FFD3 /* RussianAccentRetrievalModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C6BA7AA52C7F52CA00C6FFD3 /* RussianAccentRetrievalModel.xcdatamodeld */; };
+		C6BA7AAA2C7F52F800C6FFD3 /* Entity+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BA7AA82C7F52F800C6FFD3 /* Entity+CoreDataClass.swift */; };
+		C6BA7AAB2C7F52F800C6FFD3 /* Entity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BA7AA92C7F52F800C6FFD3 /* Entity+CoreDataProperties.swift */; };
 		C6BC063D2C726D2C00B2DF44 /* MachineTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BC063C2C726D2C00B2DF44 /* MachineTranslator.swift */; };
 		C6BC06412C726D9E00B2DF44 /* TranslationProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BC06402C726D9E00B2DF44 /* TranslationProtocol.swift */; };
 		C6C8C3132B75F95500FBC43B /* CFStringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C8C3122B75F95500FBC43B /* CFStringExtensions.swift */; };
@@ -200,8 +204,12 @@
 		C6A22FED2C7118A200484B59 /* BaiduTranslator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaiduTranslator.swift; sourceTree = "<group>"; };
 		C6A22FF12C712DBC00484B59 /* LangCodeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCodeExtensions.swift; sourceTree = "<group>"; };
 		C6A666F62B75EC03002B4DEE /* US2UKSpellingMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = US2UKSpellingMapping.swift; sourceTree = "<group>"; };
+		C6AB6E812C8063EE00F660C7 /* AccentAnalyzerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccentAnalyzerProtocol.swift; sourceTree = "<group>"; };
 		C6B5187B2AF2C19C00451B90 /* TextViewWithPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewWithPrompt.swift; sourceTree = "<group>"; };
 		C6B9DE8B2B7E177E004F0C88 /* SpeakingPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingPractice.swift; sourceTree = "<group>"; };
+		C6BA7AA62C7F52CA00C6FFD3 /* RussianAccentRetrievalModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = RussianAccentRetrievalModel.xcdatamodel; sourceTree = "<group>"; };
+		C6BA7AA82C7F52F800C6FFD3 /* Entity+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Entity+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		C6BA7AA92C7F52F800C6FFD3 /* Entity+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Entity+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
 		C6BC063C2C726D2C00B2DF44 /* MachineTranslator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MachineTranslator.swift; sourceTree = "<group>"; };
 		C6BC06402C726D9E00B2DF44 /* TranslationProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationProtocol.swift; sourceTree = "<group>"; };
 		C6C8C3122B75F95500FBC43B /* CFStringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CFStringExtensions.swift; sourceTree = "<group>"; };
@@ -533,6 +541,8 @@
 		FF62C9742951382500D41797 /* Polyglot */ = {
 			isa = PBXGroup;
 			children = (
+				C6BA7AA82C7F52F800C6FFD3 /* Entity+CoreDataClass.swift */,
+				C6BA7AA92C7F52F800C6FFD3 /* Entity+CoreDataProperties.swift */,
 				C6A666F32B75EBE6002B4DEE /* Resource */,
 				FF502510295248BF0097C2CB /* Models */,
 				FF62C9A629513A2800D41797 /* Controllers */,
@@ -545,6 +555,7 @@
 				FF62C9772951382500D41797 /* SceneDelegate.swift */,
 				FF62C97E2951382600D41797 /* Assets.xcassets */,
 				FF62C9832951382600D41797 /* Info.plist */,
+				C6BA7AA52C7F52CA00C6FFD3 /* RussianAccentRetrievalModel.xcdatamodeld */,
 			);
 			path = Polyglot;
 			sourceTree = "<group>";
@@ -640,6 +651,7 @@
 				C6A22FED2C7118A200484B59 /* BaiduTranslator.swift */,
 				C6BC063C2C726D2C00B2DF44 /* MachineTranslator.swift */,
 				FF4AB0022A9B4C4400908062 /* ContentCreator.swift */,
+				C6AB6E812C8063EE00F660C7 /* AccentAnalyzerProtocol.swift */,
 				C67B85A12AED943200F7657A /* JapaneseAccentAnalyzer.swift */,
 				C67B85A32AED94B800F7657A /* RussianAccentAnalyzer.swift */,
 			);
@@ -948,6 +960,7 @@
 				C6A1FC422C7B4C6900F01632 /* ReadingPracticeProducer.swift in Sources */,
 				C60625F72B7FB5E800429BAF /* TextMeaningPracticeViewController.swift in Sources */,
 				C6F3F6AB2C12239C00346A70 /* SettingsInputCell.swift in Sources */,
+				C6BA7AAA2C7F52F800C6FFD3 /* Entity+CoreDataClass.swift in Sources */,
 				FF591ED62967960C0004CB80 /* WordPractice.swift in Sources */,
 				FFBD60412969D713004165FC /* WordPracticeProducer.swift in Sources */,
 				C6BC063D2C726D2C00B2DF44 /* MachineTranslator.swift in Sources */,
@@ -1018,8 +1031,10 @@
 				FF62C9A929513A5000D41797 /* Theme.swift in Sources */,
 				FFBD60452969D733004165FC /* SpeakingPracticeProducer.swift in Sources */,
 				FF706DF1295142AF00DBCF8E /* Strings.swift in Sources */,
+				C6BA7AA72C7F52CA00C6FFD3 /* RussianAccentRetrievalModel.xcdatamodeld in Sources */,
 				FFD7DF7D299DA18000019D51 /* ReorderingPracticeView.swift in Sources */,
 				C60626082B8069F100429BAF /* WordPracticeView.swift in Sources */,
+				C6BA7AAB2C7F52F800C6FFD3 /* Entity+CoreDataProperties.swift in Sources */,
 				FF63DDFC299AC17C0088C10B /* WordBank.swift in Sources */,
 				FF62C9762951382500D41797 /* AppDelegate.swift in Sources */,
 				FF4CA730295E869900423946 /* SpeakingPracticeViewController.swift in Sources */,
@@ -1038,6 +1053,7 @@
 				FFBC8A842A9F2FDD001123EB /* UILabelExtensions.swift in Sources */,
 				C69DB5EC2B73C05700B3BC66 /* ListenAndRepeatPracticeView.swift in Sources */,
 				C67B85A42AED94B800F7657A /* RussianAccentAnalyzer.swift in Sources */,
+				C6AB6E822C8063EE00F660C7 /* AccentAnalyzerProtocol.swift in Sources */,
 				FF55D156296F3AEC0092FB6B /* Constants.swift in Sources */,
 				FF4964CD2958BE8900414AC5 /* TimeIntervalExtensions.swift in Sources */,
 				FF52920A2952012E00858B55 /* ThreeButtonSelectionStack.swift in Sources */,
@@ -1367,6 +1383,19 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		C6BA7AA52C7F52CA00C6FFD3 /* RussianAccentRetrievalModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				C6BA7AA62C7F52CA00C6FFD3 /* RussianAccentRetrievalModel.xcdatamodel */,
+			);
+			currentVersion = C6BA7AA62C7F52CA00C6FFD3 /* RussianAccentRetrievalModel.xcdatamodel */;
+			path = RussianAccentRetrievalModel.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = FF62C96A2951382500D41797 /* Project object */;
 }

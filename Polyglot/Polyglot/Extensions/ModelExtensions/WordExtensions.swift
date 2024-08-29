@@ -77,7 +77,7 @@ extension Array where Iterator.Element == Token {
         self.map { $0.text }
     }
     
-    var baseFormList: [String] {
+    var baseFormList: [String?] {
         self.map { $0.baseForm }
     }
     

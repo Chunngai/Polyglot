@@ -245,11 +245,11 @@ extension WordsViewController {
             
             let updatedWord: Word!
             if let word = word {
-                self.words.updateWord(of: word.id, newText: text, newMeaning: meaning)
+                let _ = self.words.updateWord(of: word.id, newText: text, newMeaning: meaning)
                 updatedWord = self.words.getWord(from: word.id)  // TODO: - Speed up.
             } else {
                 let newWord = Word(text: text, meaning: meaning)
-                self.words.add(newWord: newWord)
+                let _ = self.words.add(newWord: newWord)
                 updatedWord = newWord
             }
             
@@ -259,17 +259,17 @@ extension WordsViewController {
                         return
                     }
                     DispatchQueue.main.async {
-                        self.words.updateWord(of: updatedWord.id, newTokens: tokens)
+                        let _ = self.words.updateWord(of: updatedWord.id, newTokens: tokens)
                     }
                 }
             }
             if LangCode.currentLanguage == LangCode.ru {
-                RussianAccentAnalyzer.makeTokens(for: updatedWord) { tokens in
+                LangCode.currentLanguage.accentAnalyzer?.analyze(for: updatedWord) { tokens in
                     guard LangCode.currentLanguage == LangCode.ru else {
                         return
                     }
                     DispatchQueue.main.async {
-                        self.words.updateWord(of: updatedWord.id, newTokens: tokens)
+                        let _ = self.words.updateWord(of: updatedWord.id, newTokens: tokens)
                     }
                 }
             }
@@ -387,7 +387,7 @@ extension WordsViewController {
                             return
                         }
                         DispatchQueue.main.async {
-                            self.words.updateWord(of: word.id, newTokens: tokens)
+                            let _ = self.words.updateWord(of: word.id, newTokens: tokens)
                         }
                     }
                     
@@ -403,12 +403,12 @@ extension WordsViewController {
             var counter: Int = 0
             for word in words {
                 if word.tokens == nil {
-                    RussianAccentAnalyzer.makeTokens(for: word) { tokens in
+                    LangCode.currentLanguage.accentAnalyzer?.analyze(for: word) { tokens in
                         guard LangCode.currentLanguage == LangCode.ru else {
                             return
                         }
                         DispatchQueue.main.async {
-                            self.words.updateWord(of: word.id, newTokens: tokens)
+                            let _ = self.words.updateWord(of: word.id, newTokens: tokens)
                         }
                     }
                     
