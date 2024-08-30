@@ -366,12 +366,22 @@ extension WordsViewController: UISearchResultsUpdating {
     
     func updateSearchResults(for searchController: UISearchController) {
         
-        guard let keyWord = searchController.searchBar.text else {
-            return
+        DispatchQueue.main.async {
+            // After updating a word, accent analysis will be called in a subthread,
+            // and the newly analyzed word tokens will be updated in the subthread.
+            // After updating, the setter of `self.words` will be called,
+            // which will call the current method.
+            // Since `searchController.searchBar.text` should be used in the main thread
+            // as it is a UI call,
+            // the code in this method should be called in the main thread.
+            guard let keyWord = searchController.searchBar.text else {
+                return
+            }
+            DispatchQueue.global(qos: .userInitiated).async {
+                self.dataSource = self.words.subset(containing: keyWord).grouped()
+            }
         }
-        DispatchQueue.global(qos: .userInitiated).async {
-            self.dataSource = self.words.subset(containing: keyWord).grouped()
-        }
+        
     }
 }
 

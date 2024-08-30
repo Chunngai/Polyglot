@@ -80,6 +80,7 @@ struct MachineTranslator {
         [String],
         MachineTranslatorType
     ) -> Void) {
+        print("MachineTranslator: translating\"\(query)\".")
         self._translate(
             withTranslatorOfIndex: 0,
             query: query,

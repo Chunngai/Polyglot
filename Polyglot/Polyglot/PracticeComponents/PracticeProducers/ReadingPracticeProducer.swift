@@ -95,6 +95,7 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
                             practice.meaning = translation
                             practice.isTextMachineTranslated = isTranslated
                             practice.machineTranslatorType = translatorType
+                            break
                         }
                     }
                 }

@@ -56,7 +56,7 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
             
             var tokens: [Token] = []
             
-            print("Analyzing russian word: \(text).")
+            print("RussianAccentAnalyzer: analyzing \"\(text)\".")
             for query in text.lowercased().tokensWithPunctMarks {
                 
                 let request = RussianAccentEntity.fetchRequest()

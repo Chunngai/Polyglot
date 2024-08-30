@@ -41,6 +41,9 @@ func addAccentMarks(for text: String, with tokens: [Token]) -> String {
         // Move to tokens[tokenIndex] in s.
         while !s.lowercased().substring(from: curIndexInS).starts(with: token.text.lowercased()) {
             curIndexInS += 1
+            if curIndexInS >= s.count {  // The condition is true when some tokens in a word are missing.
+                return text
+            }
         }
         
         // Insert an accent mark.
