@@ -49,7 +49,8 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
         existingPhraseRanges: [NSRange],
         existingPhraseMeanings: [String],
         totalRepetitions: Int,
-        currentRepetition: Int
+        currentRepetition: Int,
+        textAccentLocs: [Int]
     ) {
         super.init(
             frame: frame,
@@ -63,7 +64,8 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
             existingPhraseRanges: existingPhraseRanges,
             existingPhraseMeanings: existingPhraseMeanings,
             totalRepetitions: totalRepetitions,
-            currentRepetition: currentRepetition
+            currentRepetition: currentRepetition,
+            textAccentLocs: textAccentLocs
         )
         
         self.clozeRanges = clozeRanges
@@ -128,7 +130,19 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
             for i in 0..<existingPhraseRanges.count {
                 existingPhraseRanges[i].location += 2
             }
+            for i in 0..<textAccentLocs.count {
+                textAccentLocs[i] += 2
+            }
         }
+        
+        textView.markAccents(at: textAccentLocs)
+        
+    }
+    
+    override func displayLower() {
+        super.displayLower()
+        
+        textView.markAccents(at: textAccentLocs)
     }
     
     override func submit() -> Any {

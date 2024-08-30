@@ -21,6 +21,7 @@ class TextMeaningPracticeView: BasePracticeView {
     var existingPhraseMeanings: [String]!
     var totalRepetitions: Int!
     var currentRepetition: Int!
+    var textAccentLocs: [Int]!
     
     var upperString: String!
     var lowerString: String!
@@ -133,7 +134,8 @@ class TextMeaningPracticeView: BasePracticeView {
         existingPhraseRanges: [NSRange],
         existingPhraseMeanings: [String],
         totalRepetitions: Int,
-        currentRepetition: Int
+        currentRepetition: Int,
+        textAccentLocs: [Int]
     ) {
         super.init(frame: frame)
         
@@ -148,6 +150,7 @@ class TextMeaningPracticeView: BasePracticeView {
         self.existingPhraseMeanings = existingPhraseMeanings
         self.totalRepetitions = totalRepetitions
         self.currentRepetition = currentRepetition
+        self.textAccentLocs = textAccentLocs
         
         textView = NewWordAddingTextView(
             textLang: textLang,

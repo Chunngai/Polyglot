@@ -24,7 +24,8 @@ class TranslationPracticeView: TextMeaningPracticeView {
         existingPhraseRanges: [NSRange],
         existingPhraseMeanings: [String],
         totalRepetitions: Int,
-        currentRepetition: Int
+        currentRepetition: Int,
+        textAccentLocs: [Int]
     ) {
         super.init(
             frame: frame,
@@ -38,7 +39,8 @@ class TranslationPracticeView: TextMeaningPracticeView {
             existingPhraseRanges: existingPhraseRanges,
             existingPhraseMeanings: existingPhraseMeanings,
             totalRepetitions: totalRepetitions,
-            currentRepetition: currentRepetition
+            currentRepetition: currentRepetition,
+            textAccentLocs: textAccentLocs
         )
         
         upperString = meaning
@@ -61,6 +63,12 @@ class TranslationPracticeView: TextMeaningPracticeView {
     
     // MARK: - Methods from the Super Class
     
+    override func displayUpper() {
+        super.displayUpper()
+        
+        textView.markAccents(at: textAccentLocs)
+    }
+    
     override func displayLower() {
         
         super.displayLower()
@@ -72,6 +80,11 @@ class TranslationPracticeView: TextMeaningPracticeView {
         for i in 0..<existingPhraseRanges.count {
             existingPhraseRanges[i].location += upperAttrStr.length
         }
+        for i in 0..<textAccentLocs.count {
+            textAccentLocs[i] += upperAttrStr.length
+        }
+        
+        textView.markAccents(at: textAccentLocs)
         
     }
     

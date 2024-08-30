@@ -36,6 +36,7 @@ class TextMeaningPractice: BasePractice, Codable {
     var existingPhraseMeanings: [String]
     var totalRepetitions: Int
     var currentRepetition: Int
+    var textAccentLocs: [Int]
     
     init(
         text: String,
@@ -48,7 +49,8 @@ class TextMeaningPractice: BasePractice, Codable {
         existingPhraseRanges: [NSRange],
         existingPhraseMeanings: [String],
         totalRepetitions: Int,
-        currentRepetition: Int
+        currentRepetition: Int,
+        textAccentLocs: [Int]
     ) {
         self.text = text
         self.meaning = meaning
@@ -61,6 +63,7 @@ class TextMeaningPractice: BasePractice, Codable {
         self.existingPhraseMeanings = existingPhraseMeanings
         self.totalRepetitions = totalRepetitions
         self.currentRepetition = currentRepetition
+        self.textAccentLocs = textAccentLocs
     }
     
     convenience init(from another: TextMeaningPractice) {
@@ -75,7 +78,8 @@ class TextMeaningPractice: BasePractice, Codable {
             existingPhraseRanges: another.existingPhraseRanges,
             existingPhraseMeanings: another.existingPhraseMeanings,
             totalRepetitions: another.totalRepetitions,
-            currentRepetition: another.currentRepetition
+            currentRepetition: another.currentRepetition,
+            textAccentLocs: another.textAccentLocs
         )
     }
     
@@ -92,6 +96,7 @@ class TextMeaningPractice: BasePractice, Codable {
         case existingPhraseMeanings
         case totalRepetitions
         case currentRepetition
+        case textAccentLocs
     }
     
     func encode(to encoder: Encoder) throws {
@@ -108,6 +113,7 @@ class TextMeaningPractice: BasePractice, Codable {
         try container.encode(existingPhraseMeanings, forKey: .existingPhraseMeanings)
         try container.encode(totalRepetitions, forKey: .totalRepetitions)
         try container.encode(currentRepetition, forKey: .currentRepetition)
+        try container.encode(textAccentLocs, forKey: .textAccentLocs)
     }
     
     required init(from decoder: Decoder) throws {
@@ -128,6 +134,11 @@ class TextMeaningPractice: BasePractice, Codable {
         existingPhraseMeanings = try container.decode([String].self, forKey: .existingPhraseMeanings)
         totalRepetitions = try container.decode(Int.self, forKey: .totalRepetitions)
         currentRepetition = try container.decode(Int.self, forKey: .currentRepetition)
+        do {
+            textAccentLocs = try container.decode([Int].self, forKey: .textAccentLocs)
+        } catch {
+            textAccentLocs = []
+        }
     }
     
 }

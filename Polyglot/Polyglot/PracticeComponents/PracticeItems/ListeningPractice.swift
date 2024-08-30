@@ -34,7 +34,8 @@ class ListeningPractice: TextMeaningPractice {
         existingPhraseRanges: [NSRange],
         existingPhraseMeanings: [String],
         totalRepetitions: Int,
-        currentRepetition: Int
+        currentRepetition: Int,
+        textAccentLocs: [Int]
     ) {
         self.practiceType = practiceType
         self.prompt = prompt
@@ -51,7 +52,8 @@ class ListeningPractice: TextMeaningPractice {
             existingPhraseRanges: existingPhraseRanges,
             existingPhraseMeanings: existingPhraseMeanings,
             totalRepetitions: totalRepetitions,
-            currentRepetition: currentRepetition
+            currentRepetition: currentRepetition,
+            textAccentLocs: textAccentLocs
         )
         
     }
@@ -71,7 +73,8 @@ class ListeningPractice: TextMeaningPractice {
             existingPhraseRanges: another.existingPhraseRanges,
             existingPhraseMeanings: another.existingPhraseMeanings,
             totalRepetitions: another.totalRepetitions,
-            currentRepetition: another.currentRepetition
+            currentRepetition: another.currentRepetition,
+            textAccentLocs: another.textAccentLocs
         )
     }
     

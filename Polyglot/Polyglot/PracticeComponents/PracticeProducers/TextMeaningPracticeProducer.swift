@@ -303,4 +303,29 @@ extension TextMeaningPracticeProducer {
 
     }
 
+    func calculateAccentLocsForText(in practice: TextMeaningPractice) {
+        
+        if !LangCode.currentLanguage.shouldAddAccentMarksToTextInPractices {
+            return
+        }
+        
+        analyzeAccents(for: practice.text) { tokens, analysisQuery in
+            guard !tokens.isEmpty else {
+                return
+            }
+            for practice in self.practiceList {
+                guard let practice = practice as? TextMeaningPractice else {
+                    continue
+                }
+                if practice.text == analysisQuery {
+                    practice.textAccentLocs = calculateAccentLocs(
+                        for: practice.text,
+                        with: tokens
+                    )
+                    break
+                }
+            }
+        }
+    }
+    
 }

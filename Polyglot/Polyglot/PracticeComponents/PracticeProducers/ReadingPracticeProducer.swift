@@ -67,11 +67,15 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
             let para = randomArticle.paras[paraIndex]
             let sentences = para.text.tokenized(with: LangCode.currentLanguage.sentenceTokenizer)
             for (sentenceId, sentence) in sentences.enumerated() {
-                let (existingPhraseRanges, existingPhraseMeanings) = findExistingPhraseRangesAndMeanings(
+                
+                let (
+                    existingPhraseRanges,
+                    existingPhraseMeanings
+                ) = findExistingPhraseRangesAndMeanings(
                     for: sentence,
                     from: self.words
                 )
-                practiceList.append(ReadingPractice(
+                let practice = ReadingPractice(
                     text: sentence,
                     meaning: "",
                     textLang: LangCode.currentLanguage,
@@ -84,8 +88,11 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
                     isTextMachineTranslated: false,
                     machineTranslatorType: .none,
                     existingPhraseRanges: existingPhraseRanges,
-                    existingPhraseMeanings: existingPhraseMeanings
-                ))
+                    existingPhraseMeanings: existingPhraseMeanings,
+                    textAccentLocs: []
+                )
+                practiceList.append(practice)
+                
                 maybeTranslate(text: sentence) { translation, isTranslated, translatorType, translationQuery in
                     for practice in self.practiceList {
                         guard let practice = practice as? ReadingPractice else {
@@ -99,6 +106,7 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
                         }
                     }
                 }
+                calculateAccentLocsForText(in: practice)
             }
             if practiceList.count >= batchSize {
                 break

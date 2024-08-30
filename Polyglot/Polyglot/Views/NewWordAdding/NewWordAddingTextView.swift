@@ -110,7 +110,10 @@ extension NewWordAddingTextView {
     
     func hightlight(_ textRange: UITextRange, with color: UIColor) {
         let newAttributedText = NSMutableAttributedString(attributedString: attributedText)
-        newAttributedText.addAttributes([NSAttributedString.Key.backgroundColor : color], range: nsRange(from: textRange))
+        newAttributedText.addAttributes(
+            [NSAttributedString.Key.backgroundColor : color],
+            range: nsRange(from: textRange)
+        )
         attributedText = newAttributedText
     }
     
@@ -118,6 +121,37 @@ extension NewWordAddingTextView {
         for newWordInfo in newWordsInfo {
             hightlight(newWordInfo.textRange, with: Colors.lightBlue)
         }
+    }
+    
+    func markAccents(at accentLocs: [Int]) {
+        let newAttributedText = NSMutableAttributedString(attributedString: attributedText)
+        for accentLoc in accentLocs {
+            
+            var fontSizeForAccentToMark: CGFloat = Sizes.smallFontSize
+            if let font = attributedText.attributes(
+                at: accentLoc,
+                effectiveRange: nil
+            )[.font] as? UIFont {
+                fontSizeForAccentToMark = font.pointSize
+            }
+            let boldFontAttributes = [
+                NSAttributedString.Key.font : UIFont.systemFont(
+                    ofSize: fontSizeForAccentToMark,
+                    weight: .bold
+                )
+            ]
+            
+            let nsRangeForCharToMark = NSRange(
+                location: accentLoc,
+                length: 1
+            )
+            
+            newAttributedText.addAttributes(
+                boldFontAttributes,
+                range: nsRangeForCharToMark
+            )
+        }
+        attributedText = newAttributedText
     }
 }
 

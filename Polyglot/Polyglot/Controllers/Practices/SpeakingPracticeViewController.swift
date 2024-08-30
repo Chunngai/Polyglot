@@ -43,7 +43,8 @@ class TranslationPracticeViewController: TextMeaningPracticeViewController {
             existingPhraseRanges: practice.existingPhraseRanges,
             existingPhraseMeanings: practice.existingPhraseMeanings,
             totalRepetitions: practice.totalRepetitions,
-            currentRepetition: practice.currentRepetition
+            currentRepetition: practice.currentRepetition,
+            textAccentLocs: practice.textAccentLocs
         )
         
         practiceView.speakButton.isHidden = true

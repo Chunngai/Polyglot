@@ -193,7 +193,8 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController, Listen
                 existingPhraseRanges: currentPractice.existingPhraseRanges,
                 existingPhraseMeanings: currentPractice.existingPhraseMeanings,
                 totalRepetitions: currentPractice.totalRepetitions,
-                currentRepetition: currentPractice.currentRepetition
+                currentRepetition: currentPractice.currentRepetition,
+                textAccentLocs: currentPractice.textAccentLocs
             )
             practiceView.delegate = self
             
@@ -224,7 +225,8 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController, Listen
                 existingPhraseRanges: currentPractice.existingPhraseRanges,
                 existingPhraseMeanings: currentPractice.existingPhraseMeanings,
                 totalRepetitions: currentPractice.totalRepetitions,
-                currentRepetition: currentPractice.currentRepetition
+                currentRepetition: currentPractice.currentRepetition,
+                textAccentLocs: currentPractice.textAccentLocs
             )
         }
     }

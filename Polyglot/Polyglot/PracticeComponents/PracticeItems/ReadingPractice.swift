@@ -19,7 +19,8 @@ class ReadingPractice: TextMeaningPractice {
         isTextMachineTranslated: Bool,
         machineTranslatorType: MachineTranslatorType,
         existingPhraseRanges: [NSRange],
-        existingPhraseMeanings: [String]
+        existingPhraseMeanings: [String],
+        textAccentLocs: [Int]
     ) {
         super.init(
             text: text,
@@ -32,7 +33,8 @@ class ReadingPractice: TextMeaningPractice {
             existingPhraseRanges: existingPhraseRanges,
             existingPhraseMeanings: existingPhraseMeanings,
             totalRepetitions: 1,
-            currentRepetition: 0
+            currentRepetition: 0,
+            textAccentLocs: textAccentLocs
         )
     }
     
@@ -46,7 +48,8 @@ class ReadingPractice: TextMeaningPractice {
             isTextMachineTranslated: another.isTextMachineTranslated,
             machineTranslatorType: another.machineTranslatorType,
             existingPhraseRanges: another.existingPhraseRanges,
-            existingPhraseMeanings: another.existingPhraseMeanings
+            existingPhraseMeanings: another.existingPhraseMeanings,
+            textAccentLocs: another.textAccentLocs
         )
     }
     

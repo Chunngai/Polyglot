@@ -38,6 +38,7 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
                     inGranularity: TextGranularity.sentence,
                     callBack: { practice in
                         practiceList.append(practice)
+                        self.calculateAccentLocsForText(in: practice)
                     }
                 )
             } else if n == 1 {
@@ -45,6 +46,7 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
                     inGranularity: TextGranularity.sentence,
                     callBack: { practice in
                         practiceList.append(practice)
+                        self.calculateAccentLocsForText(in: practice)
                     }
                 )
             }
@@ -113,7 +115,8 @@ extension SpeakingPracticeProducer {
             existingPhraseRanges: existingPhraseRanges,
             existingPhraseMeanings: existingPhraseMeanings,
             totalRepetitions: LangCode.currentLanguage.configs.practiceRepetition,
-            currentRepetition: 0
+            currentRepetition: 0,
+            textAccentLocs: []
         )
     }
     

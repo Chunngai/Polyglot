@@ -80,6 +80,15 @@ extension LangCode {
         
     }
     
+    var shouldAddAccentMarksToTextInPractices: Bool {
+        
+        if self == .ru {
+            return true
+        }
+        return false
+        
+    }
+    
 }
 
 extension LangCode {

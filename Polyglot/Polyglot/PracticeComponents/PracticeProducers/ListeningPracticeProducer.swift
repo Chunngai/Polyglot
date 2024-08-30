@@ -37,16 +37,18 @@ class ListeningPracticeProducer: TextMeaningPracticeProducer {
                     ofType: .listenAndRepeat,
                     for: self.words.randomElement()!,
                     inGranularity: TextGranularity.subsentence,
-                    callBack: { listenAndRepeatPractice in
-                        practiceList.append(listenAndRepeatPractice)
+                    callBack: { practice in
+                        practiceList.append(practice)
+                        self.calculateAccentLocsForText(in: practice)
                     }
                 )
             } else if n == 1 {
                 makePractice(
                     ofType: .listenAndRepeat,
                     inGranularity: TextGranularity.subsentence,
-                    callBack: { listenAndRepeatPractice in
-                        practiceList.append(listenAndRepeatPractice)
+                    callBack: { practice in
+                        practiceList.append(practice)
+                        self.calculateAccentLocsForText(in: practice)
                     }
                 )
             }
@@ -194,7 +196,8 @@ extension ListeningPracticeProducer {
                 existingPhraseRanges: existingPhraseRanges,
                 existingPhraseMeanings: existingPhraseMeanings,
                 totalRepetitions: LangCode.currentLanguage.configs.practiceRepetition,
-                currentRepetition: 0
+                currentRepetition: 0,
+                textAccentLocs: []
             ))
         }
         return practices

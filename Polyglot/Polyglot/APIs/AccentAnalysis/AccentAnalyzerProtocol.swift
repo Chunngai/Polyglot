@@ -17,7 +17,10 @@ protocol AccentAnalyzerProtocol {
 }
 
 var word2langForAccentAnalysis: [String: LangCode] = [:]
-func analyzeAccents(for text: String, completion: @escaping ([Token]) -> Void) {
+func analyzeAccents(for text: String, completion: @escaping (
+    [Token],  // Analysis result.
+    String  // Analysis query.
+) -> Void) {
     
     word2langForAccentAnalysis[text] = LangCode.currentLanguage
     LangCode.currentLanguage.accentAnalyzer?.analyze(for: text) { tokens in
@@ -25,7 +28,7 @@ func analyzeAccents(for text: String, completion: @escaping ([Token]) -> Void) {
             return
         }
         word2langForAccentAnalysis.removeValue(forKey: text)
-        completion(tokens)
+        completion(tokens, text)
     }
 
 }
@@ -62,5 +65,36 @@ func addAccentMarks(for text: String, with tokens: [Token]) -> String {
     }
     
     return s
+    
+}
+
+func calculateAccentLocs(for text: String, with tokens: [Token]) -> [Int] {
+    
+    // Modified from addAccentMarks(for text: String, with tokens: [Token]) -> String.
+    
+    var accentLocs: [Int] = []
+    var curIndexInText: Int = 0
+    var tokenIndex: Int = 0
+    while tokenIndex < tokens.count {
+        let token = tokens[tokenIndex]
+        
+        // Move to tokens[tokenIndex] in s.
+        while !text.lowercased().substring(from: curIndexInText).starts(with: token.text.lowercased()) {
+            curIndexInText += 1
+            if curIndexInText >= text.count {  // The condition is true when some tokens in a word are missing.
+                return []
+            }
+        }
+        
+        // Insert an accent mark.
+        if let accentLoc = token.accentLoc {
+            accentLocs.append(curIndexInText + accentLoc)  // Different here.
+            curIndexInText += token.text.count
+        }
+        // Move on.
+        tokenIndex += 1
+    }
+    
+    return accentLocs
     
 }

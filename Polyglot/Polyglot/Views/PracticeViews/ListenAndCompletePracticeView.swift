@@ -24,7 +24,8 @@ class ListenAndCompletePracticeView: TextMeaningPracticeView {
         existingPhraseRanges: [NSRange],
         existingPhraseMeanings: [String],
         totalRepetitions: Int,
-        currentRepetition: Int
+        currentRepetition: Int,
+        textAccentLocs: [Int]!
     ) {
         super.init(
             frame: frame,
@@ -38,7 +39,8 @@ class ListenAndCompletePracticeView: TextMeaningPracticeView {
             existingPhraseRanges: existingPhraseRanges,
             existingPhraseMeanings: existingPhraseMeanings,
             totalRepetitions: totalRepetitions,
-            currentRepetition: currentRepetition
+            currentRepetition: currentRepetition,
+            textAccentLocs: textAccentLocs
         )
         
         updateSetups()
