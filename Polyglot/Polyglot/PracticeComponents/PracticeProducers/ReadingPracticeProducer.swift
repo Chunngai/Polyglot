@@ -20,6 +20,15 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
         
         let cachedReadingPractices = ReadingPracticeProducer.loadCachedPractices(for: LangCode.currentLanguage)
         if !cachedReadingPractices.isEmpty {
+            // In case that some words have been deleted.
+            for cachedReadingPractice in cachedReadingPractices {
+                let (updatedExistingPhraseRanges, updatedExistingPhraseMeanings) = findExistingPhraseRangesAndMeanings(
+                    for: cachedReadingPractice.text,
+                    from: self.words
+                )
+                cachedReadingPractice.existingPhraseRanges = updatedExistingPhraseRanges
+                cachedReadingPractice.existingPhraseMeanings = updatedExistingPhraseMeanings
+            }
             self.practiceList.append(contentsOf: cachedReadingPractices)
         } else {
             self.practiceList.append(contentsOf: make())

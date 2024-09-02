@@ -20,6 +20,23 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
     var currentSelectedTextRange: UITextRange!  // For deleting new words.
     
     var isAddingNewWord: Bool = false
+    var canAddNewWord: Bool = true {
+        didSet {
+            if canAddNewWord {
+                isEditable = false
+                addGestureRecognizer(tapGestureRecognizer)
+            } else {
+                isEditable = true
+                removeGestureRecognizer(tapGestureRecognizer)
+                
+                autocorrectionType = .no
+                spellCheckingType = .no
+                autocapitalizationType = .none
+            }
+        }
+    }
+    
+    var tapGestureRecognizer: UITapGestureRecognizer!
     
     // MARK: - Views
     
@@ -57,8 +74,12 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
         
         isEditable = false
         
-        newWordBottomView.delegate = self
-                
+        tapGestureRecognizer = UITapGestureRecognizer(
+            target: self,
+            action: #selector(somewhereInTextViewTapped(recognizer:))
+        )
+        addGestureRecognizer(tapGestureRecognizer)
+        
         // Display the new word menu item at the beginning.
         newWordMenuItem = UIMenuItem(
             title: Strings.newWordMenuItemString,
@@ -69,12 +90,9 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
             action: #selector(wordMeaningMenuItemTapped)
         )
         UIMenuController.shared.menuItems = [newWordMenuItem, wordMeaningMenuItem]
-                
         
-        addGestureRecognizer(UITapGestureRecognizer(
-            target: self,
-            action: #selector(somewhereInTextViewTapped(recognizer:))
-        ))
+        newWordBottomView.delegate = self
+
     }
     
     private func updateViews() {
@@ -89,6 +107,58 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
 }
 
 extension NewWordAddingTextView {
+    
+    func tappedAt(_ tappedTextRange: UITextRange) {
+        
+        // For canceling selections
+        // & presenting an added new word.
+        // https://stackoverflow.com/questions/48474488/get-tapped-word-in-a-uitextview
+
+        newWordBottomView.meaningTextField.resignFirstResponder()
+        
+        // Cancel the selection if any.
+        resignFirstResponder()
+        
+        // When a new word is being added, do nothing.
+        if isAddingNewWord {
+            return
+        }
+        
+        // Float down the presenting bottom view, if any.
+        if newWordBottomView.isFloatingUp {
+            newWordBottomView.floatDown()
+            newWordBottomView.clear()
+        }
+        
+        // Present an added new word.
+        let tapPositionValue = valueOf(textPosition: tappedTextRange.start)
+        for newWordInfo in newWordsInfo {
+            
+            let wordTextRange: UITextRange = newWordInfo.textRange
+            // Left text position.
+            let rangeStartPositionValue = valueOf(textPosition: wordTextRange.start)
+            // Right text position.
+            let rangeEndPositionValue = valueOf(textPosition: wordTextRange.end)
+
+            // Use <= and do not use intersection(),
+            // else the condition is false if the left of the first letter
+            // or the right of the last letter is tapped.
+            let isTextRangeTapped: Bool = (
+                rangeStartPositionValue <= tapPositionValue
+                && tapPositionValue <= rangeEndPositionValue
+            )
+            if isTextRangeTapped {
+                newWordBottomView.word = newWordInfo.word
+                newWordBottomView.meaning = newWordInfo.meaning
+                newWordBottomView.isAddingNewWord = false  // For displaying the delete icon.
+                newWordBottomView.floatUp()
+                
+                currentSelectedTextRange = wordTextRange  // For deleting the word later.
+                
+                break  // Avoid overlapped highlighting.
+            }
+        }
+    }
     
     // MARK: - Utils
     
@@ -159,6 +229,30 @@ extension NewWordAddingTextView {
     
     // MARK: - Selectors
     
+    @objc private func somewhereInTextViewTapped(recognizer: UITapGestureRecognizer) {
+        
+        let location: CGPoint = recognizer.location(in: self)
+        // https://stackoverflow.com/questions/22348076/is-it-possible-to-create-uitextrange-manually-for-first-character
+        guard let tapPosition: UITextPosition = closestPosition(to: location) else {
+            return
+        }
+        
+        guard let anotherTapLocation: UITextPosition = position(
+            from: tapPosition,
+            offset: 0
+        ) else {
+            return
+        }
+        guard let tappedTextRange = textRange(
+            from: tapPosition,
+            to: anotherTapLocation
+        ) else {
+            return
+        }
+        tappedAt(tappedTextRange)
+        
+    }
+    
     @objc private func newWordMenuItemTapped() {
 
         // Obtain the new word, its selected range, and its selected text range.
@@ -196,69 +290,16 @@ extension NewWordAddingTextView {
         }
     }
     
-    @objc private func somewhereInTextViewTapped(recognizer: UITapGestureRecognizer) {
-        
-        newWordBottomView.meaningTextField.resignFirstResponder()
-        
-        // https://stackoverflow.com/questions/48474488/get-tapped-word-in-a-uitextview
-        
-        // For canceling selections
-        // & presenting an added new word.
-        
-        // Cancel the selection if any.
-        resignFirstResponder()
-        
-        if isAddingNewWord {
-            // When a new word is being added, do nothing.
-            return
-        }
-        
-        // Present an added new word.
-        
-        if newWordBottomView.isFloatingUp {
-            // Float down the presenting bottom view, if any.
-            newWordBottomView.floatDown()
-            newWordBottomView.clear()
-        }
-
-        // Obtain the text position of the tap.
-        let location: CGPoint = recognizer.location(in: self)
-        let tapPosition: UITextPosition = closestPosition(to: location)!
-        
-        // Tapped text position.
-        let tapPositionValue = valueOf(textPosition: tapPosition)
-        for newWordInfo in newWordsInfo {
-            
-            let wordTextRange: UITextRange = newWordInfo.textRange
-
-            // Left text position.
-            let rangeStartPositionValue = valueOf(textPosition: wordTextRange.start)
-            // Right text position.
-            let rangeEndPositionValue = valueOf(textPosition: wordTextRange.end)
-
-            // Use < instead of <=,
-            // else tapping anywhere below the text will meet the condition
-            // if the range is at the end of the text.
-            let isTextRangeTapped: Bool = rangeStartPositionValue < tapPositionValue
-                && tapPositionValue < rangeEndPositionValue
-            if isTextRangeTapped {
-                newWordBottomView.word = newWordInfo.word
-                newWordBottomView.meaning = newWordInfo.meaning
-                newWordBottomView.isAddingNewWord = false  // For displaying the delete icon.
-                newWordBottomView.floatUp()
-                
-                currentSelectedTextRange = wordTextRange  // For deleting the word later.
-                
-                break  // Avoid overlapped highlighting.
-            }
-        }
-    }
 }
 
 extension NewWordAddingTextView {
         
     override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
-        
+
+        if !canAddNewWord {
+            return false
+        }
+
         if action == #selector(copy(_:)) {
             return true
         }

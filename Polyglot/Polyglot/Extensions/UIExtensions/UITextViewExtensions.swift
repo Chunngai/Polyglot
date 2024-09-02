@@ -23,4 +23,15 @@ extension UITextView {
             to: self.beginningOfDocument
         )
     }
+    
+    func backgroundColorOfAttributedTextAt(_ location: Int) -> UIColor? {
+        if location < text.count {
+            return attributedText.attributes(
+                at: location,
+                effectiveRange: nil
+            )[.backgroundColor] as? UIColor
+        }
+        return nil
+    }
+    
 }

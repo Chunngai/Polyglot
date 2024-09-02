@@ -20,6 +20,15 @@ class ListeningPracticeProducer: TextMeaningPracticeProducer {
         
         let cachedListeningPractices = ListeningPracticeProducer.loadCachedPractices(for: LangCode.currentLanguage)
         if !cachedListeningPractices.isEmpty {
+            // In case that some words have been deleted.
+            for cachedListeningPractice in cachedListeningPractices {
+                let (updatedExistingPhraseRanges, updatedExistingPhraseMeanings) = findExistingPhraseRangesAndMeanings(
+                    for: cachedListeningPractice.text,
+                    from: self.words
+                )
+                cachedListeningPractice.existingPhraseRanges = updatedExistingPhraseRanges
+                cachedListeningPractice.existingPhraseMeanings = updatedExistingPhraseMeanings
+            }
             self.practiceList.append(contentsOf: cachedListeningPractices)
         } else {
             self.practiceList.append(contentsOf: make())

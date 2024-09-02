@@ -131,6 +131,19 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController, Listen
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // Dynamically determine the keyboard showing type
+        // for typing clozed words/typing meanings
+        // instead of using a single one.
+        // The IQKeyboardManager is suitable for typing clozed words
+        // and the self-defined one is suitable for typing meanings.
+        // Execution path:
+        // super.super.viewDidLoad() -> super.viewDidLoad() -> super.addObserver() -> self.removeObserver()
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        
         // Detect if the app will move to background.
         NotificationCenter.default.addObserver(
             self,
@@ -345,6 +358,8 @@ extension ListeningPracticeViewController {
 
 extension ListeningPracticeViewController {
     
+    // MARK: - ListenAndRepeatPracticeView Delegate
+    
     func submitAndNext() {
         doneButtonTapped()
         
@@ -370,6 +385,25 @@ extension ListeningPracticeViewController {
         
     }
     
+    func enableIQKeyboardManager() {
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        IQKeyboardManager.shared.enable = true
+    }
+    
+    func disableIQKeyboardManager() {
+        IQKeyboardManager.shared.enable = false
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+    }
+    
 }
 
 extension ListeningPracticeViewController: AVSpeechSynthesizerDelegate {
@@ -378,7 +412,10 @@ extension ListeningPracticeViewController: AVSpeechSynthesizerDelegate {
      
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
         isProducingSpeech = false
-        isRecordingSpeech = true
+        if let practiceView = practiceView as? ListenAndRepeatPracticeView,
+           practiceView.allowRecording {
+            isRecordingSpeech = true
+        }
     }
 }
 
@@ -425,6 +462,7 @@ extension ListeningPracticeViewController {
         }
         
         // Configure the microphone input.
+        inputNode.removeTap(onBus: 0)
         var recordingFormat = inputNode.outputFormat(forBus: 0)
         if audioSession.sampleRate != recordingFormat.sampleRate {  // Get hardware (hw) sample rate: https://stackoverflow.com/questions/50712088/how-to-get-hardware-samplerate-from-ios-device
             // Make the hw sample rate consistent with that of the recording format.
@@ -436,6 +474,12 @@ extension ListeningPracticeViewController {
             }
             recordingFormat = updatedFormat
         }
+        guard audioSession.sampleRate == recordingFormat.sampleRate else {
+            self.isRecordingSpeech = false
+            print("audioSession.sampleRate \(audioSession.sampleRate) != recordingFormat.sampleRate \(recordingFormat.sampleRate)")
+            NSLog("audioSession.sampleRate \(audioSession.sampleRate) != recordingFormat.sampleRate \(recordingFormat.sampleRate)")
+            return
+        }
         guard recordingFormat.sampleRate != 0 && recordingFormat.channelCount != 0 else {
             // Handle random crash (after using the mic with Siri?)
             // https://stackoverflow.com/questions/41805381/avaudioengine-inputnode-installtap-crash-when-restarting-recording
@@ -444,7 +488,6 @@ extension ListeningPracticeViewController {
             NSLog("Not enough available inputs!")
             return
         }
-        inputNode.removeTap(onBus: 0)
         inputNode.installTap(
             onBus: 0,
             bufferSize: 1024,

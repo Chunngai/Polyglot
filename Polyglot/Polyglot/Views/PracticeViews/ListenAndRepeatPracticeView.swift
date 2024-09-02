@@ -26,13 +26,32 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
         Set(clozeRanges).subtracting(matchedClozeRanges)
     }
     
+    // For typing clozed words.
+    private var isSubmitted: Bool = false {
+        didSet {
+            if isSubmitted {
+                textView.canAddNewWord = true
+            } else {
+                textView.canAddNewWord = false
+            }
+        }
+    }
+    private var selectedRangeWhenBecomingFirstResponderAgain: NSRange!
+    private var edittedCharRangeToOriginalChar: [NSRange: String] = [:]
+    var allowRecording: Bool = true
+    
     private var textBiGram2BiRanges: [BiGram: [BiRange]] = [:]  // A bi-gram may correspond to multiple bi-ranges.
     
     private var shouldProcessRecognizedSpeech: Bool = true
     
     // MARK: - Controllers
     
-    var delegate: ListeningPracticeViewController!
+    var delegate: ListeningPracticeViewController! {
+        didSet {
+            // Before submitting.
+            delegate.enableIQKeyboardManager()
+        }
+    }
     
     // MARK: - Init
     
@@ -92,16 +111,22 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
         super.updateSetups()
         
         var updatedText = text ?? ""
-        if LangCode.currentLanguage == .ko {  // Handle inconsistent word splitting. E.g., 인공지능/인공 지능.
+        // Handle inconsistent word splitting. E.g., 인공지능/인공 지능.
+        if LangCode.currentLanguage == .ko {
             let koTokens = text.tokenized(with: LangCode.currentLanguage.wordTokenizer)
             for i in 0..<koTokens.count - 1 {
                 updatedText += " " + koTokens[i] + koTokens[i + 1]
             }
         }
-        textBiGram2BiRanges = generateBiGram2BiRanges(
-//            from: clozeRanges,
-            for: updatedText
-//            of: updatedText
+        textBiGram2BiRanges = generateBiGram2BiRanges(for: updatedText)
+        
+        isSubmitted = false
+        // When the attributed text of the text view is set in `displayUpper()`,
+        // `textViewDidChangeSelection()` will be called and the selected location
+        // will be equal to the length of the text.
+        selectedRangeWhenBecomingFirstResponderAgain = NSRange(
+            location: text.count, 
+            length: 0
         )
     }
     
@@ -146,6 +171,11 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
     }
     
     override func submit() -> Any {
+        
+        isSubmitted = true
+        delegate.disableIQKeyboardManager()
+        restoreIncorrectTypedWords()
+        
         return Array<NSRange>(matchedClozeRanges)
     }
     
@@ -336,6 +366,247 @@ extension ListenAndRepeatPracticeView {
         }
         textView.attributedText = newAttributes
     }
+    
+    private func checkTypedWordCorrectness() {
+        var typedWord: String = ""
+        var targetWord: String = ""
+        var currentLocation = textView.selectedRange.location
+        var rangesToRemove: [NSRange] = []
+        while true {
+            currentLocation -= 1
+            if currentLocation < 0 {
+                break
+            }
+            
+            let bgColorOfCurrentLocation = textView.backgroundColorOfAttributedTextAt(currentLocation)
+            if bgColorOfCurrentLocation != Colors.clozeMaskColor {
+                break
+            }
+            
+            let charAtCurrentRange = NSRange(
+                location: currentLocation,
+                length: 1
+            )
+            // https://stackoverflow.com/questions/3836670/how-to-get-a-single-nsstring-character-from-an-nsstring
+            let currentChar = textView.attributedText.attributedSubstring(from: charAtCurrentRange).string
+            typedWord = currentChar + typedWord
+            
+            if let originalCharInTargetWord = edittedCharRangeToOriginalChar[charAtCurrentRange] {
+                targetWord = originalCharInTargetWord + targetWord
+                rangesToRemove.append(charAtCurrentRange)
+            }
+        }
+        
+        if typedWord.normalized(
+            shouldStrip:true,
+            caseInsensitive: true,
+            diacriticInsensitive: true
+        ) == targetWord.normalized(
+            shouldStrip:true,
+            caseInsensitive: true,
+            diacriticInsensitive: true
+        ) {
+            let typedWordRange = NSRange(
+                location: currentLocation + 1,  // +1: recover the -1.
+                length: typedWord.count
+            )
+            textView.textStorage.addAttributes(
+                [
+                    .foregroundColor : Colors.normalTextColor,
+                    .backgroundColor : textView.backgroundColor as Any
+                ],
+                range: typedWordRange
+            )
+            textView.resignFirstResponder()
+            matchedClozeRanges.insert(typedWordRange)
+            for rangeToRemove in rangesToRemove {
+                edittedCharRangeToOriginalChar.removeValue(forKey: rangeToRemove)
+            }
+        }
+    }
+    
+    private func restoreIncorrectTypedWords() {
+        for (edittedCharRange, originalChar) in edittedCharRangeToOriginalChar {
+            textView.textStorage.replaceCharacters(
+                in: edittedCharRange,
+                with: originalChar
+            )
+        }
+    }
+    
+}
+
+extension ListenAndRepeatPracticeView {
+    
+    // MARK: - UITextView Delegate
+    
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        
+        // https://stackoverflow.com/questions/61363193/how-to-keep-some-text-non-editable-and-some-editable-in-textview-swift
+        
+        guard !isSubmitted else {
+            return false
+        }
+        
+        var charToReplace = text
+        if charToReplace.count > 1 {  // Disallow pasting.
+            return false
+        }
+        
+        let isInserting = !charToReplace.isEmpty
+        if isInserting {
+            if Character(charToReplace).isWhitespace {
+                return false
+            }
+            
+            let bgColorOfRangeOfCharToReplace = textView.backgroundColorOfAttributedTextAt(range.location)
+            if bgColorOfRangeOfCharToReplace == textView.backgroundColor {
+                // In this case, the cursor is already at the end of the cloze,
+                // and only deletion is enabled.
+                return false
+            }
+        }
+                
+        var rangeOfCharToReplace: NSRange!
+        var newTextColorOfCharToReplace: UIColor!
+        var newSelectedLocationOfCharToReplace: Int!
+        if isInserting {
+            rangeOfCharToReplace = NSRange(
+                location: range.location,
+                length: 1
+            )
+            if rangeOfCharToReplace.upperBound > textView.text.count {
+                return false  // Else the `.substring()` below will raise an error.
+            }
+            
+            let originalChar = textView.attributedText.attributedSubstring(from: rangeOfCharToReplace).string
+            edittedCharRangeToOriginalChar[rangeOfCharToReplace] = originalChar
+            
+            newTextColorOfCharToReplace = Colors.normalTextColor
+            newSelectedLocationOfCharToReplace = range.location + 1
+        } else {
+            rangeOfCharToReplace = range
+            
+            guard let originalChar = self.edittedCharRangeToOriginalChar[rangeOfCharToReplace] else {
+                return false
+            }
+            charToReplace = originalChar
+            
+            newTextColorOfCharToReplace = Colors.clozeMaskColor
+            newSelectedLocationOfCharToReplace = range.location
+        }
+        
+        // https://stackoverflow.com/questions/9096710/how-to-replace-text-in-uitextview-with-selected-range
+        textView.textStorage.replaceCharacters(
+            in: rangeOfCharToReplace,
+            with: charToReplace
+        )
+        // https://stackoverflow.com/questions/16160106/changing-attributes-on-a-uitextview-without-resetting-the-attributedtext-propert
+        textView.textStorage.addAttributes(
+            [NSAttributedString.Key.foregroundColor : newTextColorOfCharToReplace!],
+            range: rangeOfCharToReplace
+        )
+        textView.selectedRange = NSRange(
+            location: newSelectedLocationOfCharToReplace,
+            length: 0
+        )
+        
+        // When finished typing a word, check its correctness.
+        // Case 1: reached the end of the text.
+        // Case 2: reached the word boundary.
+        var bgColorOfNewSelectedLocationOfCharToReplace = textView.backgroundColorOfAttributedTextAt(textView.selectedRange.location)
+        if textView.selectedRange.location > self.text.count
+            || bgColorOfNewSelectedLocationOfCharToReplace == textView.backgroundColor {
+            checkTypedWordCorrectness()
+        }
+        
+        return false
+        
+    }
+    
+    // https://stackoverflow.com/questions/18553193/find-out-when-cursor-is-moved-uitextview
+    override func textViewDidChangeSelection(_ textView: UITextView) {
+        super.textViewDidChangeSelection(textView)
+        
+        // KNOWN ISSUE: WHEN MOVING THE CURSOR BY
+        // LONG PRESSING THE WHITESPACE AND SWIPING,
+        // THE ERROR "Keyboard queue task timeout detected"
+        // WILL BE RAISED WHEN CALLING `textView.resignFirstResponder()`.
+        
+        guard !isSubmitted else {
+            return
+        }
+        
+        let selectedRange = textView.selectedRange
+        guard selectedRange.location >= 0,
+              selectedRange.location <= textView.text.count - 1 else {
+            // Do not place the code in the next line in `textViewDidEndEditing()`,
+            // as that method will only be called for isFirstResponder -> isNotFirstResponder.
+            // However, `selectedRangeBeforeResigningToFirstResponder` should be modified
+            // for both isFirstResponder -> isNotFirstResponder and isNotFirstResponder -> isNotFirstResponder.
+            selectedRangeWhenBecomingFirstResponderAgain = textView.selectedRange
+            textView.resignFirstResponder()
+            return
+        }
+        
+        let bgColorOfCharToReplace = textView.backgroundColorOfAttributedTextAt(textView.selectedRange.location)
+        let bgColorBeforeCharToReplace = {
+            var positionBeforeCharToReplace: Int = textView.selectedRange.location - 1
+            if positionBeforeCharToReplace <= 0 {
+                positionBeforeCharToReplace += 1
+            }
+            let bgColorBeforeCharToReplace = textView.backgroundColorOfAttributedTextAt(positionBeforeCharToReplace)
+            return bgColorBeforeCharToReplace
+        }()
+        if bgColorOfCharToReplace == Colors.clozeMaskColor
+            // Only allow deleting in the following case.
+            || (
+                bgColorOfCharToReplace == textView.backgroundColor
+                && bgColorBeforeCharToReplace == Colors.clozeMaskColor
+            ) {
+            textView.becomeFirstResponder()
+            allowRecording = false
+            // Without the following line of code,
+            // when tapping the end of the word after resigning
+            // the cursor still appears.
+            selectedRangeWhenBecomingFirstResponderAgain = textView.selectedRange
+        } else {
+            selectedRangeWhenBecomingFirstResponderAgain = textView.selectedRange
+            textView.resignFirstResponder()
+        }
+        
+    }
+    
+    func textViewShouldBeginEditing(_ textView: UITextView) -> Bool {
+        
+        guard !isSubmitted else {
+            return false
+        }
+        
+        // Note that:
+        // (1) the selected range of the text view in `textViewShouldBeginEditing()`
+        // is the one before previously resigning.
+        // (2) `textViewDidChangeSelection()` will not be called after `textViewShouldBeginEditing()`
+        // if the selected range before and after the text view becomes the first responder
+        // is equal.
+        // Therefore,
+        // if (1) `textView.resignFirstResponder()` is called in `textViewDidChangeSelection()`
+        // when somewhere not editable is selected/tapped,
+        // and (2) the text view becomes the first responder again later when somewhere in
+        // the text view is tapped,
+        // and (3) the tapped range is equal to the selected range before resigning:
+        // `textViewDidChangeSelection()` will not be called as
+        // the selected range has not been changed -> the tapped range,
+        // which is intended to be not editable, will become editable.
+        // Therefore, check if the tapped range is editable here for that case.
+        if let selectedRangeWhenBecomingFirstResponderAgain = selectedRangeWhenBecomingFirstResponderAgain,
+           selectedRangeWhenBecomingFirstResponderAgain == textView.selectedRange {
+            return false
+        }
+        
+        return true
+    }
+    
 }
 
 protocol ListenAndRepeatPracticeViewDelegate {
@@ -344,5 +615,7 @@ protocol ListenAndRepeatPracticeViewDelegate {
     var shouldUpdatePractice: Bool { get set }
     
     func submitAndNext()
+    func enableIQKeyboardManager()
+    func disableIQKeyboardManager()
     
 }
