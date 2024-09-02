@@ -54,11 +54,7 @@ class TextMeaningPracticeView: BasePracticeView {
     
     var mainView: UIView = {
         let view = UIView()
-        view.backgroundColor = Colors.lightGrayBackgroundColor
-        view.layer.masksToBounds = true
-        view.layer.cornerRadius = Sizes.defaultCornerRadius
-        view.layer.borderWidth = Sizes.defaultBorderWidth
-        view.layer.borderColor = Colors.borderColor.cgColor
+        view.backgroundColor = Colors.defaultBackgroundColor
         return view
     }()
     
@@ -158,7 +154,7 @@ class TextMeaningPracticeView: BasePracticeView {
         )
         textView.attributedText = NSMutableAttributedString(
             string: " ",
-            attributes: Attributes.leftAlignedLongTextAttributes
+            attributes: Self.textAttributes
         )
         
         updateRepetitionLabelText()
@@ -197,27 +193,28 @@ class TextMeaningPracticeView: BasePracticeView {
     
     func updateLayouts() {
         mainView.snp.makeConstraints { (make) in
-            make.centerX.centerY.equalToSuperview()
-            make.width.equalToSuperview()
-            make.height.equalToSuperview()
+            make.edges.equalToSuperview()
         }
         
-        let inset = (Attributes.leftAlignedLongTextAttributes[NSAttributedString.Key.font] as! UIFont).pointSize
-        
         textView.snp.makeConstraints { make in
-            make.top.bottom.leading.trailing.equalToSuperview().inset(inset)
+            make.top.bottom.leading.trailing.equalToSuperview().inset(20)
         }
         
         listenButton.snp.makeConstraints { make in
-            make.leading.bottom.equalToSuperview().inset(inset)
+            // Consistent with the done/next buttons.
+            make.leading.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
+            make.bottom.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
+            make.height.equalTo(Sizes.roundButtonRadius)
         }
         speakButton.snp.makeConstraints { make in
-            make.leading.equalTo(listenButton.snp.trailing).offset(10)
+            make.leading.equalTo(listenButton.snp.trailing).offset(listenButton.intrinsicContentSize.width * 0.5)
             make.centerY.equalTo(listenButton.snp.centerY)
+            make.height.equalTo(Sizes.roundButtonRadius)
         }
         
         reinforceButton.snp.makeConstraints { make in
-            make.leading.bottom.equalToSuperview().inset(inset)
+            make.leading.bottom.equalTo(listenButton)
+            make.height.equalTo(Sizes.roundButtonRadius)
         }
         reinforceTextButton.snp.makeConstraints { make in
             make.leading.equalTo(reinforceButton.snp.trailing).offset(5)
@@ -244,7 +241,7 @@ class TextMeaningPracticeView: BasePracticeView {
         attributedText.append(NSAttributedString(string: upperString))
         // Without this the text attributes are cleared after attaching the icon.
         attributedText.addAttributes(
-            Attributes.leftAlignedLongTextAttributes,
+            Self.textAttributes,
             range: NSRange(
                 location: 0,
                 length: attributedText.length
@@ -265,17 +262,10 @@ class TextMeaningPracticeView: BasePracticeView {
             
             attributedText.append(makeImageAttributedString(with: lowerIcon))
             attributedText.append(NSAttributedString(string: " "))
-//            attributedText.addAttributes(
-//                Attributes.leftAlignedLongTextAttributes,
-//                range: NSRange(
-//                    location: attributedText.length - 2,
-//                    length: 2
-//                )
-//            )
         }
         attributedText.append(NSAttributedString(string: lowerString))
         attributedText.addAttributes(
-            Attributes.leftAlignedLongTextAttributes,
+            Self.textAttributes,
             range: NSRange(
                 location: 0,
                 length: attributedText.length
@@ -310,7 +300,7 @@ extension TextMeaningPracticeView {
         textAttachment.image = icon
         
         // Use the line height of the font for the image height to align with the text height
-        let font = (Attributes.leftAlignedLongTextAttributes[.font] as? UIFont) ?? UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        let font = (Self.textAttributes[.font] as? UIFont) ?? UIFont.systemFont(ofSize: Sizes.smallFontSize)
         let lineHeight = font.lineHeight
         // Adjust the width of the image to maintain the aspect ratio, if necessary
         let aspectRatio = textAttachment.image!.size.width / textAttachment.image!.size.height
@@ -380,5 +370,15 @@ extension TextMeaningPracticeView {
         shouldReinforce.toggle()
         
     }
+    
+}
+
+extension TextMeaningPracticeView {
+    
+    static let textAttributes = {
+        var attrs = Attributes.leftAlignedLongTextAttributes
+        attrs[.font] = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
+        return attrs
+    }()
     
 }

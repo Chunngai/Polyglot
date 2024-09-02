@@ -33,12 +33,22 @@ class TextMeaningPracticeViewController: PracticeViewController {
 
     }
     
+    override func updateViews() {
+        super.updateViews()
+        
+        promptLabel.removeFromSuperview()
+        
+        for button in [doneButton, nextButton] {
+            button.backgroundColor = nil
+            button.layer.borderColor = nil
+            button.layer.borderWidth = 0
+        }
+    }
+    
     override func updateLayouts() {
-        super.updateLayouts()
         
         let topOffset = UIApplication.shared.statusBarFrame.height  // https://stackoverflow.com/questions/25973733/status-bar-height-in-swift
             + navigationController!.navigationBar.frame.maxY
-            + 50
         
         mainView.snp.remakeConstraints { (make) in
             make.centerX.equalToSuperview()
@@ -47,16 +57,25 @@ class TextMeaningPracticeViewController: PracticeViewController {
             make.bottom.equalToSuperview()
         }
         
-        let doneAndNextButonOffset = UIScreen.main.bounds.width * (1 - PracticeViewController.practiceViewWidthRatio) / 2 - Sizes.roundButtonRadius / 2
         doneButton.snp.remakeConstraints { (make) in
-            make.trailing.equalTo(mainView.snp.trailing).inset(doneAndNextButonOffset)
-            make.bottom.equalToSuperview().inset(150)
+            make.trailing.equalTo(mainView.snp.trailing).inset(Sizes.roundButtonRadius / 2)
+            make.bottom.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
             make.width.height.equalTo(Sizes.roundButtonRadius)
         }
         nextButton.snp.remakeConstraints { (make) in
-            make.trailing.equalTo(mainView.snp.trailing).inset(doneAndNextButonOffset)
-            make.bottom.equalToSuperview().inset(150)
+            make.trailing.equalTo(mainView.snp.trailing).inset(Sizes.roundButtonRadius / 2)
+            make.bottom.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
             make.width.height.equalTo(Sizes.roundButtonRadius)
+        }
+        
+        maskView.snp.remakeConstraints { (make) in
+            // If the nav bar is translucent:
+//            make.top.equalToSuperview().inset(navigationController!.navigationBar.frame.maxY + 60)
+            // If the nav bar is not translucent.
+            make.top.equalTo(mainView.snp.top).inset(30)
+            make.width.equalToSuperview().multipliedBy(0.9)
+            make.centerX.equalToSuperview()
+            make.bottom.equalTo(mainView.snp.bottom).inset(30)
         }
         
     }
@@ -85,22 +104,13 @@ class TextMeaningPracticeViewController: PracticeViewController {
         // invalid height.
         view.endEditing(true)
         
-        // Update the prompt.
-        // IMPORTANT: SHOULD BE ABOVE THE SNP SETTING OF THE PRACTICE VIEW,
-        // WHOSE TOP DEPENDS ON THE BOTTOM OF THE PROMPT VIEW.
-        // OTHERWISE, THE LOCATIONS OF THE DRAGGABLE LABELS MAY BE WEIRD.
-        promptLabel.attributedText = NSMutableAttributedString(
-            string: makePrompt(),
-            attributes: Attributes.practicePromptAttributes
-        )
-        
         // TODO: Update the calculation.
         // Height: top padding + word label height + word-meaning padding + meaning label height + bottom padding.
         let newWordBottomViewHeight = 20
-        + "word".textSize(withFont: UIFont.systemFont(ofSize: Sizes.mediumFontSize)).height
-        + 10
-        + "meaning".textSize(withFont: UIFont.systemFont(ofSize: Sizes.smallFontSize)).height
-        + 20
+            + "word".textSize(withFont: UIFont.systemFont(ofSize: Sizes.mediumFontSize)).height
+            + 10
+            + "meaning".textSize(withFont: UIFont.systemFont(ofSize: Sizes.smallFontSize)).height
+            + 20
         
         // Remove the old practice view.
         if practiceView != nil {
@@ -112,27 +122,16 @@ class TextMeaningPracticeViewController: PracticeViewController {
         // Add to the main view and update layouts.
         mainView.addSubview(practiceView)
         practiceView.snp.makeConstraints { (make) in
-            make.top.equalTo(promptLabel.snp.bottom).offset(20)
-            make.centerX.equalToSuperview()
-            make.width.equalToSuperview().multipliedBy(PracticeViewController.practiceViewWidthRatio)
-            make.bottom.equalToSuperview().inset(
-                NewWordAddingTextView.newWordBottomViewVerticalPadding / 2
-                + newWordBottomViewHeight
-                + NewWordAddingTextView.newWordBottomViewVerticalPadding
-            )
+            make.edges.equalToSuperview()
         }
         
         // Also remember to update the textview in the practice view.
         // TODO: - Can the code wrapped into NewWordAddingTextView?
         view.addSubview(textViewOfPracticeView.newWordBottomView)
         textViewOfPracticeView.newWordBottomView.frame = CGRect(
-            x: view.frame.minX
-                // For aligning with the text view.
-                + (UIScreen.main.bounds.width * (1 - PracticeViewController.practiceViewWidthRatio) / 2),
+            x: view.frame.minX,
             y: view.frame.maxY,
-            width: view.frame.width
-                // For aligning with the text view.
-                - (UIScreen.main.bounds.width * (1 - PracticeViewController.practiceViewWidthRatio)),
+            width: view.frame.width,
             height: newWordBottomViewHeight
         )
         

@@ -86,7 +86,7 @@ class PracticeViewController: UIViewController {
         return button
     }()
     
-    private var maskView: UIView = {  // TODO: - Merge with the timing bar.
+    var maskView: UIView = {  // TODO: - Merge with the timing bar.
         let backgroundView = UIView()
         backgroundView.backgroundColor = Colors.maskBackgroundColor
         backgroundView.layer.masksToBounds = true

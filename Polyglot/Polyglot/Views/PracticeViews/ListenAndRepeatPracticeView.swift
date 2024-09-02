@@ -199,7 +199,6 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
 
 extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
     
-//    private func generateBiGram2BiRanges(from ranges: [NSRange], of text: String) -> [BiGram: [BiRange]] {
     private func generateBiGram2BiRanges(for text: String) -> [BiGram: [BiRange]] {
         let ranges = text.tokenRanges
         guard ranges.count > 1 else {
@@ -315,7 +314,7 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
                     if clozeRanges.contains(range) {
                         newAttributes.setTextColor(
                             for: range,
-                            with: Attributes.leftAlignedLongTextAttributes[.foregroundColor] as! UIColor
+                            with: Self.textAttributes[.foregroundColor] as! UIColor
                         )
                         newAttributes.setBackgroundColor(
                             for: range,

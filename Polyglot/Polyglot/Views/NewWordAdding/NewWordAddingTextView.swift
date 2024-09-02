@@ -67,7 +67,7 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        newWordBottomView.offset = newWordBottomView.frame.height + NewWordAddingTextView.newWordBottomViewVerticalPadding
+        newWordBottomView.offset = newWordBottomView.frame.height 
     }
     
     private func updateSetups() {

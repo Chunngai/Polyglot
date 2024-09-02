@@ -96,9 +96,9 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController, Listen
             button.setTitle(String(count), for: .normal)
             button.setTitleColor(Colors.weakTextColor, for: .normal)
             button.titleLabel?.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
-            button.backgroundColor = Colors.lightBlue
-            button.layer.borderColor = Colors.borderColor.cgColor
-            button.layer.borderWidth = Sizes.defaultBorderWidth
+            button.backgroundColor = nil
+            button.layer.borderColor = nil
+            button.layer.borderWidth = 0
             button.isHidden = true
             return button
         }

@@ -75,7 +75,7 @@ class TranslationPracticeView: TextMeaningPracticeView {
         
         let upperAttrStr = NSAttributedString(
             string: (self.upperIcon != nil ? "  " : "") + meaning + "\n" + (self.lowerIcon != nil ? "  " : ""),
-            attributes: Attributes.leftAlignedLongTextAttributes
+            attributes: Self.textAttributes
         )
         for i in 0..<existingPhraseRanges.count {
             existingPhraseRanges[i].location += upperAttrStr.length
