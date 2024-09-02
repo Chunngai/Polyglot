@@ -19,20 +19,7 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
         self.batchSize = LangCode.currentLanguage.configs.readingPracticeDuration
         
         let cachedReadingPractices = ReadingPracticeProducer.loadCachedPractices(for: LangCode.currentLanguage)
-        if !cachedReadingPractices.isEmpty {
-            // In case that some words have been deleted.
-            for cachedReadingPractice in cachedReadingPractices {
-                let (updatedExistingPhraseRanges, updatedExistingPhraseMeanings) = findExistingPhraseRangesAndMeanings(
-                    for: cachedReadingPractice.text,
-                    from: self.words
-                )
-                cachedReadingPractice.existingPhraseRanges = updatedExistingPhraseRanges
-                cachedReadingPractice.existingPhraseMeanings = updatedExistingPhraseMeanings
-            }
-            self.practiceList.append(contentsOf: cachedReadingPractices)
-        } else {
-            self.practiceList.append(contentsOf: make())
-        }
+        initializePracticeList(with: cachedReadingPractices)
     }
     
     override func next() {

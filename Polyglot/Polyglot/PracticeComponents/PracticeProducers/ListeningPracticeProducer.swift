@@ -19,20 +19,7 @@ class ListeningPracticeProducer: TextMeaningPracticeProducer {
         self.batchSize = LangCode.currentLanguage.configs.listeningPracticeDuration * 2
         
         let cachedListeningPractices = ListeningPracticeProducer.loadCachedPractices(for: LangCode.currentLanguage)
-        if !cachedListeningPractices.isEmpty {
-            // In case that some words have been deleted.
-            for cachedListeningPractice in cachedListeningPractices {
-                let (updatedExistingPhraseRanges, updatedExistingPhraseMeanings) = findExistingPhraseRangesAndMeanings(
-                    for: cachedListeningPractice.text,
-                    from: self.words
-                )
-                cachedListeningPractice.existingPhraseRanges = updatedExistingPhraseRanges
-                cachedListeningPractice.existingPhraseMeanings = updatedExistingPhraseMeanings
-            }
-            self.practiceList.append(contentsOf: cachedListeningPractices)
-        } else {
-            self.practiceList.append(contentsOf: make())
-        }
+        initializePracticeList(with: cachedListeningPractices)
     }
     
     override func make() -> [BasePractice] {
@@ -141,7 +128,7 @@ extension ListeningPracticeProducer {
         
         var subtexts: [String] = []
         if granularity == .subsentence {
-            var subsentences = text.split(with: Strings.subsentenceSeparator)
+            let subsentences = text.split(with: Strings.subsentenceSeparator)
             if subsentences.count == 1 {
                 subtexts = [text]
             } else {

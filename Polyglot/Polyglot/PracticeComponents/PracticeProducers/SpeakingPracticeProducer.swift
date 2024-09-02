@@ -19,20 +19,7 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
         self.batchSize = LangCode.currentLanguage.configs.speakingPracticeDuration
         
         let cachedSpeakingPractices = SpeakingPracticeProducer.loadCachedPractices(for: LangCode.currentLanguage)
-        if !cachedSpeakingPractices.isEmpty {
-            // In case that some words have been deleted.
-            for cachedSpeakingPractice in cachedSpeakingPractices {
-                let (updatedExistingPhraseRanges, updatedExistingPhraseMeanings) = findExistingPhraseRangesAndMeanings(
-                    for: cachedSpeakingPractice.text,
-                    from: self.words
-                )
-                cachedSpeakingPractice.existingPhraseRanges = updatedExistingPhraseRanges
-                cachedSpeakingPractice.existingPhraseMeanings = updatedExistingPhraseMeanings
-            }
-            self.practiceList.append(contentsOf: cachedSpeakingPractices)
-        } else {
-            self.practiceList.append(contentsOf: make())
-        }
+        initializePracticeList(with: cachedSpeakingPractices)
     }
     
     override func make() -> [BasePractice] {

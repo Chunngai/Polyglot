@@ -52,6 +52,33 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
         }
     }
     
+    func initializePracticeList(with cachedPractices: [TextMeaningPractice]) {
+        if !cachedPractices.isEmpty {
+            self.practiceList.append(contentsOf: cachedPractices)
+            
+            DispatchQueue.global(qos: .userInitiated).async {
+                // In case that some words have been deleted.
+                for practice in self.practiceList {
+                    guard let practice = practice as? TextMeaningPractice else {
+                        continue
+                    }
+                    let (
+                        updatedExistingPhraseRanges,
+                        updatedExistingPhraseMeanings
+                    ) = self.findExistingPhraseRangesAndMeanings(
+                        for: practice.text,
+                        from: self.words
+                    )
+                    practice.existingPhraseRanges = updatedExistingPhraseRanges
+                    practice.existingPhraseMeanings = updatedExistingPhraseMeanings
+                }
+            }
+            
+        } else {
+            self.practiceList.append(contentsOf: make())
+        }
+    }
+    
     func updatePracticeRepetitions() {
         if let currentPractice = self.practiceList[self.currentPracticeIndex] as? TextMeaningPractice {
             currentPractice.currentRepetition += 1
@@ -61,13 +88,6 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
                 self.practiceList.remove(at: self.currentPracticeIndex)
             }
         }
-        // TODO: - debug
-//        for i in 0..<self.practiceList.count {
-//            if let practice = self.practiceList[i] as? TextMeaningPractice {
-//                print(i, practice.totalRepetitions, practice.currentRepetition, practice.text)
-//            }
-//        }
-//        print()
     }
     
     func reinforce() {
