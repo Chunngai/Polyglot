@@ -9,6 +9,30 @@
 import Foundation
 import UIKit
 
+extension NSAttributedString {
+    
+    func backgroundColor(at location: Int) -> UIColor? {
+        if location >= 0 && location < length {
+            return attributes(
+                at: location,
+                effectiveRange: nil
+            )[.backgroundColor] as? UIColor
+        }
+        return nil
+    }
+    
+    func textColor(at location: Int) -> UIColor? {
+        if location >= 0 && location < length {
+            return attributes(
+                at: location,
+                effectiveRange: nil
+            )[.foregroundColor] as? UIColor
+        }
+        return nil
+    }
+    
+}
+
 extension NSMutableAttributedString {
     
     func add(attributes: [NSAttributedString.Key: Any], for text: String? = nil, ignoreCasing: Bool = false, ignoreAccents: Bool = false) {

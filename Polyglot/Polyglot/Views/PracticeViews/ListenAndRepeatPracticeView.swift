@@ -37,8 +37,11 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
         }
     }
     private var selectedRangeWhenBecomingFirstResponderAgain: NSRange!
-    private var edittedCharRangeToOriginalChar: [NSRange: String] = [:]
+    private var edittedAttrCharRangeToOriginalAttrChar: [NSRange: NSAttributedString] = [:]
     var allowRecording: Bool = true
+    private var edittedAttrCharRange: NSRange?
+    private var attributedTextBeforeEditting: NSAttributedString?
+    private var canIncreaseTextLength: Bool = true
     
     private var textBiGram2BiRanges: [BiGram: [BiRange]] = [:]  // A bi-gram may correspond to multiple bi-ranges.
     
@@ -377,7 +380,7 @@ extension ListenAndRepeatPracticeView {
                 break
             }
             
-            let bgColorOfCurrentLocation = textView.backgroundColorOfAttributedTextAt(currentLocation)
+            let bgColorOfCurrentLocation = textView.attributedText.backgroundColor(at: currentLocation)
             if bgColorOfCurrentLocation != Colors.clozeMaskColor {
                 break
             }
@@ -390,7 +393,7 @@ extension ListenAndRepeatPracticeView {
             let currentChar = textView.attributedText.attributedSubstring(from: charAtCurrentRange).string
             typedWord = currentChar + typedWord
             
-            if let originalCharInTargetWord = edittedCharRangeToOriginalChar[charAtCurrentRange] {
+            if let originalCharInTargetWord = edittedAttrCharRangeToOriginalAttrChar[charAtCurrentRange]?.string {
                 targetWord = originalCharInTargetWord + targetWord
                 rangesToRemove.append(charAtCurrentRange)
             }
@@ -419,13 +422,14 @@ extension ListenAndRepeatPracticeView {
             textView.resignFirstResponder()
             matchedClozeRanges.insert(typedWordRange)
             for rangeToRemove in rangesToRemove {
-                edittedCharRangeToOriginalChar.removeValue(forKey: rangeToRemove)
+                edittedAttrCharRangeToOriginalAttrChar.removeValue(forKey: rangeToRemove)
             }
         }
     }
     
     private func restoreIncorrectTypedWords() {
-        for (edittedCharRange, originalChar) in edittedCharRangeToOriginalChar {
+        for (edittedCharRange, originalChar) in edittedAttrCharRangeToOriginalAttrChar {
+            // https://stackoverflow.com/questions/9096710/how-to-replace-text-in-uitextview-with-selected-range
             textView.textStorage.replaceCharacters(
                 in: edittedCharRange,
                 with: originalChar
@@ -439,6 +443,96 @@ extension ListenAndRepeatPracticeView {
     
     // MARK: - UITextView Delegate
     
+    func textViewDidChange(_ textView: UITextView) {
+        
+        guard var edittedCharRange = edittedAttrCharRange,
+              let attributedStringBeforeEditting = attributedTextBeforeEditting else {
+            return
+        }
+
+        if attributedStringBeforeEditting.length < textView.attributedText.length {  // Insertion.
+
+            guard canIncreaseTextLength else {
+                textView.attributedText = attributedStringBeforeEditting
+                return
+            }
+            
+            // Obtain the original char.
+            let originalCharLocation = edittedCharRange.location + 1
+            guard originalCharLocation < textView.attributedText.length else {
+                return
+            }
+            let originalCharRange: NSRange = NSRange(
+                location: originalCharLocation,
+                length: 1
+            )
+            let originalChar = textView.attributedText.attributedSubstring(from: originalCharRange)
+            
+            // Store the original char.
+            edittedAttrCharRangeToOriginalAttrChar[edittedCharRange] = originalChar
+            
+            // Remove the original char.
+            textView.textStorage.deleteCharacters(in: originalCharRange)
+            
+        } else if attributedStringBeforeEditting.length > textView.attributedText.length {  // Deletion.
+
+            // Obtain and remove the original char from the mapping.
+            guard let originalChar = edittedAttrCharRangeToOriginalAttrChar.removeValue(forKey: edittedCharRange) else {
+                return
+            }
+            
+            // Insert the original char to the original location.
+            textView.textStorage.insert(
+                originalChar,
+                at: edittedCharRange.location
+            )
+                
+        // Some Insertions/deletions for Korean and similar languages.
+        // E.g., the newly inserted Korean symbol attaches to the previous character.
+        // In this case, do nothing.
+        } else {
+
+            let newEdittedCharLocation = edittedCharRange.location - 1
+            guard newEdittedCharLocation >= 0 else {
+                return
+            }
+            edittedCharRange = NSRange(
+                location: newEdittedCharLocation,
+                length: 1
+            )
+            
+        }
+
+        // If the character before the editted character also has changed,
+        // e.g., the consonant of the last Korean character attaches to the
+        // current editted character, also should update the text attributes
+        // of the last character. If not updated, the text attributes of
+        // the last character will be lost.
+        // For convenience, update the attributes of all editted ranges.
+        for edittedRange in edittedAttrCharRangeToOriginalAttrChar.keys {
+            textView.textStorage.addAttributes(
+                [
+                    .foregroundColor : Colors.normalTextColor,
+                    .backgroundColor: Colors.clozeMaskColor
+                ],
+                range: edittedRange
+            )
+        }
+
+        // When finished typing a word, check its correctness.
+        // Case 1: reached the end of the text.
+        // Case 2: reached the word boundary.
+        let bgColorOfNewSelectedLocationOfCharToReplace = textView.attributedText.backgroundColor(at: textView.selectedRange.location)
+        if textView.selectedRange.location > self.text.count
+            || bgColorOfNewSelectedLocationOfCharToReplace == textView.backgroundColor {
+            checkTypedWordCorrectness()
+        }
+        
+        self.edittedAttrCharRange = nil
+        self.attributedTextBeforeEditting = nil
+        
+    }
+    
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
         
         // https://stackoverflow.com/questions/61363193/how-to-keep-some-text-non-editable-and-some-editable-in-textview-swift
@@ -446,80 +540,61 @@ extension ListenAndRepeatPracticeView {
         guard !isSubmitted else {
             return false
         }
-        
-        var charToReplace = text
-        if charToReplace.count > 1 {  // Disallow pasting.
-            return false
-        }
-        
-        let isInserting = !charToReplace.isEmpty
+                
+        let isInserting = !text.isEmpty
         if isInserting {
-            if Character(charToReplace).isWhitespace {
+            // Only allow to insert a single char to a single location.
+            guard range.length == 0
+                    && text.count == 1 else {
                 return false
             }
             
-            let bgColorOfRangeOfCharToReplace = textView.backgroundColorOfAttributedTextAt(range.location)
-            if bgColorOfRangeOfCharToReplace == textView.backgroundColor {
-                // In this case, the cursor is already at the end of the cloze,
-                // and only deletion is enabled.
+            if Character(text).isWhitespace {
                 return false
             }
-        }
-                
-        var rangeOfCharToReplace: NSRange!
-        var newTextColorOfCharToReplace: UIColor!
-        var newSelectedLocationOfCharToReplace: Int!
-        if isInserting {
-            rangeOfCharToReplace = NSRange(
+            
+            let bgColorOfRangeOfCharToReplace = textView.attributedText.backgroundColor(at: range.location)
+            if bgColorOfRangeOfCharToReplace == textView.backgroundColor {
+                // In this case, the cursor is already at the end of the cloze,
+                // and only deletion / typing Korean symbols are enabled.
+                canIncreaseTextLength = false
+            } else {
+                canIncreaseTextLength = true
+            }
+            
+            edittedAttrCharRange = NSRange(
                 location: range.location,
                 length: 1
             )
-            if rangeOfCharToReplace.upperBound > textView.text.count {
-                return false  // Else the `.substring()` below will raise an error.
-            }
             
-            let originalChar = textView.attributedText.attributedSubstring(from: rangeOfCharToReplace).string
-            edittedCharRangeToOriginalChar[rangeOfCharToReplace] = originalChar
-            
-            newTextColorOfCharToReplace = Colors.normalTextColor
-            newSelectedLocationOfCharToReplace = range.location + 1
         } else {
-            rangeOfCharToReplace = range
-            
-            guard let originalChar = self.edittedCharRangeToOriginalChar[rangeOfCharToReplace] else {
+            // Only allow to delete a single char at a single location.
+            guard range.length == 1
+                    && text.count == 0 else {
                 return false
             }
-            charToReplace = originalChar
             
-            newTextColorOfCharToReplace = Colors.clozeMaskColor
-            newSelectedLocationOfCharToReplace = range.location
+            let bgColorOfRangeOfCharToReplace = textView.attributedText.backgroundColor(at: range.location)
+            if bgColorOfRangeOfCharToReplace == textView.backgroundColor {
+                // In this case, the character before the cloze word will be deleted,
+                // which is not intended.
+                return false
+            }
+            
+            let textColorOfRangeOfCharToReplace = textView.attributedText.textColor(at: range.location)
+            if textColorOfRangeOfCharToReplace == Colors.clozeMaskColor {
+                // In this case, a clozed character is being deleted,
+                // which is not intended.
+                return false
+            }
+            
+            edittedAttrCharRange = range
+            
         }
+                
+        attributedTextBeforeEditting = textView.attributedText
         
-        // https://stackoverflow.com/questions/9096710/how-to-replace-text-in-uitextview-with-selected-range
-        textView.textStorage.replaceCharacters(
-            in: rangeOfCharToReplace,
-            with: charToReplace
-        )
-        // https://stackoverflow.com/questions/16160106/changing-attributes-on-a-uitextview-without-resetting-the-attributedtext-propert
-        textView.textStorage.addAttributes(
-            [NSAttributedString.Key.foregroundColor : newTextColorOfCharToReplace!],
-            range: rangeOfCharToReplace
-        )
-        textView.selectedRange = NSRange(
-            location: newSelectedLocationOfCharToReplace,
-            length: 0
-        )
-        
-        // When finished typing a word, check its correctness.
-        // Case 1: reached the end of the text.
-        // Case 2: reached the word boundary.
-        var bgColorOfNewSelectedLocationOfCharToReplace = textView.backgroundColorOfAttributedTextAt(textView.selectedRange.location)
-        if textView.selectedRange.location > self.text.count
-            || bgColorOfNewSelectedLocationOfCharToReplace == textView.backgroundColor {
-            checkTypedWordCorrectness()
-        }
-        
-        return false
+        return true
         
     }
     
@@ -548,13 +623,13 @@ extension ListenAndRepeatPracticeView {
             return
         }
         
-        let bgColorOfCharToReplace = textView.backgroundColorOfAttributedTextAt(textView.selectedRange.location)
+        let bgColorOfCharToReplace = textView.attributedText.backgroundColor(at: textView.selectedRange.location)
         let bgColorBeforeCharToReplace = {
             var positionBeforeCharToReplace: Int = textView.selectedRange.location - 1
             if positionBeforeCharToReplace <= 0 {
                 positionBeforeCharToReplace += 1
             }
-            let bgColorBeforeCharToReplace = textView.backgroundColorOfAttributedTextAt(positionBeforeCharToReplace)
+            let bgColorBeforeCharToReplace = textView.attributedText.backgroundColor(at: positionBeforeCharToReplace)
             return bgColorBeforeCharToReplace
         }()
         if bgColorOfCharToReplace == Colors.clozeMaskColor
