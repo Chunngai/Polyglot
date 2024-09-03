@@ -38,7 +38,6 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
     }
     private var selectedRangeWhenBecomingFirstResponderAgain: NSRange!
     private var edittedAttrCharRangeToOriginalAttrChar: [NSRange: NSAttributedString] = [:]
-    var allowRecording: Bool = true
     private var edittedAttrCharRange: NSRange?
     private var attributedTextBeforeEditting: NSAttributedString?
     private var canIncreaseTextLength: Bool = true
@@ -51,6 +50,7 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
     
     var delegate: ListeningPracticeViewController! {
         didSet {
+            delegate.canRecord = true
             // Before submitting.
             delegate.enableIQKeyboardManager()
         }
@@ -414,7 +414,7 @@ extension ListenAndRepeatPracticeView {
             )
             textView.textStorage.addAttributes(
                 [
-                    .foregroundColor : Colors.normalTextColor,
+                    .foregroundColor : Self.textAttributes[.foregroundColor] as! UIColor,
                     .backgroundColor : textView.backgroundColor as Any
                 ],
                 range: typedWordRange
@@ -425,6 +425,11 @@ extension ListenAndRepeatPracticeView {
                 edittedAttrCharRangeToOriginalAttrChar.removeValue(forKey: rangeToRemove)
             }
         }
+        
+        if matchedClozeRanges.count == clozeRanges.count {
+            delegate.submitAndNext()
+        }
+        
     }
     
     private func restoreIncorrectTypedWords() {
@@ -512,7 +517,7 @@ extension ListenAndRepeatPracticeView {
         for edittedRange in edittedAttrCharRangeToOriginalAttrChar.keys {
             textView.textStorage.addAttributes(
                 [
-                    .foregroundColor : Colors.normalTextColor,
+                    .foregroundColor : Self.textAttributes[.foregroundColor] as! UIColor,
                     .backgroundColor: Colors.clozeMaskColor
                 ],
                 range: edittedRange
@@ -639,7 +644,7 @@ extension ListenAndRepeatPracticeView {
                 && bgColorBeforeCharToReplace == Colors.clozeMaskColor
             ) {
             textView.becomeFirstResponder()
-            allowRecording = false
+            delegate.canRecord = false
             // Without the following line of code,
             // when tapping the end of the word after resigning
             // the cursor still appears.
@@ -687,6 +692,7 @@ protocol ListenAndRepeatPracticeViewDelegate {
     
     var countingButtons: [UIButton] { get }
     var shouldUpdatePractice: Bool { get set }
+    var canRecord: Bool { get set }
     
     func submitAndNext()
     func enableIQKeyboardManager()

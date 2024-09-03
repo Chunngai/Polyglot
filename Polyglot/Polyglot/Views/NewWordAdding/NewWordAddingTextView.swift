@@ -178,10 +178,10 @@ extension NewWordAddingTextView {
         return nil
     }
     
-    func hightlight(_ textRange: UITextRange, with color: UIColor) {
+    func hightlight(_ textRange: UITextRange, with color: UIColor?) {
         let newAttributedText = NSMutableAttributedString(attributedString: attributedText)
         newAttributedText.addAttributes(
-            [NSAttributedString.Key.backgroundColor : color],
+            [NSAttributedString.Key.backgroundColor : color as Any],
             range: nsRange(from: textRange)
         )
         attributedText = newAttributedText
@@ -354,7 +354,7 @@ extension NewWordAddingTextView: NewWordBottomViewDelegate {
         
         // Remove the highlight.
         let selectedRange = removedNewWordInfo.textRange
-        hightlight(selectedRange, with: Colors.lightGrayBackgroundColor)
+        hightlight(selectedRange, with: backgroundColor)
         // The code above will remove the background colors
         // of the overlapped ranges, which need to be recovered.
         highlightAll()

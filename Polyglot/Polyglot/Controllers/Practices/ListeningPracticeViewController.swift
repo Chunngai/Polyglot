@@ -96,7 +96,7 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController, Listen
             button.setTitle(String(count), for: .normal)
             button.setTitleColor(Colors.weakTextColor, for: .normal)
             button.titleLabel?.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
-            button.backgroundColor = nil
+            button.backgroundColor = Colors.defaultBackgroundColor
             button.layer.borderColor = nil
             button.layer.borderWidth = 0
             button.isHidden = true
@@ -107,6 +107,13 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController, Listen
     var shouldUpdatePractice: Bool = false {
         didSet {
             mainView.bringSubviewToFront(self.nextButton)
+        }
+    }
+    var canRecord: Bool = true {
+        didSet {
+            if !canRecord {
+                isRecordingSpeech = false
+            }
         }
     }
     
@@ -412,8 +419,7 @@ extension ListeningPracticeViewController: AVSpeechSynthesizerDelegate {
      
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
         isProducingSpeech = false
-        if let practiceView = practiceView as? ListenAndRepeatPracticeView,
-           practiceView.allowRecording {
+        if canRecord {
             isRecordingSpeech = true
         }
     }
