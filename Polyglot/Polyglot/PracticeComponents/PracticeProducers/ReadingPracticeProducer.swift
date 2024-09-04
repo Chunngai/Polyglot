@@ -20,6 +20,20 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
         
         let cachedReadingPractices = ReadingPracticeProducer.loadCachedPractices(for: LangCode.currentLanguage)
         initializePracticeList(with: cachedReadingPractices)
+        for practice in self.practiceList {
+            guard let practice = practice as? ReadingPractice else {
+                continue
+            }
+            if !practice.meaning.isEmpty {
+                continue
+            }
+            machineTranslator.translate(query: practice.text) { translations, translatorType in
+                guard let translation = translations.first else {
+                    return
+                }
+                practice.meaning = translation
+            }
+        }
     }
     
     override func next() {

@@ -62,6 +62,7 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
                     guard let practice = practice as? TextMeaningPractice else {
                         continue
                     }
+                    
                     let (
                         updatedExistingPhraseRanges,
                         updatedExistingPhraseMeanings
@@ -71,6 +72,10 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
                     )
                     practice.existingPhraseRanges = updatedExistingPhraseRanges
                     practice.existingPhraseMeanings = updatedExistingPhraseMeanings
+                    
+                    if practice.textAccentLocs.isEmpty {
+                        self.calculateAccentLocsForText(in: practice)
+                    }
                 }
             }
             
