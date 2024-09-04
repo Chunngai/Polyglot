@@ -135,15 +135,21 @@ extension ListeningPracticeProducer {
                 subtexts = [""]
                 var currentSubsentenceIndex: Int = 0
                 var tokenCountOfLastSubsentence: Int = 0
+                var canConcatenate: Bool = false  // Can concatenate two subsentences at most.
                 while currentSubsentenceIndex < subsentences.count {
                     
                     let currentSubsentence = subsentences[currentSubsentenceIndex].strip()
                     let tokenCountOfCurrentSubsentence = currentSubsentence.tokenized(with: LangCode.currentLanguage.wordTokenizer).count
-                    if tokenCountOfCurrentSubsentence <= ListeningPracticeProducer.minSubsentenceWordCountThreshold
-                        || tokenCountOfLastSubsentence <= ListeningPracticeProducer.minSubsentenceWordCountThreshold {
+                    if canConcatenate
+                        && (
+                        tokenCountOfCurrentSubsentence <= ListeningPracticeProducer.minSubsentenceWordCountThreshold
+                        || tokenCountOfLastSubsentence <= ListeningPracticeProducer.minSubsentenceWordCountThreshold
+                    ) {
                         subtexts[subtexts.count - 1] += "\(Strings.subsentenceSeparator)\(Strings.wordSeparator)\(currentSubsentence)"
+                        canConcatenate = false
                     } else {
                         subtexts.append(currentSubsentence)
+                        canConcatenate = true
                     }
                     currentSubsentenceIndex += 1
                     tokenCountOfLastSubsentence = tokenCountOfCurrentSubsentence
