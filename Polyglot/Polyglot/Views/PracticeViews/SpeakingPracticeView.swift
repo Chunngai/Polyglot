@@ -63,12 +63,6 @@ class TranslationPracticeView: TextMeaningPracticeView {
     
     // MARK: - Methods from the Super Class
     
-    override func displayUpper() {
-        super.displayUpper()
-        
-        textView.markAccents(at: textAccentLocs)
-    }
-    
     override func displayLower() {
         
         super.displayLower()
