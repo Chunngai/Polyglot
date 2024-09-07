@@ -21,6 +21,18 @@ class TextMeaningPracticeViewController: PracticeViewController {
         
     // MARK: - Init
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        navigationController?.navigationBar.hideBarSeparator()
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        navigationController?.navigationBar.showBarSeparator()
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
