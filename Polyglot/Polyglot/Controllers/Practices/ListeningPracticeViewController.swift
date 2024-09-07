@@ -96,7 +96,7 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController, Listen
             button.setTitle(String(count), for: .normal)
             button.setTitleColor(Colors.weakTextColor, for: .normal)
             button.titleLabel?.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
-            button.backgroundColor = Colors.defaultBackgroundColor
+            button.backgroundColor = nil
             button.layer.borderColor = nil
             button.layer.borderWidth = 0
             button.isHidden = true
@@ -106,7 +106,16 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController, Listen
     }()
     var shouldUpdatePractice: Bool = false {
         didSet {
-            mainView.bringSubviewToFront(self.nextButton)
+            if shouldUpdatePractice {
+                self.nextButton.isHidden = true
+            } else {
+                self.nextButton.isHidden = false
+                mainView.bringSubviewToFront(self.nextButton)
+                // Hide counting buttons.
+                for countingButton in self.countingButtons {
+                    countingButton.isHidden = true
+                }
+            }
         }
     }
     var canRecord: Bool = true {
@@ -378,8 +387,14 @@ extension ListeningPracticeViewController {
                 if !self.shouldUpdatePractice {
                     return
                 }
+                // Display the current button.
                 button.isHidden = false
                 self.mainView.bringSubviewToFront(button)
+                // Hide other buttons.
+                let nextButtonIndex = (buttonIndex + 1) % self.countingButtons.count
+                let nextNextButtonIndex = (buttonIndex + 2) % self.countingButtons.count
+                self.countingButtons[nextButtonIndex].isHidden = true
+                self.countingButtons[nextNextButtonIndex].isHidden = true
             }
         }
         

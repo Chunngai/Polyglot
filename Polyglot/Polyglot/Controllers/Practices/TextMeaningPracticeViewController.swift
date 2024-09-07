@@ -51,7 +51,7 @@ class TextMeaningPracticeViewController: PracticeViewController {
         promptLabel.removeFromSuperview()
         
         for button in [doneButton, nextButton] {
-            button.backgroundColor = Colors.defaultBackgroundColor
+            button.backgroundColor = nil
             button.layer.borderColor = nil
             button.layer.borderWidth = 0
         }
