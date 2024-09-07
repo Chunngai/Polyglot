@@ -113,7 +113,7 @@ extension RussianAccentAnalyzer {
         }
     }
     
-    func addEntitiesToCoreDataModel() {
+    func addRussianAccentEntitiesToCoreDataModel() {
         
         var bare2d: [
             String: [D]
