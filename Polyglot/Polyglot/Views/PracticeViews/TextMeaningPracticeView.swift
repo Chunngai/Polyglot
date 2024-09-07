@@ -333,6 +333,33 @@ extension TextMeaningPracticeView {
     private func updateRepetitionLabelText() {
         repetitionsLabel.text = "\(currentRepetition!)/\(totalRepetitions!)"
     }
+    
+    func markAccents(at accentLocs: [Int]) {
+        for accentLoc in accentLocs {
+            
+            var fontSizeForAccentToMark: CGFloat = Sizes.smallFontSize
+            if let font = Self.textAttributes[.font] as? UIFont {
+                fontSizeForAccentToMark = font.pointSize
+            }
+            let boldFontAttributes = [
+                NSAttributedString.Key.font : UIFont.systemFont(
+                    ofSize: fontSizeForAccentToMark,
+                    weight: .bold
+                )
+            ]
+            
+            let nsRangeForCharToMark = NSRange(
+                location: accentLoc,
+                length: 1
+            )
+            
+            textView.textStorage.addAttributes(
+                boldFontAttributes,
+                range: nsRangeForCharToMark
+            )
+        }
+    }
+    
 }
 
 extension TextMeaningPracticeView: UITextViewDelegate {

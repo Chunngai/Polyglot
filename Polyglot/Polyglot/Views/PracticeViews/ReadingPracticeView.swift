@@ -82,13 +82,13 @@ class ReadingPracticeView: TextMeaningPracticeView {
     override func displayUpper() {
         super.displayUpper()
         
-        textView.markAccents(at: textAccentLocs)
+        markAccents(at: textAccentLocs)
     }
 
     override func displayLower() {
         super.displayLower()
         
-        textView.markAccents(at: textAccentLocs)
+        markAccents(at: textAccentLocs)
     }
     
 }

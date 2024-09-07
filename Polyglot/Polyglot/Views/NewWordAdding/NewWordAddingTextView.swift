@@ -193,36 +193,6 @@ extension NewWordAddingTextView {
         }
     }
     
-    func markAccents(at accentLocs: [Int]) {
-        let newAttributedText = NSMutableAttributedString(attributedString: attributedText)
-        for accentLoc in accentLocs {
-            
-            var fontSizeForAccentToMark: CGFloat = Sizes.smallFontSize
-            if let font = attributedText.attributes(
-                at: accentLoc,
-                effectiveRange: nil
-            )[.font] as? UIFont {
-                fontSizeForAccentToMark = font.pointSize
-            }
-            let boldFontAttributes = [
-                NSAttributedString.Key.font : UIFont.systemFont(
-                    ofSize: fontSizeForAccentToMark,
-                    weight: .bold
-                )
-            ]
-            
-            let nsRangeForCharToMark = NSRange(
-                location: accentLoc,
-                length: 1
-            )
-            
-            newAttributedText.addAttributes(
-                boldFontAttributes,
-                range: nsRangeForCharToMark
-            )
-        }
-        attributedText = newAttributedText
-    }
 }
 
 extension NewWordAddingTextView {

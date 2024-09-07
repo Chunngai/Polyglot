@@ -78,7 +78,7 @@ class TranslationPracticeView: TextMeaningPracticeView {
             textAccentLocs[i] += upperAttrStr.length
         }
         
-        textView.markAccents(at: textAccentLocs)
+        markAccents(at: textAccentLocs)
         
     }
     

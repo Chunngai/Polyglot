@@ -163,14 +163,14 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
             }
         }
         
-        textView.markAccents(at: textAccentLocs)
+        markAccents(at: textAccentLocs)
         
     }
     
     override func displayLower() {
         super.displayLower()
         
-        textView.markAccents(at: textAccentLocs)
+        markAccents(at: textAccentLocs)
     }
     
     override func submit() -> Any {
