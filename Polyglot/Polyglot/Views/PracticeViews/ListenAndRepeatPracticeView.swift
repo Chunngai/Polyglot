@@ -518,7 +518,11 @@ extension ListenAndRepeatPracticeView {
             textView.textStorage.addAttributes(
                 [
                     .foregroundColor : Self.textAttributes[.foregroundColor] as! UIColor,
-                    .backgroundColor: Colors.clozeMaskColor
+                    .backgroundColor: Colors.clozeMaskColor,
+                    // If not set, the font of the typed word will be bold
+                    // if the last char of the last word is set bold (accented)
+                    // in Russian.
+                    .font: Self.textAttributes[.font] as! UIFont
                 ],
                 range: edittedRange
             )
