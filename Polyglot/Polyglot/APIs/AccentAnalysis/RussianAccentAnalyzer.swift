@@ -139,6 +139,18 @@ extension RussianAccentAnalyzer {
             print(error.localizedDescription)
         }
         
+        // Clear all data.
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = RussianAccentEntity.fetchRequest()
+        let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+        batchDeleteRequest.resultType = .resultTypeCount
+        do {
+            let count = try context.execute(batchDeleteRequest) as! NSBatchDeleteResult
+            print("Deleted \(count.result as! Int) records.")
+            try context.save()
+        } catch {
+            print("Error when deleting data: \(error)")
+        }
+
         var entityCount: Int = 0
         for (bare_form, d) in bare2d {
             

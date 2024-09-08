@@ -19,6 +19,7 @@
 		C60626112B8076AF00429BAF /* TextSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C60626102B8076AF00429BAF /* TextSource.swift */; };
 		C619E68F2AC8154F00A30B27 /* LangCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C619E68E2AC8154F00A30B27 /* LangCell.swift */; };
 		C619E6932AC830CB00A30B27 /* CardCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C619E6922AC830CB00A30B27 /* CardCell.swift */; };
+		C630C6CB2C8E26B50049ED6A /* RussianAccentEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C630C6CA2C8E26B50049ED6A /* RussianAccentEntity+CoreDataProperties.swift */; };
 		C6357CD32C7729D700F63CE1 /* LanguageSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6357CD22C7729D700F63CE1 /* LanguageSettingsViewController.swift */; };
 		C6357CD52C772A3600F63CE1 /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6357CD42C772A3600F63CE1 /* SettingsViewController.swift */; };
 		C642A6082B7B8008003893B8 /* LanguageSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C642A6072B7B8008003893B8 /* LanguageSelectionViewController.swift */; };
@@ -44,13 +45,13 @@
 		C6B9DE8C2B7E177E004F0C88 /* SpeakingPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B9DE8B2B7E177E004F0C88 /* SpeakingPractice.swift */; };
 		C6BA7AA72C7F52CA00C6FFD3 /* RussianAccentRetrievalModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C6BA7AA52C7F52CA00C6FFD3 /* RussianAccentRetrievalModel.xcdatamodeld */; };
 		C6BA7AAA2C7F52F800C6FFD3 /* RussianAccentEntity+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BA7AA82C7F52F800C6FFD3 /* RussianAccentEntity+CoreDataClass.swift */; };
-		C6BA7AAB2C7F52F800C6FFD3 /* RussianAccentEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BA7AA92C7F52F800C6FFD3 /* RussianAccentEntity+CoreDataProperties.swift */; };
 		C6BC063D2C726D2C00B2DF44 /* MachineTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BC063C2C726D2C00B2DF44 /* MachineTranslator.swift */; };
 		C6BC06412C726D9E00B2DF44 /* TranslationProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BC06402C726D9E00B2DF44 /* TranslationProtocol.swift */; };
 		C6C8C3132B75F95500FBC43B /* CFStringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C8C3122B75F95500FBC43B /* CFStringExtensions.swift */; };
 		C6C8C3152B75F96A00FBC43B /* CFRangeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C8C3142B75F96A00FBC43B /* CFRangeExtensions.swift */; };
 		C6C8C3172B7617F200FBC43B /* Text.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C8C3162B7617F200FBC43B /* Text.swift */; };
 		C6E1E0312AC5C2F600E4AF72 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E1E0302AC5C2F600E4AF72 /* HomeViewController.swift */; };
+		C6E8D3CC2C8E3788009E42F5 /* russian_word_forms.json in Resources */ = {isa = PBXBuildFile; fileRef = C6E8D3CB2C8E3788009E42F5 /* russian_word_forms.json */; };
 		C6F3F6A72C121AC800346A70 /* GlobalSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F3F6A62C121AC800346A70 /* GlobalSettingsViewController.swift */; };
 		C6F3F6AB2C12239C00346A70 /* SettingsInputCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F3F6AA2C12239C00346A70 /* SettingsInputCell.swift */; };
 		C6F3F6AD2C12242E00346A70 /* SettingsButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F3F6AC2C12242E00346A70 /* SettingsButtonCell.swift */; };
@@ -183,6 +184,7 @@
 		C60626102B8076AF00429BAF /* TextSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextSource.swift; sourceTree = "<group>"; };
 		C619E68E2AC8154F00A30B27 /* LangCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCell.swift; sourceTree = "<group>"; };
 		C619E6922AC830CB00A30B27 /* CardCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CardCell.swift; sourceTree = "<group>"; };
+		C630C6CA2C8E26B50049ED6A /* RussianAccentEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RussianAccentEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		C6357CD22C7729D700F63CE1 /* LanguageSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageSettingsViewController.swift; sourceTree = "<group>"; };
 		C6357CD42C772A3600F63CE1 /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		C642A6072B7B8008003893B8 /* LanguageSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageSelectionViewController.swift; sourceTree = "<group>"; };
@@ -208,13 +210,13 @@
 		C6B9DE8B2B7E177E004F0C88 /* SpeakingPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingPractice.swift; sourceTree = "<group>"; };
 		C6BA7AA62C7F52CA00C6FFD3 /* RussianAccentRetrievalModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = RussianAccentRetrievalModel.xcdatamodel; sourceTree = "<group>"; };
 		C6BA7AA82C7F52F800C6FFD3 /* RussianAccentEntity+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RussianAccentEntity+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
-		C6BA7AA92C7F52F800C6FFD3 /* RussianAccentEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RussianAccentEntity+CoreDataProperties.swift"; sourceTree = SOURCE_ROOT; };
 		C6BC063C2C726D2C00B2DF44 /* MachineTranslator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MachineTranslator.swift; sourceTree = "<group>"; };
 		C6BC06402C726D9E00B2DF44 /* TranslationProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationProtocol.swift; sourceTree = "<group>"; };
 		C6C8C3122B75F95500FBC43B /* CFStringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CFStringExtensions.swift; sourceTree = "<group>"; };
 		C6C8C3142B75F96A00FBC43B /* CFRangeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CFRangeExtensions.swift; sourceTree = "<group>"; };
 		C6C8C3162B7617F200FBC43B /* Text.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Text.swift; sourceTree = "<group>"; };
 		C6E1E0302AC5C2F600E4AF72 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
+		C6E8D3CB2C8E3788009E42F5 /* russian_word_forms.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = russian_word_forms.json; path = ../../../russian_word_forms.json; sourceTree = "<group>"; };
 		C6F3F6A62C121AC800346A70 /* GlobalSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalSettingsViewController.swift; sourceTree = "<group>"; };
 		C6F3F6AA2C12239C00346A70 /* SettingsInputCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInputCell.swift; sourceTree = "<group>"; };
 		C6F3F6AC2C12242E00346A70 /* SettingsButtonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsButtonCell.swift; sourceTree = "<group>"; };
@@ -560,8 +562,9 @@
 		FF62C9742951382500D41797 /* Polyglot */ = {
 			isa = PBXGroup;
 			children = (
+				C6E8D3CB2C8E3788009E42F5 /* russian_word_forms.json */,
 				C6BA7AA82C7F52F800C6FFD3 /* RussianAccentEntity+CoreDataClass.swift */,
-				C6BA7AA92C7F52F800C6FFD3 /* RussianAccentEntity+CoreDataProperties.swift */,
+				C630C6CA2C8E26B50049ED6A /* RussianAccentEntity+CoreDataProperties.swift */,
 				C6A666F32B75EBE6002B4DEE /* Resource */,
 				FF502510295248BF0097C2CB /* Models */,
 				FF62C9A629513A2800D41797 /* Controllers */,
@@ -842,6 +845,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FF62C97F2951382600D41797 /* Assets.xcassets in Resources */,
+				C6E8D3CC2C8E3788009E42F5 /* russian_word_forms.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1047,7 +1051,6 @@
 				C6BA7AA72C7F52CA00C6FFD3 /* RussianAccentRetrievalModel.xcdatamodeld in Sources */,
 				FFD7DF7D299DA18000019D51 /* ReorderingPracticeView.swift in Sources */,
 				C60626082B8069F100429BAF /* WordPracticeView.swift in Sources */,
-				C6BA7AAB2C7F52F800C6FFD3 /* RussianAccentEntity+CoreDataProperties.swift in Sources */,
 				FF63DDFC299AC17C0088C10B /* WordBank.swift in Sources */,
 				FF62C9762951382500D41797 /* AppDelegate.swift in Sources */,
 				FF4CA730295E869900423946 /* SpeakingPracticeViewController.swift in Sources */,
@@ -1067,6 +1070,7 @@
 				C69DB5EC2B73C05700B3BC66 /* ListenAndRepeatPracticeView.swift in Sources */,
 				C67B85A42AED94B800F7657A /* RussianAccentAnalyzer.swift in Sources */,
 				C6AB6E822C8063EE00F660C7 /* AccentAnalyzerProtocol.swift in Sources */,
+				C630C6CB2C8E26B50049ED6A /* RussianAccentEntity+CoreDataProperties.swift in Sources */,
 				FF55D156296F3AEC0092FB6B /* Constants.swift in Sources */,
 				FF4964CD2958BE8900414AC5 /* TimeIntervalExtensions.swift in Sources */,
 				FF52920A2952012E00858B55 /* ThreeButtonSelectionStack.swift in Sources */,

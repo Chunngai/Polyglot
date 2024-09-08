@@ -1,8 +1,8 @@
 //
-//  Entity+CoreDataProperties.swift
+//  RussianAccentEntity+CoreDataProperties.swift
 //  Polyglot
 //
-//  Created by Ho on 8/28/24.
+//  Created by Ho on 9/9/24.
 //  Copyright © 2024 Sola. All rights reserved.
 //
 //
@@ -17,8 +17,8 @@ extension RussianAccentEntity {
         return NSFetchRequest<RussianAccentEntity>(entityName: "RussianAccentEntity")
     }
 
-    @NSManaged public var bare_form: String?
     @NSManaged public var accent_pos: Int16
+    @NSManaged public var bare_form: String?
     @NSManaged public var base_form: String?
 
 }
