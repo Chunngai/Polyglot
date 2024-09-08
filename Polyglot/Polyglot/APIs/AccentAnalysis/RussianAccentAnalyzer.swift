@@ -202,4 +202,70 @@ extension RussianAccentAnalyzer {
             
         }
     }
+    
+    class D1: Codable {
+        
+        var je_text: String
+        var jo_pos: Int?
+        
+        init(je_text: String, jo_pos: Int?) {
+            self.je_text = je_text
+            self.jo_pos = jo_pos
+        }
+    }
+    
+    func addJe2JoEntitiesToCoreDataModel() {
+        
+        var l: [D1] = []
+        do {
+            guard let fileURL = Bundle.main.url(
+                forResource:"formatted_je2jo",
+                withExtension: "json"
+            ) else {
+                return
+            }
+            let data = try Data(contentsOf: fileURL)
+            l = try JSONDecoder().decode(
+                [D1].self,
+                from: data
+            )
+            
+            print(l.count)
+            
+        } catch {
+            print(error.localizedDescription)
+        }
+        
+        // Clear all data.
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Je2JoEntity.fetchRequest()
+        let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+        batchDeleteRequest.resultType = .resultTypeCount
+        do {
+            let count = try context.execute(batchDeleteRequest) as! NSBatchDeleteResult
+            print("Deleted \(count.result as! Int) records.")
+            try context.save()
+        } catch {
+            print("Error when deleting data: \(error)")
+        }
+
+        var entityCount: Int = 0
+        for d in l {
+            
+            let entity = Je2JoEntity(context: context)
+            entity.je_text = d.je_text
+            entity.jo_pos = Int16(d.jo_pos!)
+            
+            entityCount += 1
+            if entityCount % 5000 == 0 {
+                print(entityCount)
+                do {
+                    try context.save()
+                } catch {
+                    print(error.localizedDescription)
+                }
+            }
+            
+        }
+    }
+    
 }

@@ -52,6 +52,9 @@
 		C6C8C3172B7617F200FBC43B /* Text.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C8C3162B7617F200FBC43B /* Text.swift */; };
 		C6E1E0312AC5C2F600E4AF72 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E1E0302AC5C2F600E4AF72 /* HomeViewController.swift */; };
 		C6E8D3CC2C8E3788009E42F5 /* russian_word_forms.json in Resources */ = {isa = PBXBuildFile; fileRef = C6E8D3CB2C8E3788009E42F5 /* russian_word_forms.json */; };
+		C6E8D3D22C8E3A31009E42F5 /* formatted_je2jo.json in Resources */ = {isa = PBXBuildFile; fileRef = C6E8D3D12C8E3A31009E42F5 /* formatted_je2jo.json */; };
+		C6E8D3D92C8E3B8A009E42F5 /* Je2JoEntity+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E8D3D72C8E3B8A009E42F5 /* Je2JoEntity+CoreDataClass.swift */; };
+		C6E8D3DA2C8E3B8A009E42F5 /* Je2JoEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E8D3D82C8E3B8A009E42F5 /* Je2JoEntity+CoreDataProperties.swift */; };
 		C6F3F6A72C121AC800346A70 /* GlobalSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F3F6A62C121AC800346A70 /* GlobalSettingsViewController.swift */; };
 		C6F3F6AB2C12239C00346A70 /* SettingsInputCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F3F6AA2C12239C00346A70 /* SettingsInputCell.swift */; };
 		C6F3F6AD2C12242E00346A70 /* SettingsButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F3F6AC2C12242E00346A70 /* SettingsButtonCell.swift */; };
@@ -217,6 +220,9 @@
 		C6C8C3162B7617F200FBC43B /* Text.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Text.swift; sourceTree = "<group>"; };
 		C6E1E0302AC5C2F600E4AF72 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		C6E8D3CB2C8E3788009E42F5 /* russian_word_forms.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = russian_word_forms.json; path = ../../../russian_word_forms.json; sourceTree = "<group>"; };
+		C6E8D3D12C8E3A31009E42F5 /* formatted_je2jo.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = formatted_je2jo.json; path = ../../../formatted_je2jo.json; sourceTree = "<group>"; };
+		C6E8D3D72C8E3B8A009E42F5 /* Je2JoEntity+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Je2JoEntity+CoreDataClass.swift"; sourceTree = "<group>"; };
+		C6E8D3D82C8E3B8A009E42F5 /* Je2JoEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Je2JoEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		C6F3F6A62C121AC800346A70 /* GlobalSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalSettingsViewController.swift; sourceTree = "<group>"; };
 		C6F3F6AA2C12239C00346A70 /* SettingsInputCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInputCell.swift; sourceTree = "<group>"; };
 		C6F3F6AC2C12242E00346A70 /* SettingsButtonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsButtonCell.swift; sourceTree = "<group>"; };
@@ -563,8 +569,11 @@
 			isa = PBXGroup;
 			children = (
 				C6E8D3CB2C8E3788009E42F5 /* russian_word_forms.json */,
+				C6E8D3D12C8E3A31009E42F5 /* formatted_je2jo.json */,
 				C6BA7AA82C7F52F800C6FFD3 /* RussianAccentEntity+CoreDataClass.swift */,
 				C630C6CA2C8E26B50049ED6A /* RussianAccentEntity+CoreDataProperties.swift */,
+				C6E8D3D72C8E3B8A009E42F5 /* Je2JoEntity+CoreDataClass.swift */,
+				C6E8D3D82C8E3B8A009E42F5 /* Je2JoEntity+CoreDataProperties.swift */,
 				C6A666F32B75EBE6002B4DEE /* Resource */,
 				FF502510295248BF0097C2CB /* Models */,
 				FF62C9A629513A2800D41797 /* Controllers */,
@@ -845,6 +854,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FF62C97F2951382600D41797 /* Assets.xcassets in Resources */,
+				C6E8D3D22C8E3A31009E42F5 /* formatted_je2jo.json in Resources */,
 				C6E8D3CC2C8E3788009E42F5 /* russian_word_forms.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -978,6 +988,7 @@
 				C60625F72B7FB5E800429BAF /* TextMeaningPracticeViewController.swift in Sources */,
 				C6F3F6AB2C12239C00346A70 /* SettingsInputCell.swift in Sources */,
 				C6BA7AAA2C7F52F800C6FFD3 /* RussianAccentEntity+CoreDataClass.swift in Sources */,
+				C6E8D3D92C8E3B8A009E42F5 /* Je2JoEntity+CoreDataClass.swift in Sources */,
 				FF591ED62967960C0004CB80 /* WordPractice.swift in Sources */,
 				FFBD60412969D713004165FC /* WordPracticeProducer.swift in Sources */,
 				C6BC063D2C726D2C00B2DF44 /* MachineTranslator.swift in Sources */,
@@ -1017,6 +1028,7 @@
 				FF4B382F29525BD400BB3FFD /* ReadingEditTableCell.swift in Sources */,
 				FF63DE00299AD2F90088C10B /* WordBankItem.swift in Sources */,
 				C6357CD32C7729D700F63CE1 /* LanguageSettingsViewController.swift in Sources */,
+				C6E8D3DA2C8E3B8A009E42F5 /* Je2JoEntity+CoreDataProperties.swift in Sources */,
 				C6E1E0312AC5C2F600E4AF72 /* HomeViewController.swift in Sources */,
 				FF50251429524D100097C2CB /* ReadingTableCell.swift in Sources */,
 				FF491E802959ED730088FD13 /* Separator.swift in Sources */,
