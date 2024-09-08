@@ -452,8 +452,13 @@ extension ListenAndRepeatPracticeView {
         
         guard var edittedCharRange = edittedAttrCharRange,
               let attributedStringBeforeEditting = attributedTextBeforeEditting else {
+            self.edittedAttrCharRange = nil
+            self.attributedTextBeforeEditting = nil
             return
         }
+        
+        self.edittedAttrCharRange = nil
+        self.attributedTextBeforeEditting = nil
 
         if attributedStringBeforeEditting.length < textView.attributedText.length {  // Insertion.
 
@@ -537,9 +542,10 @@ extension ListenAndRepeatPracticeView {
             checkTypedWordCorrectness()
         }
         
-        self.edittedAttrCharRange = nil
-        self.attributedTextBeforeEditting = nil
-        
+        // Explicitly call this method here instead of executing the code
+        // in textViewDidChangeSelection after shouldChangeTextIn.
+        textViewDidChangeSelection(textView)
+
     }
     
     func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
@@ -619,10 +625,26 @@ extension ListenAndRepeatPracticeView {
         guard !isSubmitted else {
             return
         }
+        guard attributedTextBeforeEditting == nil else {
+            // Calling order: shouldChangeTextIn -> textViewDidChangeSelection -> textViewDidChange.
+            // For Korean, after shouldChangeTextIn is called, textView.attributedText may be raw,
+            // e.g., ChatGPT가 적용된 빙 검색엔진은 (original text)
+            // -> "ChatGPT가 적용된 ㅂ 검색엔진은"
+            // -> "ChatGPT가 적용된 ㅂㅣ 검색엔진은".
+            // Then, textViewDidChangeSelection will be called.
+            // Since textView.attributedText may be raw at this point,
+            // the code in textViewDidChangeSelection may lead to unexpected results.
+            // Therefore, skip here and instead call textViewDidChangeSelection at the end of textViewDidChange,
+            // where textView.attributedText has been handled properly (text and attrs).
+            // Note that the current implementation uses attributedTextBeforeEditting to determine
+            // if it is typing, and that requires that attributedTextBeforeEditting is set to nil
+            // properly.
+            return
+        }
         
         let selectedRange = textView.selectedRange
         guard selectedRange.location >= 0,
-              selectedRange.location <= textView.text.count - 1 else {
+              selectedRange.location <= textView.text.count else {
             // Do not place the code in the next line in `textViewDidEndEditing()`,
             // as that method will only be called for isFirstResponder -> isNotFirstResponder.
             // However, `selectedRangeBeforeResigningToFirstResponder` should be modified
