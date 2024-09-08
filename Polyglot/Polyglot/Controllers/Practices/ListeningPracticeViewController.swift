@@ -109,7 +109,10 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController, Listen
             if shouldUpdatePractice {
                 self.nextButton.isHidden = true
             } else {
-                self.nextButton.isHidden = false
+                if self.doneButton.isHidden {
+                    // Without the condition, the doneButton will be displayed after re-entering the app.
+                    self.nextButton.isHidden = false
+                }
                 mainView.bringSubviewToFront(self.nextButton)
                 // Hide counting buttons.
                 for countingButton in self.countingButtons {
