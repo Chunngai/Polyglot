@@ -208,11 +208,15 @@ extension TextMeaningPracticeViewController {
         
         for newWord in newWords {
             if self.words.add(newWord: newWord) == nil {
-                analyzeAccents(for: newWord.text) { tokens, _ in
+                analyzeAccents(for: newWord.text) { tokens, fixedText, _ in
                     guard !tokens.isEmpty else {
                         return
                     }
-                    let _ = self.words.updateWord(of: newWord.id, newTokens: tokens)
+                    let _ = self.words.updateWord(
+                        of: newWord.id,
+                        newText: fixedText ?? newWord.text,
+                        newTokens: tokens
+                    )
                 }
             }
         }

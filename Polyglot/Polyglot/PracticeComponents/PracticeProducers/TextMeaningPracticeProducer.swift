@@ -113,10 +113,17 @@ extension TextMeaningPracticeProducer {
     ) {
         var existingPhraseRanges: [NSRange] = []
         var existingPhraseMeanings: [String] = []
-        let text = text.normalized(caseInsensitive: true)
+        let text = text.normalized(
+            caseInsensitive: true,
+            // Both consider je and jo.
+            diacriticInsensitive: LangCode.currentLanguage == .ru
+        )
         let textTokens = text.tokenized(with: LangCode.currentLanguage.wordTokenizer)
         for word in wordsToSearch {
-            let wordText = word.text.normalized(caseInsensitive: true)
+            let wordText = word.text.normalized(
+                caseInsensitive: true,
+                diacriticInsensitive: LangCode.currentLanguage == .ru
+            )
             if !text.contains(wordText) {
                 continue
             }
@@ -334,7 +341,7 @@ extension TextMeaningPracticeProducer {
             return
         }
         
-        analyzeAccents(for: practice.text) { tokens, analysisQuery in
+        analyzeAccents(for: practice.text) { tokens, fixedText, analysisQuery in
             guard !tokens.isEmpty else {
                 return
             }
@@ -343,6 +350,9 @@ extension TextMeaningPracticeProducer {
                     continue
                 }
                 if practice.text == analysisQuery {
+                    if let fixedText = fixedText {
+                        practice.text = fixedText
+                    }
                     practice.textAccentLocs = calculateAccentLocs(
                         for: practice.text,
                         with: tokens

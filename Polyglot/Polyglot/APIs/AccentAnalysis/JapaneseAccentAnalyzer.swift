@@ -14,13 +14,13 @@ class JapaneseAccentAnalyzer: AccentAnalyzerProtocol {
     
     static var shared: AccentAnalyzerProtocol = JapaneseAccentAnalyzer()
     
-    func analyze(for text: String, completion: @escaping ([Token]) -> Void) {
+    func analyze(for text: String, completion: @escaping ([Token], String?) -> Void) {
         
         let json: [String: Any] = [
             "word": text
         ]
         guard let jsonData = try? JSONSerialization.data(withJSONObject: json) else {
-            completion([])
+            completion([], nil)
             return
         }
         
@@ -38,20 +38,20 @@ class JapaneseAccentAnalyzer: AccentAnalyzerProtocol {
                     with: data,
                     options: []
                     ) as? [String: Any] else {
-                    completion([])
+                    completion([], nil)
                     return
                 }
                 
                 guard let code = responseJson["code"] as? Int, code == 200 else {
-                    completion([])
+                    completion([], nil)
                     return
                 }
                 guard let chars = responseJson["chars"] as? [String] else {
-                    completion([])
+                    completion([], nil)
                     return
                 }
                 guard let accentIndices = responseJson["accent_indices"] as? [Int] else {
-                    completion([])
+                    completion([], nil)
                     return
                 }
                 
@@ -74,7 +74,7 @@ class JapaneseAccentAnalyzer: AccentAnalyzerProtocol {
                     ))
                 }
                 
-                completion(tokens)
+                completion(tokens, nil)
             }
             
             if error != nil {

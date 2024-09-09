@@ -50,14 +50,67 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
     // Singleton object.
     static var shared: AccentAnalyzerProtocol = RussianAccentAnalyzer()
     
-    func analyze(for text: String, completion: @escaping ([Token]) -> Void) {
+    private func fix(_ text: String) -> String {
+        
+        var fixedText: String = text
+        
+        let tokens = text.tokenized(with: LangCode.ru.wordTokenizer)
+        for token in tokens {
+            
+            guard token.contains("е") || token.contains("Е") else {
+                continue
+            }
+            
+            let request = Je2JoEntity.fetchRequest()
+            let predicate = NSPredicate(
+                format: "je_text = %@",
+                token.lowercased()
+            )
+            request.predicate = predicate
+            
+            var r: [Je2JoEntity] = []
+            do {
+                r = try self.context.fetch(request)
+            } catch let error {
+                print(error.localizedDescription)
+            }
+            
+            guard !r.isEmpty else {
+                continue
+            }
+            let jo_pos = Int(r[0].jo_pos)
+            
+            var tokenChars = [Character](token)
+            tokenChars[jo_pos] = (
+                tokenChars[jo_pos].isLowercase
+                ? "ё"
+                : "Ё"
+            )
+            let jo_text = String(tokenChars)
+            
+            fixedText = fixedText.replacingOccurrences(
+                of: token,
+                with: jo_text
+            )
+            
+        }
+        
+        return fixedText
+    }
+    
+    func analyze(for text: String, completion: @escaping (
+        [Token],
+        String?  // Fixed text.
+    ) -> Void) {
         
         DispatchQueue.global(qos: .userInitiated).async {
             
-            var tokens: [Token] = []
-            
             print("RussianAccentAnalyzer: analyzing \"\(text)\".")
-            for query in text.lowercased().tokensWithPunctMarks {
+            
+            let fixedText = self.fix(text)
+            
+            var tokens: [Token] = []
+            for query in fixedText.lowercased().tokensWithPunctMarks {
                 
                 let request = RussianAccentEntity.fetchRequest()
                 let predicate = NSPredicate(
@@ -93,7 +146,14 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
                 }
             }
             
-            completion(tokens)
+            completion(
+                tokens,
+                (
+                    fixedText == text
+                    ? nil
+                    : fixedText
+                )
+            )
         }
         
     }

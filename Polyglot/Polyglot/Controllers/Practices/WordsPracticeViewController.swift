@@ -243,11 +243,15 @@ extension WordsPracticeViewController {
             guard word.tokens != nil else {
                 continue
             }
-            analyzeAccents(for: word.text) { tokens, _ in
+            analyzeAccents(for: word.text) { tokens, fixedText, _ in
                 guard !tokens.isEmpty else {
                     return
                 }
-                let _ = self.words.updateWord(of: word.id, newTokens: tokens)
+                let _ = self.words.updateWord(
+                    of: word.id,
+                    newText: fixedText ?? word.text,
+                    newTokens: tokens
+                )
             }
             
         }

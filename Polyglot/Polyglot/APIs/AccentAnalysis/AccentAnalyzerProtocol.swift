@@ -12,23 +12,34 @@ protocol AccentAnalyzerProtocol {
     
     static var shared: AccentAnalyzerProtocol { get }
     
-    func analyze(for text: String, completion: @escaping ([Token]) -> Void)
+    func analyze(
+        for text: String,
+        completion: @escaping (
+            [Token],
+            String?  // Fixed text. E.g., text after replacing je to jo for Russian.
+        ) -> Void
+    )
     
 }
 
 var word2langForAccentAnalysis: [String: LangCode] = [:]
 func analyzeAccents(for text: String, completion: @escaping (
-    [Token],  // Analysis result.
+    [Token],  // tokens.
+    String?,  // Fixed text.
     String  // Analysis query.
 ) -> Void) {
     
     word2langForAccentAnalysis[text] = LangCode.currentLanguage
-    LangCode.currentLanguage.accentAnalyzer?.analyze(for: text) { tokens in
+    LangCode.currentLanguage.accentAnalyzer?.analyze(for: text) { tokens, fixedText in
         guard LangCode.currentLanguage == word2langForAccentAnalysis[text] else {
             return
         }
         word2langForAccentAnalysis.removeValue(forKey: text)
-        completion(tokens, text)
+        completion(
+            tokens,
+            fixedText,
+            text
+        )
     }
 
 }
