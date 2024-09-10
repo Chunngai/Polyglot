@@ -152,9 +152,14 @@ class TextMeaningPracticeView: BasePracticeView {
             textLang: textLang,
             meaningLang: meaningLang
         )
+        textView.defaultTextAttributes = {
+            var attrs = Attributes.leftAlignedLongTextAttributes
+            attrs[.font] = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
+            return attrs
+        }()
         textView.attributedText = NSMutableAttributedString(
             string: " ",
-            attributes: Self.textAttributes
+            attributes: textView.defaultTextAttributes
         )
         
         updateRepetitionLabelText()
@@ -241,7 +246,7 @@ class TextMeaningPracticeView: BasePracticeView {
         attributedText.append(NSAttributedString(string: upperString))
         // Without this the text attributes are cleared after attaching the icon.
         attributedText.addAttributes(
-            Self.textAttributes,
+            textView.defaultTextAttributes,
             range: NSRange(
                 location: 0,
                 length: attributedText.length
@@ -265,7 +270,7 @@ class TextMeaningPracticeView: BasePracticeView {
         }
         attributedText.append(NSAttributedString(string: lowerString))
         attributedText.addAttributes(
-            Self.textAttributes,
+            textView.defaultTextAttributes,
             range: NSRange(
                 location: 0,
                 length: attributedText.length
@@ -300,7 +305,7 @@ extension TextMeaningPracticeView {
         textAttachment.image = icon
         
         // Use the line height of the font for the image height to align with the text height
-        let font = (Self.textAttributes[.font] as? UIFont) ?? UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        let font = (textView.defaultTextAttributes[.font] as? UIFont) ?? UIFont.systemFont(ofSize: Sizes.smallFontSize)
         let lineHeight = font.lineHeight
         // Adjust the width of the image to maintain the aspect ratio, if necessary
         let aspectRatio = textAttachment.image!.size.width / textAttachment.image!.size.height
@@ -327,7 +332,7 @@ extension TextMeaningPracticeView {
                 meaning: meaning
             ))
         }
-        textView.highlightAll()
+        textView.highlightAll(with: textView.defaultHighlightingColor)
     }
     
     private func updateRepetitionLabelText() {
@@ -338,7 +343,7 @@ extension TextMeaningPracticeView {
         for accentLoc in accentLocs {
             
             var fontSizeForAccentToMark: CGFloat = Sizes.smallFontSize
-            if let font = Self.textAttributes[.font] as? UIFont {
+            if let font = textView.defaultTextAttributes[.font] as? UIFont {
                 fontSizeForAccentToMark = font.pointSize
             }
             let boldFontAttributes = [
@@ -397,15 +402,5 @@ extension TextMeaningPracticeView {
         shouldReinforce.toggle()
         
     }
-    
-}
-
-extension TextMeaningPracticeView {
-    
-    static let textAttributes = {
-        var attrs = Attributes.leftAlignedLongTextAttributes
-        attrs[.font] = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
-        return attrs
-    }()
     
 }

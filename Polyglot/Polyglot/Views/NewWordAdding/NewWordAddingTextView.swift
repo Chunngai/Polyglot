@@ -38,6 +38,12 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
     
     var tapGestureRecognizer: UITapGestureRecognizer!
     
+    var defaultTextAttributes: [NSAttributedString.Key : Any] = [
+        .foregroundColor: Colors.normalTextColor,
+        .backgroundColor: Colors.defaultBackgroundColor
+    ]
+    var defaultHighlightingColor: UIColor = Colors.lightBlue
+    
     // MARK: - Views
     
     private var newWordMenuItem: UIMenuItem!  // https://www.youtube.com/watch?v=s-LW_4ypwZo
@@ -178,18 +184,19 @@ extension NewWordAddingTextView {
         return nil
     }
     
-    func hightlight(_ textRange: UITextRange, with color: UIColor?) {
-        let newAttributedText = NSMutableAttributedString(attributedString: attributedText)
-        newAttributedText.addAttributes(
-            [NSAttributedString.Key.backgroundColor : color as Any],
+    func highlight(_ textRange: UITextRange, with color: UIColor?) {
+        textStorage.addAttributes(
+            [.foregroundColor: color as Any],
             range: nsRange(from: textRange)
         )
-        attributedText = newAttributedText
     }
     
-    func highlightAll() {
+    func highlightAll(with color: UIColor?) {
         for newWordInfo in newWordsInfo {
-            hightlight(newWordInfo.textRange, with: Colors.lightBlue)
+            highlight(
+                newWordInfo.textRange,
+                with: color
+            )
         }
     }
     
@@ -301,7 +308,10 @@ extension NewWordAddingTextView: NewWordBottomViewDelegate {
         
         // Highlight the new word.
         let selectedRange = currentNewWordInfo.textRange
-        hightlight(selectedRange, with: Colors.lightBlue)
+        highlight(
+            selectedRange,
+            with: defaultHighlightingColor
+        )
     }
     
     func deleteNewWord() {
@@ -324,10 +334,13 @@ extension NewWordAddingTextView: NewWordBottomViewDelegate {
         
         // Remove the highlight.
         let selectedRange = removedNewWordInfo.textRange
-        hightlight(selectedRange, with: backgroundColor)
+        highlight(
+            selectedRange,
+            with: backgroundColor
+        )
         // The code above will remove the background colors
         // of the overlapped ranges, which need to be recovered.
-        highlightAll()
+        highlightAll(with: defaultHighlightingColor)
     }
     
     func meaningTextFieldEditingChanged() {

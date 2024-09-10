@@ -317,7 +317,7 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
                     if clozeRanges.contains(range) {
                         newAttributes.setTextColor(
                             for: range,
-                            with: Self.textAttributes[.foregroundColor] as! UIColor
+                            with: textView.defaultTextAttributes[.foregroundColor] as! UIColor
                         )
                         newAttributes.setBackgroundColor(
                             for: range,
@@ -414,7 +414,7 @@ extension ListenAndRepeatPracticeView {
             )
             textView.textStorage.addAttributes(
                 [
-                    .foregroundColor : Self.textAttributes[.foregroundColor] as! UIColor,
+                    .foregroundColor : textView.defaultTextAttributes[.foregroundColor] as! UIColor,
                     .backgroundColor : textView.backgroundColor as Any
                 ],
                 range: typedWordRange
@@ -519,18 +519,20 @@ extension ListenAndRepeatPracticeView {
         // of the last character. If not updated, the text attributes of
         // the last character will be lost.
         // For convenience, update the attributes of all editted ranges.
-        for edittedRange in edittedAttrCharRangeToOriginalAttrChar.keys {
-            textView.textStorage.addAttributes(
-                [
-                    .foregroundColor : Self.textAttributes[.foregroundColor] as! UIColor,
-                    .backgroundColor: Colors.clozeMaskColor,
-                    // If not set, the font of the typed word will be bold
-                    // if the last char of the last word is set bold (accented)
-                    // in Russian.
-                    .font: Self.textAttributes[.font] as! UIFont
-                ],
-                range: edittedRange
-            )
+        if let textView = textView as? NewWordAddingTextView {
+            for edittedRange in edittedAttrCharRangeToOriginalAttrChar.keys {
+                textView.textStorage.addAttributes(
+                    [
+                        .foregroundColor : textView.defaultTextAttributes[.foregroundColor] as! UIColor,
+                        .backgroundColor: Colors.clozeMaskColor,
+                        // If not set, the font of the typed word will be bold
+                        // if the last char of the last word is set bold (accented)
+                        // in Russian.
+                            .font: textView.defaultTextAttributes[.font] as! UIFont
+                    ],
+                    range: edittedRange
+                )
+            }
         }
 
         // When finished typing a word, check its correctness.
