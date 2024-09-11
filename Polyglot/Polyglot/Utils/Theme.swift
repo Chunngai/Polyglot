@@ -100,6 +100,11 @@ struct Images {
     // Settings images.
     
     static let settingsImage: UIImage = UIImage.init(systemName: "gearshape")!
+    
+    // NewWordAddingTextView images.
+    
+    static let wordMemorizationContentRefreshingImage: UIImage = UIImage.init(systemName: "arrow.clockwise")!
+    
 }
 
 struct Icons {

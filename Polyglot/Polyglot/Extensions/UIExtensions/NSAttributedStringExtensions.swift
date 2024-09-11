@@ -1,5 +1,5 @@
 //
-//  NSMutableAttributedStringExt.swift
+//  NSAttributedStringExt.swift
 //  Polyglot
 //
 //  Created by Sola on 2022/12/22.
@@ -29,6 +29,37 @@ extension NSAttributedString {
             )[.foregroundColor] as? UIColor
         }
         return nil
+    }
+    
+}
+
+extension NSMutableAttributedString {
+    
+    func replacingAll(_ stringToReplace: String, with replacement: String) {
+                
+        var range = NSRange(
+            location: 0,
+            length: length
+        )
+        while range.location != NSNotFound {
+            range = (string as NSString).range(
+                of: stringToReplace,
+                options: [],
+                range: range
+            )
+            if range.location != NSNotFound {
+                replaceCharacters(
+                    in: range,
+                    with: ""
+                )
+                range = NSRange(
+                    location: range.location,
+                    length: length - range.location
+                )
+            }
+            
+        }
+        
     }
     
 }
@@ -170,4 +201,24 @@ extension NSMutableAttributedString {
             style: []
         )
     }
+    
+    func bold(for range: NSRange, ignoreCasing: Bool = false, ignoreAccents: Bool = false) {
+        guard let font = attributes(
+            at: range.location,
+            effectiveRange: nil
+        )[.font] as? UIFont else {
+            return
+        }
+        
+        add(
+            attributes: [
+                .font: UIFont.systemFont(
+                    ofSize: font.pointSize,
+                    weight: .bold
+                )
+            ],
+            for: range
+        )
+    }
+    
 }

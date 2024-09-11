@@ -389,6 +389,22 @@ extension Strings {
     static var wordMeaningMenuItemString: String {
         return Strings._wordMeaningMenuItemStrings[LangCode.currentLanguage]!
     }
+        
+    private static let _wordMemorizationMenuItemStrings: [LangCode : String] = [
+        LangCode.en : "Memorize",
+        LangCode.ja : "記憶",
+        LangCode.es : "Memorizar",
+        LangCode.ru : "Запомнить",
+        LangCode.ko : "기억",
+        LangCode.de : "Auswendig Lernen",
+    ]
+    static var wordMemorizationMenuItemString: String {
+        return Strings._wordMemorizationMenuItemStrings[LangCode.currentLanguage]!
+    }
+    
+    static let wordMemorizationLanguageNamePlaceHolder: String = "[lang_name]"
+    static let wordMemorizationWordPlaceHolder: String = "[word]"
+    static let wordMemorizationPrompt: String = "Help me memorise the spelling of the \(Self.wordMemorizationLanguageNamePlaceHolder) word \"\(Self.wordMemorizationWordPlaceHolder)\" by providing \(Self.wordMemorizationLanguageNamePlaceHolder)/English words with similar/identical spelling/pronunciation, related words, or mnemonics."
     
     private static let _newWordBottomViewMeaningPrompts: [LangCode : String] = [
         LangCode.en : "Also select/type the corresponding meaning",

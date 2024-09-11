@@ -83,7 +83,7 @@
 		FF4B382B29525A4300BB3FFD /* ReadingEditViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4B382A29525A4300BB3FFD /* ReadingEditViewController.swift */; };
 		FF4B382F29525BD400BB3FFD /* ReadingEditTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4B382E29525BD400BB3FFD /* ReadingEditTableCell.swift */; };
 		FF4CA730295E869900423946 /* SpeakingPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4CA72F295E869900423946 /* SpeakingPracticeViewController.swift */; };
-		FF4D7CC62953952C009F6894 /* NSMutableAttributedStringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4D7CC52953952C009F6894 /* NSMutableAttributedStringExtensions.swift */; };
+		FF4D7CC62953952C009F6894 /* NSAttributedStringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4D7CC52953952C009F6894 /* NSAttributedStringExtensions.swift */; };
 		FF4FA0C82AADDAA0001EA18C /* ContentCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4FA0C72AADDAA0001EA18C /* ContentCards.swift */; };
 		FF50250E295244F10097C2CB /* ReadingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF50250D295244F10097C2CB /* ReadingViewController.swift */; };
 		FF502512295248D10097C2CB /* Article.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF502511295248D10097C2CB /* Article.swift */; };
@@ -256,7 +256,7 @@
 		FF4B382A29525A4300BB3FFD /* ReadingEditViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingEditViewController.swift; sourceTree = "<group>"; };
 		FF4B382E29525BD400BB3FFD /* ReadingEditTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingEditTableCell.swift; sourceTree = "<group>"; };
 		FF4CA72F295E869900423946 /* SpeakingPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingPracticeViewController.swift; sourceTree = "<group>"; };
-		FF4D7CC52953952C009F6894 /* NSMutableAttributedStringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSMutableAttributedStringExtensions.swift; sourceTree = "<group>"; };
+		FF4D7CC52953952C009F6894 /* NSAttributedStringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSAttributedStringExtensions.swift; sourceTree = "<group>"; };
 		FF4FA0C72AADDAA0001EA18C /* ContentCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCards.swift; sourceTree = "<group>"; };
 		FF50250D295244F10097C2CB /* ReadingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingViewController.swift; sourceTree = "<group>"; };
 		FF502511295248D10097C2CB /* Article.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Article.swift; sourceTree = "<group>"; };
@@ -484,7 +484,7 @@
 				FF4964B929579C5A00414AC5 /* UISearchBarExtensions.swift */,
 				FF4964C12957B01100414AC5 /* UITextViewExtensions.swift */,
 				FF495E8D2958F38800EA7EA9 /* UITableViewExtensions.swift */,
-				FF4D7CC52953952C009F6894 /* NSMutableAttributedStringExtensions.swift */,
+				FF4D7CC52953952C009F6894 /* NSAttributedStringExtensions.swift */,
 				FF793A472968A7D60026B8C7 /* UIApplicationExtensions.swift */,
 				FFD7DF71299D509B00019D51 /* CGRectExtensions.swift */,
 				FFBC8A832A9F2FDD001123EB /* UILabelExtensions.swift */,
@@ -1066,7 +1066,7 @@
 				FF63DDFC299AC17C0088C10B /* WordBank.swift in Sources */,
 				FF62C9762951382500D41797 /* AppDelegate.swift in Sources */,
 				FF4CA730295E869900423946 /* SpeakingPracticeViewController.swift in Sources */,
-				FF4D7CC62953952C009F6894 /* NSMutableAttributedStringExtensions.swift in Sources */,
+				FF4D7CC62953952C009F6894 /* NSAttributedStringExtensions.swift in Sources */,
 				FF495E992959039A00EA7EA9 /* WordExtensions.swift in Sources */,
 				FF4964CF2958CE4400414AC5 /* Word.swift in Sources */,
 				FF706E032951549C00DBCF8E /* UIImageExtensions.swift in Sources */,

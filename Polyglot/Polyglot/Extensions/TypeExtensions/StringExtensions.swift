@@ -26,7 +26,8 @@ extension String {
     
     func replaceMultipleBlankLinesWithSingleLine() -> String {
         // https://stackoverflow.com/questions/47796228/remove-whitespace-and-multiple-line-from-string
-        self.replacingOccurrences(of: "\\n{3,}", with: "\n\n", options: .regularExpression)
+        // https://chatgpt.com/share/1ce05efa-aa79-40c4-a229-7daf748db62c
+        self.replacingOccurrences(of: "\\s*(\\n\\s*){2,}", with: "\n\n", options: .regularExpression)
     }
     
     func replaceMultipleSpacesWithSingleOne() -> String {

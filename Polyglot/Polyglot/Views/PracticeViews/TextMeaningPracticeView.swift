@@ -240,7 +240,7 @@ class TextMeaningPracticeView: BasePracticeView {
                 length: 2  // Icon + space.
             ))
             
-            attributedText.append(makeImageAttributedString(with: upperIcon))
+            attributedText.append(textView.imageAttributedString(with: upperIcon))
             attributedText.append(NSAttributedString(string: " "))
         }
         attributedText.append(NSAttributedString(string: upperString))
@@ -265,7 +265,7 @@ class TextMeaningPracticeView: BasePracticeView {
                 length: 2  // Icon + space.
             ))
             
-            attributedText.append(makeImageAttributedString(with: lowerIcon))
+            attributedText.append(textView.imageAttributedString(with: lowerIcon))
             attributedText.append(NSAttributedString(string: " "))
         }
         attributedText.append(NSAttributedString(string: lowerString))
@@ -299,26 +299,6 @@ class TextMeaningPracticeView: BasePracticeView {
 }
 
 extension TextMeaningPracticeView {
-    
-    func makeImageAttributedString(with icon: UIImage) -> NSAttributedString {
-        let textAttachment = NSTextAttachment()
-        textAttachment.image = icon
-        
-        // Use the line height of the font for the image height to align with the text height
-        let font = (textView.defaultTextAttributes[.font] as? UIFont) ?? UIFont.systemFont(ofSize: Sizes.smallFontSize)
-        let lineHeight = font.lineHeight
-        // Adjust the width of the image to maintain the aspect ratio, if necessary
-        let aspectRatio = textAttachment.image!.size.width / textAttachment.image!.size.height
-        let imageWidth = lineHeight * aspectRatio
-        textAttachment.bounds = CGRect(
-            x: 0,
-            y: (font.capHeight - lineHeight) / 2,
-            width: imageWidth,
-            height: lineHeight
-        )
-        
-        return NSAttributedString(attachment: textAttachment)
-    }
     
     func highlightExistingPhrases(existingPhraseRanges: [NSRange], existingPhraseMeanings: [String]) {
         for (range, meaning) in zip(existingPhraseRanges, existingPhraseMeanings) {

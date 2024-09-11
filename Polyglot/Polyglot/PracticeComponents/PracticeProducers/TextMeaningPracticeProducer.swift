@@ -30,7 +30,7 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
         trgLang: LangCode.currentLanguage.configs.languageForTranslation
     )
     
-    var contentCreator: ContentCreator = ContentCreator(lang: LangCode.currentLanguage)
+    var contentCreator: ContentCreator = ContentCreator()
     
     override init(words: [Word], articles: [Article]) {
         super.init(words: words, articles: articles)
@@ -290,7 +290,8 @@ extension TextMeaningPracticeProducer {
             if LangCode.currentLanguage.configs.canGenerateTextsWithLLMsForPractices {
                 contentCreator.createContent(
                     for: [randomWord.text],
-                    in: granularity
+                    inLang: LangCode.currentLanguage,
+                    inGranularity: granularity
                 ) { content in
                     if let content = content {
                         self.maybeTranslate(text: content) { contentMeaning, isTranslated, translatorType, _ in
