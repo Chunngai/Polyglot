@@ -75,14 +75,6 @@ class ListeningPracticeProducer: TextMeaningPracticeProducer {
         return nil
     }
     
-    override func reinforce() {
-        guard let currentPractice = currentPractice as? ListeningPractice else {
-            return
-        }
-        currentPractice.totalRepetitions += LangCode.currentLanguage.configs.practiceRepetition
-        self.practiceList[self.currentPracticeIndex] = currentPractice
-    }
-    
     override func cache() {
         guard var practicesToCache = practiceList as? [ListeningPractice] else {
             return

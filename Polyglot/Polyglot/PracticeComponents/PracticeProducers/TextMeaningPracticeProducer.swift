@@ -29,8 +29,12 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
         srcLang: LangCode.currentLanguage,
         trgLang: LangCode.currentLanguage.configs.languageForTranslation
     )
-    
     var contentCreator: ContentCreator = ContentCreator()
+    
+    private var randomPracticeIndex: Int {
+        return (0..<self.practiceList.count).randomElement()!
+    }
+    private var nextPracticeIndex: Int?  // For immediate reinforcement.
     
     override init(words: [Word], articles: [Article]) {
         super.init(words: words, articles: articles)
@@ -43,7 +47,12 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
             self.practiceList.append(contentsOf: self.make())
         }
         
-        self.currentPracticeIndex = (0..<self.practiceList.count).randomElement()!
+        if let nextPracticeIndex = nextPracticeIndex {
+            self.currentPracticeIndex = nextPracticeIndex
+            self.nextPracticeIndex = nil
+        } else {
+            self.currentPracticeIndex = randomPracticeIndex
+        }
         
         if self.practiceList.count <= batchSize {
             DispatchQueue.global(qos: .userInitiated).async {
@@ -55,6 +64,7 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
     func initializePracticeList(with cachedPractices: [TextMeaningPractice]) {
         if !cachedPractices.isEmpty {
             self.practiceList.append(contentsOf: cachedPractices)
+            self.currentPracticeIndex = randomPracticeIndex
             
             DispatchQueue.global(qos: .userInitiated).async {
                 // In case that some words have been deleted.
@@ -81,6 +91,7 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
             
         } else {
             self.practiceList.append(contentsOf: make())
+            self.currentPracticeIndex = randomPracticeIndex
         }
     }
     
@@ -96,7 +107,15 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
     }
     
     func reinforce() {
-        fatalError("reinforce() has not been implemented.")
+        guard let currentPractice = currentPractice as? TextMeaningPractice else {
+            return
+        }
+        currentPractice.totalRepetitions += LangCode.currentLanguage.configs.practiceRepetition
+        self.practiceList[self.currentPracticeIndex] = currentPractice
+    
+        // Immediate reinforcement.
+        self.nextPracticeIndex = self.currentPracticeIndex
+        
     }
     
     func cache() {

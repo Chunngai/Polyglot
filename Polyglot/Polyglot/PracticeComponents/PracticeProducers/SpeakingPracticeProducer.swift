@@ -58,14 +58,6 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
         return practiceList
     }
     
-    override func reinforce() {
-        guard let currentPractice = currentPractice as? SpeakingPractice else {
-            return
-        }
-        currentPractice.totalRepetitions += LangCode.currentLanguage.configs.practiceRepetition
-        self.practiceList[self.currentPracticeIndex] = currentPractice
-    }
-    
     override func cache() {        
         guard var practicesToCache = self.practiceList as? [SpeakingPractice] else {
             return
