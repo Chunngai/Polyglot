@@ -152,6 +152,12 @@ class TextMeaningPracticeView: BasePracticeView {
             textLang: textLang,
             meaningLang: meaningLang
         )
+        textView.textContainerInset = UIEdgeInsets(
+            top: textView.textContainerInset.top, 
+            left: textView.textContainerInset.left,
+            bottom: Sizes.defaultCornerRadius * 2,
+            right: textView.textContainerInset.right
+        )
         textView.defaultTextAttributes = {
             var attrs = Attributes.leftAlignedLongTextAttributes
             attrs[.font] = UIFont.systemFont(ofSize: Sizes.mediumFontSize)

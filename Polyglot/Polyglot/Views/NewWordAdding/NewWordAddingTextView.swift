@@ -68,8 +68,6 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
         )
         
         updateSetups()
-        updateViews()
-        updateLayouts()
     }
     
     required init?(coder: NSCoder) {
@@ -113,15 +111,6 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
         
         newWordBottomView.delegate = self
 
-    }
-    
-    private func updateViews() {
-        backgroundColor = nil
-        showsVerticalScrollIndicator = false
-    }
-    
-    private func updateLayouts() {
-        
     }
 
 }
