@@ -1,5 +1,5 @@
 //
-//  NewWordAddingTextView.swift
+//  WordMarkingTextView.swift
 //  Polyglot
 //
 //  Created by Sola on 2022/12/31.
@@ -8,14 +8,14 @@
 
 import UIKit
 
-class NewWordAddingTextView: UITextView, UITextViewDelegate {
+class WordMarkingTextView: UITextView, UITextViewDelegate {
 
-    var currentNewWordInfo: NewWordInfo = NewWordInfo(
+    var currentWordInfo: WordInfo = WordInfo(
         textRange: UITextRange(),
         word: "",
         meaning: ""
     )  // Store the info of the new word being added.
-    var newWordsInfo: [NewWordInfo] = []
+    var wordsInfo: [WordInfo] = []
     
     var currentSelectedTextRange: UITextRange!  // For deleting new words.
     
@@ -43,8 +43,9 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
         .backgroundColor: Colors.defaultBackgroundColor
     ]
     var defaultWordMemorizationTextAttributes: [NSAttributedString.Key : Any] = Attributes.leftAlignedLongTextAttributes
-    var defaultHighlightingColor: UIColor = Colors.lightBlue
+    var defaultHighlightingColor: UIColor = Colors.newWordHighlightingColor
     
+    // For word memorization.
     private var contentCreatorForWordMemorization: ContentCreator = ContentCreator(.gpt4o)
     private var word2memorizationContentRange: [String: NSRange] = [:]
     private var memorizationContentRefreshIconRange2wordAndStatus: [NSRange: (word: String, isRegenerating: Bool)] = [:]
@@ -55,14 +56,14 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
     private var wordMeaningMenuItem: UIMenuItem!
     private var wordMemorizationMenuItem: UIMenuItem!
     
-    var newWordBottomView: NewWordAddingBottomView!
+    var wordMarkingBottomView: WordMarkingBottomView!
     
     // MARK: - Init
     
     init(frame: CGRect = .zero, textContainer: NSTextContainer? = nil, textLang: LangCode, meaningLang: LangCode) {
         super.init(frame: frame, textContainer: textContainer)
         
-        newWordBottomView = NewWordAddingBottomView(
+        wordMarkingBottomView = WordMarkingBottomView(
             wordLang: textLang,
             meaningLang: meaningLang
         )
@@ -77,7 +78,7 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        newWordBottomView.offset = newWordBottomView.frame.height 
+        wordMarkingBottomView.offset = wordMarkingBottomView.frame.height 
     }
     
     private func updateSetups() {
@@ -109,13 +110,13 @@ class NewWordAddingTextView: UITextView, UITextViewDelegate {
             wordMemorizationMenuItem
         ]
         
-        newWordBottomView.delegate = self
+        wordMarkingBottomView.delegate = self
 
     }
 
 }
 
-extension NewWordAddingTextView {
+extension WordMarkingTextView {
     
     private func tappedAt(_ tappedTextRange: UITextRange) {
         
@@ -124,7 +125,7 @@ extension NewWordAddingTextView {
         // & presenting an added new word.
         // https://stackoverflow.com/questions/48474488/get-tapped-word-in-a-uitextview
 
-        newWordBottomView.meaningTextField.resignFirstResponder()
+        wordMarkingBottomView.meaningTextField.resignFirstResponder()
         // Cancel the selection if any.
         resignFirstResponder()
         
@@ -139,16 +140,16 @@ extension NewWordAddingTextView {
         }
         
         // Float down the presenting bottom view, if any.
-        if newWordBottomView.isFloatingUp {
-            newWordBottomView.floatDown()
-            newWordBottomView.clear()
+        if wordMarkingBottomView.isFloatingUp {
+            wordMarkingBottomView.floatDown()
+            wordMarkingBottomView.clear()
         }
         
         // Present an added new word.
         let tapPositionValue = valueOf(textPosition: tappedTextRange.start)
-        for newWordInfo in newWordsInfo {
+        for wordInfo in wordsInfo {
             
-            let wordTextRange: UITextRange = newWordInfo.textRange
+            let wordTextRange: UITextRange = wordInfo.textRange
             // Left text position.
             let rangeStartPositionValue = valueOf(textPosition: wordTextRange.start)
             // Right text position.
@@ -162,10 +163,11 @@ extension NewWordAddingTextView {
                 && tapPositionValue <= rangeEndPositionValue
             )
             if isTextRangeTapped {
-                newWordBottomView.word = newWordInfo.word
-                newWordBottomView.meaning = newWordInfo.meaning
-                newWordBottomView.isAddingNewWord = false  // For displaying the delete icon.
-                newWordBottomView.floatUp()
+                wordMarkingBottomView.word = wordInfo.word
+                wordMarkingBottomView.meaning = wordInfo.meaning
+                wordMarkingBottomView.isAddingNewWord = false  // For displaying the delete icon.
+                wordMarkingBottomView.deleteButton.isHidden = !wordInfo.canDelete
+                wordMarkingBottomView.floatUp()
                 
                 currentSelectedTextRange = wordTextRange  // For deleting the word later.
                 
@@ -314,9 +316,22 @@ extension NewWordAddingTextView {
     }
     
     func highlightAll(with color: UIColor?) {
-        for newWordInfo in newWordsInfo {
+        for wordInfo in wordsInfo {
             highlight(
-                newWordInfo.textRange,
+                wordInfo.textRange,
+                with: color
+            )
+        }
+    }
+    
+    func highlightAll() {
+        for wordInfo in wordsInfo {
+            var color: UIColor = Colors.newWordHighlightingColor
+            if !wordInfo.canDelete {
+                color = Colors.oldWordHighlightingColor
+            }
+            highlight(
+                wordInfo.textRange,
                 with: color
             )
         }
@@ -428,7 +443,7 @@ extension NewWordAddingTextView {
     
 }
 
-extension NewWordAddingTextView {
+extension WordMarkingTextView {
     
     // MARK: - Selectors
     
@@ -464,19 +479,19 @@ extension NewWordAddingTextView {
             let word = text(in: selectedTextRange) {
             
             // Store the info of the new word.
-            currentNewWordInfo = NewWordInfo(
+            currentWordInfo = WordInfo(
                 textRange: selectedTextRange,
                 word: word,
                 meaning: ""  // Added later.
             )
             
-            if newWordBottomView.isFloatingUp {
+            if wordMarkingBottomView.isFloatingUp {
                 // Float down the presenting bottom view, if any.
-                newWordBottomView.floatDown()
-                newWordBottomView.clear()
+                wordMarkingBottomView.floatDown()
+                wordMarkingBottomView.clear()
             }
-            newWordBottomView.word = word
-            newWordBottomView.floatUp()
+            wordMarkingBottomView.word = word
+            wordMarkingBottomView.floatUp()
             
             isAddingNewWord = true
         }
@@ -488,8 +503,8 @@ extension NewWordAddingTextView {
             !selectedTextRange.isEmpty,
             let meaning = text(in: selectedTextRange) {
             
-            currentNewWordInfo.meaning = meaning
-            newWordBottomView.meaning = meaning
+            currentWordInfo.meaning = meaning
+            wordMarkingBottomView.meaning = meaning
         }
     }
     
@@ -556,7 +571,7 @@ extension NewWordAddingTextView {
     
 }
 
-extension NewWordAddingTextView {
+extension WordMarkingTextView {
         
     override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
 
@@ -597,22 +612,22 @@ extension NewWordAddingTextView {
     
 }
 
-extension NewWordAddingTextView: NewWordBottomViewDelegate {
+extension WordMarkingTextView: NewWordBottomViewDelegate {
     
     // MARK: - NewWordAddingBottomView Delegate
     
     func addNewWord() {
         
         // Add the word.
-        newWordsInfo.append(currentNewWordInfo)
+        wordsInfo.append(currentWordInfo)
         
-        newWordBottomView.floatDown()
-        newWordBottomView.clear()
+        wordMarkingBottomView.floatDown()
+        wordMarkingBottomView.clear()
         
         isAddingNewWord = false
         
         // Highlight the new word.
-        let selectedRange = currentNewWordInfo.textRange
+        let selectedRange = currentWordInfo.textRange
         highlight(
             selectedRange,
             with: defaultHighlightingColor
@@ -623,8 +638,8 @@ extension NewWordAddingTextView: NewWordBottomViewDelegate {
         
         // Find the index of the word to delete.
         var index: Int?
-        for i in 0..<newWordsInfo.count {
-            if newWordsInfo[i].textRange == currentSelectedTextRange {
+        for i in 0..<wordsInfo.count {
+            if wordsInfo[i].textRange == currentSelectedTextRange {
                 index = i
             }
         }
@@ -632,37 +647,41 @@ extension NewWordAddingTextView: NewWordBottomViewDelegate {
             return
         }
         // Delete the word.
-        let removedNewWordInfo = newWordsInfo.remove(at: indexToDelete)
+        let removedWordInfo = wordsInfo.remove(at: indexToDelete)
         
-        newWordBottomView.floatDown()
-        newWordBottomView.clear()
+        wordMarkingBottomView.floatDown()
+        wordMarkingBottomView.clear()
         
         // Remove the highlight.
-        let selectedRange = removedNewWordInfo.textRange
+        let selectedRange = removedWordInfo.textRange
         highlight(
             selectedRange,
             with: backgroundColor
         )
         // The code above will remove the background colors
         // of the overlapped ranges, which need to be recovered.
-        highlightAll(with: defaultHighlightingColor)
+//        highlightAll(with: defaultHighlightingColor)
+        highlightAll()
     }
     
     func meaningTextFieldEditingChanged() {
-        currentNewWordInfo.meaning = newWordBottomView.meaning
+        currentWordInfo.meaning = wordMarkingBottomView.meaning
     }
 }
 
-struct NewWordInfo {
+struct WordInfo {
     // For storing the info of a newly added word.
     
     var textRange: UITextRange
     
     var word: String
     var meaning: String
+    
+    var canDelete: Bool = true
+    
 }
 
-extension NewWordAddingTextView {
+extension WordMarkingTextView {
 
     // MARK: - Constants
     

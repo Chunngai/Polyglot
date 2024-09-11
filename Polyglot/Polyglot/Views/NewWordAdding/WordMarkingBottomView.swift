@@ -8,7 +8,7 @@
 
 import UIKit
 
-class NewWordAddingBottomView: UIView {
+class WordMarkingBottomView: UIView {
     
     var word: String = "" {
         didSet {
@@ -76,7 +76,7 @@ class NewWordAddingBottomView: UIView {
     
     lazy var wordLabel: UILabel = {  // TODO: - Support editing.
         let label = UILabel()
-        label.numberOfLines = NewWordAddingBottomView.wordLabelNumberOfLines
+        label.numberOfLines = WordMarkingBottomView.wordLabelNumberOfLines
         label.lineBreakMode = .byTruncatingTail
         label.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
         label.textColor = Colors.normalTextColor
@@ -193,14 +193,14 @@ class NewWordAddingBottomView: UIView {
     }
 }
 
-extension NewWordAddingBottomView {
+extension WordMarkingBottomView {
     
     // MARK: - Floating Functions.
     
     func floatUp(by offset: CGFloat) {
         UIView.animate(
-            withDuration: NewWordAddingBottomView.floatingDuration,
-            delay: NewWordAddingBottomView.floatingDelay,
+            withDuration: WordMarkingBottomView.floatingDuration,
+            delay: WordMarkingBottomView.floatingDelay,
             options: [.curveEaseIn],
             animations: {
                 self.frame = CGRect(
@@ -221,8 +221,8 @@ extension NewWordAddingBottomView {
     
     func floatDown(by offset: CGFloat) {
         UIView.animate(
-            withDuration: NewWordAddingBottomView.floatingDuration,
-            delay: NewWordAddingBottomView.floatingDelay,
+            withDuration: WordMarkingBottomView.floatingDuration,
+            delay: WordMarkingBottomView.floatingDelay,
             options: [.curveEaseOut],
             animations: {
                 self.frame = CGRect(
@@ -253,7 +253,7 @@ extension NewWordAddingBottomView {
     }
 }
 
-extension NewWordAddingBottomView {
+extension WordMarkingBottomView {
     
     // MARK: - Selectors
     
@@ -295,7 +295,7 @@ extension NewWordAddingBottomView {
     }
 }
 
-extension NewWordAddingBottomView: UITextFieldDelegate {
+extension WordMarkingBottomView: UITextFieldDelegate {
     
     // MARK: - UITextField Delegate
     
@@ -314,7 +314,7 @@ extension NewWordAddingBottomView: UITextFieldDelegate {
     
 }
 
-extension NewWordAddingBottomView {
+extension WordMarkingBottomView {
     
     // MARK: - Constants
     

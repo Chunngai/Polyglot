@@ -26,8 +26,8 @@ class TextMeaningPracticeView: BasePracticeView {
     var upperString: String!
     var lowerString: String!
     
-    var newWordsInfo: [NewWordInfo] {
-        return textView.newWordsInfo
+    var wordsInfo: [WordInfo] {
+        return textView.wordsInfo
     }
     
     var unselectableRanges: [NSRange] = []
@@ -58,7 +58,7 @@ class TextMeaningPracticeView: BasePracticeView {
         return view
     }()
     
-    var textView: NewWordAddingTextView!
+    var textView: WordMarkingTextView!
     
     let listenButton: UIButton = {
         let button = UIButton()
@@ -148,7 +148,7 @@ class TextMeaningPracticeView: BasePracticeView {
         self.currentRepetition = currentRepetition
         self.textAccentLocs = textAccentLocs
         
-        textView = NewWordAddingTextView(
+        textView = WordMarkingTextView(
             textLang: textLang,
             meaningLang: meaningLang
         )
@@ -312,13 +312,14 @@ extension TextMeaningPracticeView {
                 continue
             }
             let text = (textView.text as NSString).substring(with: range)
-            textView.newWordsInfo.append(NewWordInfo(
+            textView.wordsInfo.append(WordInfo(
                 textRange: textRange,
                 word: text,
-                meaning: meaning
+                meaning: meaning,
+                canDelete: false
             ))
         }
-        textView.highlightAll(with: textView.defaultHighlightingColor)
+        textView.highlightAll(with: Colors.oldWordHighlightingColor)
     }
     
     private func updateRepetitionLabelText() {

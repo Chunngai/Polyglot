@@ -26,8 +26,8 @@ struct Colors {
     static let inactivateSelectionButtonBackgroundColor: UIColor = Colors.lightBlue
     static let activateSelectionButtonBackgroundColor: UIColor = Colors.strongLightBlue
     
-    static let lightBlue: UIColor = UIColor.intRGB2UIColor(red: 213, green: 236, blue: 248)
-    static let strongLightBlue: UIColor = UIColor.intRGB2UIColor(red: 154, green: 207, blue: 238)
+    static let lightBlue: UIColor = UIColor.intRGB2UIColor(red: 213, green: 236, blue: 255)
+    static let strongLightBlue: UIColor = UIColor.intRGB2UIColor(red: 203, green: 226, blue: 255)
     
     static let correctColor: UIColor = UIColor.intRGB2UIColor(red: 186, green: 220, blue: 173)
     static let incorrectColor: UIColor = UIColor.intRGB2UIColor(red: 201, green: 113, blue: 117)
@@ -38,6 +38,9 @@ struct Colors {
     
     static let clozeMaskColor: UIColor = .systemGray5
     static let clozeMatchedTextColor: UIColor = Colors.strongLightBlue
+    
+    static let newWordHighlightingColor = Self.lightBlue
+    static let oldWordHighlightingColor = Self.strongLightBlue
     
 }
 
@@ -101,7 +104,7 @@ struct Images {
     
     static let settingsImage: UIImage = UIImage.init(systemName: "gearshape")!
     
-    // NewWordAddingTextView images.
+    // WordMarkingTextView images.
     
     static let wordMemorizationContentRefreshingImage: UIImage = UIImage.init(systemName: "arrow.clockwise")!
     

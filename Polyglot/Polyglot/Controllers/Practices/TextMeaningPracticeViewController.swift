@@ -10,7 +10,7 @@ import UIKit
 
 class TextMeaningPracticeViewController: PracticeViewController {
 
-    var textViewOfPracticeView: NewWordAddingTextView {
+    var textViewOfPracticeView: WordMarkingTextView {
         get {
             return (practiceView as! TextMeaningPracticeView).textView
         }
@@ -127,7 +127,7 @@ class TextMeaningPracticeViewController: PracticeViewController {
         // Remove the old practice view.
         if practiceView != nil {
             practiceView.removeFromSuperview()
-            textViewOfPracticeView.newWordBottomView.removeFromSuperview()
+            textViewOfPracticeView.wordMarkingBottomView.removeFromSuperview()
         }
         // Make a new one.
         practiceView = makePracticeView()
@@ -138,9 +138,9 @@ class TextMeaningPracticeViewController: PracticeViewController {
         }
         
         // Also remember to update the textview in the practice view.
-        // TODO: - Can the code wrapped into NewWordAddingTextView?
-        view.addSubview(textViewOfPracticeView.newWordBottomView)
-        textViewOfPracticeView.newWordBottomView.frame = CGRect(
+        // TODO: - Can the code wrapped into WordMarkingTextView?
+        view.addSubview(textViewOfPracticeView.wordMarkingBottomView)
+        textViewOfPracticeView.wordMarkingBottomView.frame = CGRect(
             x: view.frame.minX,
             y: view.frame.maxY,
             width: view.frame.width,
@@ -182,7 +182,7 @@ extension TextMeaningPracticeViewController {
 
 extension TextMeaningPracticeViewController {
     
-    func newWords(from newWordsInfo: [NewWordInfo], of textSource: TextSource) -> [Word] {
+    func newWords(from wordsInfo: [WordInfo], of textSource: TextSource) -> [Word] {
         
         var articleTitle: String? = nil
         if case .article(let articleId, _, _) = textSource,
@@ -193,10 +193,10 @@ extension TextMeaningPracticeViewController {
         }
         
         var newWords: [Word] = []
-        for newWordInfo in newWordsInfo {
+        for wordInfo in wordsInfo {
             newWords.append(Word(
-                text: newWordInfo.word,
-                meaning: newWordInfo.meaning,
+                text: wordInfo.word,
+                meaning: wordInfo.meaning,
                 note: articleTitle
             ))
         }

@@ -519,7 +519,7 @@ extension ListenAndRepeatPracticeView {
         // of the last character. If not updated, the text attributes of
         // the last character will be lost.
         // For convenience, update the attributes of all editted ranges.
-        if let textView = textView as? NewWordAddingTextView {
+        if let textView = textView as? WordMarkingTextView {
             for edittedRange in edittedAttrCharRangeToOriginalAttrChar.keys {
                 textView.textStorage.addAttributes(
                     [

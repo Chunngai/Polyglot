@@ -319,7 +319,7 @@ extension ListeningPracticeViewController {
         
         if let practiceView = practiceView as? TextMeaningPracticeView {
             let newWords = newWords(
-                from: practiceView.newWordsInfo,
+                from: practiceView.wordsInfo,
                 of: practiceView.textSource
             )
             add(newWords: newWords)
