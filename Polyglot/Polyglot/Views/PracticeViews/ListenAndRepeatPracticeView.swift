@@ -41,6 +41,7 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
     private var edittedAttrCharRange: NSRange?
     private var attributedTextBeforeEditting: NSAttributedString?
     private var canIncreaseTextLength: Bool = true
+    private var isAdjustingSelectedRange: Bool = false
     
     private var textBiGram2BiRanges: [BiGram: [BiRange]] = [:]  // A bi-gram may correspond to multiple bi-ranges.
     
@@ -321,7 +322,7 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
                         )
                         newAttributes.setBackgroundColor(
                             for: range,
-                            with: mainView.backgroundColor!
+                            with: textView.defaultTextAttributes[.backgroundColor] as! UIColor
                         )
                         matchedClozeRanges.insert(range)
                     }
@@ -442,6 +443,45 @@ extension ListenAndRepeatPracticeView {
         }
     }
     
+    private func shouldMoveBackward(_ r: NSRange) -> Bool {
+        
+        let locOfPreviousChar = r.location - 1
+        guard locOfPreviousChar >= 0 else {
+            return false
+        }
+        
+        let previousCharTextColor = textView.attributedText.textColor(at: locOfPreviousChar)
+        let previousCharBgColor = textView.attributedText.backgroundColor(at: locOfPreviousChar)
+        
+        if
+            (
+                previousCharTextColor == textView.defaultTextAttributes[.foregroundColor] as! UIColor
+                && previousCharBgColor == Colors.clozeMaskColor
+            )
+                || previousCharBgColor == textView.defaultTextAttributes[.backgroundColor] as! UIColor {
+            return false
+        }
+        return true
+        
+    }
+    
+    private func adjustSelectedRange() {
+                
+        var selectedRange = textView.selectedRange
+        while shouldMoveBackward(selectedRange) {
+            let l = selectedRange.location - 1
+            if l >= 0 {
+                selectedRange = NSRange(
+                    location: l,
+                    length: selectedRange.length
+                )
+            } else {
+                break
+            }
+        }
+        textView.selectedRange = selectedRange
+    }
+    
 }
 
 extension ListenAndRepeatPracticeView {
@@ -451,7 +491,7 @@ extension ListenAndRepeatPracticeView {
     func textViewDidChange(_ textView: UITextView) {
         
         guard var edittedCharRange = edittedAttrCharRange,
-              let attributedStringBeforeEditting = attributedTextBeforeEditting else {
+              let attributedTextBeforeEditting = attributedTextBeforeEditting else {
             self.edittedAttrCharRange = nil
             self.attributedTextBeforeEditting = nil
             return
@@ -460,10 +500,18 @@ extension ListenAndRepeatPracticeView {
         self.edittedAttrCharRange = nil
         self.attributedTextBeforeEditting = nil
 
-        if attributedStringBeforeEditting.length < textView.attributedText.length {  // Insertion.
+        if attributedTextBeforeEditting.length < textView.attributedText.length {  // Insertion.
 
             guard canIncreaseTextLength else {
-                textView.attributedText = attributedStringBeforeEditting
+                // After the following line the selected location moves
+                // to the end of the text.
+                // If the cursor is also at the end of the text
+                // when typing, unselectable place will be selectable
+                // in textViewDidChangeSelection.
+                // Therefore, resetting the selected range of the text view
+                // is needed.
+                textView.attributedText = attributedTextBeforeEditting
+                textView.selectedRange = edittedCharRange
                 return
             }
             
@@ -484,7 +532,7 @@ extension ListenAndRepeatPracticeView {
             // Remove the original char.
             textView.textStorage.deleteCharacters(in: originalCharRange)
             
-        } else if attributedStringBeforeEditting.length > textView.attributedText.length {  // Deletion.
+        } else if attributedTextBeforeEditting.length > textView.attributedText.length {  // Deletion.
 
             // Obtain and remove the original char from the mapping.
             guard let originalChar = edittedAttrCharRangeToOriginalAttrChar.removeValue(forKey: edittedCharRange) else {
@@ -644,7 +692,35 @@ extension ListenAndRepeatPracticeView {
             return
         }
         
+        // When adjusting the selected range the current method may be called multiple times in a recursion.
+        guard !isAdjustingSelectedRange else {
+            return
+        }
+        
         let selectedRange = textView.selectedRange
+        
+        // If selected all, cancel the selection.
+        // Else cannot edit after selecting all.
+        if selectedRange == NSRange(
+            location: 0,
+            length: textView.attributedText.length
+        ) {
+            textView.selectedRange = NSRange(
+                location: 0,
+                length: 0
+            )
+            return
+        }
+        
+        // If selected a whole cloze (by double tapping), cancel the selection.
+        if selectedRange.length != 0 {
+            textView.selectedRange = NSRange(
+                location: 0,
+                length: 0
+            )
+            return
+        }
+        
         guard selectedRange.location >= 0,
               selectedRange.location <= textView.text.count else {
             // Do not place the code in the next line in `textViewDidEndEditing()`,
@@ -671,12 +747,20 @@ extension ListenAndRepeatPracticeView {
                 bgColorOfCharToReplace == textView.backgroundColor
                 && bgColorBeforeCharToReplace == Colors.clozeMaskColor
             ) {
+            
+            // Move the cursor to the beginning of the cloze
+            // or to the next typped char in the cloze.
+            isAdjustingSelectedRange = true
+            adjustSelectedRange()
+            isAdjustingSelectedRange = false
+            
             textView.becomeFirstResponder()
             delegate.canRecord = false
             // Without the following line of code,
             // when tapping the end of the word after resigning
             // the cursor still appears.
             selectedRangeWhenBecomingFirstResponderAgain = textView.selectedRange
+            
         } else {
             selectedRangeWhenBecomingFirstResponderAgain = textView.selectedRange
             textView.resignFirstResponder()

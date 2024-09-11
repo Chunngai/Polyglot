@@ -161,6 +161,10 @@ class TextMeaningPracticeView: BasePracticeView {
         textView.defaultTextAttributes = {
             var attrs = Attributes.leftAlignedLongTextAttributes
             attrs[.font] = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
+            // IMPORTANT TO ENSURE THAT THE CHARS IN THE INITIAL TEXT
+            // HAVE THE SAME BG COLOR WITH THE TEXT VIEW, OTHERWISE
+            // CLOZE TYPING WILL NOT WORK PROPERLY.
+            attrs[.backgroundColor] = textView.backgroundColor
             return attrs
         }()
         textView.attributedText = NSMutableAttributedString(
