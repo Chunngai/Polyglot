@@ -129,11 +129,6 @@ extension WordMarkingTextView {
         // Cancel the selection if any.
         resignFirstResponder()
         
-        // When a refresh button is tapped, regenerate the content.
-        if haveTappedRefreshButtonForWordMemorizationContent(tappedTextRange: tappedTextRange) {
-            return
-        }
-        
         // When a new word is being added, do nothing.
         if isAddingNewWord {
             return
@@ -143,6 +138,11 @@ extension WordMarkingTextView {
         if wordMarkingBottomView.isFloatingUp {
             wordMarkingBottomView.floatDown()
             wordMarkingBottomView.clear()
+        }
+        
+        // When a refresh button is tapped, regenerate the content.
+        if haveTappedRefreshButtonForWordMemorizationContent(tappedTextRange: tappedTextRange) {
+            return
         }
         
         // Present an added new word.
