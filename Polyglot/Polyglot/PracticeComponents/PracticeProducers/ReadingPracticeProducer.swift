@@ -19,7 +19,7 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
         self.batchSize = LangCode.currentLanguage.configs.readingPracticeDuration
         
         let cachedReadingPractices = ReadingPracticeProducer.loadCachedPractices(for: LangCode.currentLanguage)
-        initializePracticeList(with: cachedReadingPractices)
+        load(cachedReadingPractices)
         for practice in self.practiceList {
             guard let practice = practice as? ReadingPractice else {
                 continue

@@ -59,41 +59,32 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
                 self.practiceList.append(contentsOf: self.make())
             }
         }
-    }
-    
-    func initializePracticeList(with cachedPractices: [TextMeaningPractice]) {
-        if !cachedPractices.isEmpty {
-            self.practiceList.append(contentsOf: cachedPractices)
-            self.currentPracticeIndex = randomPracticeIndex
-            
-            DispatchQueue.global(qos: .userInitiated).async {
-                // In case that some words have been deleted.
-                for practice in self.practiceList {
-                    guard let practice = practice as? TextMeaningPractice else {
-                        continue
-                    }
-                    
-                    let (
-                        updatedExistingPhraseRanges,
-                        updatedExistingPhraseMeanings
-                    ) = self.findExistingPhraseRangesAndMeanings(
-                        for: practice.text,
-                        from: self.words
-                    )
-                    practice.existingPhraseRanges = updatedExistingPhraseRanges
-                    practice.existingPhraseMeanings = updatedExistingPhraseMeanings
-                    
-                    if practice.textAccentLocs.isEmpty {
-                        self.calculateAccentLocsForText(in: practice)
-                    }
-                }
-            }
-            
-        } else {
-            self.practiceList.append(contentsOf: make())
-            self.currentPracticeIndex = randomPracticeIndex
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.updateMeaningsAndExistingPhrasesAndAccentLocs()
         }
     }
+}
+
+extension TextMeaningPracticeProducer {
+    
+    func load(_ cachedPractices: [TextMeaningPractice]) {
+        if !cachedPractices.isEmpty {
+            self.practiceList.append(contentsOf: cachedPractices)
+            self.updateMeaningsAndExistingPhrasesAndAccentLocs()
+        } else {
+            self.practiceList.append(contentsOf: make())
+        }
+        self.currentPracticeIndex = randomPracticeIndex
+    }
+    
+    @objc
+    func cache() {
+        fatalError("cache() has not been implemented.")
+    }
+    
+}
+
+extension TextMeaningPracticeProducer {
     
     func updatePracticeRepetitions() {
         if let currentPractice = self.practiceList[self.currentPracticeIndex] as? TextMeaningPractice {
@@ -116,10 +107,6 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
         // Immediate reinforcement.
         self.nextPracticeIndex = self.currentPracticeIndex
         
-    }
-    
-    func cache() {
-        fatalError("cache() has not been implemented.")
     }
     
 }
@@ -381,6 +368,37 @@ extension TextMeaningPracticeProducer {
                 }
             }
         }
+    }
+ 
+    func updateMeaningsAndExistingPhrasesAndAccentLocs() {
+        
+        for practice in self.practiceList {
+            guard let practice = practice as? TextMeaningPractice else {
+                continue
+            }
+            
+            if practice.meaning.isEmpty {
+                self.maybeTranslate(text: practice.text) { translation, isMachineTranslated, translatorType, translationQuery in
+                    practice.meaning = translation
+                    practice.isTextMachineTranslated = isMachineTranslated
+                    practice.machineTranslatorType = translatorType
+                }
+            }
+            
+            // In case that some words have been deleted.
+            (
+                practice.existingPhraseRanges,
+                practice.existingPhraseMeanings
+            ) = self.findExistingPhraseRangesAndMeanings(
+                for: practice.text,
+                from: self.words
+            )
+            
+            if practice.textAccentLocs.isEmpty {
+                self.calculateAccentLocsForText(in: practice)
+            }
+        }
+        
     }
     
 }

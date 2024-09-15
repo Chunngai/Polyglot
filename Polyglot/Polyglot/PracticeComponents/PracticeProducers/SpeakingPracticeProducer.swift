@@ -19,7 +19,7 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
         self.batchSize = LangCode.currentLanguage.configs.speakingPracticeDuration
         
         let cachedSpeakingPractices = SpeakingPracticeProducer.loadCachedPractices(for: LangCode.currentLanguage)
-        initializePracticeList(with: cachedSpeakingPractices)
+        load(cachedSpeakingPractices)
     }
     
     override func make() -> [BasePractice] {

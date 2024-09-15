@@ -19,7 +19,7 @@ class ListeningPracticeProducer: TextMeaningPracticeProducer {
         self.batchSize = LangCode.currentLanguage.configs.listeningPracticeDuration * 2
         
         let cachedListeningPractices = ListeningPracticeProducer.loadCachedPractices(for: LangCode.currentLanguage)
-        initializePracticeList(with: cachedListeningPractices)
+        load(cachedListeningPractices)
     }
     
     override func make() -> [BasePractice] {
