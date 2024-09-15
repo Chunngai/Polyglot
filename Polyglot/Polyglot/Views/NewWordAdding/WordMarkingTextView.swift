@@ -134,15 +134,15 @@ extension WordMarkingTextView {
             return
         }
         
+        // When a refresh button is tapped, regenerate the content.
+        if haveTappedRefreshButtonForWordMemorizationContent(tappedTextRange: tappedTextRange) {
+            return
+        }
+        
         // Float down the presenting bottom view, if any.
         if wordMarkingBottomView.isFloatingUp {
             wordMarkingBottomView.floatDown()
             wordMarkingBottomView.clear()
-        }
-        
-        // When a refresh button is tapped, regenerate the content.
-        if haveTappedRefreshButtonForWordMemorizationContent(tappedTextRange: tappedTextRange) {
-            return
         }
         
         // Present an added new word.
@@ -514,6 +514,12 @@ extension WordMarkingTextView {
         if let selectedTextRange = selectedTextRange,
            !selectedTextRange.isEmpty,
            let word = text(in: selectedTextRange) {
+            
+            // Float down the presenting bottom view, if any.
+            if wordMarkingBottomView.isFloatingUp {
+                wordMarkingBottomView.floatDown()
+                wordMarkingBottomView.clear()
+            }
             
             word2memorizationContentRange[word] = NSRange(
                 location: 0, 
