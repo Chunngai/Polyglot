@@ -413,17 +413,44 @@ extension ListenAndRepeatPracticeView {
                 location: currentLocation + 1,  // +1: recover the -1.
                 length: typedWord.count
             )
+            matchedClozeRanges.insert(typedWordRange)
             textView.textStorage.addAttributes(
                 [
                     .foregroundColor : textView.defaultTextAttributes[.foregroundColor] as! UIColor,
-                    .backgroundColor : textView.backgroundColor as Any
+                    .backgroundColor : textView.defaultTextAttributes[.backgroundColor] as! UIColor
                 ],
                 range: typedWordRange
             )
-            textView.resignFirstResponder()
-            matchedClozeRanges.insert(typedWordRange)
+            
             for rangeToRemove in rangesToRemove {
                 edittedAttrCharRangeToOriginalAttrChar.removeValue(forKey: rangeToRemove)
+            }
+            
+            let unmatchedClozeRanges = self.unmatchedClozeRanges
+            if !unmatchedClozeRanges.isEmpty {  // Select the next cloze.
+                
+                var rangeOfNextCloze: NSRange = NSRange(
+                    location: textView.attributedText.length,
+                    length: 0
+                )
+                for unmatchedClozeRange in self.unmatchedClozeRanges {
+                    if
+                        unmatchedClozeRange.location - typedWordRange.location > 0  // So the unmatched range is after the typed range.
+                        && unmatchedClozeRange.location < rangeOfNextCloze.location  // To get the nearest unmatched range.
+                    {
+                        rangeOfNextCloze = unmatchedClozeRange
+                    }
+                }
+                
+                isAdjustingSelectedRange = true
+                textView.selectedRange = NSRange(
+                    location: rangeOfNextCloze.location,
+                    length: 0
+                )
+                isAdjustingSelectedRange = false
+                
+            } else {
+                textView.resignFirstResponder()
             }
         }
         
