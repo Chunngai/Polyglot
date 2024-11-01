@@ -449,6 +449,13 @@ extension ListenAndRepeatPracticeView {
                 )
                 isAdjustingSelectedRange = false
                 
+                // Otherwise the typped consonant (e.g., s) will attach to the previous typed char
+                // if the previous typed char ends w/ a vowel (e.g., e).
+                if LangCode.currentLanguage == .ko {
+                    textView.resignFirstResponder()
+                    textView.becomeFirstResponder()
+                }
+                
             } else {
                 textView.resignFirstResponder()
             }

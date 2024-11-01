@@ -31,7 +31,7 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
     )
     var contentCreator: ContentCreator = ContentCreator()
     
-    private var randomPracticeIndex: Int {
+    var randomPracticeIndex: Int {
         return (0..<self.practiceList.count).randomElement()!
     }
     private var nextPracticeIndex: Int?  // For immediate reinforcement.
@@ -59,9 +59,11 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
                 self.practiceList.append(contentsOf: self.make())
             }
         }
-        DispatchQueue.global(qos: .userInitiated).async {
-            self.updateMeaningsAndExistingPhrasesAndAccentLocs()
-        }
+        
+        // Do not call this function here. Will lead to crashing.
+//        DispatchQueue.global(qos: .userInitiated).async {
+//            self.updateMeaningsAndExistingPhrasesAndAccentLocs()
+//        }
     }
 }
 
@@ -74,7 +76,10 @@ extension TextMeaningPracticeProducer {
         } else {
             self.practiceList.append(contentsOf: make())
         }
-        self.currentPracticeIndex = randomPracticeIndex
+        
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.updateMeaningsAndExistingPhrasesAndAccentLocs()
+        }
     }
     
     @objc

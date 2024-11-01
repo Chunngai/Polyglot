@@ -20,6 +20,8 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
         
         let cachedSpeakingPractices = SpeakingPracticeProducer.loadCachedPractices(for: LangCode.currentLanguage)
         load(cachedSpeakingPractices)
+        
+        self.currentPracticeIndex = randomPracticeIndex
     }
     
     override func make() -> [BasePractice] {
