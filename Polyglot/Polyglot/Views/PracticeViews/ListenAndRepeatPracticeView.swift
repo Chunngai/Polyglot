@@ -561,7 +561,12 @@ extension ListenAndRepeatPracticeView {
             let originalChar = textView.attributedText.attributedSubstring(from: originalCharRange)
             
             // Store the original char.
-            edittedAttrCharRangeToOriginalAttrChar[edittedCharRange] = originalChar
+            // Store the char only when the editted char range has not been stored,
+            // otherwise when deleting the char at the range, the char will be restored to
+            // the previously typed (stored) char.
+            if !edittedAttrCharRangeToOriginalAttrChar.keys.contains(edittedCharRange) {
+                edittedAttrCharRangeToOriginalAttrChar[edittedCharRange] = originalChar
+            }
             
             // Remove the original char.
             textView.textStorage.deleteCharacters(in: originalCharRange)
