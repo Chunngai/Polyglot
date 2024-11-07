@@ -148,29 +148,38 @@ class TextMeaningPracticeView: BasePracticeView {
         self.currentRepetition = currentRepetition
         self.textAccentLocs = textAccentLocs
         
-        textView = WordMarkingTextView(
-            textLang: textLang,
-            meaningLang: meaningLang
-        )
-        textView.textContainerInset = UIEdgeInsets(
-            top: textView.textContainerInset.top, 
-            left: textView.textContainerInset.left,
-            bottom: Sizes.defaultCornerRadius * 2,
-            right: textView.textContainerInset.right
-        )
-        textView.defaultTextAttributes = {
-            var attrs = Attributes.leftAlignedLongTextAttributes
-            attrs[.font] = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
-            // IMPORTANT TO ENSURE THAT THE CHARS IN THE INITIAL TEXT
-            // HAVE THE SAME BG COLOR WITH THE TEXT VIEW, OTHERWISE
-            // CLOZE TYPING WILL NOT WORK PROPERLY.
-            attrs[.backgroundColor] = textView.backgroundColor
-            return attrs
+        textView = {
+            let textView = WordMarkingTextView(
+                textLang: textLang,
+                meaningLang: meaningLang
+            )
+            
+            textView.textContainerInset = UIEdgeInsets(
+                top: textView.textContainerInset.top,
+                left: textView.textContainerInset.left,
+                bottom: Sizes.defaultCornerRadius * 2,
+                right: textView.textContainerInset.right
+            )
+            
+            textView.showsVerticalScrollIndicator = false
+            textView.showsHorizontalScrollIndicator = false
+            
+            textView.defaultTextAttributes = {
+                var attrs = Attributes.leftAlignedLongTextAttributes
+                attrs[.font] = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
+                // IMPORTANT TO ENSURE THAT THE CHARS IN THE INITIAL TEXT
+                // HAVE THE SAME BG COLOR WITH THE TEXT VIEW, OTHERWISE
+                // CLOZE TYPING WILL NOT WORK PROPERLY.
+                attrs[.backgroundColor] = textView.backgroundColor
+                return attrs
+            }()
+            textView.attributedText = NSMutableAttributedString(
+                string: " ",
+                attributes: textView.defaultTextAttributes
+            )
+            
+            return textView
         }()
-        textView.attributedText = NSMutableAttributedString(
-            string: " ",
-            attributes: textView.defaultTextAttributes
-        )
         
         updateRepetitionLabelText()
     }
