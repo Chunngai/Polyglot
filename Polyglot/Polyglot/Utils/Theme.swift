@@ -106,7 +106,7 @@ struct Images {
     
     // WordMarkingTextView images.
     
-    static let wordMemorizationContentRefreshingImage: UIImage = UIImage.init(systemName: "arrow.clockwise")!
+    static let wordMarkingTextViewContentGenerationRefreshingImage: UIImage = UIImage.init(systemName: "arrow.clockwise")!
     
 }
 

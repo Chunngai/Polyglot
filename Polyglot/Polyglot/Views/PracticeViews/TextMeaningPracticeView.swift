@@ -115,6 +115,7 @@ class TextMeaningPracticeView: BasePracticeView {
     
     var upperIcon: UIImage?
     var lowerIcon: UIImage?
+    lazy var iconFont: UIFont = textView.defaultTextAttributes[.font] as! UIFont
     
     // MARK: - Init
     
@@ -259,7 +260,10 @@ class TextMeaningPracticeView: BasePracticeView {
                 length: 2  // Icon + space.
             ))
             
-            attributedText.append(textView.imageAttributedString(with: upperIcon))
+            attributedText.append(textView.imageAttributedString(
+                icon: upperIcon,
+                font: iconFont
+            ))
             attributedText.append(NSAttributedString(string: " "))
         }
         attributedText.append(NSAttributedString(string: upperString))
@@ -284,7 +288,10 @@ class TextMeaningPracticeView: BasePracticeView {
                 length: 2  // Icon + space.
             ))
             
-            attributedText.append(textView.imageAttributedString(with: lowerIcon))
+            attributedText.append(textView.imageAttributedString(
+                icon: lowerIcon,
+                font: iconFont
+            ))
             attributedText.append(NSAttributedString(string: " "))
         }
         attributedText.append(NSAttributedString(string: lowerString))

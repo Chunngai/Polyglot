@@ -9,15 +9,16 @@
 import UIKit
 
 class WordMarkingTextView: UITextView, UITextViewDelegate {
-
-    var currentWordInfo: WordInfo = WordInfo(
+    
+    var currentWordInfo: WordInfo = WordInfo(  // Store the info of the new word being added.
         textRange: UITextRange(),
         word: "",
         meaning: ""
-    )  // Store the info of the new word being added.
+    )
     var wordsInfo: [WordInfo] = []
     
-    var currentSelectedTextRange: UITextRange!  // For deleting new words.
+    // For deleting new words.
+    var currentSelectedTextRange: UITextRange!
     
     var isAddingNewWord: Bool = false
     var canAddNewWord: Bool = true {
@@ -35,26 +36,46 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
             }
         }
     }
-    
     var tapGestureRecognizer: UITapGestureRecognizer!
     
     var defaultTextAttributes: [NSAttributedString.Key : Any] = [
         .foregroundColor: Colors.normalTextColor,
         .backgroundColor: Colors.defaultBackgroundColor
     ]
-    var defaultWordMemorizationTextAttributes: [NSAttributedString.Key : Any] = Attributes.leftAlignedLongTextAttributes
+    var defaultContentGenerationTextAttributes: [NSAttributedString.Key : Any] = Attributes.leftAlignedLongTextAttributes
     var defaultHighlightingColor: UIColor = Colors.newWordHighlightingColor
     
-    // For word memorization.
+    enum ContentGenerationType {
+        case memorization
+        case translation
+    }
     private var contentCreatorForWordMemorization: ContentCreator = ContentCreator(.gpt4o)
-    private var word2memorizationContentRange: [String: NSRange] = [:]
-    private var memorizationContentRefreshIconRange2wordAndStatus: [NSRange: (word: String, isRegenerating: Bool)] = [:]
-    
+    private var wordTranslator: MachineTranslator!
+    // Text font for generated content.
+    private lazy var iconFontOfGeneratedContent: UIFont = (defaultTextAttributes[.font] as? UIFont) ?? UIFont.systemFont(ofSize: Sizes.smallFontSize)
+    struct ContentGenerationInfo {
+        var word: String
+
+        var generationType: ContentGenerationType
+        var isGenerating: Bool = false
+        
+        var refreshIconNSRange: NSRange = NSRange()
+        var contentNSRange: NSRange = NSRange()
+        
+        init(word: String, generationType: ContentGenerationType) {
+            self.word = word
+            self.generationType = generationType
+        }
+        
+    }
+    var contentGenerationInfoList: [ContentGenerationInfo?] = []
+        
     // MARK: - Views
     
     private var newWordMenuItem: UIMenuItem!  // https://www.youtube.com/watch?v=s-LW_4ypwZo
     private var wordMeaningMenuItem: UIMenuItem!
     private var wordMemorizationMenuItem: UIMenuItem!
+    private var wordTranslationMenuItem: UIMenuItem!
     
     var wordMarkingBottomView: WordMarkingBottomView!
     
@@ -66,6 +87,11 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
         wordMarkingBottomView = WordMarkingBottomView(
             wordLang: textLang,
             meaningLang: meaningLang
+        )
+        
+        wordTranslator = MachineTranslator(
+            srcLang: textLang,
+            trgLang: meaningLang
         )
         
         updateSetups()
@@ -91,7 +117,6 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
         )
         addGestureRecognizer(tapGestureRecognizer)
         
-        // Display the new word menu item at the beginning.
         newWordMenuItem = UIMenuItem(
             title: Strings.newWordMenuItemString,
             action: #selector(newWordMenuItemTapped)
@@ -104,10 +129,15 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
             title: Strings.wordMemorizationMenuItemString,
             action: #selector(wordMemorizationMenuItemTapped)
         )
+        wordTranslationMenuItem = UIMenuItem(
+            title: Strings.translationToken,
+            action: #selector(wordTranslationMenuItemTapped)
+        )
         UIMenuController.shared.menuItems = [
             newWordMenuItem,
             wordMeaningMenuItem,
-            wordMemorizationMenuItem
+            wordMemorizationMenuItem,
+            wordTranslationMenuItem,
         ]
         
         wordMarkingBottomView.delegate = self
@@ -118,179 +148,7 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
 
 extension WordMarkingTextView {
     
-    private func tappedAt(_ tappedTextRange: UITextRange) {
-        
-        // For canceling selections
-        // & handling memorization content regeneration
-        // & presenting an added new word.
-        // https://stackoverflow.com/questions/48474488/get-tapped-word-in-a-uitextview
-
-        wordMarkingBottomView.meaningTextField.resignFirstResponder()
-        // Cancel the selection if any.
-        resignFirstResponder()
-        
-        // When a new word is being added, do nothing.
-        if isAddingNewWord {
-            return
-        }
-        
-        // When a refresh button is tapped, regenerate the content.
-        if haveTappedRefreshButtonForWordMemorizationContent(tappedTextRange: tappedTextRange) {
-            return
-        }
-        
-        // Float down the presenting bottom view, if any.
-        if wordMarkingBottomView.isFloatingUp {
-            wordMarkingBottomView.floatDown()
-            wordMarkingBottomView.clear()
-        }
-        
-        // Present an added new word.
-        let tapPositionValue = valueOf(textPosition: tappedTextRange.start)
-        for wordInfo in wordsInfo {
-            
-            let wordTextRange: UITextRange = wordInfo.textRange
-            // Left text position.
-            let rangeStartPositionValue = valueOf(textPosition: wordTextRange.start)
-            // Right text position.
-            let rangeEndPositionValue = valueOf(textPosition: wordTextRange.end)
-
-            // Use <= and do not use intersection(),
-            // else the condition is false if the left of the first letter
-            // or the right of the last letter is tapped.
-            let isTextRangeTapped: Bool = (
-                rangeStartPositionValue <= tapPositionValue
-                && tapPositionValue <= rangeEndPositionValue
-            )
-            if isTextRangeTapped {
-                wordMarkingBottomView.word = wordInfo.word
-                wordMarkingBottomView.meaning = wordInfo.meaning
-                wordMarkingBottomView.isAddingNewWord = false  // For displaying the delete icon.
-                wordMarkingBottomView.deleteButton.isHidden = !wordInfo.canDelete
-                wordMarkingBottomView.floatUp()
-                
-                currentSelectedTextRange = wordTextRange  // For deleting the word later.
-                
-                break  // Avoid overlapped highlighting.
-            }
-        }
-    }
-        
-    private func haveTappedRefreshButtonForWordMemorizationContent(tappedTextRange: UITextRange) -> Bool {
-        
-        let tappedRange = nsRange(from: tappedTextRange)
-        
-        var hitRange: NSRange? = nil
-        for offset in [-2, -1, 0, 1, 2] {
-            let location = tappedRange.location + offset
-            if location < 0 {
-                continue
-            }
-            if location >= self.attributedText.length {
-                continue
-            }
-            let r = NSRange(
-                location: location,
-                length: 1
-            )
-            if memorizationContentRefreshIconRange2wordAndStatus.keys.contains(r) {
-                hitRange = r
-                break
-            }
-        }
-        guard let hitRange = hitRange else {
-            return false
-        }
-        
-        if let (word, isGenerating) = memorizationContentRefreshIconRange2wordAndStatus[hitRange],
-           !isGenerating,
-           let memorizationContentRange = word2memorizationContentRange[word] {
-            
-            // Disable regeneration.
-            memorizationContentRefreshIconRange2wordAndStatus[hitRange]!.isRegenerating = true
-            
-            // Make the refresh button gray.
-            let attrText = NSMutableAttributedString(attributedString: attributedText)
-            attrText.replaceCharacters(
-                in: hitRange,
-                with: ""
-            )
-            attrText.insert(
-                imageAttributedString(with: Images.wordMemorizationContentRefreshingImage.withTintColor(Colors.inactiveTextColor)),
-                at: hitRange.location
-            )
-            self.attributedText = attrText
-            
-            // Regenerate the content.
-            generateWordMemorizationContent(for: word) { content in
-                
-                // Enable regeneration.
-                self.memorizationContentRefreshIconRange2wordAndStatus[hitRange]!.isRegenerating = false
-                
-                DispatchQueue.main.async {
-                    
-                    // Make the refresh button black.
-                    var attrText = NSMutableAttributedString(attributedString: self.attributedText)
-                    attrText.replaceCharacters(
-                        in: hitRange,
-                        with: ""
-                    )
-                    attrText.insert(
-                        self.imageAttributedString(with: Images.wordMemorizationContentRefreshingImage.withTintColor(Colors.normalTextColor)),
-                        at: hitRange.location
-                    )
-                    self.attributedText = attrText
-                    
-                    // Update the content.
-                    guard let content = content else {
-                        return
-                    }
-                    let parsedAttrContent = self.parseBoldingFor(content)
-                    
-                    attrText = NSMutableAttributedString(attributedString: self.attributedText)
-                    attrText.replaceCharacters(
-                        in: memorizationContentRange,
-                        with: ""
-                    )
-                    attrText.insert(
-                        parsedAttrContent,
-                        at: memorizationContentRange.location
-                    )
-                    self.attributedText = attrText
-                    
-                    let contentLengthDiff = parsedAttrContent.string.count - memorizationContentRange.length
-                    // Update word2memorizationContentRange for the current word.
-                    let updatedMemorizationContentRange = NSRange(
-                        location: memorizationContentRange.location,
-                        length: parsedAttrContent.string.count
-                    )
-                    self.word2memorizationContentRange[word] = updatedMemorizationContentRange
-                    // Update word2memorizationContentRange for other words, if needed.
-                    for (anotherWord, memorizationContentRangeOfAnotherWord) in self.word2memorizationContentRange {
-                        if memorizationContentRangeOfAnotherWord.location > updatedMemorizationContentRange.upperBound {
-                            self.word2memorizationContentRange[anotherWord] = NSRange(
-                                location: memorizationContentRangeOfAnotherWord.location + contentLengthDiff,
-                                length: memorizationContentRangeOfAnotherWord.length
-                            )
-                        }
-                    }
-                    // Update memorizationContentRefreshIconRange2wordAndStatus for other words, if needed.
-                    for (memorizationContentRefreshIconRange, wordAndStatus) in self.memorizationContentRefreshIconRange2wordAndStatus {
-                        if memorizationContentRefreshIconRange.location > hitRange.location {
-                            self.memorizationContentRefreshIconRange2wordAndStatus.removeValue(forKey: memorizationContentRefreshIconRange)
-                            self.memorizationContentRefreshIconRange2wordAndStatus[NSRange(
-                                location: memorizationContentRefreshIconRange.location + contentLengthDiff,
-                                length: memorizationContentRefreshIconRange.length
-                            )] = wordAndStatus
-                        }
-                    }
-                }
-            }
-        }
-        
-        return true
-        
-    }
+    // MARK: - Ranges
     
     func nsRange(from textRange: UITextRange) -> NSRange {
         // Ref: https://stackoverflow.com/questions/21149767/convert-selectedtextrange-uitextrange-to-nsrange
@@ -307,6 +165,12 @@ extension WordMarkingTextView {
         }
         return nil
     }
+    
+}
+
+extension WordMarkingTextView {
+    
+    // MARK: - Highlighting
     
     func highlight(_ textRange: UITextRange, with color: UIColor?) {
         textStorage.addAttributes(
@@ -337,29 +201,16 @@ extension WordMarkingTextView {
         }
     }
     
-    func imageAttributedString(with icon: UIImage) -> NSAttributedString {
-        let textAttachment = NSTextAttachment()
-        textAttachment.image = icon
-        
-        // Use the line height of the font for the image height to align with the text height
-        let font = (defaultTextAttributes[.font] as? UIFont) ?? UIFont.systemFont(ofSize: Sizes.smallFontSize)
-        let lineHeight = font.lineHeight
-        // Adjust the width of the image to maintain the aspect ratio, if necessary
-        let aspectRatio = textAttachment.image!.size.width / textAttachment.image!.size.height
-        let imageWidth = lineHeight * aspectRatio
-        textAttachment.bounds = CGRect(
-            x: 0,
-            y: (font.capHeight - lineHeight) / 2,
-            width: imageWidth,
-            height: lineHeight
-        )
-        
-        return NSAttributedString(attachment: textAttachment)
-    }
+}
+
+extension WordMarkingTextView {
+    
+    // MARK: - Generating Content for Memorization/Translation.
     
     private func generateWordMemorizationContent(for word: String, completion: @escaping (String?) -> Void) {
         
         guard !word.strip().isEmpty else {
+            completion(nil)
             return
         }
         
@@ -390,16 +241,123 @@ extension WordMarkingTextView {
         }
     }
     
-    private func parseBoldingFor(_ content: String) -> NSAttributedString {
+    private func generateWordTranslationContent(for word: String, completion: @escaping (String?) -> Void) {
+        
+        guard !word.isEmpty else {
+            completion(nil)
+            return
+        }
+        
+        wordTranslator.translate(query: word) { translations, _ in
+            guard !translations.isEmpty else {
+                completion(nil)
+                return
+            }
+            let concatTranslation = translations.joined(separator: "; ").strip()
+            completion(concatTranslation)
+        }
+    }
+    
+    private func display(_ generatedContent: NSAttributedString, for word: String) -> (
+        refreshIconNSRange: NSRange,
+        generatedContentNSRange: NSRange
+    ) {
+        let attrText = NSMutableAttributedString(attributedString: self.attributedText)
+        
+        attrText.append(NSAttributedString(
+            string: "\n\n",
+            attributes: self.defaultContentGenerationTextAttributes
+        ))
+        
+        let refreshIconNSRange = NSRange(
+            location: attrText.length,
+            length: 1
+        )
+        attrText.append(self.imageAttributedString(
+            icon: Images.wordMarkingTextViewContentGenerationRefreshingImage,
+            font: self.iconFontOfGeneratedContent
+        ))
+        
+        let wordAttrStr = NSMutableAttributedString(
+            string: " \(word):\n",
+            attributes: self.defaultContentGenerationTextAttributes
+        )
+        wordAttrStr.bold(for: NSRange(
+            location: 1,  // 1: for the space.
+            length: word.count
+        ))
+        attrText.append(wordAttrStr)
+        
+        let generatedContentNSRange = NSRange(
+            location: attrText.length,
+            length: generatedContent.string.count
+        )
+        attrText.append(generatedContent)
+        
+        self.attributedText = attrText
+        
+        return (
+            refreshIconNSRange: refreshIconNSRange,
+            generatedContentNSRange: generatedContentNSRange
+        )
+    }
+    
+    private func generateContent(for generationType: ContentGenerationType) {
+        
+        guard let selectedTextRange = selectedTextRange,
+              !selectedTextRange.isEmpty,
+              let word = text(in: selectedTextRange) else {
+            return
+        }
+        
+        // Float down the presenting bottom view, if any.
+        if wordMarkingBottomView.isFloatingUp {
+            wordMarkingBottomView.floatDown()
+            wordMarkingBottomView.clear()
+        }
+        
+        var contentGenerationInfoForThisWord = ContentGenerationInfo(
+            word: word,
+            generationType: generationType
+        )
+        // Here `contentGenerationInfoForThisWord` functions as a placeholder for hiding the "memorization"/"translation" menu item.
+        // It not set here, the corresponding menu item still appears before the generation completes.
+        contentGenerationInfoList.append(contentGenerationInfoForThisWord)
+        let contentGenerationInfoIndexForThisWord = contentGenerationInfoList.count - 1
+        
+        var generator: (String, @escaping (String?) -> Void) -> Void = {
+            switch generationType {
+            case .memorization: return generateWordMemorizationContent
+            case .translation: return generateWordTranslationContent
+            }
+        }()
+        generator(word) { content in
+            guard let content = content else {
+                // Rollback.
+                // Do not directly remove the info, as changing the arr length may affect the assignments in haveTappedRefreshButtonForGeneratedContent().
+                self.contentGenerationInfoList[contentGenerationInfoIndexForThisWord] = nil
+                return
+            }
+            
+            let parsedAttrContent = self.parseBolding(for: content)
+            DispatchQueue.main.async {
+                let (refreshIconNSRange, generatedContentNSRange) = self.display(parsedAttrContent, for: word)
+                self.contentGenerationInfoList[contentGenerationInfoIndexForThisWord]?.refreshIconNSRange = refreshIconNSRange
+                self.contentGenerationInfoList[contentGenerationInfoIndexForThisWord]?.contentNSRange = generatedContentNSRange
+            }
+        }
+    }
+    
+    private func parseBolding(for content: String) -> NSAttributedString {
         
         // https://chatgpt.com/share/eebcc408-a5a9-496f-821e-afbbf0519931
         
         let mutableAttrStr = NSMutableAttributedString(
             string: content,
-            attributes: defaultWordMemorizationTextAttributes
+            attributes: defaultContentGenerationTextAttributes
         )
         
-        guard let font = defaultWordMemorizationTextAttributes[.font] as? UIFont else {
+        guard let font = defaultContentGenerationTextAttributes[.font] as? UIFont else {
             return mutableAttrStr
         }
         let boldFont = UIFont.boldSystemFont(ofSize: font.pointSize)
@@ -439,6 +397,193 @@ extension WordMarkingTextView {
         
         return mutableAttrStr
         
+    }
+    
+    private func haveTappedRefreshButtonForGeneratedContent(tappedTextRange: UITextRange) -> Bool {
+        
+        let tappedRange = nsRange(from: tappedTextRange)
+        
+        // Do nothing if a "\n" is tapped.
+        let tappedRangeWithLengthOne = NSRange(
+            location: tappedRange.location,
+            length: 1
+        )
+        guard let textRangeOfTappedRangeWithLengthOne = textRange(from: tappedRangeWithLengthOne),
+              text(in: textRangeOfTappedRangeWithLengthOne) != "\n" else {
+            return false
+        }
+
+        var generatedContentInfoIndex: Int? = nil
+        for offset in [-2, -1, 0, 1, 2] {
+            let location = tappedRange.location + offset
+            if location < 0 {
+                continue
+            }
+            if location >= self.attributedText.length {
+                continue
+            }
+            
+            let r = NSRange(
+                location: location,
+                length: 1
+            )
+            for i in 0..<self.contentGenerationInfoList.count {
+                if self.contentGenerationInfoList[i]!.refreshIconNSRange == r {
+                    generatedContentInfoIndex = i
+                    break
+                }
+            }
+        }
+        guard let generatedContentInfoIndex = generatedContentInfoIndex else {
+            return false
+        }
+
+        // Do nothing if content for the word is being generated.
+        guard !self.contentGenerationInfoList[generatedContentInfoIndex]!.isGenerating else {
+            return false
+        }
+        // Disable regeneration.
+        self.contentGenerationInfoList[generatedContentInfoIndex]!.isGenerating = true
+
+        // Make the refresh button gray.
+        let attrText = NSMutableAttributedString(attributedString: attributedText)
+        attrText.replaceCharacters(
+            in: self.contentGenerationInfoList[generatedContentInfoIndex]!.refreshIconNSRange,
+            with: imageAttributedString(
+                icon: Images.wordMarkingTextViewContentGenerationRefreshingImage.withTintColor(Colors.inactiveTextColor),
+                font: iconFontOfGeneratedContent
+            )
+        )
+        self.attributedText = attrText
+        
+        // Regenerate the content.
+        var generator: (String, @escaping (String?) -> Void) -> Void = {
+            switch self.contentGenerationInfoList[generatedContentInfoIndex]!.generationType {
+            case .memorization: return generateWordMemorizationContent
+            case .translation: return generateWordTranslationContent
+            }
+        }()
+        generator(self.contentGenerationInfoList[generatedContentInfoIndex]!.word) { content in
+            
+            // Enable regeneration.
+            self.contentGenerationInfoList[generatedContentInfoIndex]!.isGenerating = false
+            
+            DispatchQueue.main.async {
+                
+                // Make the refresh button black.
+                var attrText = NSMutableAttributedString(attributedString: self.attributedText)
+                attrText.replaceCharacters(
+                    in: self.contentGenerationInfoList[generatedContentInfoIndex]!.refreshIconNSRange,
+                    with: self.imageAttributedString(
+                        icon: Images.wordMarkingTextViewContentGenerationRefreshingImage.withTintColor(Colors.normalTextColor),
+                        font: self.iconFontOfGeneratedContent
+                    )
+                )
+                self.attributedText = attrText
+                
+                // Update the content.
+                guard let content = content else {
+                    return
+                }
+                let parsedAttrContent = self.parseBolding(for: content)
+                
+                // Update the content for the word.
+                attrText = NSMutableAttributedString(attributedString: self.attributedText)
+                attrText.replaceCharacters(
+                    in: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange,
+                    with: parsedAttrContent
+                )
+                self.attributedText = attrText
+                
+                // Length diff before&after the regeneration.
+                let contentLengthDiff = parsedAttrContent.string.count - self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange.length
+                // Update the content range of the current word.
+                let updatedContentRange = NSRange(
+                    location: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange.location,
+                    length: parsedAttrContent.string.count
+                )
+                self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange = updatedContentRange
+                // Update the ranges of other words, if needed.
+                for i in 0..<self.contentGenerationInfoList.count {
+                    if self.contentGenerationInfoList[i]!.contentNSRange.location <= self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange.location {
+                        continue
+                    }
+                    self.contentGenerationInfoList[i]!.refreshIconNSRange = NSRange(
+                        location: self.contentGenerationInfoList[i]!.refreshIconNSRange.location + contentLengthDiff,
+                        length: self.contentGenerationInfoList[i]!.refreshIconNSRange.length
+                    )
+                    self.contentGenerationInfoList[i]!.contentNSRange = NSRange(
+                        location: self.contentGenerationInfoList[i]!.contentNSRange.location + contentLengthDiff,
+                        length: self.contentGenerationInfoList[i]!.contentNSRange.length
+                    )
+                }
+            }
+        }
+        
+        return true
+        
+    }
+    
+}
+
+extension WordMarkingTextView {
+    
+    private func tappedAt(_ tappedTextRange: UITextRange) {
+        
+        // For canceling selections
+        // & handling memorization content regeneration
+        // & presenting an added new word.
+        // https://stackoverflow.com/questions/48474488/get-tapped-word-in-a-uitextview
+
+        wordMarkingBottomView.meaningTextField.resignFirstResponder()
+        // Cancel the selection if any.
+        resignFirstResponder()
+        
+        // When a new word is being added, do nothing.
+        if isAddingNewWord {
+            return
+        }
+        
+        // When a refresh button is tapped, regenerate the content.
+        if haveTappedRefreshButtonForGeneratedContent(tappedTextRange: tappedTextRange) {
+            return
+        }
+        
+        // Float down the presenting bottom view, if any.
+        if wordMarkingBottomView.isFloatingUp {
+            wordMarkingBottomView.floatDown()
+            wordMarkingBottomView.clear()
+        }
+        
+        // Present an added new word.
+        let tapPositionValue = valueOf(textPosition: tappedTextRange.start)
+        for wordInfo in wordsInfo {
+            
+            let wordTextRange: UITextRange = wordInfo.textRange
+            // Left text position.
+            let rangeStartPositionValue = valueOf(textPosition: wordTextRange.start)
+            // Right text position.
+            let rangeEndPositionValue = valueOf(textPosition: wordTextRange.end)
+
+            // Use <= and do not use intersection(),
+            // else the condition is false if the left of the first letter
+            // or the right of the last letter is tapped.
+            let isTextRangeTapped: Bool = (
+                rangeStartPositionValue <= tapPositionValue
+                && tapPositionValue <= rangeEndPositionValue
+            )
+            if isTextRangeTapped {
+                wordMarkingBottomView.word = wordInfo.word
+                wordMarkingBottomView.meaning = wordInfo.meaning
+                wordMarkingBottomView.isAddingNewWord = false  // For displaying the delete icon.
+                wordMarkingBottomView.deleteButton.isHidden = !wordInfo.canDelete
+                wordMarkingBottomView.floatUp()
+                
+                currentSelectedTextRange = wordTextRange  // For deleting the word later.
+                
+                break  // Avoid overlapped highlighting.
+            }
+        }
     }
     
 }
@@ -510,69 +655,12 @@ extension WordMarkingTextView {
     
     @objc
     private func wordMemorizationMenuItemTapped() {
-        
-        if let selectedTextRange = selectedTextRange,
-           !selectedTextRange.isEmpty,
-           let word = text(in: selectedTextRange) {
-            
-            // Float down the presenting bottom view, if any.
-            if wordMarkingBottomView.isFloatingUp {
-                wordMarkingBottomView.floatDown()
-                wordMarkingBottomView.clear()
-            }
-            
-            word2memorizationContentRange[word] = NSRange(
-                location: 0, 
-                length: 0
-            )  // Placeholder for hiding the menu item..
-            generateWordMemorizationContent(for: word) { content in
-                
-                guard let content = content else {
-                    // Rollback.
-                    self.word2memorizationContentRange.removeValue(forKey: word)
-                    return
-                }
-                let parsedAttrContent = self.parseBoldingFor(content)
-                
-                DispatchQueue.main.async {
-                    
-                    let attrText = NSMutableAttributedString(attributedString: self.attributedText)
-                    
-                    attrText.append(NSAttributedString(
-                        string: "\n\n",
-                        attributes: self.defaultWordMemorizationTextAttributes
-                    ))
-                    
-                    self.memorizationContentRefreshIconRange2wordAndStatus[NSRange(
-                        location: attrText.length,
-                        length: 1
-                    )] = (
-                        word: word,
-                        isRegenerating: false
-                    )
-                    attrText.append(self.imageAttributedString(with: Images.wordMemorizationContentRefreshingImage))
-                    
-                    let wordAttrStr = NSMutableAttributedString(
-                        string: " \(word):\n",
-                        attributes: self.defaultWordMemorizationTextAttributes
-                    )
-                    wordAttrStr.bold(for: NSRange(
-                        location: 1,  // 1: for the space.
-                        length: word.count
-                    ))
-                    attrText.append(wordAttrStr)
-                    
-                    self.word2memorizationContentRange[word] = NSRange(
-                        location: attrText.length,
-                        length: parsedAttrContent.string.count
-                    )
-                    attrText.append(parsedAttrContent)
-                    
-                    self.attributedText = attrText
-                    
-                }
-            }
-        }
+        generateContent(for: .memorization)
+    }
+    
+    @objc
+    private func wordTranslationMenuItemTapped() {
+        generateContent(for: .translation)
     }
     
 }
@@ -584,12 +672,15 @@ extension WordMarkingTextView {
         if !canAddNewWord {
             return false
         }
-        if
-            let selectedTextRange = selectedTextRange,
-            memorizationContentRefreshIconRange2wordAndStatus.keys.contains(nsRange(from: selectedTextRange)) {
+        
+        // Check if a refresh icon is tapped.
+        let refreshIconNSRanges = contentGenerationInfoList.compactMap { c in
+            c?.refreshIconNSRange
+        }
+        if refreshIconNSRanges.contains(selectedRange) {
             return false
         }
-
+        
         if action == #selector(copy(_:)) {
             return true
         }
@@ -604,12 +695,25 @@ extension WordMarkingTextView {
                 let selectedTextRange = selectedTextRange,
                 !selectedTextRange.isEmpty,
                 let word = text(in: selectedTextRange) {
-                
-                if word2memorizationContentRange.keys.contains(word) {
-                    return false
-                } else {
-                    return true
+                let wordsToMemorize = contentGenerationInfoList.compactMap { c in
+                    c?.generationType == .memorization
+                    ? c?.word
+                    : nil
                 }
+                return !wordsToMemorize.contains(word)
+            }
+        }
+        if action == #selector(wordTranslationMenuItemTapped) {
+            if
+                let selectedTextRange = selectedTextRange,
+                !selectedTextRange.isEmpty,
+                let word = text(in: selectedTextRange) {
+                let translatedWords = contentGenerationInfoList.compactMap { c in
+                    c?.generationType == .translation
+                    ? c?.word
+                    : nil
+                }
+                return !translatedWords.contains(word)
             }
         }
         return false
