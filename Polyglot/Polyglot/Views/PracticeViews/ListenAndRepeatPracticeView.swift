@@ -627,7 +627,9 @@ extension ListenAndRepeatPracticeView {
         // Case 2: reached the word boundary.
         let bgColorOfNewSelectedLocationOfCharToReplace = textView.attributedText.backgroundColor(at: textView.selectedRange.location)
         if textView.selectedRange.location > self.text.count
-            || bgColorOfNewSelectedLocationOfCharToReplace == textView.backgroundColor {
+            || bgColorOfNewSelectedLocationOfCharToReplace == textView.backgroundColor
+            || bgColorOfNewSelectedLocationOfCharToReplace == nil  // Otherwise the word at the end of the text cannot be checked properly.
+        {
             checkTypedWordCorrectness()
         }
         
@@ -658,7 +660,10 @@ extension ListenAndRepeatPracticeView {
             }
             
             let bgColorOfRangeOfCharToReplace = textView.attributedText.backgroundColor(at: range.location)
-            if bgColorOfRangeOfCharToReplace == textView.backgroundColor {
+            if (
+                bgColorOfRangeOfCharToReplace == textView.backgroundColor
+                || bgColorOfRangeOfCharToReplace == nil  // Without this condition the last Korean char ending with a consonant cannot be typed properly.
+            ) {
                 // In this case, the cursor is already at the end of the cloze,
                 // and only deletion / typing Korean symbols are enabled.
                 canIncreaseTextLength = false
@@ -783,7 +788,10 @@ extension ListenAndRepeatPracticeView {
         if bgColorOfCharToReplace == Colors.clozeMaskColor
             // Only allow deleting in the following case.
             || (
-                bgColorOfCharToReplace == textView.backgroundColor
+                (
+                    bgColorOfCharToReplace == textView.backgroundColor
+                    || bgColorOfCharToReplace == nil  // Without this condition the last Korean char ending with a consonant cannot be typed properly.
+                )
                 && bgColorBeforeCharToReplace == Colors.clozeMaskColor
             ) {
             
