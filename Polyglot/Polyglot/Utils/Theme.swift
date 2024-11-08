@@ -104,10 +104,6 @@ struct Images {
     
     static let settingsImage: UIImage = UIImage.init(systemName: "gearshape")!
     
-    // WordMarkingTextView images.
-    
-    static let wordMarkingTextViewContentGenerationRefreshingImage: UIImage = UIImage.init(systemName: "arrow.clockwise")!
-    
 }
 
 struct Icons {
@@ -146,12 +142,9 @@ struct Sizes {
     
     // MARK: - Font Sizes.
     
-    static let primaryPromptFontSize: CGFloat = 50
-    static let secondaryPromptFontSize: CGFloat = 20
-//    static let largeFontSize: CGFloat = 23
     static let mediumFontSize: CGFloat = 17
     static let smallFontSize: CGFloat = 15
-    static let practiceFontSize: CGFloat = 20
+    static let wordPracticeFontSize: CGFloat = 20
     
     // MARK: - Scaling.
     
@@ -161,11 +154,6 @@ struct Sizes {
     // MARK: - Spacings.
     
     static let defaultStackSpacing: CGFloat = 15
-    static let defaultLineSpacing: CGFloat = 10
-    static let defaultParagraphSpacing: CGFloat = 10
-    static let smallLineSpacing: CGFloat = 5
-    static let defaultCollectionLayoutMinimumLineSpacing: CGFloat = 0
-    static let defaultCollectionLayoutMinimumInteritemSpacing: CGFloat = 0
     
     // MARK: - Widths.
     
@@ -177,95 +165,56 @@ struct Sizes {
 
 struct Attributes {
     
-    // MARK: - Language Strings.
-    
-    static let langStringAttrs = [
-        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.mediumFontSize, weight: .regular),
-        NSAttributedString.Key.foregroundColor : Colors.weakTextColor
-    ]
-    
     // MARK: - Paras.
     
-    static var defaultParaStyle: NSMutableParagraphStyle {
+    static func defaultParaStyle(fontSize: CGFloat, alignment: NSTextAlignment = .left) -> NSMutableParagraphStyle {
         let paraStyle = NSMutableParagraphStyle()
-        paraStyle.lineSpacing = Sizes.defaultLineSpacing
-        paraStyle.paragraphSpacing = Sizes.defaultParagraphSpacing
-        paraStyle.alignment = .justified
-        return paraStyle
-    }
-    static var leftAlignedParaStyle: NSMutableParagraphStyle {
-        let paraStyle = Attributes.defaultParaStyle
-        paraStyle.alignment = .left
-        return paraStyle
-    }
-    static var practicePromptParaStyle: NSMutableParagraphStyle {
-        let paraStyle = Attributes.leftAlignedParaStyle
-        paraStyle.lineSpacing = Sizes.smallLineSpacing
+        paraStyle.lineSpacing = fontSize * 0.6
+        paraStyle.paragraphSpacing = fontSize * 0.8
+        paraStyle.alignment = alignment
         return paraStyle
     }
     
-    static let defaultLongTextAttributes = [
-        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.smallFontSize),
+    static func defaultLongTextAttributes(fontSize: CGFloat) -> [NSAttributedString.Key : Any] {[
+        NSAttributedString.Key.font : UIFont.systemFont(ofSize: fontSize),
         NSAttributedString.Key.foregroundColor : Colors.normalTextColor,
-        NSAttributedString.Key.paragraphStyle: Attributes.defaultParaStyle
-    ]
-    static var leftAlignedLongTextAttributes: [NSAttributedString.Key: Any] {
-        var attrs = Attributes.defaultLongTextAttributes
-        attrs[NSAttributedString.Key.paragraphStyle] = Attributes.leftAlignedParaStyle
-        return attrs
-    }
+        NSAttributedString.Key.paragraphStyle: Attributes.defaultParaStyle(fontSize: fontSize)
+    ]}
     
     // MARK: - Black Prompts.
     
-    static let primaryPromptAttributes = [
-        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.primaryPromptFontSize, weight: .regular)
-    ]
-    static let secondaryPromptAttributes = [
-        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.secondaryPromptFontSize, weight: .regular)
-    ]
-    
     static let practicePromptAttributes = [
-        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.practiceFontSize),
-        NSAttributedString.Key.paragraphStyle : Attributes.practicePromptParaStyle,
+        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.wordPracticeFontSize),
+        NSAttributedString.Key.paragraphStyle : Attributes.defaultParaStyle(fontSize: 5),  // lineSpacing = 5.
         NSAttributedString.Key.foregroundColor : Colors.weakTextColor
     ]
     static let practiceWordAttributes = [
-        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.practiceFontSize),
+        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.wordPracticeFontSize),
         NSAttributedString.Key.foregroundColor : Colors.normalTextColor
     ]
     
     // MARK: - Grey Prompts.
-    
-    static let promptTextColorAttribute = [
-        NSAttributedString.Key.foregroundColor : Colors.weakTextColor,
-    ]
-    
+        
     static let newArticleTitleAttributes = [
         NSAttributedString.Key.font : UIFont.systemFont(
             ofSize: Sizes.smallFontSize,
             weight: .bold
         ),
         NSAttributedString.Key.foregroundColor : Colors.normalTextColor,
-        NSAttributedString.Key.paragraphStyle: Attributes.leftAlignedParaStyle
+        NSAttributedString.Key.paragraphStyle: Attributes.defaultParaStyle(fontSize: Sizes.smallFontSize)
     ]
-    static let newArticleTopicAttributes = Attributes.leftAlignedLongTextAttributes
-    static let newArticleBodyAttributes = {
-        var attrs = Attributes.leftAlignedLongTextAttributes
-        let paraStyle = attrs[.paragraphStyle] as! NSMutableParagraphStyle
-        paraStyle.paragraphSpacing = 0
-        attrs[.paragraphStyle] = paraStyle
-        return attrs
-    }()
-    static let newArticleSourceAttributes = Attributes.leftAlignedLongTextAttributes
+    static let newArticleTopicAttributes = Attributes.defaultLongTextAttributes(fontSize: Sizes.smallFontSize)
+    static let newArticleSourceAttributes = Attributes.defaultLongTextAttributes(fontSize: Sizes.smallFontSize)
+    static let newArticleBodyAttributes = Attributes.defaultLongTextAttributes(fontSize: Sizes.smallFontSize)
     
     // MARK: - Buttons.
     
     static let inactiveSelectionButtonTextAttributes = [
-        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.practiceFontSize, weight: .regular),  // TODO: - Should be set in the stack.
+        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.wordPracticeFontSize, weight: .regular),  // TODO: - Should be set in the stack.
         NSAttributedString.Key.foregroundColor : Colors.weakTextColor
     ]
     static let activeSelectionButtonTextAttributes = [
-        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.practiceFontSize, weight: .regular),  // TODO: - Should be set in the stack.
+        NSAttributedString.Key.font : UIFont.systemFont(ofSize: Sizes.wordPracticeFontSize, weight: .regular),  // TODO: - Should be set in the stack.
         NSAttributedString.Key.foregroundColor : Colors.normalTextColor
     ]
 }	

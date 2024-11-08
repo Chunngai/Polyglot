@@ -14,7 +14,9 @@ class ReadingEditTableCell: UITableViewCell {
     
     var delegate: ReadingEditViewController! {
         didSet {
-            textView.promptAttributes = Attributes.promptTextColorAttribute
+            textView.promptAttributes = [
+                NSAttributedString.Key.foregroundColor : Colors.weakTextColor,
+            ]
         }
     }
     

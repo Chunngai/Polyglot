@@ -166,8 +166,7 @@ class TextMeaningPracticeView: BasePracticeView {
             textView.showsHorizontalScrollIndicator = false
             
             textView.defaultTextAttributes = {
-                var attrs = Attributes.leftAlignedLongTextAttributes
-                attrs[.font] = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
+                var attrs = Attributes.defaultLongTextAttributes(fontSize: Sizes.mediumFontSize)
                 // IMPORTANT TO ENSURE THAT THE CHARS IN THE INITIAL TEXT
                 // HAVE THE SAME BG COLOR WITH THE TEXT VIEW, OTHERWISE
                 // CLOZE TYPING WILL NOT WORK PROPERLY.

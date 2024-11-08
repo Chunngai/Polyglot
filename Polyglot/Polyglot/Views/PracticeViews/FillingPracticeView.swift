@@ -23,7 +23,7 @@ class FillingPracticeView: WordPracticeView {
     
     var textField: UITextField = {
         let textField = UITextField()
-        textField.font = UIFont.systemFont(ofSize: Sizes.practiceFontSize)
+        textField.font = UIFont.systemFont(ofSize: Sizes.wordPracticeFontSize)
         textField.textColor = Colors.normalTextColor
         textField.textAlignment = .center
         textField.adjustsFontSizeToFitWidth = true
@@ -39,7 +39,7 @@ class FillingPracticeView: WordPracticeView {
     var referenceLabel: UILabel = {
         let label = UILabel()
         label.textColor = Colors.weakTextColor
-        label.font = UIFont.systemFont(ofSize: Sizes.practiceFontSize)
+        label.font = UIFont.systemFont(ofSize: Sizes.wordPracticeFontSize)
         label.isHidden = true
         label.numberOfLines = 0
         return label

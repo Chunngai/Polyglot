@@ -42,18 +42,15 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
         .foregroundColor: Colors.normalTextColor,
         .backgroundColor: Colors.defaultBackgroundColor
     ]
-    var defaultContentGenerationTextAttributes: [NSAttributedString.Key : Any] = Attributes.leftAlignedLongTextAttributes
     var defaultHighlightingColor: UIColor = Colors.newWordHighlightingColor
     
-    enum ContentGenerationType {
+    private var contentCreatorForWordMemorization: ContentCreator = ContentCreator(.gpt4o)
+    private var wordTranslator: MachineTranslator!
+    private enum ContentGenerationType {
         case memorization
         case translation
     }
-    private var contentCreatorForWordMemorization: ContentCreator = ContentCreator(.gpt4o)
-    private var wordTranslator: MachineTranslator!
-    // Text font for generated content.
-    private lazy var iconFontOfGeneratedContent: UIFont = (defaultTextAttributes[.font] as? UIFont) ?? UIFont.systemFont(ofSize: Sizes.smallFontSize)
-    struct ContentGenerationInfo {
+    private struct ContentGenerationInfo {
         var word: String
 
         var generationType: ContentGenerationType
@@ -68,7 +65,7 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
         }
         
     }
-    var contentGenerationInfoList: [ContentGenerationInfo?] = []
+    private var contentGenerationInfoList: [ContentGenerationInfo?] = []
         
     // MARK: - Views
     
@@ -266,21 +263,25 @@ extension WordMarkingTextView {
         
         attrText.append(NSAttributedString(
             string: "\n\n",
-            attributes: self.defaultContentGenerationTextAttributes
+            attributes: Self.contentGenerationTextAttributes
         ))
         
         let refreshIconNSRange = NSRange(
             location: attrText.length,
             length: 1
         )
-        attrText.append(self.imageAttributedString(
-            icon: Images.wordMarkingTextViewContentGenerationRefreshingImage,
-            font: self.iconFontOfGeneratedContent
+        attrText.append(NSAttributedString(
+            string: Strings.refreshingSymbol,
+            attributes: Self.contentGenerationRefreshingIconAttributes
         ))
+        attrText.setTextColor(
+            for: refreshIconNSRange,
+            with: Colors.activeSystemButtonColor
+        )
         
         let wordAttrStr = NSMutableAttributedString(
             string: " \(word):\n",
-            attributes: self.defaultContentGenerationTextAttributes
+            attributes: Self.contentGenerationTextAttributes
         )
         wordAttrStr.bold(for: NSRange(
             location: 1,  // 1: for the space.
@@ -316,7 +317,7 @@ extension WordMarkingTextView {
             wordMarkingBottomView.clear()
         }
         
-        var contentGenerationInfoForThisWord = ContentGenerationInfo(
+        let contentGenerationInfoForThisWord = ContentGenerationInfo(
             word: word,
             generationType: generationType
         )
@@ -325,7 +326,7 @@ extension WordMarkingTextView {
         contentGenerationInfoList.append(contentGenerationInfoForThisWord)
         let contentGenerationInfoIndexForThisWord = contentGenerationInfoList.count - 1
         
-        var generator: (String, @escaping (String?) -> Void) -> Void = {
+        let generator: (String, @escaping (String?) -> Void) -> Void = {
             switch generationType {
             case .memorization: return generateWordMemorizationContent
             case .translation: return generateWordTranslationContent
@@ -354,10 +355,10 @@ extension WordMarkingTextView {
         
         let mutableAttrStr = NSMutableAttributedString(
             string: content,
-            attributes: defaultContentGenerationTextAttributes
+            attributes: Self.contentGenerationTextAttributes
         )
         
-        guard let font = defaultContentGenerationTextAttributes[.font] as? UIFont else {
+        guard let font = Self.contentGenerationTextAttributes[.font] as? UIFont else {
             return mutableAttrStr
         }
         let boldFont = UIFont.boldSystemFont(ofSize: font.pointSize)
@@ -428,7 +429,7 @@ extension WordMarkingTextView {
                 length: 1
             )
             for i in 0..<self.contentGenerationInfoList.count {
-                if self.contentGenerationInfoList[i]!.refreshIconNSRange == r {
+                if self.contentGenerationInfoList[i]?.refreshIconNSRange == r {
                     generatedContentInfoIndex = i
                     break
                 }
@@ -445,19 +446,17 @@ extension WordMarkingTextView {
         // Disable regeneration.
         self.contentGenerationInfoList[generatedContentInfoIndex]!.isGenerating = true
 
+        print(0, self.contentSize, self.contentOffset)
+        
         // Make the refresh button gray.
-        let attrText = NSMutableAttributedString(attributedString: attributedText)
-        attrText.replaceCharacters(
-            in: self.contentGenerationInfoList[generatedContentInfoIndex]!.refreshIconNSRange,
-            with: imageAttributedString(
-                icon: Images.wordMarkingTextViewContentGenerationRefreshingImage.withTintColor(Colors.inactiveTextColor),
-                font: iconFontOfGeneratedContent
-            )
+        textStorage.addAttributes(
+            [NSAttributedString.Key.foregroundColor : Colors.inactiveSystemButtonColor],
+            range: self.contentGenerationInfoList[generatedContentInfoIndex]!.refreshIconNSRange
         )
-        self.attributedText = attrText
+        print(1, self.contentSize, self.contentOffset)
         
         // Regenerate the content.
-        var generator: (String, @escaping (String?) -> Void) -> Void = {
+        let generator: (String, @escaping (String?) -> Void) -> Void = {
             switch self.contentGenerationInfoList[generatedContentInfoIndex]!.generationType {
             case .memorization: return generateWordMemorizationContent
             case .translation: return generateWordTranslationContent
@@ -471,16 +470,12 @@ extension WordMarkingTextView {
             DispatchQueue.main.async {
                 
                 // Make the refresh button black.
-                var attrText = NSMutableAttributedString(attributedString: self.attributedText)
-                attrText.replaceCharacters(
-                    in: self.contentGenerationInfoList[generatedContentInfoIndex]!.refreshIconNSRange,
-                    with: self.imageAttributedString(
-                        icon: Images.wordMarkingTextViewContentGenerationRefreshingImage.withTintColor(Colors.normalTextColor),
-                        font: self.iconFontOfGeneratedContent
-                    )
+                self.textStorage.addAttributes(
+                    [NSAttributedString.Key.foregroundColor : Colors.activeSystemButtonColor],
+                    range: self.contentGenerationInfoList[generatedContentInfoIndex]!.refreshIconNSRange
                 )
-                self.attributedText = attrText
-                
+                print(2, self.contentSize, self.contentOffset)
+
                 // Update the content.
                 guard let content = content else {
                     return
@@ -488,23 +483,26 @@ extension WordMarkingTextView {
                 let parsedAttrContent = self.parseBolding(for: content)
                 
                 // Update the content for the word.
-                attrText = NSMutableAttributedString(attributedString: self.attributedText)
+                let attrText = NSMutableAttributedString(attributedString: self.attributedText)
                 attrText.replaceCharacters(
                     in: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange,
                     with: parsedAttrContent
                 )
                 self.attributedText = attrText
-                
+                print(3, self.contentSize, self.contentOffset, "\n")
+
                 // Length diff before&after the regeneration.
                 let contentLengthDiff = parsedAttrContent.string.count - self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange.length
                 // Update the content range of the current word.
-                let updatedContentRange = NSRange(
+                self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange = NSRange(
                     location: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange.location,
                     length: parsedAttrContent.string.count
                 )
-                self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange = updatedContentRange
                 // Update the ranges of other words, if needed.
                 for i in 0..<self.contentGenerationInfoList.count {
+                    guard self.contentGenerationInfoList[i] != nil else {
+                        continue
+                    }
                     if self.contentGenerationInfoList[i]!.contentNSRange.location <= self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange.location {
                         continue
                     }
@@ -794,7 +792,8 @@ struct WordInfo {
 extension WordMarkingTextView {
 
     // MARK: - Constants
-    
-    static let newWordBottomViewVerticalPadding: CGFloat = 20
+        
+    static let contentGenerationTextAttributes: [NSAttributedString.Key : Any] = Attributes.defaultLongTextAttributes(fontSize: Sizes.smallFontSize)
+    static let contentGenerationRefreshingIconAttributes: [NSAttributedString.Key : Any] = Attributes.defaultLongTextAttributes(fontSize: Sizes.mediumFontSize)
     
 }

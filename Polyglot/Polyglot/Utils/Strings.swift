@@ -686,6 +686,8 @@ extension Strings {
         return Strings._reinforce[LangCode.currentLanguage]!
     }
     
+    static let refreshingSymbol = "\u{21BB}"
+    
     // MARK: - Timing
         
     private static let _timeUpAlertTitles: [LangCode : String] = [

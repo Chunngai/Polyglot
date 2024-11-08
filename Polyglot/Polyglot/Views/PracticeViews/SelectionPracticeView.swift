@@ -50,7 +50,7 @@ class SelectionPracticeView: WordPracticeView {
         textView.showsVerticalScrollIndicator = false
         textView.attributedText = NSAttributedString(
             string: " ",
-            attributes: Attributes.leftAlignedLongTextAttributes
+            attributes: Attributes.defaultLongTextAttributes(fontSize: Sizes.smallFontSize)
         )
         textView.isHidden = true
         return textView
