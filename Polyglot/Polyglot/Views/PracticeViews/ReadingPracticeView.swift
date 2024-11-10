@@ -61,6 +61,12 @@ class ReadingPracticeView: TextMeaningPracticeView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func updateViews() {
+        super.updateViews()
+        
+        self.repetitionsLabel.isHidden = true
+    }
+    
     // MARK: - Methods from the Super Class
     
     override func submit() -> Any {
