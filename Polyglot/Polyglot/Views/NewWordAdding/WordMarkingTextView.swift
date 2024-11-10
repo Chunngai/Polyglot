@@ -553,8 +553,16 @@ extension WordMarkingTextView {
             wordMarkingBottomView.clear()
         }
         
-        // Present an added new word.
         let tapPositionValue = valueOf(textPosition: tappedTextRange.start)
+        // If there exists a word whose upper bound == attributedText.length - 1,
+        // the bottom view for the word will be floated up when tapping
+        // anywhere below the text.
+        // The following condition is to avoid it.
+        if tapPositionValue == attributedText.length {
+            return
+        }
+        
+        // Present an added new word.
         for wordInfo in wordsInfo {
             
             let wordTextRange: UITextRange = wordInfo.textRange
