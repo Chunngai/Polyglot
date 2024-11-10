@@ -79,7 +79,10 @@ extension TranslationPracticeViewController {
             )
             
             if practiceView.shouldReinforce {
-                practiceProducer.reinforce()
+                practiceProducer.reinforce(
+                    for: LangCode.currentLanguage.configs.practiceRepetition,
+                    shouldPracticeImmediately: true
+                )
             }
         }
         // Should be called after any code that will access practiceProducer.currentPractice, as this line of code will delete the current practice.

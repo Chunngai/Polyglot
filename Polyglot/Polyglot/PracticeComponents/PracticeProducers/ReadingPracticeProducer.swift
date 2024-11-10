@@ -130,6 +130,23 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
 
 extension ReadingPracticeProducer {
     
+    override func updatePracticeRepetitions() {
+        if let currentPractice = self.practiceList[self.currentPracticeIndex] as? TextMeaningPractice {
+            currentPractice.currentRepetition += 1
+            if currentPractice.currentRepetition < currentPractice.totalRepetitions {
+                // Move the current practice to the end of the list.
+                self.practiceList.remove(at: self.currentPracticeIndex)
+                self.practiceList.append(currentPractice)
+            } else {
+                self.practiceList.remove(at: self.currentPracticeIndex)
+            }
+        }
+    }
+    
+}
+
+extension ReadingPracticeProducer {
+    
     // MARK: - IO
     
     static func fileName(for lang: String) -> String {

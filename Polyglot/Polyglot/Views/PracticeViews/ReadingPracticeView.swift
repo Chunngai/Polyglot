@@ -70,8 +70,6 @@ class ReadingPracticeView: TextMeaningPracticeView {
     override func updateViewsAfterSubmission() {
         
         super.updateViewsAfterSubmission()
-        reinforceButton.isHidden = true
-        reinforceTextButton.isHidden = true
         
         highlightExistingPhrases(
             existingPhraseRanges: existingPhraseRanges,

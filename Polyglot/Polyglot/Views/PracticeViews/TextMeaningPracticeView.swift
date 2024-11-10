@@ -158,7 +158,7 @@ class TextMeaningPracticeView: BasePracticeView {
             textView.textContainerInset = UIEdgeInsets(
                 top: textView.textContainerInset.top,
                 left: textView.textContainerInset.left,
-                bottom: Sizes.defaultCornerRadius * 2,
+                bottom: Sizes.roundButtonRadius,
                 right: textView.textContainerInset.right
             )
             

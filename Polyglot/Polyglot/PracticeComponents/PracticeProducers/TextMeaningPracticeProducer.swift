@@ -91,6 +91,7 @@ extension TextMeaningPracticeProducer {
 
 extension TextMeaningPracticeProducer {
     
+    @objc
     func updatePracticeRepetitions() {
         if let currentPractice = self.practiceList[self.currentPracticeIndex] as? TextMeaningPractice {
             currentPractice.currentRepetition += 1
@@ -102,15 +103,17 @@ extension TextMeaningPracticeProducer {
         }
     }
     
-    func reinforce() {
+    func reinforce(for nTimes: Int, shouldPracticeImmediately: Bool = false) {
         guard let currentPractice = currentPractice as? TextMeaningPractice else {
             return
         }
-        currentPractice.totalRepetitions += LangCode.currentLanguage.configs.practiceRepetition
+        currentPractice.totalRepetitions += nTimes
         self.practiceList[self.currentPracticeIndex] = currentPractice
     
         // Immediate reinforcement.
-        self.nextPracticeIndex = self.currentPracticeIndex
+        if shouldPracticeImmediately {
+            self.nextPracticeIndex = self.currentPracticeIndex
+        }
         
     }
     
