@@ -15,6 +15,7 @@ class ReadingEditViewController: UIViewController {
         self.cell(for: ReadingEditViewController.titleIdentifier),
         self.cell(for: ReadingEditViewController.topicIdentifier),
         self.cell(for: ReadingEditViewController.sourceIdentifier),
+        self.cell(for: ReadingEditViewController.paraSplitingIdentifier),
         self.cell(for: ReadingEditViewController.bodyIdentifier)
     ]
     
@@ -33,11 +34,16 @@ class ReadingEditViewController: UIViewController {
     // Do not use a table view controller.
     // The scrolling is weired when the keyboard pops up.
     var tableView: UITableView = {
-        let tableView = UITableView(frame: .zero, style: .insetGrouped)
+        let tableView = UITableView(frame: .zero, style: .grouped)
+        tableView.backgroundColor = Colors.defaultBackgroundColor
+        tableView.separatorStyle = .none
         tableView.removeRedundantSeparators()
         // https://stackoverflow.com/questions/4399357/hide-keyboard-when-scroll-uitableview
         tableView.keyboardDismissMode = .onDrag
-        tableView.isScrollEnabled = false
+        
+        // For auto-resizing.
+//        tableView.isScrollEnabled = false
+        
         return tableView
     }()
     
@@ -48,8 +54,9 @@ class ReadingEditViewController: UIViewController {
         
         IQKeyboardManager.shared.enableAutoToolbar = true
         
+        navigationController?.navigationBar.hideBarSeparator()
         // Ensure that the status bar has a bg color in the modal presentation mode.
-        UIApplication.shared.statusBarUIView?.backgroundColor = .systemGroupedBackground
+        UIApplication.shared.statusBarUIView?.backgroundColor = Colors.defaultBackgroundColor
         
         scrollToQuery()
     }
@@ -59,6 +66,7 @@ class ReadingEditViewController: UIViewController {
         
         IQKeyboardManager.shared.enableAutoToolbar = false
         
+        navigationController?.navigationBar.showBarSeparator()
         // Reset the status bar bg color.
         UIApplication.shared.statusBarUIView?.backgroundColor = nil
     }
@@ -74,12 +82,16 @@ class ReadingEditViewController: UIViewController {
     private func updateSetups() {
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.register(ReadingEditTableCell.self, forCellReuseIdentifier: ReadingEditViewController.cellIdentifier)
+        tableView.register(
+            ReadingEditTableCell.self,
+            forCellReuseIdentifier: ReadingEditViewController.cellIdentifier
+        )
     }
     
     private func updateViews() {
         // Ensure that the nav bar has a bg color in the modal presentation mode.
-        navigationController?.navigationBar.backgroundColor = .systemGroupedBackground
+        navigationController?.navigationBar.isTranslucent = false  // If true, the nav bar is translucent when scrolling.
+        navigationController?.navigationBar.backgroundColor = Colors.defaultBackgroundColor
         
         navigationItem.title = Strings.articleEditingTitle
         navigationItem.leftBarButtonItem = UIBarButtonItem(
@@ -120,7 +132,7 @@ extension ReadingEditViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
-            return 3
+            return 4
         } else {
             return 1
         }
@@ -138,6 +150,8 @@ extension ReadingEditViewController: UITableViewDataSource {
                 return cells[ReadingEditViewController.topicIdentifier]
             } else if row == 2 {
                 return cells[ReadingEditViewController.sourceIdentifier]
+            } else if row == 3 {
+                return cells[ReadingEditViewController.paraSplitingIdentifier]
             }
         } else if section == 1 {
             return cells[ReadingEditViewController.bodyIdentifier]
@@ -152,61 +166,17 @@ extension ReadingEditViewController: UITableViewDelegate {
     
     // MARK: - UITableView Delegate
     
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        if section == 1 {
-            return {
-                let view = UIView()
-                
-                let label = {
-                    let label = UILabel()
-                    label.textColor = Colors.normalTextColor
-                    label.text = Strings.articleBodyPrompt
-                    label.textAlignment = .left
-                    label.textColor = Colors.weakTextColor
-                    label.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
-                    return label
-                }()
-                let button = {
-                    let button = UIButton()
-                    button.addTarget(
-                        self, action: #selector(articleSplittingButtonTapped),
-                        for: .touchUpInside
-                    )
-                    button.setTitle(
-                        Strings.articleSplittingTitle,
-                        for: .normal
-                    )
-                    button.setTitleColor(
-                        Colors.activeSystemButtonColor,
-                        for: .normal
-                    )
-                    button.titleLabel?.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
-                    return button
-                }()
-                
-                view.addSubview(label)
-                view.addSubview(button)
-                
-                label.snp.makeConstraints { make in
-                    make.top.equalToSuperview()
-                    make.bottom.equalToSuperview().inset(6)  // For the top margin of the header.
-                    make.leading.equalToSuperview().inset(6)
-                }
-                button.snp.makeConstraints { make in
-                    make.top.equalToSuperview()
-                    make.bottom.equalToSuperview().inset(6)  // For the top margin of the header.
-                    make.trailing.equalToSuperview().inset(6)
-                }
-                
-                return view
-            }()
-        } else {
-            return UIView()
-        }
+    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        20
     }
     
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        6  // For the bottom margin of the header.
+        0
+    }
+  
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        // For hiding headers.
+        UIView()
     }
     
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
@@ -215,24 +185,17 @@ extension ReadingEditViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        let section = indexPath.section
-        let row = indexPath.row
         
-        if section == 0 {
-            if row == 0 {
-                return ReadingEditViewController.cellHeights[ReadingEditViewController.titleIdentifier]
-            } else if row == 1 {
-                return ReadingEditViewController.cellHeights[ReadingEditViewController.topicIdentifier]
-            } else if row == 2 {
-                return ReadingEditViewController.cellHeights[ReadingEditViewController.sourceIdentifier]
-            }
-        } else if section == 1 {
-            return ReadingEditViewController.cellHeights[ReadingEditViewController.bodyIdentifier]
+        guard indexPath.section == 1,
+              cells[Self.bodyIdentifier].textView.content.isEmpty else {
+            return UITableView.automaticDimension
         }
         
-        return UITableView.automaticDimension
+        // When the body is empty.
+        return Self.cellHeights[Self.bodyIdentifier] ?? UITableView.automaticDimension
+        
     }
-    
+
 }
 
 extension ReadingEditViewController {
@@ -240,15 +203,31 @@ extension ReadingEditViewController {
     // MARK: - Utils
     
     private func cell(for identifier: Int) -> ReadingEditTableCell {
+        
         let cell = ReadingEditTableCell()
         cell.delegate = self
         
         let prompt = getPrompt(for: identifier)  // Dynamically loading instead of using constants, coz `lang` will change.
         let text = getText(for: identifier)
-        let attributes = ReadingEditViewController.attributes[identifier]
+        let textAttributes = Self.textAttributes[identifier] ?? [:]
+        let promptAttributes = Self.promptAttributes[identifier] ?? [:]
         
-        cell.updateValues(prompt: prompt, text: text, attributes: attributes, textViewTag: identifier)
-//        cell.textView.isScrollEnabled = identifier == ReadingEditViewController.bodyIdentifier
+        cell.updateValues(
+            prompt: prompt,
+            text: text,
+            promptAttributes: promptAttributes,
+            textAttributes: textAttributes,
+            textViewTag: identifier
+        )
+        
+        if identifier == Self.paraSplitingIdentifier {
+            cell.textView.isEditable = false
+            cell.addGestureRecognizer(UITapGestureRecognizer(
+                target: self,
+                action: #selector(paraSplitingButtonTapped)
+            ))
+        }
+
         return cell
     }
     
@@ -257,7 +236,7 @@ extension ReadingEditViewController {
         case ReadingEditViewController.titleIdentifier: return Strings.articleTitlePrompt
         case ReadingEditViewController.topicIdentifier: return Strings.articleTopicPrompt
         case ReadingEditViewController.sourceIdentifier: return Strings.articleSourcePrompt
-        case ReadingEditViewController.bodyIdentifier: return ""
+        case ReadingEditViewController.paraSplitingIdentifier: return Strings.paraSplitingPrompt
         default: return ""
         }
     }
@@ -389,12 +368,13 @@ extension ReadingEditViewController {
         navigationController?.dismiss(animated: true, completion: nil)
     }
     
-    @objc private func articleSplittingButtonTapped() {
-        let body = self.content["body"]
-        self.cells[ReadingEditViewController.bodyIdentifier].textView.text = body?.replacingOccurrences(
-            of: "\n",
-            with: "\n\n"
-        ).replaceMultipleBlankLinesWithSingleLine()
+    @objc private func paraSplitingButtonTapped() {
+        self.cells[ReadingEditViewController.bodyIdentifier].textView.text = self.content["body"]?
+            .replacingOccurrences(
+                of: "\n",
+                with: "\n\n"
+            )
+            .replaceMultipleBlankLinesWithSingleLine()
     }
 }
 
@@ -407,18 +387,50 @@ extension ReadingEditViewController {
     private static let titleIdentifier: Int = 0
     private static let topicIdentifier: Int = 1
     private static let sourceIdentifier: Int = 2
-    private static let bodyIdentifier: Int = 3
-    private static let attributes: [[NSAttributedString.Key : Any]] = [
-        Attributes.newArticleTitleAttributes,
-        Attributes.newArticleTopicAttributes,
-        Attributes.newArticleSourceAttributes,
-        Attributes.newArticleBodyAttributes,
+    private static let paraSplitingIdentifier: Int = 3
+    private static let bodyIdentifier: Int = 4
+    
+    private static let promptAttributesForText: [NSAttributedString.Key : Any] = {
+        var attrs = Attributes.defaultLongTextAttributes(fontSize: Sizes.mediumFontSize)
+        attrs[.foregroundColor] = Colors.weakTextColor
+        return attrs
+    }()
+    private static let promptAttributesForButton: [NSAttributedString.Key : Any] = {
+        var attrs = Attributes.defaultLongTextAttributes(fontSize: Sizes.mediumFontSize)
+        attrs[.font] = UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        attrs[.foregroundColor] = Colors.activeSystemButtonColor
+        return attrs
+    }()
+    private static let promptAttributes: [Int: [NSAttributedString.Key : Any]] = [
+        ReadingEditViewController.titleIdentifier: ReadingEditViewController.promptAttributesForText,
+        ReadingEditViewController.topicIdentifier: ReadingEditViewController.promptAttributesForText,
+        ReadingEditViewController.sourceIdentifier: ReadingEditViewController.promptAttributesForText,
+        ReadingEditViewController.paraSplitingIdentifier: ReadingEditViewController.promptAttributesForButton,
     ]
-    private static let cellHeights: [CGFloat] = [
-        Sizes.smallFontSize * 3,
-        Sizes.smallFontSize * 3,
-        Sizes.smallFontSize * 3,
-        UIScreen.main.bounds.height * 0.60,
+    
+    private static let textAttributes: [Int: [NSAttributedString.Key : Any]] = [
+        ReadingEditViewController.titleIdentifier: {
+            var attrs: [NSAttributedString.Key: Any] = Attributes.defaultLongTextAttributes(fontSize: Sizes.mediumFontSize)
+            attrs[.font] = UIFont.systemFont(
+                ofSize: Sizes.mediumFontSize,
+                weight: .bold
+            )
+            return attrs
+        }(),
+        ReadingEditViewController.topicIdentifier: Attributes.defaultLongTextAttributes(fontSize: Sizes.mediumFontSize),
+        ReadingEditViewController.sourceIdentifier: Attributes.defaultLongTextAttributes(fontSize: Sizes.mediumFontSize),
+        ReadingEditViewController.bodyIdentifier: {
+            var attrs: [NSAttributedString.Key: Any] = Attributes.defaultLongTextAttributes(fontSize: Sizes.mediumFontSize)
+            attrs[.paragraphStyle] = {
+                let paraStyle = Attributes.defaultParaStyle(fontSize: Sizes.mediumFontSize)
+                paraStyle.paragraphSpacing = 0
+                return paraStyle
+            }()
+            return attrs
+        }(),
+    ]
+    private static let cellHeights: [Int: CGFloat] = [
+        ReadingEditViewController.bodyIdentifier: UIScreen.main.bounds.height
     ]
 }
 

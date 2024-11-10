@@ -1,5 +1,5 @@
 //
-//  TextViewWithPrompt.swift
+//  AutoResizingTextViewWithPrompt.swift
 //  Polyglot
 //
 //  Created by Ho on 11/2/23.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class TextViewWithPrompt: UITextView {
+class AutoResizingTextViewWithPrompt: UITextView {
 
     var prompt: String! {
         didSet {
@@ -45,6 +45,10 @@ class TextViewWithPrompt: UITextView {
         }
     }
         
+    // Auto resizing.
+    // The table view that contains cells with AutoResizingTextViewWithPrompt.
+    var tableViewForHeightAdjustment: UITableView?
+    
     // MARK: - Init
     
     override init(frame: CGRect, textContainer: NSTextContainer?) {
@@ -63,6 +67,7 @@ class TextViewWithPrompt: UITextView {
         // Important! Do not set the delegate as a view controller.
         // https://www.jianshu.com/p/bf26d3d68a7d
         delegate = self
+        isScrollEnabled = false
     }
     
     private func updateViews() {
@@ -74,7 +79,7 @@ class TextViewWithPrompt: UITextView {
     }
 }
 
-extension TextViewWithPrompt  {
+extension AutoResizingTextViewWithPrompt  {
     
     private func maybeAddPrompt() {
         if let prompt = prompt, !text.starts(with: prompt) {
@@ -94,38 +99,49 @@ extension TextViewWithPrompt  {
     }
     
     private func updateTextAttributes() {
-        // Store the current selected range.
-        // https://stackoverflow.com/questions/34914948/how-to-stop-cursor-changing-position-when-i-setattributedtext-in-uitextview-dele
-        let currentSelectedRange: NSRange = selectedRange
+        
+        // Set attrs for the prompt.
+        // The text content may contain the prompt (though rare),
+        // so make the range instead of directly using the prompt for attr setting.
+        if let prompt = prompt, let promptAttributes = promptAttributes {
+            let promptRange = NSRange(location: 0, length: prompt.count)
+            textStorage.add(
+                attributes: promptAttributes,
+                for: promptRange
+            )
+        }
         
         // Set attrs for the content.
         if let textAttributes = textAttributes {
             // DO NOT USE THE ".ADD" METHOD OF THE EXTENSION OF NSMUTABLEATTRIBUTEDSTRING.
             // THIS METHOD USES STRING RANGES, WHICH CANNOT BE PROPERLY HANDLED
             // WHEN TEXT CONTAINS SPECIAL SYMBOLS, SUCH AS IPA SYMBOLS.
-            let newAttributedText = NSMutableAttributedString(string: text, attributes: textAttributes)
+//            let newAttributedText = NSMutableAttributedString(string: text, attributes: textAttributes)
             
-            // Set attrs for the prompt.
-            // The text content may contain the prompt (though rare),
-            // so make the range instead of directly using the prompt for attr setting.
-            if let prompt = prompt, let promptAttributes = promptAttributes {
-                let promptRange = NSRange(location: 0, length: prompt.count)
-                newAttributedText.addAttributes(promptAttributes, range: promptRange)
-            }
-            
-            attributedText = newAttributedText
+            let textRange = NSRange(
+                location: prompt.count,
+                length: text.count - prompt.count
+            )
+            textStorage.add(
+                attributes: textAttributes,
+                for: textRange
+            )
         }
-                
-        // Recover the selected range.
-        selectedRange = currentSelectedRange
+
     }
 }
 
-extension TextViewWithPrompt: UITextViewDelegate {
+extension AutoResizingTextViewWithPrompt: UITextViewDelegate {
     
     // MARK: - UITextView Delegate
     
     func textViewDidChange(_ textView: UITextView) {
+        
+        // Automatically expand cell heights.
+        if let tableView = tableViewForHeightAdjustment {
+            adjustHeights(in: tableView)
+        }
+        
         // Update attributes for the prompt and the content.
         maybeAddPrompt()
         updateTextAttributes()
@@ -155,3 +171,28 @@ extension TextViewWithPrompt: UITextViewDelegate {
     }
 }
 
+extension AutoResizingTextViewWithPrompt {
+    
+    // MARK: - Auto Resizing
+    
+    private func adjustHeights(in tableView: UITableView) {
+        
+        // Adjust the height of the cell containing the text view
+        // when edits are made.
+        // https://stackoverflow.com/questions/37014919/expand-uitextview-and-uitableview-when-uitextviews-text-extends-beyond-1-line
+        
+        let size = self.bounds.size
+        let newSize = self.sizeThatFits(CGSize(
+            width: size.width,
+            height: CGFloat.greatestFiniteMagnitude
+        ))
+        
+        if size.height != newSize.height {
+            UIView.setAnimationsEnabled(false)
+            tableView.beginUpdates()
+            tableView.endUpdates()
+            UIView.setAnimationsEnabled(true)
+        }
+    }
+    
+}

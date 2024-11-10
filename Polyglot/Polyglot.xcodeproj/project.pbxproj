@@ -41,7 +41,7 @@
 		C6A22FF22C712DBC00484B59 /* LangCodeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A22FF12C712DBC00484B59 /* LangCodeExtensions.swift */; };
 		C6A666F72B75EC03002B4DEE /* US2UKSpellingMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A666F62B75EC03002B4DEE /* US2UKSpellingMapping.swift */; };
 		C6AB6E822C8063EE00F660C7 /* AccentAnalyzerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6AB6E812C8063EE00F660C7 /* AccentAnalyzerProtocol.swift */; };
-		C6B5187C2AF2C19C00451B90 /* TextViewWithPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B5187B2AF2C19C00451B90 /* TextViewWithPrompt.swift */; };
+		C6B5187C2AF2C19C00451B90 /* AutoResizingTextViewWithPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B5187B2AF2C19C00451B90 /* AutoResizingTextViewWithPrompt.swift */; };
 		C6B9DE8C2B7E177E004F0C88 /* SpeakingPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B9DE8B2B7E177E004F0C88 /* SpeakingPractice.swift */; };
 		C6BA7AA72C7F52CA00C6FFD3 /* RussianAccentRetrievalModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C6BA7AA52C7F52CA00C6FFD3 /* RussianAccentRetrievalModel.xcdatamodeld */; };
 		C6BA7AAA2C7F52F800C6FFD3 /* RussianAccentEntity+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BA7AA82C7F52F800C6FFD3 /* RussianAccentEntity+CoreDataClass.swift */; };
@@ -209,7 +209,7 @@
 		C6A22FF12C712DBC00484B59 /* LangCodeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCodeExtensions.swift; sourceTree = "<group>"; };
 		C6A666F62B75EC03002B4DEE /* US2UKSpellingMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = US2UKSpellingMapping.swift; sourceTree = "<group>"; };
 		C6AB6E812C8063EE00F660C7 /* AccentAnalyzerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccentAnalyzerProtocol.swift; sourceTree = "<group>"; };
-		C6B5187B2AF2C19C00451B90 /* TextViewWithPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewWithPrompt.swift; sourceTree = "<group>"; };
+		C6B5187B2AF2C19C00451B90 /* AutoResizingTextViewWithPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoResizingTextViewWithPrompt.swift; sourceTree = "<group>"; };
 		C6B9DE8B2B7E177E004F0C88 /* SpeakingPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingPractice.swift; sourceTree = "<group>"; };
 		C6BA7AA62C7F52CA00C6FFD3 /* RussianAccentRetrievalModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = RussianAccentRetrievalModel.xcdatamodel; sourceTree = "<group>"; };
 		C6BA7AA82C7F52F800C6FFD3 /* RussianAccentEntity+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RussianAccentEntity+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
@@ -628,7 +628,7 @@
 				FF5292092952012E00858B55 /* ThreeButtonSelectionStack.swift */,
 				FF491E7F2959ED730088FD13 /* Separator.swift */,
 				FF4964CA2958BAFD00414AC5 /* TimingBar.swift */,
-				C6B5187B2AF2C19C00451B90 /* TextViewWithPrompt.swift */,
+				C6B5187B2AF2C19C00451B90 /* AutoResizingTextViewWithPrompt.swift */,
 				FFD7DF77299D8D4C00019D51 /* DragAndDrop */,
 				FFD7DF76299D8D3000019D51 /* NewWordAdding */,
 				FFD7DF75299D8D2300019D51 /* RoundButton */,
@@ -1054,7 +1054,7 @@
 				FF495EA029591DEC00EA7EA9 /* TableHeaderView.swift in Sources */,
 				C6A1FC462C7B4F7400F01632 /* ReadingPracticeViewController.swift in Sources */,
 				FFD7DF72299D509B00019D51 /* CGRectExtensions.swift in Sources */,
-				C6B5187C2AF2C19C00451B90 /* TextViewWithPrompt.swift in Sources */,
+				C6B5187C2AF2C19C00451B90 /* AutoResizingTextViewWithPrompt.swift in Sources */,
 				C6A1FC442C7B4E7700F01632 /* ReadingPracticeView.swift in Sources */,
 				C6BC06412C726D9E00B2DF44 /* TranslationProtocol.swift in Sources */,
 				FF62C9A929513A5000D41797 /* Theme.swift in Sources */,

@@ -483,7 +483,7 @@ extension Strings {
         return Strings._articleEditingTitles[LangCode.currentLanguage]!
     }
     
-    private static let _articleSplittingTitles: [LangCode : String] = [
+    private static let _articleSplitingTitles: [LangCode : String] = [
         LangCode.en : "Split with Newlines",
         LangCode.ja : "改行で分割",
         LangCode.es : "Dividir con Nuevas Líneas",
@@ -491,8 +491,8 @@ extension Strings {
         LangCode.ko : "줄바꿈으로 분할",
         LangCode.de : "Mit Newlines Teilen",
     ]
-    static var articleSplittingTitle: String {
-        return Strings._articleSplittingTitles[LangCode.currentLanguage]!
+    static var paraSplitingPrompt: String {
+        return Strings._articleSplitingTitles[LangCode.currentLanguage]!
     }
     
     static let windowsNewLineSymbol: String = "\r\n"

@@ -14,16 +14,14 @@ class ReadingEditTableCell: UITableViewCell {
     
     var delegate: ReadingEditViewController! {
         didSet {
-            textView.promptAttributes = [
-                NSAttributedString.Key.foregroundColor : Colors.weakTextColor,
-            ]
+            textView.tableViewForHeightAdjustment = delegate.tableView
         }
     }
     
     // MARK: - Views
     
-    var textView: TextViewWithPrompt = {
-        let textView = TextViewWithPrompt()
+    var textView: AutoResizingTextViewWithPrompt = {
+        let textView = AutoResizingTextViewWithPrompt()
         return textView
     }()
     
@@ -53,20 +51,24 @@ class ReadingEditTableCell: UITableViewCell {
     }
     
     private func updateLayouts() {
-        let padding = Sizes.smallFontSize
-        
         textView.snp.makeConstraints { (make) in
-//            make.centerX.equalToSuperview()
-            make.leading.trailing.equalToSuperview().inset(padding)
-            make.top.bottom.equalToSuperview().inset(6)
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.top.bottom.equalToSuperview()
         }
     }
     
-    func updateValues(prompt: String, text: String?, attributes: [NSAttributedString.Key : Any], textViewTag: Int) {
+    func updateValues(
+        prompt: String,
+        text: String?,
+        promptAttributes: [NSAttributedString.Key : Any],
+        textAttributes: [NSAttributedString.Key : Any],
+        textViewTag: Int
+    ) {
         
         textView.prompt = prompt
         textView.text = text
-        textView.textAttributes = attributes
+        textView.promptAttributes = promptAttributes
+        textView.textAttributes = textAttributes
         textView.tag = textViewTag
     }
     

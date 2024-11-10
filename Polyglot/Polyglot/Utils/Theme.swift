@@ -193,20 +193,6 @@ struct Attributes {
         NSAttributedString.Key.foregroundColor : Colors.normalTextColor
     ]
     
-    // MARK: - Grey Prompts.
-        
-    static let newArticleTitleAttributes = [
-        NSAttributedString.Key.font : UIFont.systemFont(
-            ofSize: Sizes.smallFontSize,
-            weight: .bold
-        ),
-        NSAttributedString.Key.foregroundColor : Colors.normalTextColor,
-        NSAttributedString.Key.paragraphStyle: Attributes.defaultParaStyle(fontSize: Sizes.smallFontSize)
-    ]
-    static let newArticleTopicAttributes = Attributes.defaultLongTextAttributes(fontSize: Sizes.smallFontSize)
-    static let newArticleSourceAttributes = Attributes.defaultLongTextAttributes(fontSize: Sizes.smallFontSize)
-    static let newArticleBodyAttributes = Attributes.defaultLongTextAttributes(fontSize: Sizes.smallFontSize)
-    
     // MARK: - Buttons.
     
     static let inactiveSelectionButtonTextAttributes = [
