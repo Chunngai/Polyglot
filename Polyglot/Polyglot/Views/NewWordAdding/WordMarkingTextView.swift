@@ -68,6 +68,10 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
     }
     private var contentGenerationInfoList: [ContentGenerationInfo?] = []
         
+    // MARK: - Controllers
+    
+    var wordMarkingTextViewContentGenerationDelegate: WordMarkingTextViewContentGenerationDelegate!
+    
     // MARK: - Views
     
     private var newWordMenuItem: UIMenuItem!  // https://www.youtube.com/watch?v=s-LW_4ypwZo
@@ -373,6 +377,7 @@ extension WordMarkingTextView {
         contentGenerationInfoList.append(contentGenerationInfoForThisWord)
         let contentGenerationInfoIndexForThisWord = contentGenerationInfoList.count - 1
         
+        wordMarkingTextViewContentGenerationDelegate.startedContentGeneration(wordMarkingTextView: self)
         let (generator, prompt) = generatorAndPrompt(
             word: word,
             generationType: generationType
@@ -381,6 +386,14 @@ extension WordMarkingTextView {
             word,
             prompt
         ) { content in
+            
+            DispatchQueue.main.async {
+                self.wordMarkingTextViewContentGenerationDelegate.completedContentGeneration(
+                    wordMarkingTextView: self,
+                    content: content
+                )
+            }
+            
             guard let content = content else {
                 // Rollback.
                 // Do not directly remove the info, as changing the arr length may affect the assignments in haveTappedRefreshButtonForGeneratedContent().
@@ -501,6 +514,7 @@ extension WordMarkingTextView {
         )
         
         // Regenerate the content.
+        wordMarkingTextViewContentGenerationDelegate.startedContentGeneration(wordMarkingTextView: self)
         let (generator, prompt) = generatorAndPrompt(
             word: self.contentGenerationInfoList[generatedContentInfoIndex]!.word,
             generationType: self.contentGenerationInfoList[generatedContentInfoIndex]!.generationType
@@ -509,6 +523,13 @@ extension WordMarkingTextView {
             self.contentGenerationInfoList[generatedContentInfoIndex]!.word,
             prompt
         ) { content in
+            
+            DispatchQueue.main.async {
+                self.wordMarkingTextViewContentGenerationDelegate.completedContentGeneration(
+                    wordMarkingTextView: self,
+                    content: content
+                )
+            }
             
             // Enable regeneration.
             self.contentGenerationInfoList[generatedContentInfoIndex]!.isGenerating = false
@@ -883,5 +904,12 @@ extension WordMarkingTextView {
         
     static let contentGenerationTextAttributes: [NSAttributedString.Key : Any] = Attributes.defaultLongTextAttributes(fontSize: Sizes.smallFontSize)
     static let contentGenerationRefreshingIconAttributes: [NSAttributedString.Key : Any] = Attributes.defaultLongTextAttributes(fontSize: Sizes.mediumFontSize)
+    
+}
+
+protocol WordMarkingTextViewContentGenerationDelegate {
+    
+    func startedContentGeneration(wordMarkingTextView: WordMarkingTextView)
+    func completedContentGeneration(wordMarkingTextView: WordMarkingTextView, content: String?)
     
 }

@@ -105,6 +105,12 @@ class TextMeaningPracticeView: BasePracticeView {
         return label
     }()
     
+    var contentGenerationSpinner: UIActivityIndicatorView = {
+        let spinner = UIActivityIndicatorView(style: .medium)
+        spinner.hidesWhenStopped = true
+        return spinner
+    }()
+    
     var translatorIcon: UIImage {
         switch machineTranslatorType {
         case .google: return Icons.googleTranslateIcon
@@ -190,6 +196,7 @@ class TextMeaningPracticeView: BasePracticeView {
     
     func updateSetups() {
         textView.delegate = self
+        textView.wordMarkingTextViewContentGenerationDelegate = self
         
         reinforceButton.addTarget(
             self,
@@ -211,6 +218,7 @@ class TextMeaningPracticeView: BasePracticeView {
         mainView.addSubview(reinforceButton)
         mainView.addSubview(reinforceTextButton)
         mainView.addSubview(repetitionsLabel)
+        mainView.addSubview(contentGenerationSpinner)
         
         displayUpper()
     }
@@ -246,6 +254,10 @@ class TextMeaningPracticeView: BasePracticeView {
         }
         
         repetitionsLabel.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.centerY.equalTo(listenButton.snp.centerY)
+        }
+        contentGenerationSpinner.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.centerY.equalTo(listenButton.snp.centerY)
         }
@@ -407,6 +419,26 @@ extension TextMeaningPracticeView {
         
         shouldReinforce.toggle()
         
+    }
+    
+}
+
+extension TextMeaningPracticeView: WordMarkingTextViewContentGenerationDelegate {
+    
+    // MARK: - WordMarkingTextViewContentGenerationDelegate
+    
+    @objc
+    func startedContentGeneration(wordMarkingTextView: WordMarkingTextView) {
+        repetitionsLabel.isHidden = true
+        contentGenerationSpinner.isHidden = false
+        contentGenerationSpinner.startAnimating()
+    }
+    
+    @objc
+    func completedContentGeneration(wordMarkingTextView: WordMarkingTextView, content: String?) {
+        repetitionsLabel.isHidden = false
+        contentGenerationSpinner.isHidden = true
+        contentGenerationSpinner.stopAnimating()
     }
     
 }
