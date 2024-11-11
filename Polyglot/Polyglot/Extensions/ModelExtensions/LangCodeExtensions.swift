@@ -117,20 +117,24 @@ extension LangCode {
         return containsLatinLetters(text) || text.isNumericText
     }
     
-    private func clozeFilterForOtherLangs(_ text: String) -> Bool {
+    private func clozeFilterForLangsWithLatinLetters(_ text: String) -> Bool {
         return mayBeAbbr(text) || text.isNumericText
+    }
+    
+    private func clozeFilterForLangsWithSlavicLetters(_ text: String) -> Bool {
+        return mayBeAbbr(text) || text.isNumericText || containsLatinLetters(text)
     }
     
     var shouldFilter: (String) -> Bool {
         switch self {
         case .zh: return clozeFilterForZhJaKo
-        case .en: return clozeFilterForOtherLangs
+        case .en: return clozeFilterForLangsWithLatinLetters
         case .ja: return clozeFilterForZhJaKo
-        case .es: return clozeFilterForOtherLangs
-        case .ru: return clozeFilterForOtherLangs
+        case .es: return clozeFilterForLangsWithLatinLetters
+        case .ru: return clozeFilterForLangsWithSlavicLetters
         case .ko: return clozeFilterForZhJaKo
-        case .de: return clozeFilterForOtherLangs
-        case .undetermined: return clozeFilterForOtherLangs
+        case .de: return clozeFilterForLangsWithLatinLetters
+        case .undetermined: return clozeFilterForLangsWithLatinLetters
         }
     }
     
