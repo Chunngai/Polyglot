@@ -17,10 +17,11 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
     )
     var wordsInfo: [WordInfo] = []
     
+    var isAddingNewWord: Bool = false
+    
     // For deleting new words.
     var currentSelectedTextRange: UITextRange!
     
-    var isAddingNewWord: Bool = false
     var canAddNewWord: Bool = true {
         didSet {
             if canAddNewWord {
@@ -38,20 +39,25 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
     }
     var tapGestureRecognizer: UITapGestureRecognizer!
     
+    // Text attributes.
     var defaultTextAttributes: [NSAttributedString.Key : Any] = [
         .foregroundColor: Colors.normalTextColor,
         .backgroundColor: Colors.defaultBackgroundColor
     ]
     var defaultHighlightingColor: UIColor = Colors.newWordHighlightingColor
     
-    private var contentCreator: ContentCreator = ContentCreator(.gpt4o)
-    private var wordTranslator: MachineTranslator!
-    private enum ContentGenerationType {
+    // Content generation.
+    
+    var contentCreator: ContentCreator = ContentCreator(.gpt4o)
+    var wordTranslator: MachineTranslator!
+    
+    enum ContentGenerationType {
         case memorization
         case translation
         case explanation
     }
-    private struct ContentGenerationInfo {
+    
+    struct ContentGenerationInfo {
         var word: String
 
         var generationType: ContentGenerationType
@@ -66,8 +72,14 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
         }
         
     }
-    private var contentGenerationInfoList: [ContentGenerationInfo?] = []
+    var contentGenerationInfoList: [ContentGenerationInfo?] = []
         
+    var isColorAnimating = true
+    lazy var colorAnimationOriginalColor: UIColor = defaultTextAttributes[.foregroundColor] as? UIColor ?? Colors.normalTextColor
+    lazy var colorAnimationIntermediateColor: UIColor = Colors.inactiveTextColor
+    // For storing the original text length.
+    var originalTextLength: Int!
+    
     // MARK: - Controllers
     
     var wordMarkingTextViewContentGenerationDelegate: WordMarkingTextViewContentGenerationDelegate!
@@ -228,94 +240,7 @@ extension WordMarkingTextView {
 
 extension WordMarkingTextView {
     
-    // MARK: - Generating Content for Memorization/Translation.
-    
-    private func generateContentWithLLM(for word: String, with prompt: String, completion: @escaping (String?) -> Void) {
-        
-        guard !word.strip().isEmpty else {
-            completion(nil)
-            return
-        }
-        
-        contentCreator.createContent(withPrompt: prompt) { content in
-            guard var content = content else {
-                completion(nil)
-                return
-            }
-            content = content.strip()
-                .replacingOccurrences(of: Strings.windowsNewLineSymbol, with: "\n")
-                .replacingOccurrences(of: Strings.macNewLineSymbol, with: "\n")
-                .replaceMultipleBlankLinesWithSingleLine()
-                .replacingOccurrences(of: "\n\n", with: "\n")
-            completion(content)
-        }
-    }
-    
-    private func generateWordTranslationContent(for word: String, with prompt: String = "", completion: @escaping (String?) -> Void) {
-        // The param "prompt" is not used in this method. It is for alignment with generateContentWithLLM().
-        
-        guard !word.isEmpty else {
-            completion(nil)
-            return
-        }
-        
-        wordTranslator.translate(query: word) { translations, _ in
-            guard !translations.isEmpty else {
-                completion(nil)
-                return
-            }
-            let concatTranslation = translations.joined(separator: "; ").strip()
-            completion(concatTranslation)
-        }
-    }
-    
-    private func display(_ generatedContent: NSAttributedString, for word: String) -> (
-        refreshIconNSRange: NSRange,
-        generatedContentNSRange: NSRange
-    ) {
-        let attrText = NSMutableAttributedString(attributedString: self.attributedText)
-        
-        attrText.append(NSAttributedString(
-            string: "\n\n",
-            attributes: Self.contentGenerationTextAttributes
-        ))
-        
-        let refreshIconNSRange = NSRange(
-            location: attrText.length,
-            length: 1
-        )
-        attrText.append(NSAttributedString(
-            string: Strings.refreshingSymbol,
-            attributes: Self.contentGenerationRefreshingIconAttributes
-        ))
-        attrText.setTextColor(
-            for: refreshIconNSRange,
-            with: Colors.activeSystemButtonColor
-        )
-        
-        let wordAttrStr = NSMutableAttributedString(
-            string: " \(word):\n",
-            attributes: Self.contentGenerationTextAttributes
-        )
-        wordAttrStr.bold(for: NSRange(
-            location: 1,  // 1: for the space.
-            length: word.count
-        ))
-        attrText.append(wordAttrStr)
-        
-        let generatedContentNSRange = NSRange(
-            location: attrText.length,
-            length: generatedContent.string.count
-        )
-        attrText.append(generatedContent)
-        
-        self.attributedText = attrText
-        
-        return (
-            refreshIconNSRange: refreshIconNSRange,
-            generatedContentNSRange: generatedContentNSRange
-        )
-    }
+    // MARK: - Content Generation
     
     private func generatorAndPrompt(word: String, generationType: ContentGenerationType) -> (
         generator: (String, String, @escaping (String?) -> Void) -> Void,
@@ -360,53 +285,93 @@ extension WordMarkingTextView {
         )
     }
     
-    private func generateContent(word: String, generationType: ContentGenerationType) {
-        
-        // Float down the presenting bottom view, if any.
-        if wordMarkingBottomView.isFloatingUp {
-            wordMarkingBottomView.floatDown()
-            wordMarkingBottomView.clear()
+    private func startTextColorTransitionAnimation(for range: NSRange) {
+
+        func animateToIntermidiateColor() {
+            
+            UIView.transition(
+                with: self,
+                duration: 1.0,
+                options: .transitionCrossDissolve
+            ) {
+                self.textStorage.setTextColor(
+                    for: range,
+                    with: self.colorAnimationIntermediateColor
+                )
+            } completion: { ifFinished in
+                if self.isColorAnimating {
+                    animateToOriginalColor()
+                } else {
+                    // Reset to true for the animation next time.
+                    self.isColorAnimating = true
+                    return
+                }
+            }
+            
         }
         
-        let contentGenerationInfoForThisWord = ContentGenerationInfo(
-            word: word,
-            generationType: generationType
-        )
-        // Here `contentGenerationInfoForThisWord` functions as a placeholder for hiding the "memorization"/"translation" menu item.
-        // It not set here, the corresponding menu item still appears before the generation completes.
-        contentGenerationInfoList.append(contentGenerationInfoForThisWord)
-        let contentGenerationInfoIndexForThisWord = contentGenerationInfoList.count - 1
-        
-        wordMarkingTextViewContentGenerationDelegate.startedContentGeneration(wordMarkingTextView: self)
-        let (generator, prompt) = generatorAndPrompt(
-            word: word,
-            generationType: generationType
-        )
-        generator(
-            word,
-            prompt
-        ) { content in
+        func animateToOriginalColor() {
             
-            DispatchQueue.main.async {
-                self.wordMarkingTextViewContentGenerationDelegate.completedContentGeneration(
-                    wordMarkingTextView: self,
-                    content: content
+            UIView.transition(
+                with: self,
+                duration: 1.0,
+                options: .transitionCrossDissolve
+            ) {
+                self.textStorage.setTextColor(
+                    for: range,
+                    with: self.colorAnimationOriginalColor
                 )
+            } completion: { ifFinished in
+                if self.isColorAnimating {
+                    animateToIntermidiateColor()
+                } else {
+                    // Reset to true for the animation next time.
+                    self.isColorAnimating = true
+                    return
+                }
             }
             
-            guard let content = content else {
-                // Rollback.
-                // Do not directly remove the info, as changing the arr length may affect the assignments in haveTappedRefreshButtonForGeneratedContent().
-                self.contentGenerationInfoList[contentGenerationInfoIndexForThisWord] = nil
+        }
+        
+        animateToIntermidiateColor()
+    }
+    
+    private func generateContentWithLLM(for word: String, with prompt: String, completion: @escaping (String?) -> Void) {
+        
+        guard !word.strip().isEmpty else {
+            completion(nil)
+            return
+        }
+        
+        contentCreator.createContent(withPrompt: prompt) { content in
+            guard var content = content else {
+                completion(nil)
                 return
             }
-            
-            let parsedAttrContent = self.parseBolding(for: content)
-            DispatchQueue.main.async {
-                let (refreshIconNSRange, generatedContentNSRange) = self.display(parsedAttrContent, for: word)
-                self.contentGenerationInfoList[contentGenerationInfoIndexForThisWord]?.refreshIconNSRange = refreshIconNSRange
-                self.contentGenerationInfoList[contentGenerationInfoIndexForThisWord]?.contentNSRange = generatedContentNSRange
+            content = content.strip()
+                .replacingOccurrences(of: Strings.windowsNewLineSymbol, with: "\n")
+                .replacingOccurrences(of: Strings.macNewLineSymbol, with: "\n")
+                .replaceMultipleBlankLinesWithSingleLine()
+                .replacingOccurrences(of: "\n\n", with: "\n")
+            completion(content)
+        }
+    }
+    
+    private func generateWordTranslationContent(for word: String, with prompt: String = "", completion: @escaping (String?) -> Void) {
+        // The param "prompt" is not used in this method. It is for alignment with generateContentWithLLM().
+        
+        guard !word.isEmpty else {
+            completion(nil)
+            return
+        }
+        
+        wordTranslator.translate(query: word) { translations, _ in
+            guard !translations.isEmpty else {
+                completion(nil)
+                return
             }
+            let concatTranslation = translations.joined(separator: "; ").strip()
+            completion(concatTranslation)
         }
     }
     
@@ -459,6 +424,125 @@ extension WordMarkingTextView {
         
         return mutableAttrStr
         
+    }
+    
+    private func display(_ generatedContent: NSAttributedString, for word: String) -> (
+        refreshIconNSRange: NSRange,
+        generatedContentNSRange: NSRange
+    ) {
+        let attrText = NSMutableAttributedString(attributedString: self.attributedText)
+        
+        attrText.append(NSAttributedString(
+            string: "\n\n",
+            attributes: Self.contentGenerationTextAttributes
+        ))
+        
+        let refreshIconNSRange = NSRange(
+            location: attrText.length,
+            length: 1
+        )
+        attrText.append(NSAttributedString(
+            string: Strings.refreshingSymbol,
+            attributes: Self.contentGenerationRefreshingIconAttributes
+        ))
+        attrText.setTextColor(
+            for: refreshIconNSRange,
+            with: Colors.activeSystemButtonColor
+        )
+        
+        let wordAttrStr = NSMutableAttributedString(
+            string: " \(word):\n",
+            attributes: Self.contentGenerationTextAttributes
+        )
+        wordAttrStr.bold(for: NSRange(
+            location: 1,  // 1: for the space.
+            length: word.count
+        ))
+        attrText.append(wordAttrStr)
+        
+        let generatedContentNSRange = NSRange(
+            location: attrText.length,
+            length: generatedContent.string.count
+        )
+        attrText.append(generatedContent)
+        
+        self.attributedText = attrText
+        
+        return (
+            refreshIconNSRange: refreshIconNSRange,
+            generatedContentNSRange: generatedContentNSRange
+        )
+    }
+    
+    private func generateContent(word: String, generationType: ContentGenerationType) {
+        
+        // Float down the presenting bottom view, if any.
+        if wordMarkingBottomView.isFloatingUp {
+            wordMarkingBottomView.floatDown()
+            wordMarkingBottomView.clear()
+        }
+        
+        let contentGenerationInfoForThisWord = ContentGenerationInfo(
+            word: word,
+            generationType: generationType
+        )
+        // Here `contentGenerationInfoForThisWord` functions as a placeholder for hiding the "memorization"/"translation" menu item.
+        // It not set here, the corresponding menu item still appears before the generation completes.
+        contentGenerationInfoList.append(contentGenerationInfoForThisWord)
+        let contentGenerationInfoIndexForThisWord = contentGenerationInfoList.count - 1
+        
+        self.wordMarkingTextViewContentGenerationDelegate.startedContentGeneration(wordMarkingTextView: self)
+        
+        if originalTextLength == nil {
+            // When generating content after having generated content for a word,
+            // only animate the original text instead of the whole text that contains
+            // the previously generated content.
+            self.originalTextLength = attributedText.length
+        }
+        let colorAnimationRange = NSRange(
+            location: 0,
+            length: originalTextLength
+        )
+        self.isColorAnimating = true
+        self.startTextColorTransitionAnimation(for: colorAnimationRange)
+        
+        let (generator, prompt) = generatorAndPrompt(
+            word: word,
+            generationType: generationType
+        )
+        generator(
+            word,
+            prompt
+        ) { content in
+            
+            DispatchQueue.main.async {
+                self.wordMarkingTextViewContentGenerationDelegate.completedContentGeneration(
+                    wordMarkingTextView: self,
+                    content: content
+                )
+                
+                self.isColorAnimating = false
+                // Recover to the original color.
+                self.textStorage.setTextColor(
+                    for: colorAnimationRange,
+                    with: self.colorAnimationOriginalColor
+                )
+            }
+            
+            guard let content = content else {
+                // Rollback.
+                // Do not directly remove the info, as changing the arr length may affect the assignments in haveTappedRefreshButtonForGeneratedContent().
+                self.contentGenerationInfoList[contentGenerationInfoIndexForThisWord] = nil
+                return
+            }
+            
+            let parsedAttrContent = self.parseBolding(for: content)
+            DispatchQueue.main.async {
+                let (refreshIconNSRange, generatedContentNSRange) = self.display(parsedAttrContent, for: word)
+                self.contentGenerationInfoList[contentGenerationInfoIndexForThisWord]?.refreshIconNSRange = refreshIconNSRange
+                self.contentGenerationInfoList[contentGenerationInfoIndexForThisWord]?.contentNSRange = generatedContentNSRange
+            }
+        }
     }
     
     private func haveTappedRefreshButtonForGeneratedContent(tappedTextRange: UITextRange) -> Bool {
@@ -514,7 +598,12 @@ extension WordMarkingTextView {
         )
         
         // Regenerate the content.
+        
         wordMarkingTextViewContentGenerationDelegate.startedContentGeneration(wordMarkingTextView: self)
+        
+        self.startTextColorTransitionAnimation(for: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange)
+        self.isColorAnimating = true
+
         let (generator, prompt) = generatorAndPrompt(
             word: self.contentGenerationInfoList[generatedContentInfoIndex]!.word,
             generationType: self.contentGenerationInfoList[generatedContentInfoIndex]!.generationType
@@ -529,6 +618,8 @@ extension WordMarkingTextView {
                     wordMarkingTextView: self,
                     content: content
                 )
+                
+                self.isColorAnimating = false
             }
             
             // Enable regeneration.
@@ -544,6 +635,11 @@ extension WordMarkingTextView {
 
                 // Update the content.
                 guard let content = content else {
+                    // Recover to the original color for the original content range.
+                    self.textStorage.setTextColor(
+                        for: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange,
+                        with: self.colorAnimationOriginalColor
+                    )
                     return
                 }
                 let parsedAttrContent = self.parseBolding(for: content)
@@ -556,13 +652,22 @@ extension WordMarkingTextView {
                 )
                 self.attributedText = attrText
 
-                // Length diff before&after the regeneration.
+                // Length diff before&after the regeneration
+                // for updating ranges of words after the current word.
+                // Should be computed before updating the content range.
                 let contentLengthDiff = parsedAttrContent.string.count - self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange.length
+                
                 // Update the content range of the current word.
                 self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange = NSRange(
                     location: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange.location,
                     length: parsedAttrContent.string.count
                 )
+                // Recover to the original color for the new content range.
+                self.textStorage.setTextColor(
+                    for: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange,
+                    with: self.colorAnimationOriginalColor
+                )
+                
                 // Update the ranges of other words, if needed.
                 for i in 0..<self.contentGenerationInfoList.count {
                     guard self.contentGenerationInfoList[i] != nil else {
