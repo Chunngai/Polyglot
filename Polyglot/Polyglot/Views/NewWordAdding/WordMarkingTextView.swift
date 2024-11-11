@@ -44,11 +44,12 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
     ]
     var defaultHighlightingColor: UIColor = Colors.newWordHighlightingColor
     
-    private var contentCreatorForWordMemorization: ContentCreator = ContentCreator(.gpt4o)
+    private var contentCreator: ContentCreator = ContentCreator(.gpt4o)
     private var wordTranslator: MachineTranslator!
     private enum ContentGenerationType {
         case memorization
         case translation
+        case explanation
     }
     private struct ContentGenerationInfo {
         var word: String
@@ -73,6 +74,7 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
     private var wordMeaningMenuItem: UIMenuItem!
     private var wordMemorizationMenuItem: UIMenuItem!
     private var wordTranslationMenuItem: UIMenuItem!
+    private var grammarExplanationMenuItem: UIMenuItem!
     
     var wordMarkingBottomView: WordMarkingBottomView!
     
@@ -130,17 +132,37 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
             title: Strings.translationToken,
             action: #selector(wordTranslationMenuItemTapped)
         )
+        grammarExplanationMenuItem = UIMenuItem(
+            title: Strings.grammarExplanationMenuItemString,
+            action: #selector(grammarExplanationMenuItemTapped)
+        )
         UIMenuController.shared.menuItems = [
             newWordMenuItem,
             wordMeaningMenuItem,
             wordMemorizationMenuItem,
             wordTranslationMenuItem,
+            grammarExplanationMenuItem
         ]
         
         wordMarkingBottomView.delegate = self
 
     }
 
+}
+
+extension WordMarkingTextView {
+    
+    // MARK: - Utils
+    
+    private var selectedWord: String? {
+        if let selectedTextRange = selectedTextRange,
+           !selectedTextRange.isEmpty,
+           let word = text(in: selectedTextRange) {
+            return word
+        }
+        return nil
+    }
+    
 }
 
 extension WordMarkingTextView {
@@ -204,27 +226,14 @@ extension WordMarkingTextView {
     
     // MARK: - Generating Content for Memorization/Translation.
     
-    private func generateWordMemorizationContent(for word: String, completion: @escaping (String?) -> Void) {
+    private func generateContentWithLLM(for word: String, with prompt: String, completion: @escaping (String?) -> Void) {
         
         guard !word.strip().isEmpty else {
             completion(nil)
             return
         }
         
-        let prompt = Strings.wordMemorizationPrompt
-            .replacingOccurrences(
-                of: Strings.wordMemorizationLanguageNamePlaceHolder,
-                with: Strings.languageNamesOfAllLanguages[LangCode.currentLanguage]![.en]!
-            )
-            .replacingOccurrences(
-                of: Strings.wordMemorizationWordPlaceHolder,
-                with: word
-            )
-            .replacingOccurrences(
-                of: "English/English",
-                with: "English"
-            )
-        contentCreatorForWordMemorization.createContent(withPrompt: prompt) { content in
+        contentCreator.createContent(withPrompt: prompt) { content in
             guard var content = content else {
                 completion(nil)
                 return
@@ -238,7 +247,8 @@ extension WordMarkingTextView {
         }
     }
     
-    private func generateWordTranslationContent(for word: String, completion: @escaping (String?) -> Void) {
+    private func generateWordTranslationContent(for word: String, with prompt: String = "", completion: @escaping (String?) -> Void) {
+        // The param "prompt" is not used in this method. It is for alignment with generateContentWithLLM().
         
         guard !word.isEmpty else {
             completion(nil)
@@ -303,13 +313,50 @@ extension WordMarkingTextView {
         )
     }
     
-    private func generateContent(for generationType: ContentGenerationType) {
-        
-        guard let selectedTextRange = selectedTextRange,
-              !selectedTextRange.isEmpty,
-              let word = text(in: selectedTextRange) else {
-            return
+    private func generatorAndPrompt(word: String, generationType: ContentGenerationType) -> (
+        generator: (String, String, @escaping (String?) -> Void) -> Void,
+        prompt: String
+    ) {
+        var generator: (String, String, @escaping (String?) -> Void) -> Void
+        var prompt = ""
+        switch generationType {
+        case .memorization:
+            generator = generateContentWithLLM
+            prompt = Strings.wordMemorizationPrompt
+                .replacingOccurrences(
+                    of: Strings.wordMarkingTextViewContentGenerationLanguageNamePlaceHolder,
+                    with: Strings.languageNamesOfAllLanguages[LangCode.currentLanguage]![.en]!
+                )
+                .replacingOccurrences(
+                    of: Strings.wordMarkingTextViewContentGenerationWordPlaceHolder,
+                    with: word
+                )
+                .replacingOccurrences(
+                    of: "English/English",
+                    with: "English"
+                )
+        case .translation:
+            generator = generateWordTranslationContent
+        case .explanation:
+            generator = generateContentWithLLM
+            prompt = Strings.grammarExplanationPrompt
+                .replacingOccurrences(
+                    of: Strings.wordMarkingTextViewContentGenerationLanguageNamePlaceHolder,
+                    with: Strings.languageNamesOfAllLanguages[LangCode.currentLanguage]![.en]!
+                )
+                .replacingOccurrences(
+                    of: Strings.wordMarkingTextViewContentGenerationWordPlaceHolder,
+                    with: word
+                )
         }
+        
+        return (
+            generator: generator,
+            prompt: prompt
+        )
+    }
+    
+    private func generateContent(word: String, generationType: ContentGenerationType) {
         
         // Float down the presenting bottom view, if any.
         if wordMarkingBottomView.isFloatingUp {
@@ -326,13 +373,14 @@ extension WordMarkingTextView {
         contentGenerationInfoList.append(contentGenerationInfoForThisWord)
         let contentGenerationInfoIndexForThisWord = contentGenerationInfoList.count - 1
         
-        let generator: (String, @escaping (String?) -> Void) -> Void = {
-            switch generationType {
-            case .memorization: return generateWordMemorizationContent
-            case .translation: return generateWordTranslationContent
-            }
-        }()
-        generator(word) { content in
+        let (generator, prompt) = generatorAndPrompt(
+            word: word,
+            generationType: generationType
+        )
+        generator(
+            word,
+            prompt
+        ) { content in
             guard let content = content else {
                 // Rollback.
                 // Do not directly remove the info, as changing the arr length may affect the assignments in haveTappedRefreshButtonForGeneratedContent().
@@ -445,24 +493,22 @@ extension WordMarkingTextView {
         }
         // Disable regeneration.
         self.contentGenerationInfoList[generatedContentInfoIndex]!.isGenerating = true
-
-        print(0, self.contentSize, self.contentOffset)
         
         // Make the refresh button gray.
         textStorage.addAttributes(
             [NSAttributedString.Key.foregroundColor : Colors.inactiveSystemButtonColor],
             range: self.contentGenerationInfoList[generatedContentInfoIndex]!.refreshIconNSRange
         )
-        print(1, self.contentSize, self.contentOffset)
         
         // Regenerate the content.
-        let generator: (String, @escaping (String?) -> Void) -> Void = {
-            switch self.contentGenerationInfoList[generatedContentInfoIndex]!.generationType {
-            case .memorization: return generateWordMemorizationContent
-            case .translation: return generateWordTranslationContent
-            }
-        }()
-        generator(self.contentGenerationInfoList[generatedContentInfoIndex]!.word) { content in
+        let (generator, prompt) = generatorAndPrompt(
+            word: self.contentGenerationInfoList[generatedContentInfoIndex]!.word,
+            generationType: self.contentGenerationInfoList[generatedContentInfoIndex]!.generationType
+        )
+        generator(
+            self.contentGenerationInfoList[generatedContentInfoIndex]!.word,
+            prompt
+        ) { content in
             
             // Enable regeneration.
             self.contentGenerationInfoList[generatedContentInfoIndex]!.isGenerating = false
@@ -474,7 +520,6 @@ extension WordMarkingTextView {
                     [NSAttributedString.Key.foregroundColor : Colors.activeSystemButtonColor],
                     range: self.contentGenerationInfoList[generatedContentInfoIndex]!.refreshIconNSRange
                 )
-                print(2, self.contentSize, self.contentOffset)
 
                 // Update the content.
                 guard let content = content else {
@@ -489,7 +534,6 @@ extension WordMarkingTextView {
                     with: parsedAttrContent
                 )
                 self.attributedText = attrText
-                print(3, self.contentSize, self.contentOffset, "\n")
 
                 // Length diff before&after the regeneration.
                 let contentLengthDiff = parsedAttrContent.string.count - self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange.length
@@ -661,12 +705,44 @@ extension WordMarkingTextView {
     
     @objc
     private func wordMemorizationMenuItemTapped() {
-        generateContent(for: .memorization)
+        
+        guard let word = selectedWord else {
+            return
+        }
+        
+        generateContent(
+            word: word,
+            generationType: .memorization
+        )
+        
     }
     
     @objc
     private func wordTranslationMenuItemTapped() {
-        generateContent(for: .translation)
+        
+        guard let word = selectedWord else {
+            return
+        }
+        
+        generateContent(
+            word: word,
+            generationType: .translation
+        )
+        
+    }
+    
+    @objc
+    private func grammarExplanationMenuItemTapped() {
+        
+        guard let word = selectedWord else {
+            return
+        }
+        
+        generateContent(
+            word: word,
+            generationType: .explanation
+        )
+        
     }
     
 }
@@ -697,10 +773,7 @@ extension WordMarkingTextView {
             return true
         }
         if action == #selector(wordMemorizationMenuItemTapped) {
-            if
-                let selectedTextRange = selectedTextRange,
-                !selectedTextRange.isEmpty,
-                let word = text(in: selectedTextRange) {
+            if let word = selectedWord {
                 let wordsToMemorize = contentGenerationInfoList.compactMap { c in
                     c?.generationType == .memorization
                     ? c?.word
@@ -710,16 +783,23 @@ extension WordMarkingTextView {
             }
         }
         if action == #selector(wordTranslationMenuItemTapped) {
-            if
-                let selectedTextRange = selectedTextRange,
-                !selectedTextRange.isEmpty,
-                let word = text(in: selectedTextRange) {
+            if let word = selectedWord {
                 let translatedWords = contentGenerationInfoList.compactMap { c in
                     c?.generationType == .translation
                     ? c?.word
                     : nil
                 }
                 return !translatedWords.contains(word)
+            }
+        }
+        if action == #selector(grammarExplanationMenuItemTapped) {
+            if let word = selectedWord {
+                let wordsToExplain = contentGenerationInfoList.compactMap { c in
+                    c?.generationType == .explanation
+                    ? c?.word
+                    : nil
+                }
+                return !wordsToExplain.contains(word)
             }
         }
         return false

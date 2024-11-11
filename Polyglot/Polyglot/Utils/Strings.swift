@@ -402,9 +402,23 @@ extension Strings {
         return Strings._wordMemorizationMenuItemStrings[LangCode.currentLanguage]!
     }
     
-    static let wordMemorizationLanguageNamePlaceHolder: String = "[lang_name]"
-    static let wordMemorizationWordPlaceHolder: String = "[word]"
-    static let wordMemorizationPrompt: String = "Help me memorise the spelling of the \(Self.wordMemorizationLanguageNamePlaceHolder) word \"\(Self.wordMemorizationWordPlaceHolder)\" by providing \(Self.wordMemorizationLanguageNamePlaceHolder)/English words with similar/identical spelling/pronunciation, related words, or mnemonics."
+    private static let _grammarExplanationMenuItemStrings: [LangCode : String] = [
+        LangCode.en : "Explain",
+        LangCode.ja : "説明",
+        LangCode.es : "Explicar",
+        LangCode.ru : "Объяснить",
+        LangCode.ko : "설명",
+        LangCode.de : "Erklären",
+    ]
+    static var grammarExplanationMenuItemString: String {
+        return Strings._grammarExplanationMenuItemStrings[LangCode.currentLanguage]!
+    }
+    
+    static let wordMarkingTextViewContentGenerationLanguageNamePlaceHolder: String = "[lang_name]"
+    static let wordMarkingTextViewContentGenerationWordPlaceHolder: String = "[word]"
+    
+    static let wordMemorizationPrompt: String = "Help me memorise the spelling of the \(Self.wordMarkingTextViewContentGenerationLanguageNamePlaceHolder) word \"\(Self.wordMarkingTextViewContentGenerationWordPlaceHolder)\" with: (1) \(Self.wordMarkingTextViewContentGenerationLanguageNamePlaceHolder)/English words with similar spelling or pronunciation, (2) related \(Self.wordMarkingTextViewContentGenerationLanguageNamePlaceHolder)/English words, or (3) mnemonics."
+    static let grammarExplanationPrompt: String = "Explain the grammar of the \(Self.wordMarkingTextViewContentGenerationLanguageNamePlaceHolder) phrase \"\(Self.wordMarkingTextViewContentGenerationWordPlaceHolder)\" in English."
     
     private static let _newWordBottomViewMeaningPrompts: [LangCode : String] = [
         LangCode.en : "Also select/type the corresponding meaning",
