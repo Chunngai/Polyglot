@@ -597,6 +597,7 @@ extension WordMarkingTextView {
             range: self.contentGenerationInfoList[generatedContentInfoIndex]!.refreshIconNSRange
         )
         
+        var oldContent = self.text(in: textRange(from: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange)!)!
         // Regenerate the content.
         
         wordMarkingTextViewContentGenerationDelegate.startedContentGeneration(wordMarkingTextView: self)
@@ -634,7 +635,10 @@ extension WordMarkingTextView {
                 )
 
                 // Update the content.
-                guard let content = content else {
+                guard 
+                    let content = content,
+                    content != oldContent
+                else {
                     // Recover to the original color for the original content range.
                     self.textStorage.setTextColor(
                         for: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange,

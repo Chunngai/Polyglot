@@ -264,56 +264,73 @@ class TextMeaningPracticeView: BasePracticeView {
     }
     
     func displayUpper() {
-        let attributedText = NSMutableAttributedString(string: "")
+        let attributedText = NSMutableAttributedString(
+            string: "",
+            attributes: textView.defaultTextAttributes
+        )
         if let upperIcon = upperIcon {
-            unselectableRanges.append(NSRange(
+            let iconRange = NSRange(
                 location: attributedText.length,
                 length: 2  // Icon + space.
-            ))
+            )
+            unselectableRanges.append(iconRange)
             
             attributedText.append(textView.imageAttributedString(
                 icon: upperIcon,
                 font: iconFont
             ))
-            attributedText.append(NSAttributedString(string: " "))
-        }
-        attributedText.append(NSAttributedString(string: upperString))
-        // Without this the text attributes are cleared after attaching the icon.
-        attributedText.addAttributes(
-            textView.defaultTextAttributes,
-            range: NSRange(
-                location: 0,
-                length: attributedText.length
+            attributedText.append(NSAttributedString(
+                string: " ",
+                attributes: textView.defaultTextAttributes
+            ))
+            // Should add attrs for the icon.
+            // Else the attrs are lost.
+            attributedText.addAttributes(
+                textView.defaultTextAttributes,
+                range: iconRange
             )
-        )
+        }
+        attributedText.append(NSAttributedString(
+            string: upperString,
+            attributes: textView.defaultTextAttributes
+        ))
         
         textView.attributedText = attributedText
     }
     
     func displayLower() {
         let attributedText = NSMutableAttributedString(attributedString: textView.attributedText!)
-        attributedText.append(NSAttributedString(string: "\n"))
+        attributedText.append(NSAttributedString(
+            string: "\n",
+            attributes: textView.defaultTextAttributes
+        ))
         if let lowerIcon = lowerIcon {
-            unselectableRanges.append(NSRange(
+            let iconRange = NSRange(
                 location: attributedText.length,
                 length: 2  // Icon + space.
-            ))
+            )
+            unselectableRanges.append(iconRange)
             
             attributedText.append(textView.imageAttributedString(
                 icon: lowerIcon,
                 font: iconFont
             ))
-            attributedText.append(NSAttributedString(string: " "))
-        }
-        attributedText.append(NSAttributedString(string: lowerString))
-        attributedText.addAttributes(
-            textView.defaultTextAttributes,
-            range: NSRange(
-                location: 0,
-                length: attributedText.length
+            attributedText.append(NSAttributedString(
+                string: " ",
+                attributes: textView.defaultTextAttributes
+            ))
+            // Should add attrs for the icon.
+            // Else the attrs are lost.
+            attributedText.addAttributes(
+                textView.defaultTextAttributes,
+                range: iconRange
             )
-        )
-        
+        }
+        attributedText.append(NSAttributedString(
+            string: lowerString,
+            attributes: textView.defaultTextAttributes
+        ))
+
         textView.attributedText = attributedText
     }
     
@@ -336,6 +353,8 @@ class TextMeaningPracticeView: BasePracticeView {
 }
 
 extension TextMeaningPracticeView {
+    
+    // MARK: - Utils
     
     func highlightExistingPhrases(existingPhraseRanges: [NSRange], existingPhraseMeanings: [String]) {
         for (range, meaning) in zip(existingPhraseRanges, existingPhraseMeanings) {
@@ -386,6 +405,8 @@ extension TextMeaningPracticeView {
 }
 
 extension TextMeaningPracticeView: UITextViewDelegate {
+    
+    // MARK: - UITextViewDelegate
     
     func textViewDidChangeSelection(_ textView: UITextView) {
         // Disable the selection of icons.
