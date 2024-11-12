@@ -354,6 +354,8 @@ extension WordMarkingTextView {
                 .replaceMultipleBlankLinesWithSingleLine()
                 .replacingOccurrences(of: "\n\n", with: "\n")
             completion(content)
+            
+//            completion("This is a string with **B1**, *I1***B2**, *I2*, ***B3***, *I3*, **B4**, *I4*, **B5**, *I5*.")
         }
     }
     
@@ -375,55 +377,104 @@ extension WordMarkingTextView {
         }
     }
     
-    private func parseBolding(for content: String) -> NSAttributedString {
-        
+    private func parseBoldAndItalics(for content: String) -> NSAttributedString {
+
         // https://chatgpt.com/share/eebcc408-a5a9-496f-821e-afbbf0519931
+        // https://chatgpt.com/share/67335ac0-e5b8-800d-938a-047efc72b189
         
-        let mutableAttrStr = NSMutableAttributedString(
+        let attrText = NSMutableAttributedString(
             string: content,
             attributes: Self.contentGenerationTextAttributes
         )
         
-        guard let font = Self.contentGenerationTextAttributes[.font] as? UIFont else {
-            return mutableAttrStr
+        func parse(
+            fontTrait: UIFontDescriptor.SymbolicTraits,
+            parsingPattern: String,
+            markerLength: Int
+        ) {
+           
+            let regex = try? NSRegularExpression(
+                pattern: parsingPattern,
+                options: .dotMatchesLineSeparators
+            )
+            let matches = regex?.matches(
+                in: attrText.string,
+                options: [],
+                range: NSRange(
+                    location: 0,
+                    length: attrText.string.utf16.count
+                )
+            ) ?? []
+            
+            var matchedPhraseRanges: [NSRange] = []
+            var matchedMarkerPairRanges: [(left: NSRange, right: NSRange)] = []
+            for m in matches {
+                matchedPhraseRanges.append(m.range(at: 2))
+                matchedMarkerPairRanges.append((
+                    left: m.range(at: 1),
+                    right: m.range(at: 3)
+                ))
+            }
+            
+            // Add traits to font.
+            for m in matchedPhraseRanges {
+                let attrs = attrText.attributes(
+                    at: m.location,
+                    effectiveRange: nil
+                )
+                guard let font = attrs[.font] as? UIFont else {
+                    continue
+                }
+                
+                let fontDescriptor = font.fontDescriptor
+                let combinedTraits = fontDescriptor.symbolicTraits.union(fontTrait)
+                if let newFontDescriptor = fontDescriptor.withSymbolicTraits(combinedTraits) {
+                    attrText.addAttributes(
+                        [NSAttributedString.Key.font : UIFont(
+                            descriptor: newFontDescriptor,
+                            size: font.pointSize
+                        )],
+                        range: m
+                    )
+                }
+                
+            }
+            
+            // Remove markers.
+            var offset: Int = 0
+            for p in matchedMarkerPairRanges {
+                var leftRange = p.left
+                var rightRange = p.right
+                
+                leftRange = NSRange(
+                    location: leftRange.location + offset,
+                    length: leftRange.length
+                )
+                attrText.replaceCharacters(in: leftRange, with: "")
+                
+                rightRange = NSRange(
+                    location: rightRange.location + offset - markerLength,  // - markerLength: for the left replacement above.
+                    length: rightRange.length
+                )
+                attrText.replaceCharacters(in: rightRange, with: "")
+                
+                offset -= markerLength * 2
+            }
+            
         }
-        let boldFont = UIFont.boldSystemFont(ofSize: font.pointSize)
         
-        let pattern = "\\*\\*(.*?)\\*\\*"
-        let regex = try? NSRegularExpression(
-            pattern: pattern,
-            options: .dotMatchesLineSeparators
+        parse(
+            fontTrait: UIFontDescriptor.SymbolicTraits.traitBold,
+            parsingPattern: "(\\*\\*)(.*?)(\\*\\*)",
+            markerLength: 2  // **
         )
-        let matches = regex?.matches(
-            in: content,
-            options: [],
-            range: NSRange(
-                location: 0,
-                length: content.utf16.count
-            )
+        parse(
+            fontTrait: UIFontDescriptor.SymbolicTraits.traitItalic,
+            parsingPattern: "(\\*)(.*?)(\\*)",
+            markerLength: 1  // *
         )
         
-        for match in matches ?? [] {
-            let range = match.range(at: 1)
-            let nsRange = NSRange(
-                location: range.location,
-                length: range.length
-            )
-            mutableAttrStr.addAttribute(
-                .font,
-                value: boldFont,
-                range: nsRange
-            )
-        }
-        
-        // Remove all **.
-        mutableAttrStr.replacingAll(
-            "**",
-            with: ""
-        )
-        
-        return mutableAttrStr
-        
+        return attrText
     }
     
     private func display(_ generatedContent: NSAttributedString, for word: String) -> (
@@ -536,7 +587,7 @@ extension WordMarkingTextView {
                 return
             }
             
-            let parsedAttrContent = self.parseBolding(for: content)
+            let parsedAttrContent = self.parseBoldAndItalics(for: content)
             DispatchQueue.main.async {
                 let (refreshIconNSRange, generatedContentNSRange) = self.display(parsedAttrContent, for: word)
                 self.contentGenerationInfoList[contentGenerationInfoIndexForThisWord]?.refreshIconNSRange = refreshIconNSRange
@@ -597,9 +648,7 @@ extension WordMarkingTextView {
             range: self.contentGenerationInfoList[generatedContentInfoIndex]!.refreshIconNSRange
         )
         
-        var oldContent = self.text(in: textRange(from: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange)!)!
         // Regenerate the content.
-        
         wordMarkingTextViewContentGenerationDelegate.startedContentGeneration(wordMarkingTextView: self)
         
         self.startTextColorTransitionAnimation(for: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange)
@@ -634,8 +683,8 @@ extension WordMarkingTextView {
                     range: self.contentGenerationInfoList[generatedContentInfoIndex]!.refreshIconNSRange
                 )
 
-                // Update the content.
-                guard 
+                let oldContent = self.text(in: self.textRange(from: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange)!)!
+                guard
                     let content = content,
                     content != oldContent
                 else {
@@ -646,32 +695,65 @@ extension WordMarkingTextView {
                     )
                     return
                 }
-                let parsedAttrContent = self.parseBolding(for: content)
+                
+                let parsedAttrContent = self.parseBoldAndItalics(for: content)
                 
                 // Update the content for the word.
+                // DO NOT REPLACE DIRECTLY WITH THE ATTRIBUTED parsedAttrContent (NSAttributedString).
+                // REPLACE WITH parsedAttrContent.string (String).
+                // For the former case, the following will lead to content size changing (and thus text clipping).
+                // (1) Generate memorization content for a phrase
+                // (2) Translate a phrase
+                // (3) Re-translate the phrase
+                
+                // Replace String with String.
                 let attrText = NSMutableAttributedString(attributedString: self.attributedText)
                 attrText.replaceCharacters(
-                    in: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange,
-                    with: parsedAttrContent
+                    in: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange,  // Old content range.
+                    with: parsedAttrContent.string
                 )
                 self.attributedText = attrText
-
-                // Length diff before&after the regeneration
-                // for updating ranges of words after the current word.
-                // Should be computed before updating the content range.
-                let contentLengthDiff = parsedAttrContent.string.count - self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange.length
                 
                 // Update the content range of the current word.
                 self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange = NSRange(
                     location: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange.location,
                     length: parsedAttrContent.string.count
                 )
-                // Recover to the original color for the new content range.
+                
+                // Update content attrs.
+                self.textStorage.addAttributes(
+                    Self.contentGenerationTextAttributes,
+                    range: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange
+                )
+                parsedAttrContent.enumerateAttributes(in: NSRange(
+                    location: 0,
+                    length: parsedAttrContent.length
+                )) { attrs, r, _ in
+                    guard let font = attrs[.font] as? UIFont else {
+                        return
+                    }
+                    
+                    let fontTraits = font.fontDescriptor.symbolicTraits
+                    if fontTraits.contains(.traitBold) || fontTraits.contains(.traitItalic) {
+                        self.textStorage.addAttributes(
+                            [NSAttributedString.Key.font : font],
+                            range: NSRange(
+                                location: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange.location + r.location,
+                                length: r.length
+                            )
+                        )
+                    }
+                }
+                
+                // Recover to the original color for the NEW content range.
                 self.textStorage.setTextColor(
                     for: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange,
                     with: self.colorAnimationOriginalColor
                 )
                 
+                // Length diff before&after the regeneration
+                // for updating ranges of words after the current word.
+                let contentLengthDiff = parsedAttrContent.string.count - oldContent.count
                 // Update the ranges of other words, if needed.
                 for i in 0..<self.contentGenerationInfoList.count {
                     guard self.contentGenerationInfoList[i] != nil else {
