@@ -40,10 +40,6 @@ class ReadingEditViewController: UIViewController {
         tableView.removeRedundantSeparators()
         // https://stackoverflow.com/questions/4399357/hide-keyboard-when-scroll-uitableview
         tableView.keyboardDismissMode = .onDrag
-        
-        // For auto-resizing.
-//        tableView.isScrollEnabled = false
-        
         return tableView
     }()
     

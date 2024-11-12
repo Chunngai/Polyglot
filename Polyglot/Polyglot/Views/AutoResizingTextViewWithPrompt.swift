@@ -189,8 +189,10 @@ extension AutoResizingTextViewWithPrompt {
         
         if size.height != newSize.height {
             UIView.setAnimationsEnabled(false)
+            tableView.isScrollEnabled = false
             tableView.beginUpdates()
             tableView.endUpdates()
+            tableView.isScrollEnabled = true
             UIView.setAnimationsEnabled(true)
         }
     }
