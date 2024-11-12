@@ -48,3 +48,36 @@ extension UITextView {
     }
     
 }
+
+extension UITextView {
+    
+    func contentOffset(for range: NSRange) -> CGPoint? {
+        
+        // https://chatgpt.com/share/67339f83-c420-800d-8940-76dbce8c05d2
+        
+        guard
+            let startPosition = position(
+                from: beginningOfDocument,
+                offset: range.location
+            ),
+            let endPosition = position(
+                from: startPosition,
+                offset: range.length
+            ),
+            let textRange = textRange(
+                from: startPosition,
+                to: endPosition
+            ) else {
+            return nil
+        }
+        
+        let boundingRect = firstRect(for: textRange)
+        
+        var contentOffset = CGPoint()
+        contentOffset.x = textContainerInset.left
+        contentOffset.y = boundingRect.origin.y - textContainerInset.top
+        return contentOffset
+        
+    }
+    
+}

@@ -293,8 +293,29 @@ extension ReadingEditViewController {
             ignoreAccents: shouldIgnoreCaseAndAccent
         )
         bodyCellTextView.attributedText = attributedText
-        // Scrolling.  TODO: - Cannot scroll to the correct position.
-        bodyCellTextView.scrollRangeToVisible(queryRange)
+        
+        // Scrolling.
+        
+//        bodyCellTextView.scrollRangeToVisible(queryRange)
+        
+        if var contentOffset = bodyCellTextView.contentOffset(for: queryRange) {
+            contentOffset.y += cells[Self.bodyIdentifier].frame.minY  // Consider the cells above.
+            
+            if contentOffset.y < 0 {
+                contentOffset.y = 0
+            }
+            if contentOffset.y > bodyCellTextView.contentSize.height {
+                contentOffset.y = bodyCellTextView.contentSize.height
+                - tableView.bounds.height
+                + cells[Self.bodyIdentifier].frame.minY
+            }
+            
+            tableView.setContentOffset(
+                contentOffset,
+                animated: true
+            )
+        }
+        
     }
     
 }
