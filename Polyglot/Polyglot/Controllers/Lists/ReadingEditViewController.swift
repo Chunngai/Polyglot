@@ -301,13 +301,18 @@ extension ReadingEditViewController {
         if var contentOffset = bodyCellTextView.contentOffset(for: queryRange) {
             contentOffset.y += cells[Self.bodyIdentifier].frame.minY  // Consider the cells above.
             
+            var maxOffsetY: CGFloat? = bodyCellTextView.contentSize.height
+            - tableView.bounds.height
+            + cells[Self.bodyIdentifier].frame.minY
+            + bodyCellTextView.textContainerInset.bottom
+            if let maxOffsetY_ = maxOffsetY, maxOffsetY_ < 0 {
+                maxOffsetY = nil
+            }
+            
             tableView.scrollTo(
                 contentOffset: contentOffset,
                 minOffsetY: 0,
-                maxOffsetY: bodyCellTextView.contentSize.height
-                - tableView.bounds.height
-                + cells[Self.bodyIdentifier].frame.minY
-                + bodyCellTextView.textContainerInset.bottom,
+                maxOffsetY: maxOffsetY,
                 animated: true
             )
         }
