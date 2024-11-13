@@ -592,6 +592,8 @@ extension WordMarkingTextView {
                 let (refreshIconNSRange, generatedContentNSRange) = self.display(parsedAttrContent, for: word)
                 self.contentGenerationInfoList[contentGenerationInfoIndexForThisWord]?.refreshIconNSRange = refreshIconNSRange
                 self.contentGenerationInfoList[contentGenerationInfoIndexForThisWord]?.contentNSRange = generatedContentNSRange
+                
+                self.scrollRangeToVisible(refreshIconNSRange)
             }
         }
     }
