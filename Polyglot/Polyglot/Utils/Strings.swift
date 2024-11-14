@@ -367,29 +367,53 @@ extension Strings {
     // MARK: - Bottom View / Text View
     
     private static let _newWordMenuItemStrings: [LangCode : String] = [
-        LangCode.en : "New Word",
-        LangCode.ja : "新単語",
-        LangCode.es : "Palabra Nueva",
-        LangCode.ru : "Новое слово",
-        LangCode.ko : "새 단어",
-        LangCode.de : "Neues Wort",
+//        LangCode.en : "New Word",
+//        LangCode.ja : "新単語",
+//        LangCode.es : "Palabra Nueva",
+//        LangCode.ru : "Новое слово",
+//        LangCode.ko : "새 단어",
+//        LangCode.de : "Neues Wort",
+        LangCode.en : "Add",
+        LangCode.ja : "追加",
+        LangCode.es : "Agregar",
+        LangCode.ru : "Добавлять",
+        LangCode.ko : "추가",
+        LangCode.de : "Hinzufügen",
     ]
     static var newWordMenuItemString: String {
         return Strings._newWordMenuItemStrings[LangCode.currentLanguage]!
     }
     
     private static let _wordMeaningMenuItemStrings: [LangCode : String] = [
-        LangCode.en : "Word Meaning",
-        LangCode.ja : "言葉の意味",
-        LangCode.es : "Significado de la Palabra",
-        LangCode.ru : "Значение Слова",
-        LangCode.ko : "단어 뜻",
-        LangCode.de : "Bedeutung des Wortes",
+//        LangCode.en : "Word Meaning",
+//        LangCode.ja : "言葉の意味",
+//        LangCode.es : "Significado de la Palabra",
+//        LangCode.ru : "Значение Слова",
+//        LangCode.ko : "단어 뜻",
+//        LangCode.de : "Bedeutung des Wortes",
+        LangCode.en : "As Meaning",
+        LangCode.ja : "意味として",
+        LangCode.es : "Como Significado",
+        LangCode.ru : "Как Значение",
+        LangCode.ko : "의미로",
+        LangCode.de : "Als Bedeutung",
     ]
     static var wordMeaningMenuItemString: String {
         return Strings._wordMeaningMenuItemStrings[LangCode.currentLanguage]!
     }
-        
+    
+    private static let _translationTokens: [LangCode : String] = [
+        LangCode.en : "Translate",
+        LangCode.ja : "翻訳",
+        LangCode.es : "Traducir",
+        LangCode.ru : "Переводить",
+        LangCode.ko : "번역",
+        LangCode.de : "Übersetzen",
+    ]
+    static var translationToken: String {
+        return Strings._translationTokens[LangCode.currentLanguage]!
+    }
+    
     private static let _wordMemorizationMenuItemStrings: [LangCode : String] = [
         LangCode.en : "Memorize",
         LangCode.ja : "記憶",
@@ -626,18 +650,6 @@ extension Strings {
     ]
     static var readingPracticePrompt: String {
         return Strings._readingPracticePrompt[LangCode.currentLanguage]!
-    }
-    
-    private static let _translationTokens: [LangCode : String] = [
-        LangCode.en : "Translation",
-        LangCode.ja : "訳文",
-        LangCode.es : "Traducción",
-        LangCode.ru : "Перевод",
-        LangCode.ko : "번역",
-        LangCode.de : "Übersetzung",
-    ]
-    static var translationToken: String {
-        return Strings._translationTokens[LangCode.currentLanguage]!
     }
     
     private static let _machineTranslationTokens: [LangCode : String] = [

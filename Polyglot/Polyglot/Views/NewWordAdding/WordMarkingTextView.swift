@@ -155,8 +155,8 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
         UIMenuController.shared.menuItems = [
             newWordMenuItem,
             wordMeaningMenuItem,
-            wordMemorizationMenuItem,
             wordTranslationMenuItem,
+            wordMemorizationMenuItem,
             grammarExplanationMenuItem
         ]
         
@@ -593,7 +593,7 @@ extension WordMarkingTextView {
                 self.contentGenerationInfoList[contentGenerationInfoIndexForThisWord]?.refreshIconNSRange = refreshIconNSRange
                 self.contentGenerationInfoList[contentGenerationInfoIndexForThisWord]?.contentNSRange = generatedContentNSRange
                 
-                self.scrollRangeToVisible(refreshIconNSRange)
+//                self.scrollRangeToVisible(refreshIconNSRange)
             }
         }
     }
