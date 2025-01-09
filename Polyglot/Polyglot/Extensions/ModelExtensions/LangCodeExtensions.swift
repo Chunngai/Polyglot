@@ -89,6 +89,18 @@ extension LangCode {
         
     }
     
+    func processTextForSpeechUtterance(text: String) -> String {
+        
+        if self == .ru {
+            return text
+                .replacingOccurrences(of: "«", with: "")
+                .replacingOccurrences(of: "»", with: "")
+        } else {
+            return text
+        }
+        
+    }
+    
 }
 
 extension LangCode {

@@ -271,7 +271,7 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController, Listen
         // Update the speech synthesizer.
         speechSynthesizer = AVSpeechSynthesizer()
         speechSynthesizer.delegate = self
-        utterance = AVSpeechUtterance(string: currentPractice.text)
+        utterance = AVSpeechUtterance(string: LangCode.currentLanguage.processTextForSpeechUtterance(text: currentPractice.text))
         utterance.voice = AVSpeechSynthesisVoice(identifier: currentPractice.textLang.voiceIdentifier)
         utterance.rate = currentPractice.textLang.configs.voiceRate
         isProducingSpeech = true
