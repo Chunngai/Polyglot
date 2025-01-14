@@ -24,6 +24,7 @@ class LanguageSettingsViewController: SettingsViewController {
             languageForTranslation: selectedTranslationLang,
             
             voiceRate: (cells[1][0] as! SettingsSlidingCell).slider.value,
+            slowVoiceRate: (cells[1][1] as! SettingsSlidingCell).slider.value,
             
             phraseReviewPracticeDuration: Int((cells[2][0] as! SettingsSlidingCell).slider.value),
             listeningPracticeDuration: Int((cells[2][1] as! SettingsSlidingCell).slider.value),
@@ -47,7 +48,8 @@ class LanguageSettingsViewController: SettingsViewController {
         // TODO: - Update localization
         headers = [
             "Language for Translating \(LangCode.currentLanguage.rawValue) Texts",
-            "Voice Rate for Synthesizing \(LangCode.currentLanguage.rawValue) Texts",
+            "Normal Voice Rate for Synthesizing \(LangCode.currentLanguage.rawValue) Texts",
+            "Slow Voice Rate for Synthesizing \(LangCode.currentLanguage.rawValue) Texts",
             "Practice Duration",
             "Repetition for Listening/Speaking Practices",
             "Content Generation",
@@ -86,6 +88,19 @@ class LanguageSettingsViewController: SettingsViewController {
                     cell.slider.minimumValue = 0.0
                     cell.slider.maximumValue = 1.0
                     cell.slider.value = LangCode.currentLanguage.configs.voiceRate
+                    cell.formatingFunc = { (sliderVal: Float) -> String in
+                        return String(format: "%.2f", sliderVal)
+                    }
+                    cell.label.text = cell.formatingFunc(cell.slider.value)
+                    return cell
+                }(),
+                {
+                    let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
+                    cell.imageView?.image = UIImage.init(systemName: "tortoise")
+                    cell.step = 0.05
+                    cell.slider.minimumValue = 0.0
+                    cell.slider.maximumValue = 1.0
+                    cell.slider.value = LangCode.currentLanguage.configs.slowVoiceRate
                     cell.formatingFunc = { (sliderVal: Float) -> String in
                         return String(format: "%.2f", sliderVal)
                     }

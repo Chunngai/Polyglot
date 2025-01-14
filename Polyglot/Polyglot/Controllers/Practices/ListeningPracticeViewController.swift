@@ -21,7 +21,17 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController, Listen
     // Listening.
     
     var speechSynthesizer: AVSpeechSynthesizer!
-    var utterance: AVSpeechUtterance!
+
+    private var shouldSpeakSlowUtterance: Bool = false
+    var slowSpeedUtterance: AVSpeechUtterance!
+    var normalSpeedUtterance: AVSpeechUtterance!
+    var utterance: AVSpeechUtterance {
+        if !shouldSpeakSlowUtterance {
+            return normalSpeedUtterance
+        } else {
+            return slowSpeedUtterance
+        }
+    }
     
     var isProducingSpeech: Bool = false {
         didSet {
@@ -269,12 +279,20 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController, Listen
         let currentPractice = practiceProducer.currentPractice as! ListeningPractice
         
         // Update the speech synthesizer.
+                
         speechSynthesizer = AVSpeechSynthesizer()
         speechSynthesizer.delegate = self
-        utterance = AVSpeechUtterance(string: LangCode.currentLanguage.processTextForSpeechUtterance(text: currentPractice.text))
-        utterance.voice = AVSpeechSynthesisVoice(identifier: currentPractice.textLang.voiceIdentifier)
-        utterance.rate = currentPractice.textLang.configs.voiceRate
+        
+        normalSpeedUtterance = AVSpeechUtterance(string: LangCode.currentLanguage.processTextForSpeechUtterance(text: currentPractice.text))
+        normalSpeedUtterance.voice = AVSpeechSynthesisVoice(identifier: currentPractice.textLang.voiceIdentifier)
+        normalSpeedUtterance.rate = currentPractice.textLang.configs.voiceRate
+        
+        slowSpeedUtterance = AVSpeechUtterance(string: LangCode.currentLanguage.processTextForSpeechUtterance(text: currentPractice.text))
+        slowSpeedUtterance.voice = AVSpeechSynthesisVoice(identifier: currentPractice.textLang.voiceIdentifier)
+        slowSpeedUtterance.rate = currentPractice.textLang.configs.slowVoiceRate
+        
         isProducingSpeech = true
+        shouldSpeakSlowUtterance = false
         
         // Update the speech recognizer.
         speechRecognizer = SFSpeechRecognizer(locale: currentPractice.textLang.locale)
@@ -440,6 +458,7 @@ extension ListeningPracticeViewController: AVSpeechSynthesizerDelegate {
      
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
         isProducingSpeech = false
+        shouldSpeakSlowUtterance.toggle()
         if canRecord {
             isRecordingSpeech = true
         }

@@ -178,6 +178,7 @@ struct LangConfigs: Codable {
     var languageForTranslation: LangCode
     
     var voiceRate: Float
+    var slowVoiceRate: Float
     
     var phraseReviewPracticeDuration: Int
     var listeningPracticeDuration: Int
@@ -193,6 +194,7 @@ struct LangConfigs: Codable {
     init(
         languageForTranslation: LangCode,
         voiceRate: Float,
+        slowVoiceRate: Float,
         phraseReviewPracticeDuration: Int,
         listeningPracticeDuration: Int,
         speakingPracticeDuration: Int,
@@ -203,6 +205,7 @@ struct LangConfigs: Codable {
     ) {
         self.languageForTranslation = languageForTranslation
         self.voiceRate = voiceRate
+        self.slowVoiceRate = slowVoiceRate
         self.phraseReviewPracticeDuration = phraseReviewPracticeDuration
         self.listeningPracticeDuration = listeningPracticeDuration
         self.speakingPracticeDuration = speakingPracticeDuration
@@ -217,6 +220,7 @@ struct LangConfigs: Codable {
         case languageForTranslation
         
         case voiceRate
+        case slowVoiceRate
         
         case phraseReviewPracticeDuration
         case listeningPracticeDuration
@@ -236,6 +240,7 @@ struct LangConfigs: Codable {
         
         try container.encode(languageForTranslation, forKey: .languageForTranslation)
         try container.encode(voiceRate, forKey: .voiceRate)
+        try container.encode(slowVoiceRate, forKey: .slowVoiceRate)
         try container.encode(phraseReviewPracticeDuration, forKey: .phraseReviewPracticeDuration)
         try container.encode(listeningPracticeDuration, forKey: .listeningPracticeDuration)
         try container.encode(speakingPracticeDuration, forKey: .speakingPracticeDuration)
@@ -251,6 +256,11 @@ struct LangConfigs: Codable {
         
         languageForTranslation = try values.decode(LangCode.self, forKey: .languageForTranslation)
         voiceRate = try values.decode(Float.self, forKey: .voiceRate)
+        do {
+            slowVoiceRate = try values.decode(Float.self, forKey: .slowVoiceRate)
+        } catch {
+            slowVoiceRate = Self.defaultConfigs.slowVoiceRate
+        }
         do {
             phraseReviewPracticeDuration = try values.decode(Int.self, forKey: .phraseReviewPracticeDuration)
         } catch {
@@ -315,6 +325,7 @@ struct LangConfigs: Codable {
     static let defaultConfigs = LangConfigs(
         languageForTranslation: LangCode.zh,
         voiceRate: 0.5,
+        slowVoiceRate: 0.3,
         phraseReviewPracticeDuration: 5,
         listeningPracticeDuration: 5,
         speakingPracticeDuration: 5,
