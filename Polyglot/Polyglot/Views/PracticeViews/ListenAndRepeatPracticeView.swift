@@ -301,6 +301,9 @@ extension ListenAndRepeatPracticeView: ListeningPracticeViewControllerDelegate {
         var speechTokens = text.tokenized(with: LangCode.currentLanguage.wordTokenizer)
         if LangCode.currentLanguage == .ko {  // Handle inconsistent word splitting.
             let nKoTokens = speechTokens.count
+            if nKoTokens <= 0 {
+                return
+            }
             for i in 0..<nKoTokens - 1 {
                 speechTokens.append(speechTokens[i] + speechTokens[i + 1])
             }
@@ -759,7 +762,7 @@ extension ListenAndRepeatPracticeView {
         // If selected a whole cloze (by double tapping), cancel the selection.
         if selectedRange.length != 0 {
             textView.selectedRange = NSRange(
-                location: 0,
+                location: textView.attributedText.length,
                 length: 0
             )
             return
