@@ -444,6 +444,18 @@ extension Strings {
     static let wordMemorizationPrompt: String = "Help me memorise the spelling of the \(Self.wordMarkingTextViewContentGenerationLanguageNamePlaceHolder) word \"\(Self.wordMarkingTextViewContentGenerationWordPlaceHolder)\" with: (1) \(Self.wordMarkingTextViewContentGenerationLanguageNamePlaceHolder)/English words with similar spelling or pronunciation, (2) related \(Self.wordMarkingTextViewContentGenerationLanguageNamePlaceHolder)/English words, or (3) mnemonics."
     static let grammarExplanationPrompt: String = "Explain the grammar of the \(Self.wordMarkingTextViewContentGenerationLanguageNamePlaceHolder) phrase \"\(Self.wordMarkingTextViewContentGenerationWordPlaceHolder)\" in English."
     
+    private static let _searchMenuItemStrings: [LangCode : String] = [
+        LangCode.en : "Search",
+        LangCode.ja : "検索",
+        LangCode.es : "Buscar",
+        LangCode.ru : "Поиск",
+        LangCode.ko : "검색",
+        LangCode.de : "Suchen",
+    ]
+    static var searchMenuItemString: String {
+        return Strings._searchMenuItemStrings[LangCode.currentLanguage]!
+    }
+    
     private static let _newWordBottomViewMeaningPrompts: [LangCode : String] = [
         LangCode.en : "Also select/type the corresponding meaning",
         LangCode.ja : "相応する意味も選択/入力してください",

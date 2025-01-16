@@ -96,18 +96,3 @@ class ReadingPracticeView: TextMeaningPracticeView {
     }
     
 }
-
-extension ReadingPracticeView {
-    
-    // MARK: - WordMarkingTextViewContentGenerationDelegate
-    
-    override func completedContentGeneration(wordMarkingTextView: WordMarkingTextView, content: String?) {
-        
-        super.completedContentGeneration(
-            wordMarkingTextView: wordMarkingTextView,
-            content: content
-        )
-        repetitionsLabel.isHidden = true
-    }
-    
-}

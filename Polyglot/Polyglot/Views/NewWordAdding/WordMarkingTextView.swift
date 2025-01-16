@@ -82,7 +82,7 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
     
     // MARK: - Controllers
     
-    var wordMarkingTextViewContentGenerationDelegate: WordMarkingTextViewContentGenerationDelegate!
+    var wordMarkingTextViewDelegate: WordMarkingTextViewDelegate!
     
     // MARK: - Views
     
@@ -91,6 +91,7 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
     private var wordMemorizationMenuItem: UIMenuItem!
     private var wordTranslationMenuItem: UIMenuItem!
     private var grammarExplanationMenuItem: UIMenuItem!
+    private var searchMenuItem: UIMenuItem!
     
     var wordMarkingBottomView: WordMarkingBottomView!
     
@@ -152,12 +153,17 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
             title: Strings.grammarExplanationMenuItemString,
             action: #selector(grammarExplanationMenuItemTapped)
         )
+        searchMenuItem = UIMenuItem(
+            title: Strings.searchMenuItemString,
+            action: #selector(searchMenuItemTapped)
+        )
         UIMenuController.shared.menuItems = [
             newWordMenuItem,
             wordMeaningMenuItem,
             wordTranslationMenuItem,
             wordMemorizationMenuItem,
-            grammarExplanationMenuItem
+            grammarExplanationMenuItem,
+            searchMenuItem
         ]
         
         wordMarkingBottomView.delegate = self
@@ -542,7 +548,7 @@ extension WordMarkingTextView {
         contentGenerationInfoList.append(contentGenerationInfoForThisWord)
         let contentGenerationInfoIndexForThisWord = contentGenerationInfoList.count - 1
         
-        self.wordMarkingTextViewContentGenerationDelegate.startedContentGeneration(wordMarkingTextView: self)
+        self.wordMarkingTextViewDelegate.startedContentGeneration(wordMarkingTextView: self)
         
         if originalTextLength == nil {
             // When generating content after having generated content for a word,
@@ -567,7 +573,7 @@ extension WordMarkingTextView {
         ) { content in
             
             DispatchQueue.main.async {
-                self.wordMarkingTextViewContentGenerationDelegate.completedContentGeneration(
+                self.wordMarkingTextViewDelegate.completedContentGeneration(
                     wordMarkingTextView: self,
                     content: content
                 )
@@ -651,7 +657,7 @@ extension WordMarkingTextView {
         )
         
         // Regenerate the content.
-        wordMarkingTextViewContentGenerationDelegate.startedContentGeneration(wordMarkingTextView: self)
+        wordMarkingTextViewDelegate.startedContentGeneration(wordMarkingTextView: self)
         
         self.startTextColorTransitionAnimation(for: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange)
         self.isColorAnimating = true
@@ -666,7 +672,7 @@ extension WordMarkingTextView {
         ) { content in
             
             DispatchQueue.main.async {
-                self.wordMarkingTextViewContentGenerationDelegate.completedContentGeneration(
+                self.wordMarkingTextViewDelegate.completedContentGeneration(
                     wordMarkingTextView: self,
                     content: content
                 )
@@ -959,6 +965,25 @@ extension WordMarkingTextView {
         
     }
     
+    @objc
+    private func searchMenuItemTapped() {
+        
+        guard let word = selectedWord?.strip() else {
+            return
+        }
+        
+        var urlString = "https://www.google.com/search?q=conjugation for \(word)"
+        if LangCode.currentLanguage == .es {
+            urlString = "https://www.spanishdict.com/conjugate/\(word)"
+        }
+        if LangCode.currentLanguage == .ru {
+            urlString = "https://en.openrussian.org/ru/яблоко?search=\(word)"
+        }
+        
+        wordMarkingTextViewDelegate.openURL(wordMarkingTextView: self, urlString: urlString)
+        
+    }
+    
 }
 
 extension WordMarkingTextView {
@@ -1016,6 +1041,10 @@ extension WordMarkingTextView {
                 return !wordsToExplain.contains(word)
             }
         }
+        if action == #selector(searchMenuItemTapped) {
+            return true
+        }
+        
         return false
       
     }
@@ -1100,9 +1129,11 @@ extension WordMarkingTextView {
     
 }
 
-protocol WordMarkingTextViewContentGenerationDelegate {
+protocol WordMarkingTextViewDelegate {
     
     func startedContentGeneration(wordMarkingTextView: WordMarkingTextView)
     func completedContentGeneration(wordMarkingTextView: WordMarkingTextView, content: String?)
+    
+    func openURL(wordMarkingTextView: WordMarkingTextView, urlString: String)
     
 }

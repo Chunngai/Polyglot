@@ -7,17 +7,9 @@
 //
 
 import UIKit
+import SafariServices
 
 class TextMeaningPracticeViewController: PracticeViewController {
-
-    var textViewOfPracticeView: WordMarkingTextView {
-        get {
-            return (practiceView as! TextMeaningPracticeView).textView
-        }
-        set {
-            (practiceView as! TextMeaningPracticeView).textView = newValue
-        }
-    }
         
     // MARK: - Init
     
@@ -125,9 +117,9 @@ class TextMeaningPracticeViewController: PracticeViewController {
             + 20
         
         // Remove the old practice view.
-        if practiceView != nil {
+        if let practiceView = practiceView as? TextMeaningPracticeView {
             practiceView.removeFromSuperview()
-            textViewOfPracticeView.wordMarkingBottomView.removeFromSuperview()
+            practiceView.textView.wordMarkingBottomView.removeFromSuperview()
         }
         // Make a new one.
         practiceView = makePracticeView()
@@ -139,13 +131,16 @@ class TextMeaningPracticeViewController: PracticeViewController {
         
         // Also remember to update the textview in the practice view.
         // TODO: - Can the code wrapped into WordMarkingTextView?
-        view.addSubview(textViewOfPracticeView.wordMarkingBottomView)
-        textViewOfPracticeView.wordMarkingBottomView.frame = CGRect(
-            x: view.frame.minX,
-            y: view.frame.maxY,
-            width: view.frame.width,
-            height: newWordBottomViewHeight
-        )
+        if let practiceView = practiceView as? TextMeaningPracticeView {
+            view.addSubview(practiceView.textView.wordMarkingBottomView)
+            practiceView.textView.wordMarkingBottomView.frame = CGRect(
+                x: view.frame.minX,
+                y: view.frame.maxY,
+                width: view.frame.width,
+                height: newWordBottomViewHeight
+            )
+            practiceView.textView.wordMarkingTextViewDelegate = self
+        }
         
         mainView.bringSubviewToFront(doneButton)
         mainView.bringSubviewToFront(nextButton)
@@ -247,6 +242,48 @@ extension TextMeaningPracticeViewController {
     }
     
 }
+
+extension TextMeaningPracticeViewController: WordMarkingTextViewDelegate {
+    
+    // MARK: - WordMarkingTextViewContentGenerationDelegate
+    
+    @objc
+    func startedContentGeneration(wordMarkingTextView: WordMarkingTextView) {
+        
+        if let practiceView = practiceView as? TextMeaningPracticeView {
+            practiceView.repetitionsLabel.isHidden = true
+            practiceView.contentGenerationSpinner.isHidden = false
+            practiceView.contentGenerationSpinner.startAnimating()
+        }
+        
+    }
+    
+    @objc
+    func completedContentGeneration(wordMarkingTextView: WordMarkingTextView, content: String?) {
+        
+        if let practiceView = practiceView as? TextMeaningPracticeView {
+            practiceView.repetitionsLabel.isHidden = false
+            practiceView.contentGenerationSpinner.isHidden = true
+            practiceView.contentGenerationSpinner.stopAnimating()
+        }
+        
+    }
+ 
+    @objc
+    func openURL(wordMarkingTextView: WordMarkingTextView, urlString: String) {
+        
+        // https://stackoverflow.com/questions/39546856/how-to-open-a-url-in-swift
+        let url = URL(string: urlString)
+        guard let url = url else {
+            return
+        }
+        let vc = SFSafariViewController(url: url)
+        present(vc, animated: true, completion: nil)
+        
+    }
+    
+}
+
 
 extension TextMeaningPracticeViewController {
     

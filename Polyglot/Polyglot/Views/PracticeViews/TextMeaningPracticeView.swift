@@ -196,7 +196,6 @@ class TextMeaningPracticeView: BasePracticeView {
     
     func updateSetups() {
         textView.delegate = self
-        textView.wordMarkingTextViewContentGenerationDelegate = self
         
         reinforceButton.addTarget(
             self,
@@ -440,26 +439,6 @@ extension TextMeaningPracticeView {
         
         shouldReinforce.toggle()
         
-    }
-    
-}
-
-extension TextMeaningPracticeView: WordMarkingTextViewContentGenerationDelegate {
-    
-    // MARK: - WordMarkingTextViewContentGenerationDelegate
-    
-    @objc
-    func startedContentGeneration(wordMarkingTextView: WordMarkingTextView) {
-        repetitionsLabel.isHidden = true
-        contentGenerationSpinner.isHidden = false
-        contentGenerationSpinner.startAnimating()
-    }
-    
-    @objc
-    func completedContentGeneration(wordMarkingTextView: WordMarkingTextView, content: String?) {
-        repetitionsLabel.isHidden = false
-        contentGenerationSpinner.isHidden = true
-        contentGenerationSpinner.stopAnimating()
     }
     
 }
