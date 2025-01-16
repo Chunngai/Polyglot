@@ -291,8 +291,8 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController, Listen
         slowSpeedUtterance.voice = AVSpeechSynthesisVoice(identifier: currentPractice.textLang.voiceIdentifier)
         slowSpeedUtterance.rate = currentPractice.textLang.configs.slowVoiceRate
         
-        isProducingSpeech = true
         shouldSpeakSlowUtterance = false
+        isProducingSpeech = true
         
         // Update the speech recognizer.
         speechRecognizer = SFSpeechRecognizer(locale: currentPractice.textLang.locale)
