@@ -197,12 +197,12 @@ extension Strings {
     }
     
     static let _listening: [LangCode : String] = [
-        LangCode.en : "Listening",
-        LangCode.ja : "聞くこと",
-        LangCode.es : "Escuchar",
-        LangCode.ru : "Слушание",
-        LangCode.ko : "듣기",
-        LangCode.de : "Hören",
+        LangCode.en : "Shadowing",
+        LangCode.ja : "シャドーイング",
+        LangCode.es : "Shadowing",
+        LangCode.ru : "Теневой Повтор",
+        LangCode.ko : "섀도잉",
+        LangCode.de : "Shadowing",
     ]
     static var listening: String {
         return Strings._listening[LangCode.currentLanguage]!
@@ -218,6 +218,18 @@ extension Strings {
     ]
     static var speaking: String {
         return Strings._speaking[LangCode.currentLanguage]!
+    }
+    
+    static let _podcast: [LangCode : String] = [
+        LangCode.en : "Listening",
+        LangCode.ja : "聞くこと",
+        LangCode.es : "Escuchar",
+        LangCode.ru : "Слушание",
+        LangCode.ko : "듣기",
+        LangCode.de : "Hören",
+    ]
+    static var podcast: String {
+        return Strings._podcast[LangCode.currentLanguage]!
     }
     
     static let _recentPractice: [LangCode : String] = [

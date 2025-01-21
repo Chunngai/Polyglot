@@ -29,6 +29,10 @@
 		C696B9512B6DEDA600B00A02 /* ContentCardsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C696B9502B6DEDA600B00A02 /* ContentCardsExtensions.swift */; };
 		C69B190A2C18A91800E41C86 /* SettingsSlidingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B19092C18A91800E41C86 /* SettingsSlidingCell.swift */; };
 		C69B190E2C18B76600E41C86 /* SettingsSwitchingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B190D2C18B76600E41C86 /* SettingsSwitchingCell.swift */; };
+		C69CB0E22D3D551000C43FE7 /* PodcastPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69CB0E12D3D551000C43FE7 /* PodcastPracticeViewController.swift */; };
+		C69CB0E62D3D577200C43FE7 /* PodcastPracticeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69CB0E52D3D577200C43FE7 /* PodcastPracticeProducer.swift */; };
+		C69CB0E82D3D5AB200C43FE7 /* PodcastPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69CB0E72D3D5AB200C43FE7 /* PodcastPractice.swift */; };
+		C69CB0EA2D3D5B5900C43FE7 /* PodcastPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69CB0E92D3D5B5900C43FE7 /* PodcastPracticeView.swift */; };
 		C69DB5EA2B73BE9B00B3BC66 /* TextMeaningPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69DB5E92B73BE9B00B3BC66 /* TextMeaningPracticeView.swift */; };
 		C69DB5EC2B73C05700B3BC66 /* ListenAndRepeatPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69DB5EB2B73C05700B3BC66 /* ListenAndRepeatPracticeView.swift */; };
 		C69DB5EE2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69DB5ED2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift */; };
@@ -198,6 +202,10 @@
 		C696B9502B6DEDA600B00A02 /* ContentCardsExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardsExtensions.swift; sourceTree = "<group>"; };
 		C69B19092C18A91800E41C86 /* SettingsSlidingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSlidingCell.swift; sourceTree = "<group>"; };
 		C69B190D2C18B76600E41C86 /* SettingsSwitchingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSwitchingCell.swift; sourceTree = "<group>"; };
+		C69CB0E12D3D551000C43FE7 /* PodcastPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastPracticeViewController.swift; sourceTree = "<group>"; };
+		C69CB0E52D3D577200C43FE7 /* PodcastPracticeProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastPracticeProducer.swift; sourceTree = "<group>"; };
+		C69CB0E72D3D5AB200C43FE7 /* PodcastPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastPractice.swift; sourceTree = "<group>"; };
+		C69CB0E92D3D5B5900C43FE7 /* PodcastPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastPracticeView.swift; sourceTree = "<group>"; };
 		C69DB5E92B73BE9B00B3BC66 /* TextMeaningPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextMeaningPracticeView.swift; sourceTree = "<group>"; };
 		C69DB5EB2B73C05700B3BC66 /* ListenAndRepeatPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListenAndRepeatPracticeView.swift; sourceTree = "<group>"; };
 		C69DB5ED2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListenAndCompletePracticeView.swift; sourceTree = "<group>"; };
@@ -363,6 +371,7 @@
 				C69DB5ED2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift */,
 				FFCBB0DF296B45F300E5B9D9 /* SpeakingPracticeView.swift */,
 				C6A1FC432C7B4E7700F01632 /* ReadingPracticeView.swift */,
+				C69CB0E92D3D5B5900C43FE7 /* PodcastPracticeView.swift */,
 			);
 			path = PracticeViews;
 			sourceTree = "<group>";
@@ -413,6 +422,7 @@
 				C6F5FB792B7202AF0040A26B /* ListeningPracticeViewController.swift */,
 				FF4CA72F295E869900423946 /* SpeakingPracticeViewController.swift */,
 				C6A1FC452C7B4F7400F01632 /* ReadingPracticeViewController.swift */,
+				C69CB0E12D3D551000C43FE7 /* PodcastPracticeViewController.swift */,
 			);
 			path = Practices;
 			sourceTree = "<group>";
@@ -425,6 +435,7 @@
 				C69F76672B7D1F9F0006828A /* ListeningPractice.swift */,
 				C6B9DE8B2B7E177E004F0C88 /* SpeakingPractice.swift */,
 				C6A1FC3F2C7B4B9700F01632 /* ReadingPractice.swift */,
+				C69CB0E72D3D5AB200C43FE7 /* PodcastPractice.swift */,
 			);
 			path = PracticeItems;
 			sourceTree = "<group>";
@@ -662,6 +673,7 @@
 				C6F5FB7D2B72067F0040A26B /* ListeningPracticeProducer.swift */,
 				FFBD60442969D733004165FC /* SpeakingPracticeProducer.swift */,
 				C6A1FC412C7B4C6900F01632 /* ReadingPracticeProducer.swift */,
+				C69CB0E52D3D577200C43FE7 /* PodcastPracticeProducer.swift */,
 			);
 			path = PracticeProducers;
 			sourceTree = "<group>";
@@ -991,10 +1003,12 @@
 				C60625F72B7FB5E800429BAF /* TextMeaningPracticeViewController.swift in Sources */,
 				C664E3E82CE4A3A3002C9F08 /* UIScrollViewExtensions.swift in Sources */,
 				C6F3F6AB2C12239C00346A70 /* SettingsInputCell.swift in Sources */,
+				C69CB0E62D3D577200C43FE7 /* PodcastPracticeProducer.swift in Sources */,
 				C6BA7AAA2C7F52F800C6FFD3 /* RussianAccentEntity+CoreDataClass.swift in Sources */,
 				C6E8D3D92C8E3B8A009E42F5 /* Je2JoEntity+CoreDataClass.swift in Sources */,
 				FF591ED62967960C0004CB80 /* WordPractice.swift in Sources */,
 				FFBD60412969D713004165FC /* WordPracticeProducer.swift in Sources */,
+				C69CB0E22D3D551000C43FE7 /* PodcastPracticeViewController.swift in Sources */,
 				C6BC063D2C726D2C00B2DF44 /* MachineTranslator.swift in Sources */,
 				C6A1FC402C7B4B9700F01632 /* ReadingPractice.swift in Sources */,
 				FF495E962958FFE600EA7EA9 /* WordsViewController.swift in Sources */,
@@ -1035,6 +1049,7 @@
 				C6E8D3DA2C8E3B8A009E42F5 /* Je2JoEntity+CoreDataProperties.swift in Sources */,
 				C6E1E0312AC5C2F600E4AF72 /* HomeViewController.swift in Sources */,
 				FF50251429524D100097C2CB /* ReadingTableCell.swift in Sources */,
+				C69CB0E82D3D5AB200C43FE7 /* PodcastPractice.swift in Sources */,
 				FF491E802959ED730088FD13 /* Separator.swift in Sources */,
 				C60626062B8069E600429BAF /* BasePracticeView.swift in Sources */,
 				C69F76682B7D1F9F0006828A /* ListeningPractice.swift in Sources */,
@@ -1049,6 +1064,7 @@
 				FFCBB0D7296B0AA200E5B9D9 /* PracticeViewController.swift in Sources */,
 				FF495E9C295903DF00EA7EA9 /* WordsTableCell.swift in Sources */,
 				C619E68F2AC8154F00A30B27 /* LangCell.swift in Sources */,
+				C69CB0EA2D3D5B5900C43FE7 /* PodcastPracticeView.swift in Sources */,
 				C6F5FB7E2B72067F0040A26B /* ListeningPracticeProducer.swift in Sources */,
 				FF584434296732B400137E00 /* DictionaryExtensions.swift in Sources */,
 				FFCBB0DB296B1A6700E5B9D9 /* BasePracticeProducer.swift in Sources */,
