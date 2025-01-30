@@ -747,7 +747,7 @@ extension ListenAndRepeatPracticeView {
         let selectedRange = textView.selectedRange
         
         // If selected all, cancel the selection.
-        // Else cannot edit after selecting all.
+        // Otherwise cannot edit after selecting all.
         if selectedRange == NSRange(
             location: 0,
             length: textView.attributedText.length
@@ -769,7 +769,7 @@ extension ListenAndRepeatPracticeView {
         }
         
         guard selectedRange.location >= 0,
-              selectedRange.location <= textView.text.count else {
+              selectedRange.location < textView.text.count else {
             // Do not place the code in the next line in `textViewDidEndEditing()`,
             // as that method will only be called for isFirstResponder -> isNotFirstResponder.
             // However, `selectedRangeBeforeResigningToFirstResponder` should be modified
