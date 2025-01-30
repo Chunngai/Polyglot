@@ -549,6 +549,22 @@ extension WordMarkingTextView {
         let contentGenerationInfoIndexForThisWord = contentGenerationInfoList.count - 1
         
         self.wordMarkingTextViewDelegate.startedContentGeneration(wordMarkingTextView: self)
+                        
+        // Store original text colors (e.g., black colors for normal texts and red colors for wrong characters in clozes)
+        // for text color restoring after the color animation.
+        var originalRange2Color: [NSRange: UIColor] = [:]
+        self.attributedText.enumerateAttribute(
+            .foregroundColor,
+            in: NSRange(
+                location: 0,
+                length: self.attributedText.length
+            ),
+            options: []
+        ) { value, range, _ in
+            if let color = value as? UIColor {
+                originalRange2Color[range] = color
+            }
+        }
         
         if originalTextLength == nil {
             // When generating content after having generated content for a word,
@@ -560,6 +576,7 @@ extension WordMarkingTextView {
             location: 0,
             length: originalTextLength
         )
+        
         self.isColorAnimating = true
         self.startTextColorTransitionAnimation(for: colorAnimationRange)
         
@@ -580,10 +597,12 @@ extension WordMarkingTextView {
                 
                 self.isColorAnimating = false
                 // Recover to the original color.
-                self.textStorage.setTextColor(
-                    for: colorAnimationRange,
-                    with: self.colorAnimationOriginalColor
-                )
+                for (range, color) in originalRange2Color {
+                    self.textStorage.setTextColor(
+                        for: range,
+                        with: color
+                    )
+                }
             }
             
             guard let content = content else {
