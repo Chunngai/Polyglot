@@ -101,9 +101,20 @@ class HomeViewController: UIViewController {
         HomeItem(
             image: Images.wordPracticeImage,
             text: Strings.phraseReview,
-            secondaryText: practiceMetaData["recentWordPracticeDate"] != nil
-            ? "\(Strings.recentPractice): \(practiceMetaData["recentWordPracticeDate"]!)"
-            : nil
+            secondaryText: {
+                let count = WordPracticeProducer.word2count.count
+                
+                var s = ""
+                if count != 0 {
+                    s += String(count)
+                } else {
+                    s += "No"
+                }
+                s += " Phrases to Review"
+                
+                return s
+                
+            }()
         ),
         HomeItem(
             image: Images.listeningPracticeImage,
@@ -149,6 +160,10 @@ class HomeViewController: UIViewController {
             return false
         }
         return true
+    }
+    
+    var isWordPracticeEnabled: Bool {
+        return !WordPracticeProducer.word2count.isEmpty
     }
     
     // MARK: - Models
@@ -613,6 +628,10 @@ extension HomeViewController {
             }
             if indexPath.section == HomeViewController.practiceSection {
                 content.textProperties.color = self.isPracticeEnabled ? Colors.normalTextColor : Colors.weakTextColor
+                
+                if indexPath.row == 0 {
+                    content.textProperties.color = self.isWordPracticeEnabled ? Colors.normalTextColor : Colors.weakTextColor
+                }
             }
             cell.contentConfiguration = content
             
@@ -816,6 +835,11 @@ extension HomeViewController: UICollectionViewDelegate {
             
             let vc: PracticeViewController
             if row == 0 {
+                
+                guard isWordPracticeEnabled else {
+                    return
+                }
+                
                 vc = WordsPracticeViewController()
                 vc.practiceDuration = LangCode.currentLanguage.configs.phraseReviewPracticeDuration
             } else if row == 1 {

@@ -336,8 +336,9 @@ extension ListeningPracticeViewController {
     @objc override func nextButtonTapped() {
         
         if let practiceView = practiceView as? TextMeaningPracticeView {
+            
             let newWords = newWords(
-                from: practiceView.wordsInfo,
+                from: practiceView.textView.wordsInfo,
                 of: practiceView.textSource
             )
             add(newWords: newWords)
@@ -345,6 +346,8 @@ extension ListeningPracticeViewController {
                 from: practiceProducer,
                 with: newWords
             )
+            
+            generateWordPractices(from: practiceView.textView.reinforcementWordsInfo)
             
             if practiceView.shouldReinforce {
                 practiceProducer.reinforce(

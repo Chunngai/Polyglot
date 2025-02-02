@@ -94,6 +94,7 @@ class TranslationPracticeView: TextMeaningPracticeView {
             existingPhraseRanges: existingPhraseRanges,
             existingPhraseMeanings: existingPhraseMeanings
         )
+        highlightExistingReinforcementWords()
     }
 
 }

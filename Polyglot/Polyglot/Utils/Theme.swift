@@ -41,6 +41,8 @@ struct Colors {
     
     static let newWordHighlightingColor = Self.lightBlue
     static let oldWordHighlightingColor = Self.strongLightBlue
+    static let newReinforcementWordUnderlineColor = UIColor.systemPurple
+    static let oldReinforcementWordUnderlineColor = UIColor.purple
     
 }
 

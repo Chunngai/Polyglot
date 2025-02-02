@@ -88,22 +88,32 @@ class WordsPracticeViewController: PracticeViewController {
     override func updateSetups() {
         super.updateSetups()
         
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
         
     }
     
     override func updatePracticeView() {
         
-        let currentPractice = practiceProducer.currentPractice as! WordPracticeProducer.Item
+        let currentPractice = practiceProducer.currentPractice as! WordPractice
         
         func makePracticeView() -> WordPracticeView {
 
-            switch currentPractice.practice.practiceType {
+            switch currentPractice.practiceType {
             case .meaningSelection:
                 return {
                     let practiceView = SelectionPracticeView()
-                    practiceView.updateValues(selectionTexts: currentPractice.selectionTexts!)
+                    practiceView.updateValues(selectionTexts: currentPractice.choices!)
                     practiceView.delegate = self
                     return practiceView
                 }()
@@ -117,7 +127,7 @@ class WordsPracticeViewController: PracticeViewController {
                 return {
                     let practiceView = SelectionPracticeView()
                     practiceView.updateValues(
-                        selectionTexts: currentPractice.selectionTexts!,
+                        selectionTexts: currentPractice.choices!,
                         textViewText: currentPractice.context!
                     )
                     practiceView.delegate = self
@@ -126,14 +136,17 @@ class WordsPracticeViewController: PracticeViewController {
             case .accentSelection:
                 return {
                     let practiceView = SelectionPracticeView()
-                    practiceView.updateValues(selectionTexts: currentPractice.selectionTexts!)
+                    practiceView.updateValues(selectionTexts: currentPractice.choices!)
                     practiceView.delegate = self
                     return practiceView
                 }()
             case .reordering:
                 return {
                     let practiceView = ReorderingPracticeView()
-                    practiceView.updateValues(words: currentPractice.wordsToReorder!)
+                    practiceView.updateValues(
+                        words: currentPractice.reorderingWordList!,
+                        translation: currentPractice.reorderingTextTranslation!
+                    )
                     practiceView.delegate = self
                     return practiceView
                 }()
@@ -150,7 +163,7 @@ class WordsPracticeViewController: PracticeViewController {
         )
         promptAttributes.add(
             attributes: Attributes.practiceWordAttributes,
-            for: currentPractice.wordInPrompt
+            for: currentPractice.query
         )
         promptLabel.attributedText = promptAttributes
         
@@ -208,15 +221,20 @@ extension WordsPracticeViewController {
         let answer = (practiceView as! WordPracticeView).submit()
         practiceProducer.submit(answer: answer)
         
-        let currentPractice = practiceProducer.currentPractice as! WordPracticeProducer.Item
-        (practiceView as! WordPracticeView).updateViewsAfterSubmission(
-            for: currentPractice.practice.correctness!,
-            key: currentPractice.key,
-            tokenizer: currentPractice.tokenizer
-        )
+        if let currentPractice = practiceProducer.currentPractice as? WordPractice,
+           let practiceView = practiceView as? WordPracticeView {
+            
+            practiceView.updateViewsAfterSubmission(
+                for: currentPractice.correctness!,
+                key: currentPractice.key,
+                tokenizer: currentPractice.tokenizer
+            )
+            
+        }
     }
     
     @objc override func nextButtonTapped() {   
+        
         guard !shouldFinishPracticing else {
             practiceMetaData["recentWordPracticeDate"] = Date().repr(of: Date.defaultDateAndTimeFormat)
             self.stopPracticing()
@@ -225,37 +243,20 @@ extension WordsPracticeViewController {
         
         super.nextButtonTapped()
         practiceProducer.next()
+        if practiceProducer.practiceList.isEmpty {
+            practiceMetaData["recentWordPracticeDate"] = Date().repr(of: Date.defaultDateAndTimeFormat)
+            stopPracticing()
+            return
+        }
+        
         updatePracticeView()
     }
 }
 
 extension WordsPracticeViewController {
     
-    // MARK: - TimingBar Delegate
-    
     override func stopPracticing() {
-        
-        for practiceItem in practiceProducer.practiceList {
-            let practiceItem = practiceItem as! WordPracticeProducer.Item
-            guard let word = words.getWord(from: practiceItem.practice.wordId) else {
-                continue
-            }
-            guard word.tokens != nil else {
-                continue
-            }
-            analyzeAccents(for: word.text) { tokens, fixedText, _ in
-                guard !tokens.isEmpty else {
-                    return
-                }
-                let _ = self.words.updateWord(
-                    of: word.id,
-                    newText: fixedText ?? word.text,
-                    newTokens: tokens
-                )
-            }
-            
-        }
-        
+        practiceProducer.cache()
         navigationController?.dismiss(animated: true, completion: nil)
     }
     

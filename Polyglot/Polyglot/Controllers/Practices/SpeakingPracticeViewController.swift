@@ -68,8 +68,9 @@ extension TranslationPracticeViewController {
     
     @objc override func nextButtonTapped() {
         if let practiceView = practiceView as? TextMeaningPracticeView {
+            
             let newWords = newWords(
-                from: practiceView.wordsInfo,
+                from: practiceView.textView.wordsInfo,
                 of: practiceView.textSource
             )
             add(newWords: newWords)
@@ -77,6 +78,8 @@ extension TranslationPracticeViewController {
                 from: practiceProducer,
                 with: newWords
             )
+            
+            generateWordPractices(from: practiceView.textView.reinforcementWordsInfo)
             
             if practiceView.shouldReinforce {
                 practiceProducer.reinforce(

@@ -81,6 +81,7 @@ class ReadingPracticeView: TextMeaningPracticeView {
             existingPhraseRanges: existingPhraseRanges,
             existingPhraseMeanings: existingPhraseMeanings
         )
+        highlightExistingReinforcementWords()
     }
     
     override func displayUpper() {

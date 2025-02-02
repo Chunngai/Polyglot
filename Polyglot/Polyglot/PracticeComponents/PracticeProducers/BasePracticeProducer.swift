@@ -12,26 +12,35 @@ class BasePracticeProducer {
     
     var words: [Word]!
     var articles: [Article]!
+    var groupedArticles: [GroupedArticles]!
     
     var practiceList: [BasePractice] = []
     var currentPracticeIndex: Int = 0
     var currentPractice: BasePractice {
         get {
-            if currentPracticeIndex >= practiceList.count {
+            if self.practiceList.isEmpty {
                 self.practiceList.append(contentsOf: self.make())
             }
-            return practiceList[currentPracticeIndex]
+            
+            return self.practiceList[self.currentPracticeIndex]
         }
         set {
-            practiceList[currentPracticeIndex] = newValue
+            self.practiceList[self.currentPracticeIndex] = newValue
         }
     }
     
     var batchSize: Int = 6
     
+    var machineTranslator: MachineTranslator = MachineTranslator(
+        srcLang: LangCode.currentLanguage,
+        trgLang: LangCode.currentLanguage.configs.languageForTranslation
+    )
+    var contentCreator: ContentCreator = ContentCreator()
+    
     init(words: [Word], articles: [Article]) {
         self.words = words
         self.articles = articles
+        self.groupedArticles = articles.groups
     }
     
     func make() -> [BasePractice] {
@@ -39,14 +48,16 @@ class BasePracticeProducer {
     }
     
     func next() {
-        currentPracticeIndex += 1
-        if currentPracticeIndex >= practiceList.count - batchSize {
-            DispatchQueue.global(qos: .userInitiated).async {
-                self.practiceList.append(contentsOf: self.make())
-            }
-        }
+        fatalError("next() has not been implemented.")
     }
     
+    func load(_ cachedPractices: [BasePractice]) {
+        fatalError("load(_) has not been implemented.")
+    }
+    
+    func cache() {
+        fatalError("cache() has not been implemented.")
+    }
 }
 
 extension BasePracticeProducer {

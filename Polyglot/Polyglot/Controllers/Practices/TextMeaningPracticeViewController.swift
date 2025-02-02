@@ -243,6 +243,25 @@ extension TextMeaningPracticeViewController {
     
 }
 
+extension TextMeaningPracticeViewController {
+    
+    func generateWordPractices(from reinforcementWordsInfo: [WordInfo]) {
+        
+        var reinforcementWords: [String] = []
+        for reinforcementWordInfo in reinforcementWordsInfo {
+            reinforcementWords.append(reinforcementWordInfo.word)
+        }
+        
+        let wordPracticeProducer = WordPracticeProducer(
+            words: words,
+            articles: articles
+        )
+        wordPracticeProducer.makeAndCachePractices(for: reinforcementWords)
+        
+    }
+    
+}
+
 extension TextMeaningPracticeViewController: WordMarkingTextViewDelegate {
     
     // MARK: - WordMarkingTextViewContentGenerationDelegate

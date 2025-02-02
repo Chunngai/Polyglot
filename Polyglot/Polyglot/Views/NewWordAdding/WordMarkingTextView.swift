@@ -10,6 +10,8 @@ import UIKit
 
 class WordMarkingTextView: UITextView, UITextViewDelegate {
     
+    // New word adding.
+    
     var currentWordInfo: WordInfo = WordInfo(  // Store the info of the new word being added.
         textRange: UITextRange(),
         word: "",
@@ -18,6 +20,13 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
     var wordsInfo: [WordInfo] = []
     
     var isAddingNewWord: Bool = false
+    
+    // Reinforcement word adding.
+    
+    var reinforcementWordsInfo: [WordInfo] = []
+    
+    private var isDeletingReinforcementWord: Bool = false
+    private var indexOfReinforcementWordToDelete: Int?
     
     // For deleting new words.
     var currentSelectedTextRange: UITextRange!
@@ -84,6 +93,8 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
     
     var wordMarkingTextViewDelegate: WordMarkingTextViewDelegate!
     
+    private var sharedMenuController = UIMenuController.shared
+    
     // MARK: - Views
     
     private var newWordMenuItem: UIMenuItem!  // https://www.youtube.com/watch?v=s-LW_4ypwZo
@@ -92,6 +103,10 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
     private var wordTranslationMenuItem: UIMenuItem!
     private var grammarExplanationMenuItem: UIMenuItem!
     private var searchMenuItem: UIMenuItem!
+    private var reinforceMenuItem: UIMenuItem!
+    private var cancelReinforcementMenuItem: UIMenuItem!
+    
+    private var menuItems: [UIMenuItem]!
     
     var wordMarkingBottomView: WordMarkingBottomView!
     
@@ -157,14 +172,24 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
             title: Strings.searchMenuItemString,
             action: #selector(searchMenuItemTapped)
         )
-        UIMenuController.shared.menuItems = [
+        reinforceMenuItem = UIMenuItem(
+            title: Strings.reinforceMenuItemString,
+            action: #selector(reinforceMenuItemTapped)
+        )
+        cancelReinforcementMenuItem = UIMenuItem(
+            title: Strings.cancelReinforcementMenuItemString,
+            action: #selector(cancelReinforcementMenuItemTapped)
+        )
+        menuItems = [
             newWordMenuItem,
             wordMeaningMenuItem,
             wordTranslationMenuItem,
             wordMemorizationMenuItem,
             grammarExplanationMenuItem,
-            searchMenuItem
+            searchMenuItem,
+            reinforceMenuItem,
         ]
+        sharedMenuController.menuItems = menuItems
         
         wordMarkingBottomView.delegate = self
 
@@ -237,6 +262,31 @@ extension WordMarkingTextView {
             }
             highlight(
                 wordInfo.textRange,
+                with: color
+            )
+        }
+    }
+    
+    // MARK: - Underlining
+    
+    func underline(_ textRange: UITextRange, with color: UIColor?) {
+        textStorage.addAttributes(
+            [
+                .underlineStyle: NSUnderlineStyle.single.rawValue,
+                .underlineColor: color as Any
+            ],
+            range: nsRange(from: textRange)
+        )
+    }
+    
+    func underlineAll() {
+        for reinforcementWordInfo in reinforcementWordsInfo {
+            var color: UIColor = Colors.newReinforcementWordUnderlineColor
+            if !reinforcementWordInfo.canDelete {
+                color = Colors.oldReinforcementWordUnderlineColor
+            }
+            underline(
+                reinforcementWordInfo.textRange,
                 with: color
             )
         }
@@ -809,8 +859,29 @@ extension WordMarkingTextView {
 
 extension WordMarkingTextView {
     
-    private func tappedAt(_ tappedTextRange: UITextRange) {
+    // MARK: - Selectors
+    
+    @objc private func somewhereInTextViewTapped(recognizer: UITapGestureRecognizer) {
         
+        let location: CGPoint = recognizer.location(in: self)
+        // https://stackoverflow.com/questions/22348076/is-it-possible-to-create-uitextrange-manually-for-first-character
+        guard let tapPosition: UITextPosition = closestPosition(to: location) else {
+            return
+        }
+        
+        guard let anotherTapLocation: UITextPosition = position(
+            from: tapPosition,
+            offset: 0
+        ) else {
+            return
+        }
+        guard let tappedTextRange = textRange(
+            from: tapPosition,
+            to: anotherTapLocation
+        ) else {
+            return
+        }
+
         // For canceling selections
         // & handling memorization content regeneration
         // & presenting an added new word.
@@ -873,35 +944,50 @@ extension WordMarkingTextView {
                 break  // Avoid overlapped highlighting.
             }
         }
-    }
-    
-}
+        
+        // Present a word for reinforcement.
+        for (i, reinforcementWordInfo) in reinforcementWordsInfo.enumerated() {
+            
+            let wordTextRange: UITextRange = reinforcementWordInfo.textRange
+            // Left text position.
+            let rangeStartPositionValue = valueOf(textPosition: wordTextRange.start)
+            // Right text position.
+            let rangeEndPositionValue = valueOf(textPosition: wordTextRange.end)
 
-extension WordMarkingTextView {
-    
-    // MARK: - Selectors
-    
-    @objc private func somewhereInTextViewTapped(recognizer: UITapGestureRecognizer) {
-        
-        let location: CGPoint = recognizer.location(in: self)
-        // https://stackoverflow.com/questions/22348076/is-it-possible-to-create-uitextrange-manually-for-first-character
-        guard let tapPosition: UITextPosition = closestPosition(to: location) else {
-            return
+            // Use <= and do not use intersection(),
+            // else the condition is false if the left of the first letter
+            // or the right of the last letter is tapped.
+            let isTextRangeTapped: Bool = (
+                rangeStartPositionValue <= tapPositionValue
+                && tapPositionValue <= rangeEndPositionValue
+            )
+            if isTextRangeTapped && reinforcementWordInfo.canDelete {
+
+                isDeletingReinforcementWord = true
+                indexOfReinforcementWordToDelete = i
+                
+                // https://chatgpt.com/share/679f363c-694c-800d-aa6b-37d27ae9b76b
+                sharedMenuController.menuItems = [cancelReinforcementMenuItem]
+                sharedMenuController.setTargetRect(
+                    CGRect(
+                        x: location.x,
+                        y: location.y,
+                        width: 0,
+                        height: 0
+                    ),
+                    in: self
+                )
+                sharedMenuController.setMenuVisible(
+                    true,
+                    animated: true
+                )
+                
+                // Restore the menu items.
+                sharedMenuController.menuItems = menuItems
+                
+                break  // Avoid overlapped highlighting.
+            }
         }
-        
-        guard let anotherTapLocation: UITextPosition = position(
-            from: tapPosition,
-            offset: 0
-        ) else {
-            return
-        }
-        guard let tappedTextRange = textRange(
-            from: tapPosition,
-            to: anotherTapLocation
-        ) else {
-            return
-        }
-        tappedAt(tappedTextRange)
         
     }
     
@@ -1003,6 +1089,47 @@ extension WordMarkingTextView {
         
     }
     
+    @objc
+    private func reinforceMenuItemTapped() {
+        
+        // Obtain the word to reinforce, its selected range, and its selected text range.
+        if let selectedTextRange = selectedTextRange,
+            !selectedTextRange.isEmpty,
+            let word = text(in: selectedTextRange) {
+
+            // Store the info of the reinforcement word.
+            reinforcementWordsInfo.append(WordInfo(
+                textRange: selectedTextRange,
+                word: word,
+                meaning: ""
+            ))
+            underline(
+                selectedTextRange,
+                with: Colors.newReinforcementWordUnderlineColor
+            )
+        }
+        
+    }
+    
+    @objc func cancelReinforcementMenuItemTapped() {
+                
+        guard let indexOfReinforcementWordToDelete = indexOfReinforcementWordToDelete else {
+            return
+        }
+        
+        let removedReinforcementWordInfo = reinforcementWordsInfo.remove(at: indexOfReinforcementWordToDelete)
+        
+        // Remove the underline.
+        underline(
+            removedReinforcementWordInfo.textRange,
+            with: backgroundColor
+        )
+        // The code above will remove the background colors
+        // of the overlapped ranges, which need to be recovered.
+        underlineAll()
+        
+    }
+    
 }
 
 extension WordMarkingTextView {
@@ -1022,6 +1149,9 @@ extension WordMarkingTextView {
         }
         
         if action == #selector(copy(_:)) {
+            if isDeletingReinforcementWord {
+                return false
+            }
             return true
         }
         if !isAddingNewWord && action == #selector(newWordMenuItemTapped) {
@@ -1061,6 +1191,12 @@ extension WordMarkingTextView {
             }
         }
         if action == #selector(searchMenuItemTapped) {
+            return true
+        }
+        if action == #selector(reinforceMenuItemTapped) {
+            return true
+        }
+        if action == #selector(cancelReinforcementMenuItemTapped) && isDeletingReinforcementWord {
             return true
         }
         

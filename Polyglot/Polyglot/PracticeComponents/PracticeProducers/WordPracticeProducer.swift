@@ -11,170 +11,172 @@ import UIKit
 import NaturalLanguage
 
 class WordPracticeProducer: BasePracticeProducer {
+    
+    var variantNumber: Int = 5  // TODO: -
+    
+    static func getWord2Count(from practiceList: [BasePractice]) -> [String: Int] {
         
+        var word2count: [String: Int] = [:]
+        for wordPractice in practiceList {
+            guard let wordPractice = wordPractice as? WordPractice else {
+                continue
+            }
+            let word = wordPractice.word
+            if word2count.keys.contains(word) {
+                word2count[word]! += 1
+            } else {
+                word2count[word] = 1
+            }
+        }
+        return word2count
+        
+    }
+    static var word2count: [String: Int] = WordPracticeProducer.getWord2Count(from: WordPracticeProducer.loadCachedPractices(for: LangCode.currentLanguage))
+    
+    override var practiceList: [BasePractice] {
+        didSet {
+            Self.word2count = Self.getWord2Count(from: self.practiceList)
+        }
+    }
+    
     // MARK: - Init
     
     override init(words: [Word], articles: [Article]) {
         super.init(words: words, articles: articles)
         
-        self.batchSize = self.words.count >= batchSize ?
-            batchSize :
-            self.words.count
-        
-        self.practiceList.append(contentsOf: make())
-    }
-    
-    override func make() -> [BasePractice] {
-        
-//        func calculateProbs() -> [Double] {
-//            
-//            guard !practices.isEmpty else {
-//                return Array<Double>(
-//                    repeating: 1.0 / Double(dataSource.count),
-//                    count: dataSource.count
-//                )
-//            }
-//            
-//            var wordProbMapping: [String: Double] = {
-//                var map: [String: Double] = [:]
-//                for word in dataSource {
-//                    map[word.id] = 0.0
-//                }
-//                return map
-//            }()
-//            for practice in practices {
-//                guard let word = dataSource.getWord(from: practice.wordId) else {
-//                    continue
-//                }
-//                guard let correctness = practice.correctness else {
-//                    continue
-//                }
-//                
-//                print(
-//                    practice.practiceType,
-//                    {
-//                        switch practice.direction {
-//                        case .textToMeaning: return dataSource.getWord(from: practice.wordId)!.meaning
-//                        case .meaningToText: return dataSource.getWord(from: practice.wordId)!.text
-//                        case .text: return dataSource.getWord(from: practice.wordId)!.text
-//                        }
-//                    }(),
-//                    correctness
-//                )
-//                
-//                let val: Double = {
-//                    
-//                    if practice.practiceType == .accentSelection {
-//                        return 0  // TODO: No weights for accent selection.
-//                    }
-//                    
-//                    switch correctness {
-//                    case .correct:
-//                        return -1  // Decrease the weight.
-//                    case .incorrect:
-//                        return +1  // Increase the weight.
-//                    case .partiallyCorrect:
-//                        return 0  // Keep the weight unchanged.
-//                    }
-//                }()
-//                
-//                wordProbMapping[word.id]! += val
-//            }
-//            
-//            var probs: [Double] = []
-//            for word in dataSource {
-//                let prob = wordProbMapping[word.id]!
-//                probs.append(prob)
-//            }
-//            
-//            probs = probs.toPositives()!
-//            for (word, prob) in zip(dataSource, probs) {
-//                print("\(word.text):\(prob)", terminator: " ")
-//            }
-//            print()
-//            
-//            return probs
-//        }
-        
-//        let probs = calculateProbs()
-        
-        // Randomly choose some words.
-        var randomWords: [Word] = []
-        while true {
-            let randomWord = self.words.randomElement()!
-            if !randomWords.contains(randomWord) {
-                randomWords.append(randomWord)
-            }
-            if randomWords.count >= batchSize {
-                break
-            }
+        let cachedWordPractices = WordPracticeProducer.loadCachedPractices(for: LangCode.currentLanguage)
+        if !cachedWordPractices.isEmpty {
+            self.practiceList.append(contentsOf: cachedWordPractices)
+            self.practiceList.shuffle()
         }
         
-        var practiceList: [WordPracticeProducer.Item] = []
-        for randomWord in randomWords {
-                        
-            if self.words.count >= WordPracticeProducer.defaultChoiceNumber {
-                practiceList.append(makeMeaningSelectionPractice(for: randomWord, in: .textToMeaning))
-            }
-            practiceList.append(makeMeaningFillingPractice(for: randomWord, in: .meaningToText))
-
-            if self.words.count >= WordPracticeProducer.defaultChoiceNumber,
-                let contextSelectionPractice = makeContextSelectionPractice(for: randomWord) {
-                practiceList.append(contextSelectionPractice)
-            }
-
-            if let reorderingPractice = makeReorderingPractice(for: randomWord) {
-                practiceList.append(reorderingPractice)
+    }
+    
+    override func next() {
+        
+        let wordPractice = self.practiceList.remove(at: 0)
+        if let wordPractice = wordPractice as? WordPractice,
+           Self.word2count.keys.contains(wordPractice.word) {
+            
+            Self.word2count[wordPractice.word]! -= 1
+            if Self.word2count[wordPractice.word]! <= 0 {
+                Self.word2count.removeValue(forKey: wordPractice.word)
             }
             
-            if let accentSelectionPractice = makeAccentSelectionPractice(for: randomWord) {
-                practiceList.append(accentSelectionPractice)
-            }
         }
-        practiceList.shuffle()
         
-        return practiceList
     }
     
-    var choiceNumber: Int = WordPracticeProducer.defaultChoiceNumber
+    override func cache() {
+        guard var practicesToCache = self.practiceList as? [WordPractice] else {
+            return
+        }
+        WordPracticeProducer.save(
+            &practicesToCache,
+            for: LangCode.currentLanguage
+        )
+    }
+}
+
+extension WordPracticeProducer {
+    
+    func makeAndCachePractices(for words: [String]) {
+        
+        for word in words {
+            
+            machineTranslator.translate(query: word) { translations, _ in
+                
+                guard !translations.isEmpty else {
+                    return
+                }
+                let meaning = translations.joined(separator: "; ")
+                
+                if let practice = self.makeMeaningSelectionPractice(
+                    word: word,
+                    query: word,
+                    key: meaning,
+                    direction: .textToMeaning
+                ) {
+                    self.practiceList.append(practice)
+                }
+                if let practice = self.makeMeaningSelectionPractice(
+                    word: word,
+                    query: meaning,
+                    key: word,
+                    direction: .meaningToText
+                ) {
+                    self.practiceList.append(practice)
+                }
+                
+                let practice = self.makeMeaningFillingPractice(
+                    word: word,
+                    query: meaning,
+                    key: word,
+                    direction: .meaningToText
+                )
+                self.practiceList.append(practice)
+               
+                self.cache()
+                
+            }
+            
+            analyzeAccents(for: word) { tokens, fixedText, text in
+                
+                if let practice = self.makeAccentSelectionPractice(
+                    word: fixedText ?? text,
+                    query: fixedText ?? text,
+                    tokens: tokens
+                ) {
+                    self.practiceList.append(practice)
+                    self.cache()
+                }
+                
+            }
+
+            if let practice = makeContextSelectionPractice(
+                word: word,
+                query: word
+               ) {
+                practiceList.append(practice)
+            }
+
+            makeReorderingPractice(
+                word: word,
+                query: word,
+                completion: { practice in
+                
+                    if let practice = practice {
+                        self.practiceList.append(practice)
+                        self.cache()
+                    }
+                    
+            })
+            
+            cache()
+            
+        }
+
+    }
+    
 }
 
 extension WordPracticeProducer {
     
     func submit(answer: String) {
-        guard let currentPractice = currentPractice as? WordPracticeProducer.Item else {
+        
+        guard let currentPractice = currentPractice as? WordPractice else {
             return
         }
         currentPractice.checkCorrectness(answer: answer)
         
-        if currentPractice.practice.correctness != .correct {
+        if currentPractice.correctness != .correct {
             // Re-add the practice for reinforcement.
             DispatchQueue.global(qos: .userInitiated).async {
-                
                 // Re-create the practice.
-                // TODO: - Copy it in a more elegant way.
-                let practiceForReinforcement = WordPracticeProducer.Item(
-                    practice: WordPractice(
-                        practiceType: currentPractice.practice.practiceType,
-                        wordId: currentPractice.practice.wordId,
-                        selectionWordsIds: currentPractice.practice.selectionWordsIds,
-                        selectionAccentsList: currentPractice.practice.selectionAccentsList,
-                        articleId: currentPractice.practice.articleId,
-                        paragraphId: currentPractice.practice.paragraphId,
-                        direction: currentPractice.practice.direction,
-                        correctness: nil  // Reset the correctness.
-                    ),
-                    wordInPrompt: currentPractice.wordInPrompt,
-                    prompt: currentPractice.prompt,
-                    selectionTexts: currentPractice.selectionTexts,
-                    context: currentPractice.context,
-                    wordsToReorder: currentPractice.wordsToReorder,
-                    key: currentPractice.key,
-                    isForReinforcement: true  // Specify that it is for reinforcement.
-                )
+                let practiceForReinforcement = WordPractice(from: currentPractice)
+                practiceForReinforcement.correctness = nil
                 
                 self.practiceList.append(practiceForReinforcement)
-                
             }
         }
     }
@@ -183,7 +185,8 @@ extension WordPracticeProducer {
 
 extension WordPracticeProducer {
         
-    private func makePromptTemplate(for practiceType: WordPractice.PracticeType) -> String {
+    private func promptTemplate(for practiceType: WordPractice.PracticeType) -> String {
+        
         switch practiceType {
         case .meaningSelection, .meaningFilling:
             return Strings.meaningSelectionAndFillingPracticePrompt
@@ -197,112 +200,117 @@ extension WordPracticeProducer {
         
     }
     
-    private func makePrompt(for practiceType: WordPractice.PracticeType, withWord wordInPrompt: String) -> String {
-        return makePromptTemplate(for: practiceType).replacingOccurrences(
+    private func prompt(for practiceType: WordPractice.PracticeType, withWord wordInPrompt: String) -> String {
+        return promptTemplate(for: practiceType).replacingOccurrences(
             of: Strings.maskToken,
             with: wordInPrompt
         )
     }
     
-    private func makeSelectionWords(for wordToPractice: Word) -> [Word] {
-        var selectionWords: [Word] = [wordToPractice]
-        // Randomly choose two words.
-        while true {
-            let selectionWord = self.words.randomElement()!
-            if !selectionWords.contains(selectionWord) {
-                selectionWords.append(selectionWord)
-            }
-            
-            if selectionWords.count == choiceNumber {
-                break
-            }
-        }
-        selectionWords.shuffle()
-        return selectionWords
-    }
-    
-    private func makeMeaningSelectionPractice(for wordToPractice: Word, in randomDirection: PracticeDirection) -> WordPracticeProducer.Item {
-        let selectionWords = makeSelectionWords(for: wordToPractice)
-        let wordInPrompt: String = randomDirection == .textToMeaning ?
-            wordToPractice.text :
-            wordToPractice.meaning
+    private func choices(for wordToPractice: String) -> [String]? {
         
-        return WordPracticeProducer.Item(
-            practice: WordPractice(
-                practiceType: .meaningSelection,
-                wordId: wordToPractice.id,
-                selectionWordsIds: selectionWords.compactMap({ $0.id }),
-                direction: randomDirection
-            ),
-            wordInPrompt: wordInPrompt,
-            prompt: makePrompt(for: .meaningSelection, withWord: wordInPrompt),
-            selectionTexts: selectionWords.compactMap({ (word) -> String in
-                randomDirection == .textToMeaning ?
-                    word.meaning :
-                    word.text
-            }),
-            key: randomDirection == .textToMeaning ?
-                wordToPractice.meaning :
-                wordToPractice.text
-        )
-    }
-    
-    private func makeMeaningFillingPractice(for wordToPractice: Word, in randomDirection: PracticeDirection) -> WordPracticeProducer.Item {
-        let wordInPrompt = randomDirection == .textToMeaning ?
-            wordToPractice.text :
-            wordToPractice.meaning
-        
-        return WordPracticeProducer.Item(
-            practice: WordPractice(
-                practiceType: .meaningFilling,
-                wordId: wordToPractice.id,
-                direction: randomDirection
-            ),
-            wordInPrompt: wordInPrompt,
-            prompt: makePrompt(for: .meaningFilling, withWord: wordInPrompt),
-            key: randomDirection == .textToMeaning ?
-                wordToPractice.meaning :
-                wordToPractice.text
-        )
-    }
-    
-    private func makeContextSelectionPractice(for wordToPractice: Word) -> WordPracticeProducer.Item? {
-        
-        let candidates = articles.paraCandidates(for: wordToPractice.text)
-        guard candidates.count != 0,
-              let candidate = candidates.randomElement() else {
+        guard self.words.count >= Self.defaultChoiceNumber else {
             return nil
         }
         
-        let selectionWords = makeSelectionWords(for: wordToPractice)
+        var choices: [String] = [wordToPractice]
+        // Randomly choose words.
+        while true {
+            let choice = self.words.randomElement()!
+            if !choices.contains(choice.text) {
+                choices.append(choice.text)
+            }
+            
+            if choices.count == Self.defaultChoiceNumber {
+                break
+            }
+        }
+        choices.shuffle()
+        return choices
         
-//         Take care of the normalization.
-//        let rangeOfWordToPractice = candidate.text.normalized(caseInsensitive: true, diacriticInsensitive: true).range(of: wordToPractice.text.normalized(caseInsensitive: true, diacriticInsensitive: true))
-        let context = candidate.text.replacingOccurrences(
-            of: wordToPractice.text,
-            with: Strings.underscoreToken,
-            options: [.caseInsensitive, .diacriticInsensitive]
-//            range: rangeOfWordToPractice
-        )
-        
-        return WordPracticeProducer.Item(
-            practice: WordPractice(
-                practiceType: .contextSelection,
-                wordId: wordToPractice.id,
-                selectionWordsIds: selectionWords.compactMap( {$0.id} ),
-                articleId: candidate.articleId,
-                paragraphId: candidate.paraId,
-                direction: .text
-            ),
-            wordInPrompt: wordToPractice.text,
-            prompt: makePrompt(for: .contextSelection, withWord: wordToPractice.text),
-            selectionTexts: selectionWords.compactMap( {$0.text} ),
-            context: context,
-            key: wordToPractice.text
-        )
     }
     
-    private func makeAccentSelectionPractice(for wordToPractice: Word) -> WordPracticeProducer.Item? {
+    private func makeMeaningSelectionPractice(
+        word: String,
+        query: String,
+        key: String,
+        direction: WordPractice.PracticeDirection
+    ) -> WordPractice? {
+        
+        guard let choices = choices(for: key) else {
+            return nil
+        }
+        
+        return WordPractice(
+            practiceType: .meaningSelection,
+            word: word,
+            query: query,
+            key: key,
+            prompt: prompt(for: .meaningSelection, withWord: query),
+            choices: choices,
+            direction: direction
+        )
+        
+    }
+    
+    private func makeMeaningFillingPractice(
+        word: String,
+        query: String,
+        key: String,
+        direction: WordPractice.PracticeDirection
+    ) -> WordPractice {
+        
+        return WordPractice(
+            practiceType: .meaningFilling,
+            word: word,
+            query: query,
+            key: key,
+            prompt: prompt(for: .meaningFilling, withWord: query),
+            direction: direction
+        )
+        
+    }
+    
+    private func makeContextSelectionPractice(
+        word: String,
+        query: String
+    ) -> WordPractice? {
+        
+        let candidates = articles.paraCandidates(for: query)
+        guard candidates.count != 0,
+              let candidate = candidates.randomElement() 
+        else {
+            return nil
+        }
+        
+        guard let choices = choices(for: query) else {
+            return nil
+        }
+        
+        return WordPractice(
+            practiceType: .contextSelection,
+            word: word,
+            query: query,
+            key: query,
+            prompt: prompt(for: .contextSelection, withWord: query),
+            choices: choices,
+            context: candidate.text.replacingOccurrences(
+                of: query,
+                with: Strings.underscoreToken,
+                options: [.caseInsensitive, .diacriticInsensitive]
+            ),
+            articleId: candidate.articleId,
+            paragraphId: candidate.paraId,
+            direction: .text
+        )
+        
+    }
+    
+    private func makeAccentSelectionPractice(
+        word: String,
+        query: String,
+        tokens: [Token]
+    ) -> WordPractice? {
         
         // TODO: - nil and -1 produces the same accented pronunciation.
         
@@ -339,9 +347,8 @@ extension WordPracticeProducer {
             })
         }
         
-        guard let tokens = wordToPractice.tokens,
-            // Not needed for one-syllable words.
-            tokens.pronunciations.joined(separator: "").count >= 2 else {
+        // Not needed for one-syllable words.
+        guard tokens.pronunciations.joined(separator: "").count >= 2 else {
             return nil
         }
         
@@ -357,7 +364,7 @@ extension WordPracticeProducer {
                 selectionTexts.append(selectionText)
             }
             
-            if selectionAccentsList.count == choiceNumber {
+            if selectionAccentsList.count == Self.defaultChoiceNumber {
                 break
             }
         }
@@ -365,37 +372,40 @@ extension WordPracticeProducer {
         // Shuffle the two lists in the same order.
         // https://stackoverflow.com/questions/32726962/randomize-two-arrays-the-same-way-swift
         let shuffledIndices = selectionAccentsList.indices.shuffled()
-        selectionAccentsList = shuffledIndices.map { selectionAccentsList[$0] }
         selectionTexts = shuffledIndices.map { selectionTexts[$0] }
                 
-        return WordPracticeProducer.Item(
-            practice: WordPractice(
-                practiceType: .accentSelection,
-                wordId: wordToPractice.id,
-                selectionAccentsList: selectionAccentsList,
-                direction: .text
-            ),
-            wordInPrompt: wordToPractice.text,
-            prompt: makePrompt(for: .accentSelection, withWord: wordToPractice.text),
-            selectionTexts: selectionTexts,
-            key: tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)
+        return WordPractice(
+            practiceType: .accentSelection,
+            word: word,
+            query: query,
+            key: tokens.accentedPronunciations.joined(separator: Strings.wordSeparator),
+            prompt: prompt(for: .accentSelection, withWord: query),
+            choices: selectionTexts,
+            direction: .text
         )
         
     }
     
-    private func makeReorderingPractice(for wordToPractice: Word) -> WordPracticeProducer.Item? {
+    private func makeReorderingPractice(
+        word: String,
+        query: String,
+        completion: @escaping (WordPractice?) -> Void
+    ) {
         
-        let candidates = articles.paraCandidates(for: wordToPractice.text)
+        let candidates = articles.paraCandidates(for: query)
         guard candidates.count != 0,
-              let candidate = candidates.randomElement() else {
-            return nil
+              let candidate = candidates.randomElement() 
+        else {
+            completion(nil)
+            return
         }
         
         let sentences = candidate.text.tokenized(with: LangCode.currentLanguage.sentenceTokenizer)
         guard let targetSentence = sentences.first(where: { (sentence) -> Bool in
-            sentence.contains(wordToPractice.text)
+            sentence.contains(query)
         }) else {
-            return nil
+            completion(nil)
+            return
         }
         
         // Using the whole target sentence will
@@ -403,9 +413,10 @@ extension WordPracticeProducer {
         // so use the target subsentence instead.
         let subSentences = targetSentence.split(with: Strings.subsentenceSeparator)
         guard let targetSubSentence = subSentences.first(where: { (subSentence) -> Bool in
-            subSentence.contains(wordToPractice.text)
+            subSentence.contains(query)
         }) else {
-            return nil
+            completion(nil)
+            return
         }
         
         // Reduce the number of tokens.
@@ -429,111 +440,76 @@ extension WordPracticeProducer {
         
         if words.isEmpty {
             print("Empty words. Target subsentence: \(targetSubSentence). Skipping.")
-            return nil
+            completion(nil)
         }
         
         // Check line number.
         // TODO: - Update here. It's not proper to call calculateRowNumber() here.
-        if ReorderingPracticeView.calculateRowNumber(words: words) > 3 {
-            print("The subsentence is too long. Skipping.")
-            return nil
-        }
+//        if ReorderingPracticeView.calculateRowNumber(words: words) > 3 {
+//            print("The subsentence is too long. Skipping. Subsentence: \(targetSentence)")
+//            completion(nil)
+//        }
         
-        return WordPracticeProducer.Item(
-            practice: WordPractice(
+        machineTranslator.translate(query: targetSubSentence) { translations, _ in
+            guard let translation = translations.first else {
+                completion(nil)
+                return
+            }
+            completion(WordPractice(
                 practiceType: .reordering,
-                wordId: wordToPractice.id,
+                word: word,
+                query: query,
+                key: words.joined(separator: Strings.wordSeparator),
+                prompt: self.prompt(for: .reordering, withWord: query),
+                reorderingWordList: words,
+                reorderingTextTranslation: translation,
                 articleId: candidate.articleId,
                 paragraphId: candidate.paraId,
                 direction: .text
-            ),
-            wordInPrompt: wordToPractice.text,  // TODO: - Remove this line.
-            prompt: makePrompt(for: .reordering, withWord: wordToPractice.text),
-            wordsToReorder: words,
-            key: words.joined(separator: Strings.wordSeparator)
-        )
+            ))
+        }
+                
     }
 }
 
 extension WordPracticeProducer {
     
-    class Item: BasePractice {
-        
-        var practice: WordPractice
-        
-        var wordInPrompt: String
-        var prompt: String
-        
-        var selectionTexts: [String]?
-        var context: String?
-        var wordsToReorder: [String]?
-        
-        var key: String
-        
-        var isForReinforcement: Bool = false  // True for re-added practices (with wrong answers).
-        
-        var tokenizer: NLTokenizer {
-            let lang: LangCode = {
-                switch practice.direction {
-                case .textToMeaning: return LangCode.currentLanguage.configs.languageForTranslation
-                case .meaningToText: return LangCode.currentLanguage
-                case .text: return LangCode.currentLanguage
-                }
-            }()
-//            print(lang)
-            
-            if lang == LangCode.currentLanguage {
-                return LangCode.currentLanguage.wordTokenizer
-            } else {
-                return LangCode.currentLanguage.configs.languageForTranslation.wordTokenizer
-            }
-        }
-        
-        init(
-            practice: WordPractice,
-            wordInPrompt: String,
-            prompt: String,
-            selectionTexts: [String]? = nil,
-            context: String? = nil,
-            wordsToReorder: [String]? = nil,
-            key: String,
-            isForReinforcement: Bool = false
-        ) {
-            self.practice = practice
-            self.wordInPrompt = wordInPrompt
-            self.prompt = prompt
-            self.selectionTexts = selectionTexts
-            self.context = context
-            self.wordsToReorder = wordsToReorder
-            self.key = key
-            self.isForReinforcement = isForReinforcement
-        }
-                
-        func checkCorrectness(answer: String) {
-            
-            // Do not normalize for accent practices,
-            // or the accent mark will be removed.
-            let shouldIgnoreCaseAndAccent = practice.practiceType == .meaningFilling
-            
-            let key = self.key.normalized(caseInsensitive: shouldIgnoreCaseAndAccent, diacriticInsensitive: shouldIgnoreCaseAndAccent)
-            let answer = answer.normalized(caseInsensitive: shouldIgnoreCaseAndAccent, diacriticInsensitive: shouldIgnoreCaseAndAccent)
-            
-            let keyComponents = key.tokenized(with: tokenizer)
-            let answerComponents = answer.tokenized(with: tokenizer)
-            
-            if keyComponents == answerComponents {
-                // Totally correct, including word order.
-                practice.correctness = .correct
-            } else {
-                if !Set(keyComponents).intersection(Set(answerComponents)).isEmpty {
-                    practice.correctness = .partiallyCorrect
-                } else {
-                    practice.correctness = .incorrect
-                }
-            }
+    // MARK: - IO
+    
+    static func fileName(for lang: String) -> String {
+        return "cachedWordPractices.\(lang).json"
+    }
+    
+    static func loadCachedPractices(for lang: LangCode) -> [WordPractice] {
+        do {
+            let practices = try readDataFromJson(
+                fileName: WordPracticeProducer.fileName(for: lang.rawValue),
+                type: [WordPractice].self
+            ) as? [WordPractice] ?? []
+
+            return practices
+        } catch {
+            print(error)
+            return []
         }
     }
+    
+    static func save(_ practicesToCache: inout [WordPractice], for lang: LangCode) {
+        for practice in practicesToCache {
+            print(practice.query, practice.practiceType)
+        }
+        do {
+            try writeDataToJson(
+                fileName: WordPracticeProducer.fileName(for: lang.rawValue),
+                data: practicesToCache
+            )
+        } catch {
+            print(error)
+        }
+    }
+    
 }
+
 
 extension WordPracticeProducer {
     

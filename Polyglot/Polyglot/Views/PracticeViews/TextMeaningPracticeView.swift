@@ -26,10 +26,6 @@ class TextMeaningPracticeView: BasePracticeView {
     var upperString: String!
     var lowerString: String!
     
-    var wordsInfo: [WordInfo] {
-        return textView.wordsInfo
-    }
-    
     var unselectableRanges: [NSRange] = []
     
     var shouldReinforce: Bool = false {
@@ -369,6 +365,27 @@ extension TextMeaningPracticeView {
             ))
         }
         textView.highlightAll(with: Colors.oldWordHighlightingColor)
+    }
+    
+    func highlightExistingReinforcementWords() {
+        
+        for wordToPractice in WordPracticeProducer.word2count.keys {
+            let range = (textView.text as NSString).range(of: wordToPractice)
+            if range.location == NSNotFound {
+                continue
+            }
+            guard let textRange = textView.textRange(from: range) else {
+                continue
+            }
+            
+            textView.reinforcementWordsInfo.append(WordInfo(
+                textRange: textRange,
+                word: wordToPractice,
+                meaning: "",
+                canDelete: false
+            ))
+        }
+        textView.underlineAll()
     }
     
     private func updateRepetitionLabelText() {

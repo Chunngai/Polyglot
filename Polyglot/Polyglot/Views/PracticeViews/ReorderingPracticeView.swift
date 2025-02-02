@@ -88,7 +88,7 @@ class ReorderingPracticeView: WordPracticeView {
         
         if frame != .zero {
             rowStack = {
-                let rowNumber: Int = ReorderingPracticeView.calculateRowNumber(words: self.words)
+                let rowNumber: Int = calculateRowNumber(words: self.words)
                 let rows: [RowStackItem] = (0..<rowNumber).map { _ in RowStackItem() }
                 
                 let stackView = UIStackView(arrangedSubviews: rows)
@@ -148,22 +148,13 @@ class ReorderingPracticeView: WordPracticeView {
         }
     }
     
-    func updateValues(words: [String]) {
-        
-        MachineTranslator(
-            srcLang: LangCode.currentLanguage,
-            trgLang: LangCode.currentLanguage.configs.languageForTranslation
-        ).translate(query: words.joined(separator: Strings.wordSeparator)) { (res, _) in
-            if let translation = res.first {
-                DispatchQueue.main.async {
-                    self.translationLabel.text = translation
-                }
-            }
-        }
+    func updateValues(words: [String], translation: String) {
         
         self.words = words
         self.shuffledWords = words.shuffled()
                 
+        self.translationLabel.text = translation
+        
         wordBank = WordBank(words: shuffledWords)
         addSubview(wordBank)
         
@@ -269,7 +260,7 @@ extension ReorderingPracticeView {
         }
     }
     
-    static func calculateRowNumber(words: [String]) -> Int {
+    func calculateRowNumber(words: [String]) -> Int {
         
         var rowNumber: Int = 1
         var summedWidth: CGFloat = 0

@@ -9,38 +9,11 @@
 import Foundation
 
 class TextMeaningPracticeProducer: BasePracticeProducer {
-    
-    override var currentPractice: BasePractice {
-        get {
-            if self.practiceList.isEmpty {
-                self.practiceList.append(contentsOf: self.make())
-            }
-            
-            return self.practiceList[self.currentPracticeIndex]
-        }
-        set {
-            self.practiceList[self.currentPracticeIndex] = newValue
-        }
-    }
-    
-    var groupedArticles: [GroupedArticles]!
-    
-    var machineTranslator: MachineTranslator = MachineTranslator(
-        srcLang: LangCode.currentLanguage,
-        trgLang: LangCode.currentLanguage.configs.languageForTranslation
-    )
-    var contentCreator: ContentCreator = ContentCreator()
-    
+        
     var randomPracticeIndex: Int {
         return (0..<self.practiceList.count).randomElement()!
     }
     private var nextPracticeIndex: Int?  // For immediate reinforcement.
-    
-    override init(words: [Word], articles: [Article]) {
-        super.init(words: words, articles: articles)
-        
-        self.groupedArticles = articles.groups
-    }
     
     override func next() {
         if self.practiceList.isEmpty {
@@ -65,11 +38,8 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
 //            self.updateMeaningsAndExistingPhrasesAndAccentLocs()
 //        }
     }
-}
-
-extension TextMeaningPracticeProducer {
     
-    func load(_ cachedPractices: [TextMeaningPractice]) {
+    override func load(_ cachedPractices: [BasePractice]) {
         if !cachedPractices.isEmpty {
             self.practiceList.append(contentsOf: cachedPractices)
             self.updateMeaningsAndExistingPhrasesAndAccentLocs()
@@ -80,11 +50,6 @@ extension TextMeaningPracticeProducer {
         DispatchQueue.global(qos: .userInitiated).async {
             self.updateMeaningsAndExistingPhrasesAndAccentLocs()
         }
-    }
-    
-    @objc
-    func cache() {
-        fatalError("cache() has not been implemented.")
     }
     
 }

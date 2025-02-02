@@ -468,6 +468,22 @@ extension Strings {
         return Strings._searchMenuItemStrings[LangCode.currentLanguage]!
     }
     
+    static var reinforceMenuItemString: String {
+        return Strings._reinforce[LangCode.currentLanguage]!
+    }
+    
+    private static let _cancelReinforcementMenuItemStrings: [LangCode : String] = [
+        LangCode.en : "Cancel Reinforcement",
+        LangCode.ja : "強化をキャンセル",
+        LangCode.es : "Cancelar Refuerzo",
+        LangCode.ru : "Отменить Подкрепление",
+        LangCode.ko : "강화 취소",
+        LangCode.de : "Verstärkung Abbrechen",
+    ]
+    static var cancelReinforcementMenuItemString: String {
+        return Strings._cancelReinforcementMenuItemStrings[LangCode.currentLanguage]!
+    }
+    
     private static let _newWordBottomViewMeaningPrompts: [LangCode : String] = [
         LangCode.en : "Also select/type the corresponding meaning",
         LangCode.ja : "相応する意味も選択/入力してください",
@@ -728,7 +744,7 @@ extension Strings {
         LangCode.en : "Reinforce",
         LangCode.ja : "強化",
         LangCode.es : "Reforzar",
-        LangCode.ru : "Укрепить",
+        LangCode.ru : "Подкрепить",
         LangCode.ko : "강화",
         LangCode.de : "Verstärken",
     ]

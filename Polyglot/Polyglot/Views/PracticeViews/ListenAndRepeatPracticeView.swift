@@ -198,6 +198,7 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
             existingPhraseRanges: existingPhraseRanges,
             existingPhraseMeanings: existingPhraseMeanings
         )
+        highlightExistingReinforcementWords()
     }
 }
 
