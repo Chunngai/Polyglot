@@ -11,9 +11,7 @@ import UIKit
 import NaturalLanguage
 
 class WordPracticeProducer: BasePracticeProducer {
-    
-    var variantNumber: Int = 5  // TODO: -
-    
+        
     static func getWord2Count(from practiceList: [BasePractice]) -> [String: Int] {
         
         var word2count: [String: Int] = [:]
@@ -82,7 +80,10 @@ extension WordPracticeProducer {
     
     func makeAndCachePractices(for words: [String]) {
         
-        for word in words {
+        for word in Array(
+            repeating: words,
+            count: LangCode.currentLanguage.configs.wordPracticeRepetition
+        ).flatMap({ $0 }) {
             
             machineTranslator.translate(query: word) { translations, _ in
                 
