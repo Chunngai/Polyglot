@@ -12,7 +12,7 @@ class ListenAndCompletePracticeView: TextMeaningPracticeView {
         
     // MARK: - Init
     
-    override init(
+    init(
         frame: CGRect = .zero,
         text: String,
         meaning: String,
@@ -40,7 +40,8 @@ class ListenAndCompletePracticeView: TextMeaningPracticeView {
             existingPhraseMeanings: existingPhraseMeanings,
             totalRepetitions: totalRepetitions,
             currentRepetition: currentRepetition,
-            textAccentLocs: textAccentLocs
+            textAccentLocs: textAccentLocs,
+            repetitionIncrement: LangCode.currentLanguage.configs.listeningPracticeRepetition
         )
         
         updateSetups()

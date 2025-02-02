@@ -23,6 +23,8 @@ class TextMeaningPracticeView: BasePracticeView {
     var currentRepetition: Int!
     var textAccentLocs: [Int]!
     
+    var repetitionIncrement: Int!
+    
     var upperString: String!
     var lowerString: String!
     
@@ -34,12 +36,12 @@ class TextMeaningPracticeView: BasePracticeView {
                 reinforceButton.tintColor = Colors.inactiveSystemButtonColor
                 reinforceTextButton.setTitleColor(Colors.inactiveTextColor, for: .normal)
                 
-                totalRepetitions += LangCode.currentLanguage.configs.practiceRepetition
+                totalRepetitions += repetitionIncrement
             } else {
                 reinforceButton.tintColor = Colors.activeSystemButtonColor
                 reinforceTextButton.setTitleColor(Colors.activeTextColor, for: .normal)
                 
-                totalRepetitions -= LangCode.currentLanguage.configs.practiceRepetition
+                totalRepetitions -= repetitionIncrement
             }
             
             updateRepetitionLabelText()
@@ -134,7 +136,8 @@ class TextMeaningPracticeView: BasePracticeView {
         existingPhraseMeanings: [String],
         totalRepetitions: Int,
         currentRepetition: Int,
-        textAccentLocs: [Int]
+        textAccentLocs: [Int],
+        repetitionIncrement: Int
     ) {
         super.init(frame: frame)
         
@@ -150,6 +153,7 @@ class TextMeaningPracticeView: BasePracticeView {
         self.totalRepetitions = totalRepetitions
         self.currentRepetition = currentRepetition
         self.textAccentLocs = textAccentLocs
+        self.repetitionIncrement = repetitionIncrement
         
         textView = {
             let textView = WordMarkingTextView(

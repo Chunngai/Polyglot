@@ -83,7 +83,7 @@ extension TranslationPracticeViewController {
             
             if practiceView.shouldReinforce {
                 practiceProducer.reinforce(
-                    for: LangCode.currentLanguage.configs.practiceRepetition,
+                    for: LangCode.currentLanguage.configs.speakingPracticeRepetition,
                     shouldPracticeImmediately: true
                 )
             }

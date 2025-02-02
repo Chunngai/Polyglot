@@ -351,7 +351,7 @@ extension ListeningPracticeViewController {
             
             if practiceView.shouldReinforce {
                 practiceProducer.reinforce(
-                    for: LangCode.currentLanguage.configs.practiceRepetition,
+                    for: LangCode.currentLanguage.configs.listeningPracticeRepetition,
                     shouldPracticeImmediately: true
                 )
             }

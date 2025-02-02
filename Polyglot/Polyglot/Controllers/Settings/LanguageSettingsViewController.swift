@@ -31,7 +31,9 @@ class LanguageSettingsViewController: SettingsViewController {
             speakingPracticeDuration: Int((cells[2][2] as! SettingsSlidingCell).slider.value),
             readingPracticeDuration: Int((cells[2][3] as! SettingsSlidingCell).slider.value),
             
-            practiceRepetition: Int((cells[3][0] as! SettingsSlidingCell).slider.value),
+            wordPracticeRepetition: Int((cells[3][0] as! SettingsSlidingCell).slider.value),
+            listeningPracticeRepetition: Int((cells[3][1] as! SettingsSlidingCell).slider.value),
+            speakingPracticeRepetition: Int((cells[3][2] as! SettingsSlidingCell).slider.value),
             
             canGenerateTextsWithLLMsForPractices: (cells[4][0] as! SettingsSwitchingCell).switchView.isOn, 
             
@@ -48,10 +50,9 @@ class LanguageSettingsViewController: SettingsViewController {
         // TODO: - Update localization
         headers = [
             "Language for Translating \(LangCode.currentLanguage.rawValue) Texts",
-            "Normal Voice Rate for Synthesizing \(LangCode.currentLanguage.rawValue) Texts",
-            "Slow Voice Rate for Synthesizing \(LangCode.currentLanguage.rawValue) Texts",
-            "Practice Duration",
-            "Repetition for Listening/Speaking Practices",
+            "Voice Rate for Synthesizing \(LangCode.currentLanguage.rawValue) Texts",
+            "Practice Durations",
+            "Practice Repetitions",
             "Content Generation",
             "Reminders",
         ]
@@ -79,7 +80,7 @@ class LanguageSettingsViewController: SettingsViewController {
                     return cell
                 }()
             ],
-            // Voice rate.
+            // Voice rates.
             [
                 {
                     let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
@@ -108,7 +109,7 @@ class LanguageSettingsViewController: SettingsViewController {
                     return cell
                 }()
             ],
-            // Practice duration.
+            // Practice durations.
             [
                 {
                     let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
@@ -163,15 +164,41 @@ class LanguageSettingsViewController: SettingsViewController {
                     return cell
                 }()
             ],
-            // Practice repetition.
+            // Practice repetitions.
             [
                 {
                     let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
-                    cell.imageView?.image = Images.textMeaningPracticeReinforceImage
+                    cell.imageView?.image = Images.wordPracticeImage
                     cell.step = 1
                     cell.slider.minimumValue = 0
                     cell.slider.maximumValue = 5
-                    cell.slider.value = Float(LangCode.currentLanguage.configs.practiceRepetition)
+                    cell.slider.value = Float(LangCode.currentLanguage.configs.wordPracticeRepetition)
+                    cell.formatingFunc = { (sliderVal: Float) -> String in
+                        return "\(String(Int(sliderVal))) times"  // TODO: - Update localization
+                    }
+                    cell.label.text = cell.formatingFunc(cell.slider.value)
+                    return cell
+                }(),
+                {
+                    let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
+                    cell.imageView?.image = Images.listeningPracticeImage
+                    cell.step = 1
+                    cell.slider.minimumValue = 0
+                    cell.slider.maximumValue = 5
+                    cell.slider.value = Float(LangCode.currentLanguage.configs.listeningPracticeRepetition)
+                    cell.formatingFunc = { (sliderVal: Float) -> String in
+                        return "\(String(Int(sliderVal))) times"  // TODO: - Update localization
+                    }
+                    cell.label.text = cell.formatingFunc(cell.slider.value)
+                    return cell
+                }(),
+                {
+                    let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
+                    cell.imageView?.image = Images.translationPracticeImage
+                    cell.step = 1
+                    cell.slider.minimumValue = 0
+                    cell.slider.maximumValue = 5
+                    cell.slider.value = Float(LangCode.currentLanguage.configs.speakingPracticeRepetition)
                     cell.formatingFunc = { (sliderVal: Float) -> String in
                         return "\(String(Int(sliderVal))) times"  // TODO: - Update localization
                     }

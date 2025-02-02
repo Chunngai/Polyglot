@@ -104,7 +104,7 @@ extension SpeakingPracticeProducer {
             machineTranslatorType: machineTranslatorType,
             existingPhraseRanges: existingPhraseRanges,
             existingPhraseMeanings: existingPhraseMeanings,
-            totalRepetitions: LangCode.currentLanguage.configs.practiceRepetition,
+            totalRepetitions: LangCode.currentLanguage.configs.speakingPracticeRepetition,
             currentRepetition: 0,
             textAccentLocs: []
         )

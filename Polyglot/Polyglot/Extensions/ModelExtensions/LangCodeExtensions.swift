@@ -185,7 +185,10 @@ struct LangConfigs: Codable {
     var speakingPracticeDuration: Int
     var readingPracticeDuration: Int
     
-    var practiceRepetition: Int
+//    var practiceRepetition: Int
+    var wordPracticeRepetition: Int
+    var listeningPracticeRepetition: Int
+    var speakingPracticeRepetition: Int
     
     var canGenerateTextsWithLLMsForPractices: Bool
     
@@ -199,7 +202,9 @@ struct LangConfigs: Codable {
         listeningPracticeDuration: Int,
         speakingPracticeDuration: Int,
         readingPracticeDuration: Int,
-        practiceRepetition: Int,
+        wordPracticeRepetition: Int,
+        listeningPracticeRepetition: Int,
+        speakingPracticeRepetition: Int,
         canGenerateTextsWithLLMsForPractices: Bool,
         shouldRemindToAddNewArticles: Bool
     ) {
@@ -210,7 +215,9 @@ struct LangConfigs: Codable {
         self.listeningPracticeDuration = listeningPracticeDuration
         self.speakingPracticeDuration = speakingPracticeDuration
         self.readingPracticeDuration = readingPracticeDuration
-        self.practiceRepetition = practiceRepetition
+        self.wordPracticeRepetition = wordPracticeRepetition
+        self.listeningPracticeRepetition = listeningPracticeRepetition
+        self.speakingPracticeRepetition = speakingPracticeRepetition
         self.canGenerateTextsWithLLMsForPractices = canGenerateTextsWithLLMsForPractices
         self.shouldRemindToAddNewArticles = shouldRemindToAddNewArticles
     }
@@ -227,7 +234,10 @@ struct LangConfigs: Codable {
         case speakingPracticeDuration
         case readingPracticeDuration
         
-        case practiceRepetition
+        case practiceRepetition  // Old.
+        case wordPracticeRepetition
+        case listeningPracticeRepetition
+        case speakingPracticeRepetition
         
         case canGenerateTextsWithLLMsForPractices
         
@@ -245,7 +255,9 @@ struct LangConfigs: Codable {
         try container.encode(listeningPracticeDuration, forKey: .listeningPracticeDuration)
         try container.encode(speakingPracticeDuration, forKey: .speakingPracticeDuration)
         try container.encode(readingPracticeDuration, forKey: .readingPracticeDuration)
-        try container.encode(practiceRepetition, forKey: .practiceRepetition)
+        try container.encode(wordPracticeRepetition, forKey: .wordPracticeRepetition)
+        try container.encode(listeningPracticeRepetition, forKey: .listeningPracticeRepetition)
+        try container.encode(speakingPracticeRepetition, forKey: .speakingPracticeRepetition)
         try container.encode(canGenerateTextsWithLLMsForPractices, forKey: .canGenerateTextsWithLLMsForPractices)
         try container.encode(shouldRemindToAddNewArticles, forKey: .shouldRemindToAddNewArticles)
     
@@ -281,7 +293,21 @@ struct LangConfigs: Codable {
         } catch {
             readingPracticeDuration = Self.defaultConfigs.readingPracticeDuration
         }
-        practiceRepetition = try values.decode(Int.self, forKey: .practiceRepetition)
+        do {
+            wordPracticeRepetition = try values.decode(Int.self, forKey: .wordPracticeRepetition)
+        } catch {
+            wordPracticeRepetition = try values.decode(Int.self, forKey: .practiceRepetition)
+        }
+        do {
+            listeningPracticeRepetition = try values.decode(Int.self, forKey: .listeningPracticeRepetition)
+        } catch {
+            listeningPracticeRepetition = try values.decode(Int.self, forKey: .practiceRepetition)
+        }
+        do {
+            speakingPracticeRepetition = try values.decode(Int.self, forKey: .speakingPracticeRepetition)
+        } catch {
+            speakingPracticeRepetition = try values.decode(Int.self, forKey: .practiceRepetition)
+        }
         canGenerateTextsWithLLMsForPractices = try values.decode(Bool.self, forKey: .canGenerateTextsWithLLMsForPractices)
         do {
             shouldRemindToAddNewArticles = try values.decode(Bool.self, forKey: .shouldRemindToAddNewArticles)
@@ -330,7 +356,9 @@ struct LangConfigs: Codable {
         listeningPracticeDuration: 5,
         speakingPracticeDuration: 5,
         readingPracticeDuration: 5,
-        practiceRepetition: 2,
+        wordPracticeRepetition: 2,
+        listeningPracticeRepetition: 2,
+        speakingPracticeRepetition: 2,
         canGenerateTextsWithLLMsForPractices: true,
         shouldRemindToAddNewArticles: true
     )

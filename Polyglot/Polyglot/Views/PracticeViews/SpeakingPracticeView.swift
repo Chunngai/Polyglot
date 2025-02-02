@@ -12,7 +12,7 @@ class TranslationPracticeView: TextMeaningPracticeView {
     
     // MARK: - Init
     
-    override init(
+    init(
         frame: CGRect = .zero,
         text: String,
         meaning: String,
@@ -40,7 +40,8 @@ class TranslationPracticeView: TextMeaningPracticeView {
             existingPhraseMeanings: existingPhraseMeanings,
             totalRepetitions: totalRepetitions,
             currentRepetition: currentRepetition,
-            textAccentLocs: textAccentLocs
+            textAccentLocs: textAccentLocs,
+            repetitionIncrement: LangCode.currentLanguage.configs.speakingPracticeRepetition
         )
         
         upperString = meaning

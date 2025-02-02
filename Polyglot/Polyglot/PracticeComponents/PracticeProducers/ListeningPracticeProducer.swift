@@ -191,7 +191,7 @@ extension ListeningPracticeProducer {
                 clozeRanges: subtextClozeRanges,
                 existingPhraseRanges: existingPhraseRanges,
                 existingPhraseMeanings: existingPhraseMeanings,
-                totalRepetitions: LangCode.currentLanguage.configs.practiceRepetition,
+                totalRepetitions: LangCode.currentLanguage.configs.listeningPracticeRepetition,
                 currentRepetition: 0,
                 textAccentLocs: []
             ))

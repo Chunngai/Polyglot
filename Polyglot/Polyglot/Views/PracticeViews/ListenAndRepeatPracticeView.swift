@@ -88,7 +88,8 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
             existingPhraseMeanings: existingPhraseMeanings,
             totalRepetitions: totalRepetitions,
             currentRepetition: currentRepetition,
-            textAccentLocs: textAccentLocs
+            textAccentLocs: textAccentLocs,
+            repetitionIncrement: LangCode.currentLanguage.configs.listeningPracticeRepetition
         )
         
         self.clozeRanges = clozeRanges
