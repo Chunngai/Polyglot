@@ -249,7 +249,11 @@ extension TextMeaningPracticeViewController {
         
         var reinforcementWords: [String] = []
         for reinforcementWordInfo in reinforcementWordsInfo {
-            reinforcementWords.append(reinforcementWordInfo.word)
+            let word = reinforcementWordInfo.word
+            guard !WordPracticeProducer.word2count.keys.contains(word) else {
+                continue
+            }
+            reinforcementWords.append(word)
         }
         
         let wordPracticeProducer = WordPracticeProducer(
