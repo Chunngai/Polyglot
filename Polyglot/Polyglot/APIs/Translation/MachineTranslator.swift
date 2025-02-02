@@ -53,6 +53,8 @@ struct MachineTranslator {
     
     private func _translate(withTranslatorOfIndex i: Int, query: String, completion: @escaping ([String], MachineTranslatorType) -> Void) {
 
+        print("MachineTranslator: translating \"\(query)\" with \(translators[i]).")
+        
         if self.translators.isEmpty || i >= self.translators.count {
             completion(
                 [],
@@ -80,7 +82,6 @@ struct MachineTranslator {
         [String],
         MachineTranslatorType
     ) -> Void) {
-        print("MachineTranslator: translating \"\(query)\".")
         self._translate(
             withTranslatorOfIndex: 0,
             query: query,
