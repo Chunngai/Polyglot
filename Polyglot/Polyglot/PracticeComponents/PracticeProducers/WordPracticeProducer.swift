@@ -29,7 +29,21 @@ class WordPracticeProducer: BasePracticeProducer {
         return word2count
         
     }
-    static var word2count: [String: Int] = WordPracticeProducer.getWord2Count(from: WordPracticeProducer.loadCachedPractices(for: LangCode.currentLanguage))
+    static var word2countMapping: [LangCode: [String: Int]] = {
+        var mapping: [LangCode: [String: Int]] = [:]
+        for lang in LangCode.learningLanguages {
+            mapping[lang] = WordPracticeProducer.getWord2Count(from: WordPracticeProducer.loadCachedPractices(for: lang))
+        }
+        return mapping
+    }()
+    static var word2count: [String: Int] {
+        get {
+            return WordPracticeProducer.word2countMapping[LangCode.currentLanguage]!
+        }
+        set {
+            WordPracticeProducer.word2countMapping[LangCode.currentLanguage]! = newValue
+        }
+    }
     
     override var practiceList: [BasePractice] {
         didSet {
