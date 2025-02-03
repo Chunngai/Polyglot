@@ -97,7 +97,7 @@ class HomeViewController: UIViewController {
         )
     ]}
     
-    var practiceItems: [HomeItem] {[
+    var phraseReviewItems: [HomeItem] {[
         HomeItem(
             image: Images.wordPracticeImage,
             text: Strings.phraseReview,
@@ -115,7 +115,10 @@ class HomeViewController: UIViewController {
                 return s
                 
             }()
-        ),
+        )
+    ]}
+    
+    var practiceItems: [HomeItem] {[
         HomeItem(
             image: Images.listeningPracticeImage,
             text: Strings.listening,
@@ -574,6 +577,7 @@ extension HomeViewController {
             
             if sectionIndex == HomeViewController.languageSection ||
                 sectionIndex == HomeViewController.listSection ||
+                sectionIndex == HomeViewController.phraseReviewSection ||
                 sectionIndex == HomeViewController.practiceSection ||
                 sectionIndex == HomeViewController.settingsSection {
                 
@@ -624,14 +628,13 @@ extension HomeViewController {
             content.secondaryText = item.secondaryText
             content.textProperties.color = Colors.normalTextColor
             if indexPath.section == HomeViewController.listSection && indexPath.row == 1 {
-                content.secondaryTextProperties.color = .systemYellow
+                content.secondaryTextProperties.color = .systemYellow  // Reminder for article adding.
+            }
+            if indexPath.section == HomeViewController.phraseReviewSection {
+                content.textProperties.color = self.isWordPracticeEnabled ? Colors.normalTextColor : Colors.weakTextColor
             }
             if indexPath.section == HomeViewController.practiceSection {
                 content.textProperties.color = self.isPracticeEnabled ? Colors.normalTextColor : Colors.weakTextColor
-                
-                if indexPath.row == 0 {
-                    content.textProperties.color = self.isWordPracticeEnabled ? Colors.normalTextColor : Colors.weakTextColor
-                }
             }
             cell.contentConfiguration = content
             
@@ -725,6 +728,7 @@ extension HomeViewController {
             
             if section == HomeViewController.languageSection ||
                 section == HomeViewController.listSection ||
+                section == HomeViewController.phraseReviewSection ||
                 section == HomeViewController.practiceSection ||
                 section == HomeViewController.settingsSection {
                 return collectionView.dequeueConfiguredReusableCell(
@@ -753,6 +757,7 @@ extension HomeViewController {
         let sections: [Int] = [
             HomeViewController.languageSection,
             HomeViewController.listSection,
+            HomeViewController.phraseReviewSection,
             HomeViewController.practiceSection,
             HomeViewController.settingsSection
         ]
@@ -768,12 +773,14 @@ extension HomeViewController {
             [
                 HomeViewController.languageSection,
                 HomeViewController.listSection,
+                HomeViewController.phraseReviewSection,
                 HomeViewController.practiceSection,
                 HomeViewController.settingsSection
             ],
             [
                 [languageItem],
                 listItems,
+                phraseReviewItems,
                 practiceItems,
                 [settingsItem]
             ]
@@ -827,6 +834,15 @@ extension HomeViewController: UICollectionViewDelegate {
                 animated: true
             )
             
+        } else if section == HomeViewController.phraseReviewSection {
+            
+            guard isWordPracticeEnabled else {
+                return
+            }
+            
+            let vc = WordsPracticeViewController()
+            vc.practiceDuration = LangCode.currentLanguage.configs.phraseReviewPracticeDuration
+            
         } else if section == HomeViewController.practiceSection {
             
             guard isPracticeEnabled else {
@@ -835,23 +851,15 @@ extension HomeViewController: UICollectionViewDelegate {
             
             let vc: PracticeViewController
             if row == 0 {
-                
-                guard isWordPracticeEnabled else {
-                    return
-                }
-                
-                vc = WordsPracticeViewController()
-                vc.practiceDuration = LangCode.currentLanguage.configs.phraseReviewPracticeDuration
-            } else if row == 1 {
                 vc = ListeningPracticeViewController()
                 vc.practiceDuration = LangCode.currentLanguage.configs.listeningPracticeDuration
-            } else if row == 2 {
+            } else if row == 1 {
                 vc = TranslationPracticeViewController()
                 vc.practiceDuration = LangCode.currentLanguage.configs.speakingPracticeDuration
-            } else if row == 3 {
+            } else if row == 2 {
                 vc = ReadingPracticeViewController()
                 vc.practiceDuration = LangCode.currentLanguage.configs.readingPracticeDuration
-            } else if row == 4 {
+            } else if row == 3 {
                 vc = PodcastPracticeViewController()
                 vc.practiceDuration = 0
             } else {
@@ -961,7 +969,8 @@ extension HomeViewController {
     
     static let languageSection: Int = 0
     static let listSection: Int = 1
-    static let practiceSection: Int = 2
-    static let settingsSection: Int = 3
+    static let phraseReviewSection: Int = 2
+    static let practiceSection: Int = 3
+    static let settingsSection: Int = 4
     
 }
