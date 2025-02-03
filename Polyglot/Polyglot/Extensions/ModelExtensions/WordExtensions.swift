@@ -154,26 +154,56 @@ extension Array where Iterator.Element == Word {
     }
     
     func subset(containing keyWord: String, shouldIgnoreCaseAndAccent: Bool = true) -> [Word] {
+        
         if keyWord.isEmpty {
             return self
         }
-        
+                
         let keyWord = keyWord.normalized(
             shouldStrip: false,
             caseInsensitive: shouldIgnoreCaseAndAccent,
             diacriticInsensitive: shouldIgnoreCaseAndAccent
         )
         
+        var regex: NSRegularExpression = NSRegularExpression()
+        var isUsingRegex: Bool = false
+        do {
+            regex = try NSRegularExpression(
+                pattern: keyWord,
+                options: .caseInsensitive
+            )
+            isUsingRegex = true
+        } catch {
+            
+        }
+        
         var subset: [Word] = []
         for word in self {
+            
             let query = word.query.normalized(
                 caseInsensitive: shouldIgnoreCaseAndAccent,
                 diacriticInsensitive: shouldIgnoreCaseAndAccent
             )
-            if query.contains(keyWord) {
-                subset.append(word)
+            
+            if !isUsingRegex {
+                if query.contains(keyWord) {
+                    subset.append(word)
+                }
+            } else {
+                if regex.firstMatch(
+                    in: query,
+                    options: [],
+                    range: NSRange(
+                        location: 0,
+                        length: query.utf16.count
+                    )
+                ) != nil {
+                    subset.append(word)
+                }
             }
+            
         }
+        
         return subset
     }
     

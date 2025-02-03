@@ -279,7 +279,29 @@ extension ReadingEditViewController {
             caseInsensitive: shouldIgnoreCaseAndAccent,
             diacriticInsensitive: shouldIgnoreCaseAndAccent
         )
-        let queryRange = (text as NSString).range(of: query)
+        
+        var matchedText = query
+        do {
+            let regex = try NSRegularExpression(
+                pattern: query,
+                options: .caseInsensitive
+            )
+            if let match = regex.firstMatch(
+                in: text,
+                options: [],
+                range: NSRange(
+                    location: 0,
+                    length: text.utf16.count
+                )
+            ) {
+                matchedText = (text as NSString).substring(with: match.range)
+                print(matchedText)
+            }
+        } catch {
+            
+        }
+        
+        let queryRange = (text as NSString).range(of: matchedText)
         guard queryRange.location != NSNotFound else {
             return
         }
@@ -287,7 +309,7 @@ extension ReadingEditViewController {
         // Highlighting.
         let attributedText = NSMutableAttributedString(attributedString: bodyCellTextView.attributedText)
         attributedText.setBackgroundColor(
-            for: query,
+            for: matchedText,
             with: Colors.lightBlue,
             ignoreCasing: shouldIgnoreCaseAndAccent,
             ignoreAccents: shouldIgnoreCaseAndAccent
@@ -295,9 +317,6 @@ extension ReadingEditViewController {
         bodyCellTextView.attributedText = attributedText
         
         // Scrolling.
-        
-//        bodyCellTextView.scrollRangeToVisible(queryRange)
-        
         if var contentOffset = bodyCellTextView.contentOffset(for: queryRange) {
             contentOffset.y += cells[Self.bodyIdentifier].frame.minY  // Consider the cells above.
             

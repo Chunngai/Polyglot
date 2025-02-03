@@ -87,6 +87,7 @@ extension Array where Iterator.Element == Article {
     }
     
     func subset(containing keyWord: String, shouldIgnoreCaseAndAccent: Bool = true) -> [Article] {
+        
         if keyWord.isEmpty {
             return self
         }
@@ -96,16 +97,45 @@ extension Array where Iterator.Element == Article {
             diacriticInsensitive: shouldIgnoreCaseAndAccent
         )
         
+        var regex: NSRegularExpression = NSRegularExpression()
+        var isUsingRegex: Bool = false
+        do {
+            regex = try NSRegularExpression(
+                pattern: keyWord,
+                options: .caseInsensitive
+            )
+            isUsingRegex = true
+        } catch {
+            
+        }
+        
         var subset: [Article] = []
         for article in self {
+            
             let query = article.query.normalized(
                 caseInsensitive: shouldIgnoreCaseAndAccent,
                 diacriticInsensitive: shouldIgnoreCaseAndAccent
             )
-            if query.contains(keyWord) {
-                subset.append(article)
+            
+            if !isUsingRegex {
+                if query.contains(keyWord) {
+                    subset.append(article)
+                }
+            } else {
+                if regex.firstMatch(
+                    in: query,
+                    options: [],
+                    range: NSRange(
+                        location: 0,
+                        length: query.utf16.count
+                    )
+                ) != nil {
+                    subset.append(article)
+                }
             }
+            
         }
+        
         return subset
     }
 }
