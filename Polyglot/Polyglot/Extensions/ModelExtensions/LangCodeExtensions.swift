@@ -356,7 +356,7 @@ struct LangConfigs: Codable {
         listeningPracticeDuration: 5,
         speakingPracticeDuration: 5,
         readingPracticeDuration: 5,
-        wordPracticeRepetition: 2,
+        wordPracticeRepetition: 3,
         listeningPracticeRepetition: 2,
         speakingPracticeRepetition: 2,
         canGenerateTextsWithLLMsForPractices: true,

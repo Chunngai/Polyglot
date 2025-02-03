@@ -94,10 +94,8 @@ extension WordPracticeProducer {
     
     func makeAndCachePractices(for words: [String]) {
         
-        for word in Array(
-            repeating: words,
-            count: LangCode.currentLanguage.configs.wordPracticeRepetition
-        ).flatMap({ $0 }) {
+        let nRepetitions = LangCode.currentLanguage.configs.wordPracticeRepetition
+        for word in words {
             
             machineTranslator.translate(query: word) { translations, _ in
                 
@@ -106,72 +104,79 @@ extension WordPracticeProducer {
                 }
                 let meaning = translations.joined(separator: "; ")
                 
-                if let practice = self.makeMeaningSelectionPractice(
-                    word: word,
-                    query: word,
-                    key: meaning,
-                    direction: .textToMeaning
-                ) {
+                for _ in 0..<nRepetitions {
+                    
+                    if let practice = self.makeMeaningSelectionPractice(
+                        word: word,
+                        query: word,
+                        key: meaning,
+                        direction: .textToMeaning
+                    ) {
+                        self.practiceList.append(practice)
+                    }
+                    
+                    if let practice = self.makeMeaningSelectionPractice(
+                        word: word,
+                        query: meaning,
+                        key: word,
+                        direction: .meaningToText
+                    ) {
+                        self.practiceList.append(practice)
+                    }
+                    
+                    let practice = self.makeMeaningFillingPractice(
+                        word: word,
+                        query: meaning,
+                        key: word,
+                        direction: .meaningToText
+                    )
                     self.practiceList.append(practice)
                 }
-                if let practice = self.makeMeaningSelectionPractice(
-                    word: word,
-                    query: meaning,
-                    key: word,
-                    direction: .meaningToText
-                ) {
-                    self.practiceList.append(practice)
-                }
-                
-                let practice = self.makeMeaningFillingPractice(
-                    word: word,
-                    query: meaning,
-                    key: word,
-                    direction: .meaningToText
-                )
-                self.practiceList.append(practice)
-               
                 self.cache()
                 
             }
             
             analyzeAccents(for: word) { tokens, fixedText, text in
-                
-                if let practice = self.makeAccentSelectionPractice(
-                    word: fixedText ?? text,
-                    query: fixedText ?? text,
-                    tokens: tokens
-                ) {
-                    self.practiceList.append(practice)
-                    self.cache()
-                }
-                
-            }
-
-            if let practice = makeContextSelectionPractice(
-                word: word,
-                query: word
-               ) {
-                practiceList.append(practice)
-            }
-
-            makeReorderingPractice(
-                word: word,
-                query: word,
-                completion: { practice in
-                
-                    if let practice = practice {
+                for _ in 0..<nRepetitions {
+                    if let practice = self.makeAccentSelectionPractice(
+                        word: fixedText ?? text,
+                        query: fixedText ?? text,
+                        tokens: tokens
+                    ) {
                         self.practiceList.append(practice)
-                        self.cache()
                     }
-                    
-            })
-            
-            cache()
-            
-        }
+                }
+                self.cache()
+            }
 
-    }
+            for _ in 0..<nRepetitions {
+                
+                if let practice = makeContextSelectionPractice(
+                    word: word,
+                    query: word
+                ) {
+                    practiceList.append(practice)
+                }
+            }
+            cache()
+                
+            for _ in 0..<nRepetitions {
+                makeReorderingPractice(
+                    word: word,
+                    query: word,
+                    completion: { practice in
+                        if let practice = practice {
+                            self.practiceList.append(practice)
+                            self.cache()
+                        }
+                    }
+                )
+                
+            }
+                        
+        }  // for word in words {
+
+    }  // func makeAndCachePractices(for words: [String])
     
 }
 
