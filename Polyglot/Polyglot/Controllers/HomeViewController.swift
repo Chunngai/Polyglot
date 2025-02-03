@@ -842,6 +842,13 @@ extension HomeViewController: UICollectionViewDelegate {
             
             let vc = WordsPracticeViewController()
             vc.practiceDuration = LangCode.currentLanguage.configs.phraseReviewPracticeDuration
+            vc.delegate = self
+            
+            navigationController?.present(
+                NavController(rootViewController: vc),
+                animated: true,
+                completion: nil
+            )
             
         } else if section == HomeViewController.practiceSection {
             
