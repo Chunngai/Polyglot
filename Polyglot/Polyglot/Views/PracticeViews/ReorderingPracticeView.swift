@@ -21,7 +21,7 @@ class ReorderingPracticeView: WordPracticeView {
     private var centersInRowStack: [CGPoint] = []
     
     private lazy var initialCenterXInRowStack: CGFloat = rowStack.frame.minX
-    private lazy var initialCenterYInRowStack: CGFloat = rowStack.frame.minY + ReorderingPracticeView.rowHeight / 2
+    private lazy var initialCenterYInRowStack: CGFloat = rowStack.frame.minY + rowHeight / 2
         
     var answer: String {
         let wordsInRowStack = itemsInRowStack.map { (item) -> String in
@@ -30,6 +30,15 @@ class ReorderingPracticeView: WordPracticeView {
         
         let answer = wordsInRowStack.joined(separator: Strings.wordSeparator)
         return answer
+    }
+    
+    // Automated font size adjusting.
+    var wordBankItemFont: UIFont!
+    
+    var rowHeight: CGFloat {
+        WordBank.itemVerticalPadding
+        + " ".textSize(withFont: wordBankItemFont).height
+        + WordBank.itemVerticalPadding
     }
     
     // MARK: - Controllers
@@ -57,7 +66,7 @@ class ReorderingPracticeView: WordPracticeView {
     var referenceLabel: UILabel = {
         let label = UILabel()
         label.textColor = Colors.normalTextColor
-        label.font = WordBankItem.labelFont
+        label.font = UIFont.systemFont(ofSize: Sizes.wordPracticeFontSize)
         label.isHidden = true
         label.numberOfLines = 0
         return label
@@ -88,7 +97,10 @@ class ReorderingPracticeView: WordPracticeView {
         
         if frame != .zero {
             rowStack = {
-                let rowNumber: Int = calculateRowNumber(words: self.words)
+                let rowNumber: Int = calculateRowNumber(
+                    words: self.words,
+                    font: wordBankItemFont
+                )
                 let rows: [RowStackItem] = (0..<rowNumber).map { _ in RowStackItem() }
                 
                 let stackView = UIStackView(arrangedSubviews: rows)
@@ -117,8 +129,8 @@ class ReorderingPracticeView: WordPracticeView {
             
             rowStack.snp.makeConstraints { (make) in
                 make.bottom.equalTo(wordBank.snp.top).offset(-(
-                    ReorderingPracticeView.rowHeight
-                        + ReorderingPracticeView.rowStackVerticalSpacing * 2
+                    rowHeight
+//                    + ReorderingPracticeView.rowStackVerticalSpacing * 2
                 ))
                 make.width.equalTo(Sizes.reorderingRowStackWidth)
                 make.centerX.equalToSuperview()
@@ -126,7 +138,7 @@ class ReorderingPracticeView: WordPracticeView {
             for row in rowStack.arrangedSubviews {
                 row.snp.makeConstraints { (make) in
                     make.width.equalToSuperview()
-                    make.height.equalTo(ReorderingPracticeView.rowHeight)
+                    make.height.equalTo(rowHeight)
                 }
             }
         }
@@ -155,7 +167,13 @@ class ReorderingPracticeView: WordPracticeView {
                 
         self.translationLabel.text = translation
         
-        wordBank = WordBank(words: shuffledWords)
+        // Determine the font size and font here.
+        self.wordBankItemFont = self.calculateWordBankItemFont(with: words)
+        
+        wordBank = WordBank(
+            words: shuffledWords,
+            font: wordBankItemFont
+        )
         addSubview(wordBank)
         
         addSubview(referenceLabel)
@@ -218,6 +236,48 @@ extension ReorderingPracticeView {
     
     // MARK: - DragAndDrop Views and Layouts
     
+    func calculateWordBankItemFont(with words: [String]) -> UIFont {
+        var wordBankItemFontSize: CGFloat = Sizes.wordPracticeFontSize
+        while true {
+            let nRows = self.calculateRowNumber(
+                words: self.words,
+                font: UIFont.systemFont(ofSize: wordBankItemFontSize)
+            )
+            if nRows <= Self.rowNumberLimit {
+                break
+            }
+            
+            wordBankItemFontSize -= 1
+            if wordBankItemFontSize < Sizes.wordPracticeSmallestFontSize {
+                break
+            }
+        }
+        return UIFont.systemFont(ofSize: wordBankItemFontSize)
+    }
+    
+    func calculateRowNumber(words: [String], font: UIFont) -> Int {
+        
+        var rowNumber: Int = 1
+        var summedWidth: CGFloat = 0
+        for word in words {
+            
+            let itemWidth = (
+                WordBank.itemHorizontalPadding
+                    + word.textSize(withFont: font).width
+                    + WordBank.itemHorizontalPadding
+            )
+            
+            summedWidth += itemWidth
+            if summedWidth > Sizes.reorderingRowStackWidth {
+                rowNumber += 1
+                summedWidth = itemWidth
+            }
+            summedWidth += ReorderingPracticeView.rowStackHorizontalSpacing
+        }
+        
+        return rowNumber
+    }
+    
     func makeDraggableWordBankItems() {
         var panGestureRecognizer: UIPanGestureRecognizer {
             return UIPanGestureRecognizer(
@@ -238,6 +298,7 @@ extension ReorderingPracticeView {
             }
             
             let pseudoLabel = WordBankItem.makeLabel()
+            pseudoLabel.font = wordBankItemFont
             pseudoLabel.text = cell.label.text
             pseudoLabel.frame = CGRect(
                 x: wordBank.frame.origin.x + cell.frame.minX,
@@ -260,28 +321,6 @@ extension ReorderingPracticeView {
         }
     }
     
-    func calculateRowNumber(words: [String]) -> Int {
-        
-        var rowNumber: Int = 1
-        var summedWidth: CGFloat = 0
-        for word in words {
-            
-            let itemWidth = (
-                WordBank.itemHorizontalPadding
-                    + word.textSize(withFont: WordBankItem.labelFont).width
-                    + WordBank.itemHorizontalPadding
-            )
-            
-            summedWidth += itemWidth
-            if summedWidth > Sizes.reorderingRowStackWidth {
-                rowNumber += 1
-                summedWidth = itemWidth
-            }
-            summedWidth += ReorderingPracticeView.rowStackHorizontalSpacing
-        }
-        
-        return rowNumber
-    }
 }
 
 extension ReorderingPracticeView {
@@ -330,7 +369,7 @@ extension ReorderingPracticeView {
             if centerX + item.frame.halfWidth > rowStack.frame.maxX {
                 centerX = initialCenterXInRowStack + item.frame.halfWidth
                 centerY += ReorderingPracticeView.rowStackVerticalSpacing
-                    + ReorderingPracticeView.rowHeight
+                    + rowHeight
             }
             
             centersInRowStack.append(CGPoint(
@@ -363,7 +402,7 @@ extension ReorderingPracticeView {
             if centerX + item.frame.halfWidth > rowStack.frame.maxX {
                 centerX = initialCenterXInRowStack + item.frame.halfWidth
                 centerY += ReorderingPracticeView.rowStackVerticalSpacing
-                    + ReorderingPracticeView.rowHeight
+                    + rowHeight
             }
         } else {
             centerX = initialCenterXInRowStack + item.frame.halfWidth
@@ -487,7 +526,7 @@ extension ReorderingPracticeView {
                 // Calculate the vertical offset.
                 let currentMinY = item.frame.minY
                 print("current minY:", currentMinY)
-                let originalMinY = centersInRowStack[itemIndex].y - ReorderingPracticeView.rowHeight / 2
+                let originalMinY = centersInRowStack[itemIndex].y - rowHeight / 2
                 print("original minY:", originalMinY)
                 let verticalOffset = -(currentMinY - originalMinY)
                 print("vertical offset:", verticalOffset)
@@ -498,9 +537,9 @@ extension ReorderingPracticeView {
                     
                     // Calculate the new center y.
                     let newCenterY: CGFloat = centersInRowStack[itemIndex].y
-                        - ReorderingPracticeView.rowHeight / 2
+                        - rowHeight / 2
                         - ReorderingPracticeView.rowStackVerticalSpacing
-                        - ReorderingPracticeView.rowHeight / 2
+                        - rowHeight / 2
                     print("new center y:", newCenterY)
                     
                     // Obtain the first item in the same row.
@@ -541,20 +580,20 @@ extension ReorderingPracticeView {
                 // Calculate the vertical offset.
                 let currentMinY = item.frame.minY
                 print("current minY:", currentMinY)
-                let originalMinY = centersInRowStack[itemIndex].y - ReorderingPracticeView.rowHeight / 2
+                let originalMinY = centersInRowStack[itemIndex].y - rowHeight / 2
                 print("original minY:", originalMinY)
                 let verticalOffset = currentMinY - originalMinY
                 print("vertical offset:", verticalOffset)
                 
-                if verticalOffset > ReorderingPracticeView.rowHeight {
+                if verticalOffset > rowHeight {
                     print("intersected with the lower row.")
                     Feedbacks.defaultFeedbackGenerator.selectionChanged()
                     
                     // Calculate the new center y.
                     let newCenterY: CGFloat = centersInRowStack[itemIndex].y
-                        + ReorderingPracticeView.rowHeight / 2
+                        + rowHeight / 2
                         + ReorderingPracticeView.rowStackVerticalSpacing
-                        + ReorderingPracticeView.rowHeight / 2
+                        + rowHeight / 2
                     print("new center y:", newCenterY)
                     
                     // Obtain the first item in the same row.
@@ -679,11 +718,9 @@ extension ReorderingPracticeView {
     
     // MARK: - Constants
     
-    static let rowHeight: CGFloat = (
-        WordBank.itemVerticalPadding
-            + " ".textSize(withFont: WordBankItem.labelFont).height
-            + WordBank.itemVerticalPadding
-    )
     static let rowStackHorizontalSpacing: CGFloat = 3
     static let rowStackVerticalSpacing: CGFloat = 6
+    
+    static let rowNumberLimit: Int = 5
+    
 }

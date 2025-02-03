@@ -12,9 +12,11 @@ class WordBank: UICollectionView {
     
     var words: [String]!
     
+    var itemFont: UIFont!
+    
     // MARK: - Init
     
-    convenience init(words: [String]) {
+    convenience init(words: [String], font: UIFont) {
         self.init(
             frame: .zero,
             collectionViewLayout: {
@@ -26,7 +28,9 @@ class WordBank: UICollectionView {
                 return layout
             }()
         )
+        
         self.words = words
+        self.itemFont = font
     }
     
     override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
@@ -68,6 +72,7 @@ extension WordBank: UICollectionViewDataSource {
             return UICollectionViewCell()
         }
         
+        cell.label.font = itemFont
         cell.label.text = words[indexPath.row]
         
         return cell
@@ -83,7 +88,7 @@ extension WordBank: UICollectionViewDelegateFlowLayout {
         
         // https://stackoverflow.com/questions/23134986/dynamic-cell-width-of-uicollectionview-depending-on-label-width
         let text = words[indexPath.row]
-        var textSize = text.textSize(withFont: WordBankItem.labelFont)
+        var textSize = text.textSize(withFont: itemFont)
 
         if textSize.width < WordBank.minimumTextSizeWidth {
             textSize.width = WordBank.minimumTextSizeWidth

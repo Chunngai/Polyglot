@@ -10,6 +10,8 @@ import UIKit
 
 class WordBankItem: UICollectionViewCell {
     
+    var labelFont: UIFont!
+    
     // MARK: - Views
     
     // TODO: - Update here.
@@ -19,7 +21,6 @@ class WordBankItem: UICollectionViewCell {
         label.layer.masksToBounds = true
         label.layer.cornerRadius = Sizes.smallCornerRadius
         label.textColor = Colors.normalTextColor
-        label.font = WordBankItem.labelFont
         label.textAlignment = .center
         return label
     }
@@ -55,11 +56,4 @@ class WordBankItem: UICollectionViewCell {
             make.edges.equalToSuperview()
         }
     }
-}
-
-extension WordBankItem {
-    
-    // MARK: - Constants
-    
-    static let labelFont: UIFont = UIFont.systemFont(ofSize: Sizes.wordPracticeFontSize)
 }
