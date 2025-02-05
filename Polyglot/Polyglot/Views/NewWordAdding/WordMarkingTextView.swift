@@ -25,7 +25,13 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
     
     var reinforcementWordsInfo: [WordInfo] = []
     
+    // Should be reset to false in two situations.
+    // 1) when the cancel-reinforcement item is tapped.
+    // In this situation, reset the value in the func somewhereInTextViewTapped.
+    // 2) when somewhere on the screen is tapped.
+    // In this situation, reset the value in the func cancelReinforcementMenuItemTapped.
     private var isDeletingReinforcementWord: Bool = false
+    
     private var indexOfReinforcementWordToDelete: Int?
     
     // For deleting new words.
@@ -945,6 +951,7 @@ extension WordMarkingTextView {
             }
         }
         
+        isDeletingReinforcementWord = false
         // Present a word for reinforcement.
         for (i, reinforcementWordInfo) in reinforcementWordsInfo.enumerated() {
             
@@ -1127,6 +1134,8 @@ extension WordMarkingTextView {
         // The code above will remove the background colors
         // of the overlapped ranges, which need to be recovered.
         underlineAll()
+        
+        isDeletingReinforcementWord = false
         
     }
     
