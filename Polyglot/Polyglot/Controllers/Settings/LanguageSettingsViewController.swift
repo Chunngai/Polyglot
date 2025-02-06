@@ -10,12 +10,6 @@ import UIKit
 
 class LanguageSettingsViewController: SettingsViewController {
     
-    var translationLangsForCurLang: [LangCode] {
-        var langs = LangCode.learningLanguages
-        langs.remove(at: LangCode.learningLanguages.firstIndex(of: LangCode.currentLanguage)!)
-        langs = [LangCode.zh] + langs
-        return langs
-    }
     var selectedTranslationLang = LangCode.currentLanguage.configs.languageForTranslation
 
     var practiceType2isDuolingoOnly: [DuolingoOnlySelectionViewController.PracticeType: Bool] = [
@@ -292,7 +286,7 @@ extension LanguageSettingsViewController {
         if indexPath.section == 0 && indexPath.row == 0 {
             let vc = LanguageSelectionViewController()
             vc.delegate = self
-            vc.langs = translationLangsForCurLang
+            vc.langs = LangCode.languagesForTranslation
             vc.selectedLang = selectedTranslationLang
             navigationController?.pushViewController(
                 vc,
