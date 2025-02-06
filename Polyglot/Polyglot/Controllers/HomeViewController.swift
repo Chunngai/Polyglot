@@ -881,7 +881,15 @@ extension HomeViewController: UICollectionViewDelegate {
             )
             
         } else if section == HomeViewController.settingsSection {
+            var hasDuolingoArticles: Bool = false
+            for article in articles {
+                if article.topic.lower().strip() == "duolingo sentences" {
+                    hasDuolingoArticles = true
+                    break
+                }
+            }
             let settingsVC = LanguageSettingsViewController()
+            settingVC.hasDuolingoArticles = hasDuolingoArticles
             navigationController?.pushViewController(
                 settingsVC,
                 animated: true
