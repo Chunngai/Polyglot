@@ -9,18 +9,25 @@
 import UIKit
 
 class DuolingoOnlySelectionViewController: UIViewController {
+
+    enum PracticeType {
+        case shadowing
+        case speaking
+        case reading
+        case podcast
+    }
     
-    var practiceTypes: [String] = [
-        "shadowing",
-        "speaking",
-        "reading",
-        "podcast"
+    var practiceTypes: [PracticeType] = [
+        .shadowing,
+        .speaking,
+        .reading,
+        .podcast
     ]
-    var practiceType2isDuolingoOnly: [String: Bool] = [
-        "shadowing": false,
-        "speaking": false,
-        "reading": false,
-        "podcast": false
+    var practiceType2isDuolingoOnly: [PracticeType: Bool] = [
+        .shadowing: false,
+        .speaking: false,
+        .reading: false,
+        .podcast: false
     ]
     
     // MARK: - Controllers
@@ -69,38 +76,29 @@ extension DuolingoOnlySelectionViewController: UITableViewDataSource {
 
     // MARK: - Utils
 
-    private func getText(from practiceType: String) -> String? {
+    private func getText(for practiceType: PracticeType) -> String? {
 
         var mapping: [LangCode: String] = [:]
-        if practiceType == "shadowing" {
-            mapping = Strings.listening
-        } else if practiceType == "speaking" {
-            mapping = Strings.speaking
-        } else if practiceType == "reading" {
-            mapping = Strings.reading
-        } else if practiceType == "podcast" {
-            mapping = Strings.podcast
-        } else {
-            return nil
+        switch practiceType {
+        case .shadowing: mapping = Strings.listening
+        case .speaking: mapping = Strings.speaking
+        case .reading: mapping = Strings.reading
+        case .podcast: mapping = Strings.podcast
+        default: return nil
         }
-
         return mapping[LangCode.currentLanguage]
         
     }
 
-    private func getImage(from practiceType: String) -> UIImage? {
+    private func getImage(for practiceType: PracticeType) -> UIImage? {
 
-        if practiceType == "shadowing" {
-            return Images.listeningPracticeImage
-        } else if practiceType == "speaking" {
-            return Images.translationPracticeImage
-        } else if practiceType == "reading" {
-            return Images.readingPracticeImage
-        } else if practiceType == "podcast" {
-            return Images.podcastPracticeImage
-        } else {
-            return nil
-        }        
+        switch practiceType {
+        case .shadowing: mapping = return Images.listeningPracticeImage
+        case .speaking: mapping = return Images.translationPracticeImage
+        case .reading: mapping = return Images.readingPracticeImage
+        case .podcast: mapping = return Images.podcastPracticeImage
+        default: return nil
+            
     }
     
 }
@@ -119,8 +117,8 @@ extension DuolingoOnlySelectionViewController: UITableViewDataSource {
         let cell = UITableViewCell()
         let practiceType = practiceTypes[indexPath.row]
         
-        cell.textLabel?.text = getText(from: practiceType)
-        cell.imageView?.image = getImage(from: practiceType)?.scaledToListIconSize()
+        cell.textLabel?.text = getText(for: practiceType)
+        cell.imageView?.image = getImage(for: practiceType)?.scaledToListIconSize()
         cell.selectionStyle = .none
         if practiceType2isDuolingoOnly[practiceType] {
             cell.accessoryType = .checkmark
@@ -134,16 +132,16 @@ extension DuolingoOnlySelectionViewController: UITableViewDataSource {
 extension DuolingoOnlySelectionViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
         selectedPracticeType = practiceTypes[indexPath.row]
         practiceType2isDuolingoOnly[selectedPracticeType].toggle()
-        
-        self.delegate.updatePracticeTypes(with: practiceTypes)
-        
         if let cell = tableView.cellForRow(at: indexPath) {
             cell.accessoryType = practiceType2isDuolingoOnly[selectedPracticeType] ?
                 .checkmark : .none
         }
-
+        
+        self.delegate.updateselectionMapping(with: practiceType2isDuolingoOnly)
+        
     }
     
 }
