@@ -13,7 +13,11 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
     // MARK: - Init
     
     override init(words: [Word], articles: [Article]) {
-        super.init(words: words, articles: articles)
+        super.init(
+            words: words, 
+            articles: articles, 
+            isDuolingoOnly: LangCode.currentLanguage.isDuolingoOnlyForSpeaking
+        )
         
         // Override the batch size.
         self.batchSize = LangCode.currentLanguage.configs.speakingPracticeDuration
