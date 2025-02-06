@@ -189,6 +189,11 @@ struct LangConfigs: Codable {
     var wordPracticeRepetition: Int
     var listeningPracticeRepetition: Int
     var speakingPracticeRepetition: Int
+
+    var isDuolingoOnlyForShadowing: Bool
+    var isDuolingoOnlyForSpeaking: Bool
+    var isDuolingoOnlyForReading: Bool
+    var isDuolingoOnlyForPodcast: Bool
     
     var canGenerateTextsWithLLMsForPractices: Bool
     
@@ -205,6 +210,10 @@ struct LangConfigs: Codable {
         wordPracticeRepetition: Int,
         listeningPracticeRepetition: Int,
         speakingPracticeRepetition: Int,
+        isDuolingoOnlyForShadowing: Bool,
+        isDuolingoOnlyForSpeaking: Bool,
+        isDuolingoOnlyForReading: Bool,
+        isDuolingoOnlyForPodcast: Bool,
         canGenerateTextsWithLLMsForPractices: Bool,
         shouldRemindToAddNewArticles: Bool
     ) {
@@ -218,6 +227,10 @@ struct LangConfigs: Codable {
         self.wordPracticeRepetition = wordPracticeRepetition
         self.listeningPracticeRepetition = listeningPracticeRepetition
         self.speakingPracticeRepetition = speakingPracticeRepetition
+        self.isDuolingoOnlyForShadowing = isDuolingoOnlyForShadowing
+        self.isDuolingoOnlyForSpeaking = isDuolingoOnlyForSpeaking
+        self.isDuolingoOnlyForReading = isDuolingoOnlyForReading
+        self.isDuolingoOnlyForPodcast = isDuolingoOnlyForPodcast
         self.canGenerateTextsWithLLMsForPractices = canGenerateTextsWithLLMsForPractices
         self.shouldRemindToAddNewArticles = shouldRemindToAddNewArticles
     }
@@ -238,6 +251,11 @@ struct LangConfigs: Codable {
         case wordPracticeRepetition
         case listeningPracticeRepetition
         case speakingPracticeRepetition
+
+        case isDuolingoOnlyForShadowing
+        case isDuolingoOnlyForSpeaking
+        case isDuolingoOnlyForReading
+        case isDuolingoOnlyForPodcast
         
         case canGenerateTextsWithLLMsForPractices
         
@@ -258,6 +276,10 @@ struct LangConfigs: Codable {
         try container.encode(wordPracticeRepetition, forKey: .wordPracticeRepetition)
         try container.encode(listeningPracticeRepetition, forKey: .listeningPracticeRepetition)
         try container.encode(speakingPracticeRepetition, forKey: .speakingPracticeRepetition)
+        try container.encode(isDuolingoOnlyForShadowing, forKey: .isDuolingoOnlyForShadowing)
+        try container.encode(isDuolingoOnlyForSpeaking, forKey: .isDuolingoOnlyForSpeaking)
+        try container.encode(isDuolingoOnlyForReading, forKey: .isDuolingoOnlyForReading)
+        try container.encode(isDuolingoOnlyForPodcast, forKey: .isDuolingoOnlyForPodcast)
         try container.encode(canGenerateTextsWithLLMsForPractices, forKey: .canGenerateTextsWithLLMsForPractices)
         try container.encode(shouldRemindToAddNewArticles, forKey: .shouldRemindToAddNewArticles)
     
@@ -308,6 +330,10 @@ struct LangConfigs: Codable {
         } catch {
             speakingPracticeRepetition = try values.decode(Int.self, forKey: .practiceRepetition)
         }
+        isDuolingoOnlyForShadowing = try values.decode(Bool.self, forKey: .isDuolingoOnlyForShadowing)
+        isDuolingoOnlyForSpeaking = try values.decode(Bool.self, forKey: .isDuolingoOnlyForSpeaking)
+        isDuolingoOnlyForReading = try values.decode(Bool.self, forKey: .isDuolingoOnlyForReading)
+        isDuolingoOnlyForPodcast = try values.decode(Bool.self, forKey: .isDuolingoOnlyForPodcast)
         canGenerateTextsWithLLMsForPractices = try values.decode(Bool.self, forKey: .canGenerateTextsWithLLMsForPractices)
         do {
             shouldRemindToAddNewArticles = try values.decode(Bool.self, forKey: .shouldRemindToAddNewArticles)
@@ -359,6 +385,10 @@ struct LangConfigs: Codable {
         wordPracticeRepetition: 3,
         listeningPracticeRepetition: 2,
         speakingPracticeRepetition: 2,
+        isDuolingoOnlyForShadowing: false,
+        isDuolingoOnlyForSpeaking: false,
+        isDuolingoOnlyForReading: false,
+        isDuolingoOnlyForPodcast: false,
         canGenerateTextsWithLLMsForPractices: true,
         shouldRemindToAddNewArticles: true
     )
