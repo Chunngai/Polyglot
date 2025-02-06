@@ -29,6 +29,9 @@ class TextMeaningPracticeView: BasePracticeView {
     var lowerString: String!
     
     var unselectableRanges: [NSRange] = []
+
+    var rangeOfTranslatorIcon: NSRange?
+    var rangeOfTranslationText: NSRange?
     
     var shouldReinforce: Bool = false {
         didSet {
@@ -273,6 +276,13 @@ class TextMeaningPracticeView: BasePracticeView {
                 length: 2  // Icon + space.
             )
             unselectableRanges.append(iconRange)
+
+            if upperIcon = translatorIcon {
+                rangeOfTranslatorIcon = NSRange(
+                    location: attributedText.length,
+                    length: 0
+                )
+            }
             
             attributedText.append(textView.imageAttributedString(
                 icon: upperIcon,
@@ -293,6 +303,12 @@ class TextMeaningPracticeView: BasePracticeView {
             string: upperString,
             attributes: textView.defaultTextAttributes
         ))
+        if let upperIcon = upperIcon, upperIcon = translatorIcon {
+            rangeOfTranslationText = NSRange(
+                location: attributedText.length - upperString.utf16.count,
+                length: upperString.utf16.count
+            )
+        }
         
         textView.attributedText = attributedText
     }
@@ -309,6 +325,13 @@ class TextMeaningPracticeView: BasePracticeView {
                 length: 2  // Icon + space.
             )
             unselectableRanges.append(iconRange)
+
+            if lowerIcon = translatorIcon {
+                rangeOfTranslatorIcon = NSRange(
+                    location: attributedText.length,
+                    length: 0
+                )
+            }
             
             attributedText.append(textView.imageAttributedString(
                 icon: lowerIcon,
@@ -329,6 +352,12 @@ class TextMeaningPracticeView: BasePracticeView {
             string: lowerString,
             attributes: textView.defaultTextAttributes
         ))
+        if let lowerIcon = lowerIcon, lowerIcon = translatorIcon {
+            rangeOfTranslationText = NSRange(
+                location: attributedText.length - lowerString.utf16.count,
+                length: lowerString.utf16.count
+            )
+        }
 
         textView.attributedText = attributedText
     }
@@ -429,8 +458,21 @@ extension TextMeaningPracticeView: UITextViewDelegate {
     // MARK: - UITextViewDelegate
     
     func textViewDidChangeSelection(_ textView: UITextView) {
-        // Disable the selection of icons.
         let r = textView.selectedRange
+
+        if r == rangeOfTranslatorIcon {
+            let vc = LanguageSelectionViewController()
+            vc.delegate = self
+            vc.langs = LangCode.languagesForTranslation
+            vc.selectedLang = meaningLang
+            navigationController?.pushViewController(
+                vc,
+                animated: true
+            )
+            return
+        }
+        
+        // Disable the selection of icons.
         for unselectableRange in self.unselectableRanges {
             if unselectableRange.intersection(r) != nil {
                 let newLocation = unselectableRange.location + unselectableRange.length
@@ -450,6 +492,55 @@ extension TextMeaningPracticeView: UITextViewDelegate {
     }
     
 }
+
+extension TextMeaningPracticeView: LanguageSelectionViewControllerDelegate {
+    
+    func updateLanguage(as language: LangCode) {
+
+        guard language != self.meaningLanguage else {
+            return
+        }
+        
+        self.meaningLang = language
+        
+        MachineTranslator(
+            srcLang: self.textLang
+            trgLang: self.meaningLang
+        ).translate(query: self.text) { translations, translatorType in
+            guard let translation = translations.first else {
+                return
+            }
+                                       
+            self.meaning = translation
+            self.machineTranslatorType = translatorType
+                                       
+            // Update the translator icon and the translation text.
+                                       
+            textView.attributedText.replaceCharacters(
+                in: NSRange(
+                    location: rangeOfTranslatorIcon.location,
+                    length: 1  // Icon + space.
+                ), 
+                with: textView.imageAttributedString(
+                    icon: translatorIcon,
+                    font: iconFont
+                )
+            )
+            
+            textView.attributedText.replaceCharacters(
+                in: rangeOfTranslationText, 
+                with: NSAttributedString(
+                    string: translation,
+                    attributes: textView.defaultTextAttributes
+                )
+            )
+                                       
+        }
+        
+    }
+    
+}
+
 
 extension TextMeaningPracticeView {
     
