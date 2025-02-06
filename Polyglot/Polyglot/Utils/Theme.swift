@@ -148,7 +148,8 @@ struct Sizes {
     static let mediumFontSize: CGFloat = 17
     static let smallFontSize: CGFloat = 15
     static let wordPracticeFontSize: CGFloat = 20
-    static let wordPracticeSmallestFontSize: CGFloat = 10
+    static let wordPracticeReorderingFontSize: CGFloat = 15
+    static let wordPracticeReorderingSmallestFontSize: CGFloat = 10
     
     // MARK: - Scaling.
     
