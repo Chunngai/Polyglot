@@ -100,6 +100,13 @@ extension LangCode {
         }
         
     }
+
+    var languagesForTranslation: [LangCode] {
+        var langs = LangCode.learningLanguages
+        langs.remove(at: LangCode.learningLanguages.firstIndex(of: LangCode.currentLanguage)!)
+        langs = [.zh] + langs
+        return langs
+    }
     
 }
 
