@@ -33,6 +33,7 @@ class LanguageSettingsViewController: SettingsViewController {
         }
         return ss.joined(separator: ", ")
     }
+    var hasDuolingoArticles: Bool = false
     
     override func saveSettings() {
         LangCode.currentLanguage.configs = LangConfigs(
@@ -267,6 +268,11 @@ class LanguageSettingsViewController: SettingsViewController {
                     return cell
                 }()
             ]
+
+            if !hasDuolingoArticles {
+                cells[4][0].isHidden = true
+            }
+            
         ]
     }
     
