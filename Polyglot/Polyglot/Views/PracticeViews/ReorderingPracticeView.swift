@@ -58,7 +58,7 @@ class ReorderingPracticeView: WordPracticeView {
     var translationLabel: UILabel = {
         let label = UILabel()
         label.textColor = Colors.normalTextColor
-//        label.font = UIFont.systemFont(ofSize: Sizes.practiceFontSize)
+       label.font = UIFont.systemFont(ofSize: Sizes.wordPracticeReorderingFontSize)
         label.numberOfLines = 0
         return label
     }()
@@ -66,7 +66,7 @@ class ReorderingPracticeView: WordPracticeView {
     var referenceLabel: UILabel = {
         let label = UILabel()
         label.textColor = Colors.normalTextColor
-        label.font = UIFont.systemFont(ofSize: Sizes.wordPracticeFontSize)
+        label.font = UIFont.systemFont(ofSize: Sizes.wordPracticeReorderingFontSize)
         label.isHidden = true
         label.numberOfLines = 0
         return label
@@ -168,7 +168,10 @@ class ReorderingPracticeView: WordPracticeView {
         self.translationLabel.text = translation
         
         // Determine the font size and font here.
-        self.wordBankItemFont = self.calculateWordBankItemFont(with: words)
+        let font1 = self.calculateWordBankItemFont(with: self.words)
+        let font2 = self.calculateWordBankItemFont(with: self.shuffledWords)
+        self.wordBankItemFont = font1.pointSize < font2.pointSize ?
+            font1 : font2
         
         wordBank = WordBank(
             words: shuffledWords,
@@ -237,7 +240,7 @@ extension ReorderingPracticeView {
     // MARK: - DragAndDrop Views and Layouts
     
     func calculateWordBankItemFont(with words: [String]) -> UIFont {
-        var wordBankItemFontSize: CGFloat = Sizes.wordPracticeFontSize
+        var wordBankItemFontSize: CGFloat = Sizes.wordPracticeReorderingFontSize
         while true {
             let nRows = self.calculateRowNumber(
                 words: self.words,
@@ -248,7 +251,7 @@ extension ReorderingPracticeView {
             }
             
             wordBankItemFontSize -= 1
-            if wordBankItemFontSize < Sizes.wordPracticeSmallestFontSize {
+            if wordBankItemFontSize < Sizes.wordPracticeReorderingSmallestFontSize {
                 break
             }
         }
