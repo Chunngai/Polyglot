@@ -14,7 +14,23 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
         return (0..<self.practiceList.count).randomElement()!
     }
     private var nextPracticeIndex: Int?  // For immediate reinforcement.
-    
+
+    convenience init(words: [Word], articles: [Article], isDuolingoOnly) {
+        var filteredArticles: [Article]
+        if isDuolingoOnly {
+            for article in articles {
+                if article.topic.lower().strip() != "duolingo sentences" {
+                    continue
+                }
+                filteredArticles.append(article)
+            }
+        }
+        super.init(
+            words: words, 
+            articles: filteredArticles
+        )
+    }
+        
     override func next() {
         if self.practiceList.isEmpty {
             self.practiceList.append(contentsOf: self.make())
