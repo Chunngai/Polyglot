@@ -16,7 +16,11 @@ class PodcastPracticeProducer: TextMeaningPracticeProducer {
     // MARK: - Init
     
     override init(words: [Word], articles: [Article]) {
-        super.init(words: words, articles: articles)
+        super.init(
+            words: words, 
+            articles: articles, 
+            isDuolingoOnly: LangCode.currentLanguage.isDuolingoOnlyForPodcast
+        )
         
         let cachedPodcastPractices = PodcastPracticeProducer.loadCachedPractices(for: LangCode.currentLanguage)
         load(cachedPodcastPractices)
