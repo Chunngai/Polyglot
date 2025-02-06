@@ -102,18 +102,17 @@ class HomeViewController: UIViewController {
             image: Images.wordPracticeImage,
             text: Strings.phraseReview,
             secondaryText: {
-                let count = WordPracticeProducer.word2count.count
+                let nWordsToReview = WordPracticeProducer.word2count.count
+                let textForNWordsToReview = nWordsToReview != 0 ? 
+                    String(nWordsToReview) : "No"
                 
-                var s = ""
-                if count != 0 {
-                    s += String(count)
-                } else {
-                    s += "No"
+                let nWordPractices = 0
+                for wordPractices in WordPracticeProducer.word2count.values {
+                    nWordPractices += wordPractices.count
                 }
-                s += " Phrases to Review"
                 
+                s = "\(textForNWordsToReview) Phrases to Review (\(nWordPractices) Practices)"
                 return s
-                
             }()
         )
     ]}
