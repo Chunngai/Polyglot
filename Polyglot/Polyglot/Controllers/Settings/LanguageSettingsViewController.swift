@@ -17,6 +17,13 @@ class LanguageSettingsViewController: SettingsViewController {
         return langs
     }
     var selectedTranslationLang = LangCode.currentLanguage.configs.languageForTranslation
+
+    var practiceType2isDuolingoOnly: [String: Bool] = [
+        "shadowing": LangCode.currentLanguage.configs.isDuolingoOnlyForShadowing,
+        "speaking": LangCode.currentLanguage.configs.isDuolingoOnlyForSpeaking,
+        "reading": LangCode.currentLanguage.configs.isDuolingoOnlyForReading,
+        "podcast": LangCode.currentLanguage.configs.isDuolingoOnlyForPodcast
+    ]
     
     override func saveSettings() {
         LangCode.currentLanguage.configs = LangConfigs(
@@ -206,6 +213,25 @@ class LanguageSettingsViewController: SettingsViewController {
                     return cell
                 }()
             ],
+            // Duolingo only.
+            [
+                {
+                    let cell = UITableViewCell(
+                        style: .value1,
+                        reuseIdentifier: ""
+                    )
+                    
+                    cell.selectionStyle = .none
+                    cell.imageView?.image = Images.duolingoIcon
+                    cell.textLabel?.text = ""  // TODO: - Update localization
+                    cell.textLabel?.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
+                    cell.textLabel?.textColor = Colors.normalTextColor
+                    cell.textLabel?.textAlignment = .left
+                    cell.accessoryType = .disclosureIndicator
+                    
+                    return cell
+                }()
+            ],
             // Content generation.
             [
                 {
@@ -251,6 +277,14 @@ extension LanguageSettingsViewController {
                 vc,
                 animated: true
             )
+        } else if if indexPath.section == 4 && indexPath.row == 0 {
+            let vc = DuolingoOnlySelectionViewController()
+            vc.delegate = self
+            vc.practiceType2isDuolingoOnly = self.practiceType2isDuolingoOnly
+            navigationController?.pushViewController(
+                vc,
+                animated: true
+            )
         }
     }
     
@@ -259,8 +293,24 @@ extension LanguageSettingsViewController {
 extension LanguageSettingsViewController: LanguageSelectionViewControllerDelegate {
     
     func updateLanguage(as language: LangCode) {
-        cells[0][0].detailTextLabel?.text = language.rawValue
         selectedTranslationLang = language
+        cells[0][0].detailTextLabel?.text = language.rawValue
+    }
+    
+}
+
+extension LanguageSettingsViewController: DuolingoOnlySelectionViewControllerDelegate {
+
+    func updateselectionMapping(with selectionMapping: [String: Bool]) {
+        self.practiceType2isDuolingoOnly = selections
+
+        var selectedPracticeTypes: [String] = []
+        for (practiceType, isSelected) in selectionMapping {
+            if isSelected {
+                selectedPracticeTypes.append(practiceType)
+            }
+        }
+        cells[4][0].detailTextLabel?.text = selectedPracticeTypes.join(separator: ",")
     }
     
 }
