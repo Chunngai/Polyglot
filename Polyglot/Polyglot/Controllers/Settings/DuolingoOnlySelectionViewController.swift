@@ -11,10 +11,31 @@ import UIKit
 class DuolingoOnlySelectionViewController: UIViewController {
 
     enum PracticeType {
+        
         case shadowing
         case speaking
         case reading
         case podcast
+
+        var text: String {
+            var mapping: [LangCode: String] = [:]
+            switch self {
+            case .shadowing: mapping = Strings.listening
+            case .speaking: mapping = Strings.speaking
+            case .reading: mapping = Strings.reading
+            case .podcast: mapping = Strings.podcast
+            }
+            return mapping[LangCode.currentLanguage]
+        }
+
+        var image: UIImage {
+            switch self {
+            case .shadowing: mapping = return Images.listeningPracticeImage
+            case .speaking: mapping = return Images.translationPracticeImage
+            case .reading: mapping = return Images.readingPracticeImage
+            case .podcast: mapping = return Images.podcastPracticeImage
+        }
+        
     }
     
     var practiceTypes: [PracticeType] = [
@@ -73,37 +94,6 @@ class DuolingoOnlySelectionViewController: UIViewController {
 }
 
 extension DuolingoOnlySelectionViewController: UITableViewDataSource {
-
-    // MARK: - Utils
-
-    private func getText(for practiceType: PracticeType) -> String? {
-
-        var mapping: [LangCode: String] = [:]
-        switch practiceType {
-        case .shadowing: mapping = Strings.listening
-        case .speaking: mapping = Strings.speaking
-        case .reading: mapping = Strings.reading
-        case .podcast: mapping = Strings.podcast
-        default: return nil
-        }
-        return mapping[LangCode.currentLanguage]
-        
-    }
-
-    private func getImage(for practiceType: PracticeType) -> UIImage? {
-
-        switch practiceType {
-        case .shadowing: mapping = return Images.listeningPracticeImage
-        case .speaking: mapping = return Images.translationPracticeImage
-        case .reading: mapping = return Images.readingPracticeImage
-        case .podcast: mapping = return Images.podcastPracticeImage
-        default: return nil
-            
-    }
-    
-}
-
-extension DuolingoOnlySelectionViewController: UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
@@ -117,8 +107,8 @@ extension DuolingoOnlySelectionViewController: UITableViewDataSource {
         let cell = UITableViewCell()
         let practiceType = practiceTypes[indexPath.row]
         
-        cell.textLabel?.text = getText(for: practiceType)
-        cell.imageView?.image = getImage(for: practiceType)?.scaledToListIconSize()
+        cell.textLabel?.text = practiceType.text
+        cell.imageView?.image = practiceType.image.scaledToListIconSize()
         cell.selectionStyle = .none
         if practiceType2isDuolingoOnly[practiceType] {
             cell.accessoryType = .checkmark
@@ -148,6 +138,6 @@ extension DuolingoOnlySelectionViewController: UITableViewDelegate {
 
 protocol DuolingoOnlySelectionViewControllerDelegate {
     
-    func updateselectionMapping(with selectionMapping: [String: Bool])
+    func updateselectionMapping(with selectionMapping: [PracticeType: Bool])
     
 }
