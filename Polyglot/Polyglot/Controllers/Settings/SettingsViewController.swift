@@ -10,7 +10,7 @@ import UIKit
 
 class SettingsViewController: UIViewController {
 
-    var headers: [String] = []
+    var headers: [String?] = []
     var cells: [[UITableViewCell]] = []
     
     func saveSettings() {

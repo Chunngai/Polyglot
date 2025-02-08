@@ -124,6 +124,7 @@ struct Icons {
     static let chatgptIcon = UIImage(imageLiteralResourceName: "chatgpt").whiteBackgroundToTransparent()!
     static let googleTranslateIcon = UIImage(imageLiteralResourceName: "google-translate")
     static let baiduTranslateIcon = UIImage(imageLiteralResourceName: "baidu-translate")
+    static let duolingoIcon = UIImage(imageLiteralResourceName: "duolingo")
     
     // Ref: https://stackoverflow.com/questions/31803157/how-can-i-color-a-uiimage-in-swift
     static let start1Icon = UIImage(imageLiteralResourceName: "start_1").withRenderingMode(.alwaysTemplate)
@@ -148,7 +149,8 @@ struct Sizes {
     static let mediumFontSize: CGFloat = 17
     static let smallFontSize: CGFloat = 15
     static let wordPracticeFontSize: CGFloat = 20
-    static let wordPracticeSmallestFontSize: CGFloat = 10
+    static let wordPracticeReorderingFontSize: CGFloat = 17
+    static let wordPracticeReorderingSmallestFontSize: CGFloat = 10
     
     // MARK: - Scaling.
     

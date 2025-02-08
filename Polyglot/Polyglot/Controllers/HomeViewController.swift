@@ -102,18 +102,21 @@ class HomeViewController: UIViewController {
             image: Images.wordPracticeImage,
             text: Strings.phraseReview,
             secondaryText: {
-                let count = WordPracticeProducer.word2count.count
+                let nWordsToReview = WordPracticeProducer.word2count.count
+                let textForNWordsToReview = nWordsToReview != 0 ? 
+                    String(nWordsToReview) : "No"
                 
-                var s = ""
-                if count != 0 {
-                    s += String(count)
-                } else {
-                    s += "No"
+                var nWordPractices = 0
+                for count in WordPracticeProducer.word2count.values {
+                    nWordPractices += count
                 }
-                s += " Phrases to Review"
+                
+                var s = "\(textForNWordsToReview) Phrases to Review"
+                if nWordsToReview != 0 {
+                    s += " (\(nWordPractices) Practices)"
+                }
                 
                 return s
-                
             }()
         )
     ]}
@@ -881,7 +884,15 @@ extension HomeViewController: UICollectionViewDelegate {
             )
             
         } else if section == HomeViewController.settingsSection {
+            var hasDuolingoArticles: Bool = false
+            for article in articles {
+                if article.topic?.lowercased().strip() == "duolingo sentences" {
+                    hasDuolingoArticles = true
+                    break
+                }
+            }
             let settingsVC = LanguageSettingsViewController()
+            settingsVC.hasDuolingoArticles = hasDuolingoArticles
             navigationController?.pushViewController(
                 settingsVC,
                 animated: true

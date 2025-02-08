@@ -38,6 +38,7 @@
 		C69DB5EE2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69DB5ED2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift */; };
 		C69F76662B7D198F0006828A /* TextMeaningPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69F76652B7D198F0006828A /* TextMeaningPractice.swift */; };
 		C69F76682B7D1F9F0006828A /* ListeningPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69F76672B7D1F9F0006828A /* ListeningPractice.swift */; };
+		C6A12F642D551A9A00E6C723 /* DuolingoOnlySelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A12F612D551A9A00E6C723 /* DuolingoOnlySelectionViewController.swift */; };
 		C6A1FC402C7B4B9700F01632 /* ReadingPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A1FC3F2C7B4B9700F01632 /* ReadingPractice.swift */; };
 		C6A1FC422C7B4C6900F01632 /* ReadingPracticeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A1FC412C7B4C6900F01632 /* ReadingPracticeProducer.swift */; };
 		C6A1FC442C7B4E7700F01632 /* ReadingPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A1FC432C7B4E7700F01632 /* ReadingPracticeView.swift */; };
@@ -211,6 +212,7 @@
 		C69DB5ED2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListenAndCompletePracticeView.swift; sourceTree = "<group>"; };
 		C69F76652B7D198F0006828A /* TextMeaningPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextMeaningPractice.swift; sourceTree = "<group>"; };
 		C69F76672B7D1F9F0006828A /* ListeningPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningPractice.swift; sourceTree = "<group>"; };
+		C6A12F612D551A9A00E6C723 /* DuolingoOnlySelectionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DuolingoOnlySelectionViewController.swift; sourceTree = "<group>"; };
 		C6A1FC3F2C7B4B9700F01632 /* ReadingPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPractice.swift; sourceTree = "<group>"; };
 		C6A1FC412C7B4C6900F01632 /* ReadingPracticeProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPracticeProducer.swift; sourceTree = "<group>"; };
 		C6A1FC432C7B4E7700F01632 /* ReadingPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPracticeView.swift; sourceTree = "<group>"; };
@@ -395,6 +397,7 @@
 		C6357CD62C772BCD00F63CE1 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				C6A12F612D551A9A00E6C723 /* DuolingoOnlySelectionViewController.swift */,
 				C6357CD42C772A3600F63CE1 /* SettingsViewController.swift */,
 				C6F3F6A62C121AC800346A70 /* GlobalSettingsViewController.swift */,
 				C6357CD22C7729D700F63CE1 /* LanguageSettingsViewController.swift */,
@@ -1031,6 +1034,7 @@
 				C6A22FF22C712DBC00484B59 /* LangCodeExtensions.swift in Sources */,
 				C69B190A2C18A91800E41C86 /* SettingsSlidingCell.swift in Sources */,
 				C67B85A22AED943200F7657A /* JapaneseAccentAnalyzer.swift in Sources */,
+				C6A12F642D551A9A00E6C723 /* DuolingoOnlySelectionViewController.swift in Sources */,
 				FF5690142980367A00CA2C7B /* LangCode.swift in Sources */,
 				C6F5FB7A2B7202AF0040A26B /* ListeningPracticeViewController.swift in Sources */,
 				C619E6932AC830CB00A30B27 /* CardCell.swift in Sources */,

@@ -227,7 +227,7 @@ extension WordPracticeProducer {
         )
     }
     
-    private func choices(for wordToPractice: String) -> [String]? {
+    private func choices(for wordToPractice: String, textForChoice: (Word) -> String) -> [String]? {
         
         guard self.words.count >= Self.defaultChoiceNumber else {
             return nil
@@ -236,9 +236,10 @@ extension WordPracticeProducer {
         var choices: [String] = [wordToPractice]
         // Randomly choose words.
         while true {
-            let choice = self.words.randomElement()!
-            if !choices.contains(choice.text) {
-                choices.append(choice.text)
+            let randomWord = self.words.randomElement()!
+            let choice = textForChoice(randomWord)
+            if !choices.contains(choice) {
+                choices.append(choice)
             }
             
             if choices.count == Self.defaultChoiceNumber {
@@ -257,7 +258,12 @@ extension WordPracticeProducer {
         direction: WordPractice.PracticeDirection
     ) -> WordPractice? {
         
-        guard let choices = choices(for: key) else {
+        guard let choices = choices(
+            for: key,
+            textForChoice: {
+                direction == .textToMeaning ? $0.meaning : $0.text
+            }
+        ) else {
             return nil
         }
         
@@ -303,7 +309,10 @@ extension WordPracticeProducer {
             return nil
         }
         
-        guard let choices = choices(for: query) else {
+        guard let choices = choices(
+            for: query,
+            textForChoice: { $0.text }
+        ) else {
             return nil
         }
         
@@ -515,9 +524,6 @@ extension WordPracticeProducer {
     }
     
     static func save(_ practicesToCache: inout [WordPractice], for lang: LangCode) {
-        for practice in practicesToCache {
-            print(practice.query, practice.practiceType)
-        }
         do {
             try writeDataToJson(
                 fileName: WordPracticeProducer.fileName(for: lang.rawValue),

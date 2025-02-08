@@ -10,13 +10,34 @@ import UIKit
 
 class LanguageSettingsViewController: SettingsViewController {
     
-    var possibleTranslationLangsForCurLang: [LangCode] {
-        var langs = LangCode.learningLanguages
-        langs.remove(at: LangCode.learningLanguages.firstIndex(of: LangCode.currentLanguage)!)
-        langs = [LangCode.zh] + langs
-        return langs
-    }
     var selectedTranslationLang = LangCode.currentLanguage.configs.languageForTranslation
+
+    var practiceType2isDuolingoOnly: [DuolingoOnlySelectionViewController.PracticeType: Bool] = [
+        .shadowing: LangCode.currentLanguage.configs.isDuolingoOnlyForShadowing,
+        .speaking: LangCode.currentLanguage.configs.isDuolingoOnlyForSpeaking,
+        .reading: LangCode.currentLanguage.configs.isDuolingoOnlyForReading,
+        .podcast: LangCode.currentLanguage.configs.isDuolingoOnlyForPodcast
+    ]
+    var textForDuolingoOnlyCell: String {
+        var ss: [String] = []
+        for practiceType in [
+            DuolingoOnlySelectionViewController.PracticeType.shadowing,
+            DuolingoOnlySelectionViewController.PracticeType.speaking,
+            DuolingoOnlySelectionViewController.PracticeType.reading,
+            DuolingoOnlySelectionViewController.PracticeType.podcast
+        ] {
+            if practiceType2isDuolingoOnly[practiceType]! {
+                ss.append(practiceType.text)
+            }
+        }
+        
+        var text = ss.joined(separator: ", ")
+        if text.strip().isEmpty {
+            text = "Inactive"
+        }
+        return text
+    }
+    var hasDuolingoArticles: Bool = false
     
     override func saveSettings() {
         LangCode.currentLanguage.configs = LangConfigs(
@@ -34,10 +55,15 @@ class LanguageSettingsViewController: SettingsViewController {
             wordPracticeRepetition: Int((cells[3][0] as! SettingsSlidingCell).slider.value),
             listeningPracticeRepetition: Int((cells[3][1] as! SettingsSlidingCell).slider.value),
             speakingPracticeRepetition: Int((cells[3][2] as! SettingsSlidingCell).slider.value),
+
+            isDuolingoOnlyForShadowing: practiceType2isDuolingoOnly[.shadowing]!,
+            isDuolingoOnlyForSpeaking: practiceType2isDuolingoOnly[.speaking]!,
+            isDuolingoOnlyForReading: practiceType2isDuolingoOnly[.reading]!,
+            isDuolingoOnlyForPodcast: practiceType2isDuolingoOnly[.podcast]!,
             
-            canGenerateTextsWithLLMsForPractices: (cells[4][0] as! SettingsSwitchingCell).switchView.isOn, 
+            canGenerateTextsWithLLMsForPractices: (cells[hasDuolingoArticles ? 5 : 4][0] as! SettingsSwitchingCell).switchView.isOn,
             
-            shouldRemindToAddNewArticles: (cells[5][0] as! SettingsSwitchingCell).switchView.isOn
+            shouldRemindToAddNewArticles: (cells[hasDuolingoArticles ? 6 : 5][0] as! SettingsSwitchingCell).switchView.isOn
             
         )
     }
@@ -53,6 +79,7 @@ class LanguageSettingsViewController: SettingsViewController {
             "Voice Rate for Synthesizing \(LangCode.currentLanguage.rawValue) Texts",
             "Practice Durations",
             "Practice Repetitions",
+            "Duolingo Only",
             "Content Generation",
             "Reminders",
         ]
@@ -206,6 +233,25 @@ class LanguageSettingsViewController: SettingsViewController {
                     return cell
                 }()
             ],
+            // Duolingo only.
+            [
+                {
+                    let cell = UITableViewCell(
+                        style: .value1,
+                        reuseIdentifier: ""
+                    )
+                    
+                    cell.selectionStyle = .none
+                    cell.imageView?.image = Icons.duolingoIcon.scaledToListIconSize()
+                    cell.textLabel?.text = textForDuolingoOnlyCell
+                    cell.textLabel?.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
+                    cell.textLabel?.textColor = Colors.normalTextColor
+                    cell.textLabel?.textAlignment = .left
+                    cell.accessoryType = .disclosureIndicator
+                    
+                    return cell
+                }()
+            ],
             // Content generation.
             [
                 {
@@ -226,7 +272,14 @@ class LanguageSettingsViewController: SettingsViewController {
                     return cell
                 }()
             ]
+            
         ]
+        
+        if !hasDuolingoArticles {
+            headers.remove(at: 4)
+            cells.remove(at: 4)
+        }
+        
     }
     
     override func updateViews() {
@@ -245,8 +298,16 @@ extension LanguageSettingsViewController {
         if indexPath.section == 0 && indexPath.row == 0 {
             let vc = LanguageSelectionViewController()
             vc.delegate = self
-            vc.langs = possibleTranslationLangsForCurLang
+            vc.langs = LangCode.currentLanguage.languagesForTranslation
             vc.selectedLang = selectedTranslationLang
+            navigationController?.pushViewController(
+                vc,
+                animated: true
+            )
+        } else if indexPath.section == 4 && indexPath.row == 0 {
+            let vc = DuolingoOnlySelectionViewController()
+            vc.delegate = self
+            vc.practiceType2isDuolingoOnly = self.practiceType2isDuolingoOnly
             navigationController?.pushViewController(
                 vc,
                 animated: true
@@ -259,8 +320,17 @@ extension LanguageSettingsViewController {
 extension LanguageSettingsViewController: LanguageSelectionViewControllerDelegate {
     
     func updateLanguage(as language: LangCode) {
-        cells[0][0].detailTextLabel?.text = language.rawValue
         selectedTranslationLang = language
+        cells[0][0].detailTextLabel?.text = language.rawValue
+    }
+    
+}
+
+extension LanguageSettingsViewController: DuolingoOnlySelectionViewControllerDelegate {
+
+    func updateselectionMapping(with selectionMapping: [DuolingoOnlySelectionViewController.PracticeType: Bool]) {
+        self.practiceType2isDuolingoOnly = selectionMapping
+        cells[4][0].textLabel?.text = textForDuolingoOnlyCell
     }
     
 }

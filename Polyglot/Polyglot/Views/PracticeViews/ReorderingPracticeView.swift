@@ -58,7 +58,7 @@ class ReorderingPracticeView: WordPracticeView {
     var translationLabel: UILabel = {
         let label = UILabel()
         label.textColor = Colors.normalTextColor
-//        label.font = UIFont.systemFont(ofSize: Sizes.practiceFontSize)
+        label.font = UIFont.systemFont(ofSize: Sizes.wordPracticeReorderingFontSize)
         label.numberOfLines = 0
         return label
     }()
@@ -66,7 +66,7 @@ class ReorderingPracticeView: WordPracticeView {
     var referenceLabel: UILabel = {
         let label = UILabel()
         label.textColor = Colors.normalTextColor
-        label.font = UIFont.systemFont(ofSize: Sizes.wordPracticeFontSize)
+        label.font = UIFont.systemFont(ofSize: Sizes.wordPracticeReorderingFontSize)
         label.isHidden = true
         label.numberOfLines = 0
         return label
@@ -99,7 +99,8 @@ class ReorderingPracticeView: WordPracticeView {
             rowStack = {
                 let rowNumber: Int = calculateRowNumber(
                     words: self.words,
-                    font: wordBankItemFont
+                    font: wordBankItemFont,
+                    itemHorizontalPadding: Self.rowStackHorizontalSpacing
                 )
                 let rows: [RowStackItem] = (0..<rowNumber).map { _ in RowStackItem() }
                 
@@ -168,7 +169,16 @@ class ReorderingPracticeView: WordPracticeView {
         self.translationLabel.text = translation
         
         // Determine the font size and font here.
-        self.wordBankItemFont = self.calculateWordBankItemFont(with: words)
+        let font1 = self.calculateWordBankItemFont(
+            with: self.words,
+            itemHorizontalPadding: Self.rowStackHorizontalSpacing
+        )
+        let font2 = self.calculateWordBankItemFont(
+            with: self.shuffledWords,
+            itemHorizontalPadding: WordBank.itemHorizontalPadding
+        )
+        self.wordBankItemFont = font1.pointSize < font2.pointSize ?
+            font1 : font2
         
         wordBank = WordBank(
             words: shuffledWords,
@@ -236,26 +246,27 @@ extension ReorderingPracticeView {
     
     // MARK: - DragAndDrop Views and Layouts
     
-    func calculateWordBankItemFont(with words: [String]) -> UIFont {
-        var wordBankItemFontSize: CGFloat = Sizes.wordPracticeFontSize
+    func calculateWordBankItemFont(with words: [String], itemHorizontalPadding: CGFloat) -> UIFont {
+        var wordBankItemFontSize: CGFloat = Sizes.wordPracticeReorderingFontSize
         while true {
             let nRows = self.calculateRowNumber(
-                words: self.words,
-                font: UIFont.systemFont(ofSize: wordBankItemFontSize)
+                words: words,
+                font: UIFont.systemFont(ofSize: wordBankItemFontSize),
+                itemHorizontalPadding: itemHorizontalPadding
             )
             if nRows <= Self.rowNumberLimit {
                 break
             }
             
             wordBankItemFontSize -= 1
-            if wordBankItemFontSize < Sizes.wordPracticeSmallestFontSize {
+            if wordBankItemFontSize < Sizes.wordPracticeReorderingSmallestFontSize {
                 break
             }
         }
         return UIFont.systemFont(ofSize: wordBankItemFontSize)
     }
     
-    func calculateRowNumber(words: [String], font: UIFont) -> Int {
+    func calculateRowNumber(words: [String], font: UIFont, itemHorizontalPadding: CGFloat) -> Int {
         
         var rowNumber: Int = 1
         var summedWidth: CGFloat = 0
@@ -272,7 +283,7 @@ extension ReorderingPracticeView {
                 rowNumber += 1
                 summedWidth = itemWidth
             }
-            summedWidth += ReorderingPracticeView.rowStackHorizontalSpacing
+            summedWidth += itemHorizontalPadding
         }
         
         return rowNumber
