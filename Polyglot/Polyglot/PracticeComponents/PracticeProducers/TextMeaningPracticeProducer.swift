@@ -16,21 +16,18 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
     private var nextPracticeIndex: Int?  // For immediate reinforcement.
 
     init(words: [Word], articles: [Article], isDuolingoOnly: Bool) {
-        var filteredArticles: [Article] = []
-        if isDuolingoOnly {
-            for article in articles {
-                if article.topic?.lowercased().strip() != "duolingo sentences" {
-                    continue
-                }
-                filteredArticles.append(article)
-            }
-        } else {
-            filteredArticles = articles
-        }
-        
         super.init(
             words: words, 
-            articles: filteredArticles
+            articles: articles.compactMap({ article in
+                if !isDuolingoOnly {
+                    return article
+                }
+                if article.topic?.lowercased().strip() == "duolingo sentences" {
+                    return article
+                } else {
+                    return nil
+                }
+            })
         )
     }
         
