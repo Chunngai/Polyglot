@@ -107,21 +107,3 @@ extension ReadingPracticeViewController {
     }
     
 }
-
-extension ReadingPracticeViewController {
-    
-    // MARK: - WordMarkingTextViewContentGenerationDelegate
-    
-    override func completedContentGeneration(wordMarkingTextView: WordMarkingTextView, content: String?) {
-        
-        super.completedContentGeneration(
-            wordMarkingTextView: wordMarkingTextView,
-            content: content
-        )
-        
-        if let practiceView = practiceView as? TextMeaningPracticeView {
-            practiceView.repetitionsLabel.isHidden = true
-        }
-    }
-    
-}

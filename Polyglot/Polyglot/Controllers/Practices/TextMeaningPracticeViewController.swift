@@ -139,7 +139,8 @@ class TextMeaningPracticeViewController: PracticeViewController {
                 width: view.frame.width,
                 height: newWordBottomViewHeight
             )
-            practiceView.textView.wordMarkingTextViewDelegate = self
+            practiceView.languageSelectionDelegate = self
+            practiceView.textView.urlOpenDelegate = self
         }
         
         mainView.bringSubviewToFront(doneButton)
@@ -266,33 +267,10 @@ extension TextMeaningPracticeViewController {
     
 }
 
-extension TextMeaningPracticeViewController: WordMarkingTextViewDelegate {
-    
-    // MARK: - WordMarkingTextViewContentGenerationDelegate
-    
-    @objc
-    func startedContentGeneration(wordMarkingTextView: WordMarkingTextView) {
-        
-        if let practiceView = practiceView as? TextMeaningPracticeView {
-            practiceView.repetitionsLabel.isHidden = true
-            practiceView.contentGenerationSpinner.isHidden = false
-            practiceView.contentGenerationSpinner.startAnimating()
-        }
-        
-    }
-    
-    @objc
-    func completedContentGeneration(wordMarkingTextView: WordMarkingTextView, content: String?) {
-        
-        if let practiceView = practiceView as? TextMeaningPracticeView {
-            practiceView.repetitionsLabel.isHidden = false
-            practiceView.contentGenerationSpinner.isHidden = true
-            practiceView.contentGenerationSpinner.stopAnimating()
-        }
-        
-    }
+extension TextMeaningPracticeViewController: WordMarkingTextViewURLOpenDelegate {
  
-    @objc
+    // MARK: - WordMarkingTextViewURLOpen Delegate
+    
     func openURL(wordMarkingTextView: WordMarkingTextView, urlString: String) {
         
         // https://stackoverflow.com/questions/39546856/how-to-open-a-url-in-swift
@@ -307,6 +285,41 @@ extension TextMeaningPracticeViewController: WordMarkingTextViewDelegate {
     
 }
 
+extension TextMeaningPracticeViewController: TextMeaningPracticeViewDelegate {
+    
+    // MARK: - TextMeaningPracticeView Delegate
+    
+    func showLanguageSelectionController(currentlySelectedLanguage: LangCode) {
+        
+        let vc = LanguageSelectionViewController()
+        vc.delegate = self
+        vc.langs = LangCode.currentLanguage.languagesForTranslation
+        vc.selectedLang = currentlySelectedLanguage
+        
+        navigationController?.navigationBar.backgroundColor = nil
+        navigationController?.pushViewController(
+            vc,
+            animated: true
+        )
+        
+    }
+ 
+}
+
+extension TextMeaningPracticeViewController: LanguageSelectionViewControllerDelegate {
+    
+    // MARK: - LanguageSelectionViewController Delegate
+    
+    func updateLanguage(as language: LangCode) {
+        
+        navigationController?.navigationBar.backgroundColor = Colors.defaultBackgroundColor
+        if let practiceView = practiceView as? TextMeaningPracticeView {
+            practiceView.updateMeaningLang(as: language)
+        }
+        
+    }
+    
+}
 
 extension TextMeaningPracticeViewController {
     

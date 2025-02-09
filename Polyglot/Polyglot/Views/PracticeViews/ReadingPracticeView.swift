@@ -98,3 +98,17 @@ class ReadingPracticeView: TextMeaningPracticeView {
     }
     
 }
+
+extension ReadingPracticeView {
+        
+    override func completedContentGeneration(wordMarkingTextView: WordMarkingTextView, content: String?) {
+        
+        super.completedContentGeneration(
+            wordMarkingTextView: wordMarkingTextView,
+            content: content
+        )
+        repetitionsLabel.isHidden = true
+        
+    }
+    
+}

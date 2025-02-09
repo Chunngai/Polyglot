@@ -97,7 +97,9 @@ class WordMarkingTextView: UITextView, UITextViewDelegate {
     
     // MARK: - Controllers
     
-    var wordMarkingTextViewDelegate: WordMarkingTextViewDelegate!
+    var contentGenerationDelegate: WordMarkingTextViewContentGenerationDelegate!
+    var urlOpenDelegate: WordMarkingTextViewURLOpenDelegate!
+    var tappingDelegate: WordMarkingTextViewTappingDelegate!
     
     private var sharedMenuController = UIMenuController.shared
     
@@ -302,52 +304,7 @@ extension WordMarkingTextView {
 
 extension WordMarkingTextView {
     
-    // MARK: - Content Generation
-    
-    private func generatorAndPrompt(word: String, generationType: ContentGenerationType) -> (
-        generator: (String, String, @escaping (String?) -> Void) -> Void,
-        prompt: String
-    ) {
-        var generator: (String, String, @escaping (String?) -> Void) -> Void
-        var prompt = ""
-        switch generationType {
-        case .memorization:
-            generator = generateContentWithLLM
-            prompt = Strings.wordMemorizationPrompt
-                .replacingOccurrences(
-                    of: Strings.wordMarkingTextViewContentGenerationLanguageNamePlaceHolder,
-                    with: Strings.languageNamesOfAllLanguages[LangCode.currentLanguage]![.en]!
-                )
-                .replacingOccurrences(
-                    of: Strings.wordMarkingTextViewContentGenerationWordPlaceHolder,
-                    with: word
-                )
-                .replacingOccurrences(
-                    of: "English/English",
-                    with: "English"
-                )
-        case .translation:
-            generator = generateWordTranslationContent
-        case .explanation:
-            generator = generateContentWithLLM
-            prompt = Strings.grammarExplanationPrompt
-                .replacingOccurrences(
-                    of: Strings.wordMarkingTextViewContentGenerationLanguageNamePlaceHolder,
-                    with: Strings.languageNamesOfAllLanguages[LangCode.currentLanguage]![.en]!
-                )
-                .replacingOccurrences(
-                    of: Strings.wordMarkingTextViewContentGenerationWordPlaceHolder,
-                    with: word
-                )
-        }
-        
-        return (
-            generator: generator,
-            prompt: prompt
-        )
-    }
-    
-    private func startTextColorTransitionAnimation(for range: NSRange) {
+    func startTextColorTransitionAnimation(for range: NSRange) {
 
         func animateToIntermidiateColor() {
             
@@ -396,6 +353,51 @@ extension WordMarkingTextView {
         }
         
         animateToIntermidiateColor()
+    }
+    
+    // MARK: - Content Generation
+    
+    private func generatorAndPrompt(word: String, generationType: ContentGenerationType) -> (
+        generator: (String, String, @escaping (String?) -> Void) -> Void,
+        prompt: String
+    ) {
+        var generator: (String, String, @escaping (String?) -> Void) -> Void
+        var prompt = ""
+        switch generationType {
+        case .memorization:
+            generator = generateContentWithLLM
+            prompt = Strings.wordMemorizationPrompt
+                .replacingOccurrences(
+                    of: Strings.wordMarkingTextViewContentGenerationLanguageNamePlaceHolder,
+                    with: Strings.languageNamesOfAllLanguages[LangCode.currentLanguage]![.en]!
+                )
+                .replacingOccurrences(
+                    of: Strings.wordMarkingTextViewContentGenerationWordPlaceHolder,
+                    with: word
+                )
+                .replacingOccurrences(
+                    of: "English/English",
+                    with: "English"
+                )
+        case .translation:
+            generator = generateWordTranslationContent
+        case .explanation:
+            generator = generateContentWithLLM
+            prompt = Strings.grammarExplanationPrompt
+                .replacingOccurrences(
+                    of: Strings.wordMarkingTextViewContentGenerationLanguageNamePlaceHolder,
+                    with: Strings.languageNamesOfAllLanguages[LangCode.currentLanguage]![.en]!
+                )
+                .replacingOccurrences(
+                    of: Strings.wordMarkingTextViewContentGenerationWordPlaceHolder,
+                    with: word
+                )
+        }
+        
+        return (
+            generator: generator,
+            prompt: prompt
+        )
     }
     
     private func generateContentWithLLM(for word: String, with prompt: String, completion: @escaping (String?) -> Void) {
@@ -604,7 +606,7 @@ extension WordMarkingTextView {
         contentGenerationInfoList.append(contentGenerationInfoForThisWord)
         let contentGenerationInfoIndexForThisWord = contentGenerationInfoList.count - 1
         
-        self.wordMarkingTextViewDelegate.startedContentGeneration(wordMarkingTextView: self)
+        self.contentGenerationDelegate.startedContentGeneration(wordMarkingTextView: self)
                         
         // Store original text colors (e.g., black colors for normal texts and red colors for wrong characters in clozes)
         // for text color restoring after the color animation.
@@ -646,7 +648,7 @@ extension WordMarkingTextView {
         ) { content in
             
             DispatchQueue.main.async {
-                self.wordMarkingTextViewDelegate.completedContentGeneration(
+                self.contentGenerationDelegate.completedContentGeneration(
                     wordMarkingTextView: self,
                     content: content
                 )
@@ -732,7 +734,7 @@ extension WordMarkingTextView {
         )
         
         // Regenerate the content.
-        wordMarkingTextViewDelegate.startedContentGeneration(wordMarkingTextView: self)
+        contentGenerationDelegate.startedContentGeneration(wordMarkingTextView: self)
         
         self.startTextColorTransitionAnimation(for: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange)
         self.isColorAnimating = true
@@ -747,7 +749,7 @@ extension WordMarkingTextView {
         ) { content in
             
             DispatchQueue.main.async {
-                self.wordMarkingTextViewDelegate.completedContentGeneration(
+                self.contentGenerationDelegate.completedContentGeneration(
                     wordMarkingTextView: self,
                     content: content
                 )
@@ -996,6 +998,8 @@ extension WordMarkingTextView {
             }
         }
         
+        tappingDelegate.tapped(at: tappedTextRange)
+        
     }
     
     @objc private func newWordMenuItemTapped() {
@@ -1092,7 +1096,7 @@ extension WordMarkingTextView {
             urlString = "https://en.openrussian.org/ru/яблоко?search=\(word)"
         }
         
-        wordMarkingTextViewDelegate.openURL(wordMarkingTextView: self, urlString: urlString)
+        urlOpenDelegate.openURL(wordMarkingTextView: self, urlString: urlString)
         
     }
     
@@ -1293,11 +1297,20 @@ extension WordMarkingTextView {
     
 }
 
-protocol WordMarkingTextViewDelegate {
+protocol WordMarkingTextViewContentGenerationDelegate {
     
     func startedContentGeneration(wordMarkingTextView: WordMarkingTextView)
     func completedContentGeneration(wordMarkingTextView: WordMarkingTextView, content: String?)
+}
+
+protocol WordMarkingTextViewURLOpenDelegate {
     
     func openURL(wordMarkingTextView: WordMarkingTextView, urlString: String)
+    
+}
+
+protocol WordMarkingTextViewTappingDelegate {
+    
+    func tapped(at tappedTextRange: UITextRange)
     
 }

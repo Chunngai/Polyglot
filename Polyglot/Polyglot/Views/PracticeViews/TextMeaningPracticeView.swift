@@ -29,6 +29,9 @@ class TextMeaningPracticeView: BasePracticeView {
     var lowerString: String!
     
     var unselectableRanges: [NSRange] = []
+
+    var rangeOfTranslatorIcon: NSRange?
+    var rangeOfTranslationText: NSRange?
     
     var shouldReinforce: Bool = false {
         didSet {
@@ -47,6 +50,10 @@ class TextMeaningPracticeView: BasePracticeView {
             updateRepetitionLabelText()
         }
     }
+    
+    // MARK: - Controllers
+    
+    var languageSelectionDelegate: TextMeaningPracticeViewDelegate!
     
     // MARK: - Views
     
@@ -196,6 +203,8 @@ class TextMeaningPracticeView: BasePracticeView {
     
     func updateSetups() {
         textView.delegate = self
+        textView.contentGenerationDelegate = self
+        textView.tappingDelegate = self
         
         reinforceButton.addTarget(
             self,
@@ -273,6 +282,13 @@ class TextMeaningPracticeView: BasePracticeView {
                 length: 2  // Icon + space.
             )
             unselectableRanges.append(iconRange)
+
+            if upperIcon == translatorIcon {
+                rangeOfTranslatorIcon = NSRange(
+                    location: attributedText.length,
+                    length: 1
+                )
+            }
             
             attributedText.append(textView.imageAttributedString(
                 icon: upperIcon,
@@ -293,6 +309,12 @@ class TextMeaningPracticeView: BasePracticeView {
             string: upperString,
             attributes: textView.defaultTextAttributes
         ))
+        if let upperIcon = upperIcon, upperIcon == translatorIcon {
+            rangeOfTranslationText = NSRange(
+                location: attributedText.length - upperString.utf16.count,
+                length: upperString.utf16.count
+            )
+        }
         
         textView.attributedText = attributedText
     }
@@ -309,6 +331,13 @@ class TextMeaningPracticeView: BasePracticeView {
                 length: 2  // Icon + space.
             )
             unselectableRanges.append(iconRange)
+
+            if lowerIcon == translatorIcon {
+                rangeOfTranslatorIcon = NSRange(
+                    location: attributedText.length,
+                    length: 1
+                )
+            }
             
             attributedText.append(textView.imageAttributedString(
                 icon: lowerIcon,
@@ -329,6 +358,12 @@ class TextMeaningPracticeView: BasePracticeView {
             string: lowerString,
             attributes: textView.defaultTextAttributes
         ))
+        if let lowerIcon = lowerIcon, lowerIcon == translatorIcon {
+            rangeOfTranslationText = NSRange(
+                location: attributedText.length - lowerString.utf16.count,
+                length: lowerString.utf16.count
+            )
+        }
 
         textView.attributedText = attributedText
     }
@@ -451,6 +486,147 @@ extension TextMeaningPracticeView: UITextViewDelegate {
     
 }
 
+extension TextMeaningPracticeView: WordMarkingTextViewContentGenerationDelegate {
+    
+    @objc
+    func startedContentGeneration(wordMarkingTextView: WordMarkingTextView) {
+        
+        repetitionsLabel.isHidden = true
+        contentGenerationSpinner.isHidden = false
+        contentGenerationSpinner.startAnimating()
+        
+    }
+    
+    @objc
+    func completedContentGeneration(wordMarkingTextView: WordMarkingTextView, content: String?) {
+        
+        repetitionsLabel.isHidden = false
+        contentGenerationSpinner.isHidden = true
+        contentGenerationSpinner.stopAnimating()
+        
+    }
+    
+}
+
+extension TextMeaningPracticeView: WordMarkingTextViewTappingDelegate {
+    
+    func tapped(at tappedTextRange: UITextRange) {
+        
+        guard let rangeOfTranslatorIcon = rangeOfTranslatorIcon else {
+            return
+        }
+        
+        let tappedRange = textView.nsRange(from: tappedTextRange)
+        
+        var isMatched = false
+        for offset in [0, 1, 2] {
+            let r = NSRange(
+                location: rangeOfTranslatorIcon.location + offset,
+                length: rangeOfTranslatorIcon.length
+            )
+            if r.location == tappedRange.location {
+                isMatched = true
+            }
+        }
+        if !isMatched {
+            return
+        }
+        
+        languageSelectionDelegate.showLanguageSelectionController(currentlySelectedLanguage: self.meaningLang)
+    }
+    
+}
+
+extension TextMeaningPracticeView {
+        
+    func updateMeaningLang(as language: LangCode) {
+
+        guard language != self.meaningLang else {
+            return
+        }
+        guard self.rangeOfTranslatorIcon != nil else {
+            return
+        }
+        guard self.rangeOfTranslationText != nil else {
+            return
+        }
+        guard let originalMeaning = self.meaning else {
+            return
+        }
+        
+        self.meaningLang = language
+        
+        textView.isColorAnimating = true
+        textView.startTextColorTransitionAnimation(for: self.rangeOfTranslationText!)
+        MachineTranslator(
+            srcLang: self.textLang,
+            trgLang: self.meaningLang
+        ).translate(query: self.text) { translations, translatorType in
+            
+            self.textView.isColorAnimating = false
+            
+            guard let translation = translations.first else {
+                return
+            }
+                                    
+            self.meaning = translation
+            self.machineTranslatorType = translatorType
+            
+            // Update the translator icon and the translation text.
+            DispatchQueue.main.async {
+                
+                self.textView.textStorage.replaceCharacters(
+                    in: self.rangeOfTranslatorIcon!,
+                    with: self.textView.imageAttributedString(
+                        icon: self.translatorIcon,
+                        font: self.iconFont
+                    )
+                )
+                // Should add attrs for the icon.
+                // Else the attrs are lost.
+                self.textView.textStorage.addAttributes(
+                    self.textView.defaultTextAttributes,
+                    range: self.rangeOfTranslatorIcon!
+                )
+                
+                self.textView.textStorage.replaceCharacters(
+                    in: self.rangeOfTranslationText!,
+                    with: NSAttributedString(
+                        string: translation,
+                        attributes: self.textView.defaultTextAttributes
+                    )
+                )
+                self.rangeOfTranslationText = NSRange(
+                    location: self.rangeOfTranslationText!.location,
+                    length: self.meaning.utf16.count
+                )
+                
+                // TODO: - Proper to write here?
+                
+                let lengthDiff = translation.utf16.count - originalMeaning.utf16.count
+                for (i, info) in self.textView.contentGenerationInfoList.enumerated() {
+                    guard info != nil else {
+                        continue
+                    }
+                    self.textView.contentGenerationInfoList[i]!.refreshIconNSRange = NSRange(
+                        location: info!.refreshIconNSRange.location + lengthDiff,
+                        length: info!.refreshIconNSRange.length
+                    )
+                    self.textView.contentGenerationInfoList[i]!.contentNSRange = NSRange(
+                        location: info!.contentNSRange.location + lengthDiff,
+                        length: info!.contentNSRange.length
+                    )
+                }
+                
+            }
+                                       
+        }
+        
+    }
+    
+}
+
+
 extension TextMeaningPracticeView {
     
     // MARK: - Selectors
@@ -461,5 +637,11 @@ extension TextMeaningPracticeView {
         shouldReinforce.toggle()
         
     }
+    
+}
+
+protocol TextMeaningPracticeViewDelegate {
+    
+    func showLanguageSelectionController(currentlySelectedLanguage: LangCode)
     
 }
