@@ -161,10 +161,24 @@ class WordsPracticeViewController: PracticeViewController {
             string: currentPractice.prompt,
             attributes: Attributes.practicePromptAttributes
         )
-        promptAttributes.add(
-            attributes: Attributes.practiceWordAttributes,
-            for: currentPractice.query
-        )
+        // Highlight the practice word.
+//        promptAttributes.add(
+//            attributes: Attributes.practiceWordAttributes,
+//            for: currentPractice.query
+//        )
+        if let rangeOfPracticeWord = currentPractice.prompt.range(
+            of: currentPractice.query,
+            options: .backwards
+        ) {
+            let nsRangeOfPracticeWord = NSRange(
+                rangeOfPracticeWord,
+                in: currentPractice.prompt
+            )
+            promptAttributes.addAttributes(
+                Attributes.practiceWordAttributes,
+                range: nsRangeOfPracticeWord
+            )
+        }
         promptLabel.attributedText = promptAttributes
         
         // Remove the old practice view.

@@ -19,7 +19,7 @@ class WordPracticeProducer: BasePracticeProducer {
             guard let wordPractice = wordPractice as? WordPractice else {
                 continue
             }
-            let word = wordPractice.word
+            let word = wordPractice.word.lowercased().replacingOccurrences(of: String(Token.accentSymbol), with: "")
             if word2count.keys.contains(word) {
                 word2count[word]! += 1
             } else {
@@ -60,6 +60,25 @@ class WordPracticeProducer: BasePracticeProducer {
         if !cachedWordPractices.isEmpty {
             self.practiceList.append(contentsOf: cachedWordPractices)
             self.practiceList.shuffle()
+            
+            var numberOfAnalyzedWords = 0
+            for word in Self.word2count.keys {
+                analyzeAccents(for: word) { tokens, _, _ in
+                    
+                    numberOfAnalyzedWords += 1
+                    
+                    guard !tokens.isEmpty else {
+                        return
+                    }
+                    
+                    let accentedWord = tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)
+                    self.word2AccentedWord[word] = accentedWord
+                    
+                    if numberOfAnalyzedWords >= Self.word2count.keys.count {
+                        self.addAccentsToPractices()
+                    }
+                }
+            }
         }
         
     }
@@ -79,10 +98,12 @@ class WordPracticeProducer: BasePracticeProducer {
         
     }
     
+    private var word2AccentedWord: [String:String] = [:]
     override func cache() {
         guard var practicesToCache = self.practiceList as? [WordPractice] else {
             return
         }
+        self.addAccentsToPractices()
         WordPracticeProducer.save(
             &practicesToCache,
             for: LangCode.currentLanguage
@@ -92,7 +113,80 @@ class WordPracticeProducer: BasePracticeProducer {
 
 extension WordPracticeProducer {
     
+    private func addAccentsToPractices() {
+        
+        guard 
+            LangCode.currentLanguage == .ja
+                || LangCode.currentLanguage == .ru
+        else {
+            return
+        }
+        
+        for practice in self.practiceList {
+            
+            guard let practice = practice as? WordPractice else {
+                continue
+            }
+            
+            guard practice.practiceType != .accentSelection else {
+                continue
+            }
+            
+            guard word2AccentedWord.keys.contains(practice.word) else {
+                continue
+            }
+            
+            for (word, accentedWord) in word2AccentedWord {
+                practice.word = practice.word.replacingOccurrences(
+                    of: word,
+                    with: accentedWord
+                )
+                practice.query = practice.query.replacingOccurrences(
+                    of: word,
+                    with: accentedWord
+                )
+                practice.key = practice.key.replacingOccurrences(
+                    of: word,
+                    with: accentedWord
+                )
+                practice.prompt = practice.prompt.replacingOccurrences(
+                    of: word,
+                    with: accentedWord
+                )
+                if practice.context != nil {
+                    practice.context! = practice.context!.replacingOccurrences(
+                        of: word,
+                        with: accentedWord
+                    )
+                }
+            }
+            
+            if practice.choices != nil {
+                for (i, choice) in practice.choices!.enumerated() {
+                    if word2AccentedWord.keys.contains(choice) {
+                        practice.choices![i] = word2AccentedWord[choice]!
+                    }
+                }
+            }
+            
+            if practice.reorderingWordList != nil {
+                practice.reorderingWordList = practice.key.split(with: Strings.wordSeparator)
+            }
+            
+        }
+    }
+    
     func makeAndCachePractices(for words: [String]) {
+        
+        for word in words {
+            analyzeAccents(for: word) { tokens, _, _ in
+                guard !tokens.isEmpty else {
+                    return
+                }
+                let accentedWord = tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)
+                self.word2AccentedWord[word] = accentedWord
+            }
+        }
         
         let nRepetitions = LangCode.currentLanguage.configs.wordPracticeRepetition
         for word in words {
