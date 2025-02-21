@@ -34,9 +34,10 @@ func analyzeAccents(for text: String, completion: @escaping (
         guard LangCode.currentLanguage == word2langForAccentAnalysis[text] else {
             return
         }
-        if word2langForAccentAnalysis.keys.contains(text) {
-            word2langForAccentAnalysis.removeValue(forKey: text)
-        }
+        // TODO: -  The following commented code leads to crash.
+//        if word2langForAccentAnalysis.keys.contains(text) {
+//            word2langForAccentAnalysis.removeValue(forKey: text)
+//        }
         completion(
             tokens,
             fixedText,
