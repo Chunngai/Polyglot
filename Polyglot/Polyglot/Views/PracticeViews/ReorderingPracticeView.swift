@@ -59,7 +59,8 @@ class ReorderingPracticeView: WordPracticeView {
         let label = UILabel()
         label.textColor = Colors.normalTextColor
         label.font = UIFont.systemFont(ofSize: Sizes.wordPracticeReorderingFontSize)
-        label.numberOfLines = 0
+        label.numberOfLines = ReorderingPracticeView.translationLabelRowNumberLimit
+        label.adjustsFontSizeToFitWidth = true
         return label
     }()
     
@@ -733,5 +734,6 @@ extension ReorderingPracticeView {
     static let rowStackVerticalSpacing: CGFloat = 6
     
     static let rowNumberLimit: Int = 5
+    static let translationLabelRowNumberLimit: Int = 4
     
 }

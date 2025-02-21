@@ -149,9 +149,13 @@ extension WordPracticeProducer {
                     of: word,
                     with: accentedWord
                 )
-                practice.prompt = practice.prompt.replacingOccurrences(
-                    of: word,
-                    with: accentedWord
+//                practice.prompt = practice.prompt.replacingOccurrences(
+//                    of: word,
+//                    with: accentedWord
+//                )
+                practice.prompt = prompt(
+                    for: practice.practiceType,
+                    withWord: practice.query
                 )
                 if practice.context != nil {
                     practice.context! = practice.context!.replacingOccurrences(

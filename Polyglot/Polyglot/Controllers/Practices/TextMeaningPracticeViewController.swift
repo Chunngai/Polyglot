@@ -257,12 +257,13 @@ extension TextMeaningPracticeViewController {
             reinforcementWords.append(word)
         }
         
-        let wordPracticeProducer = WordPracticeProducer(
-            words: words,
-            articles: articles
-        )
-        wordPracticeProducer.makeAndCachePractices(for: reinforcementWords)
-        
+        DispatchQueue.global(qos: .userInitiated).async {
+            let wordPracticeProducer = WordPracticeProducer(
+                words: self.words,
+                articles: self.articles
+            )
+            wordPracticeProducer.makeAndCachePractices(for: reinforcementWords)
+        }
     }
     
 }
