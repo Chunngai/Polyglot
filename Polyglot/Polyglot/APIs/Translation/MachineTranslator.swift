@@ -11,6 +11,7 @@ import Foundation
 enum MachineTranslatorType: String, Codable {
     
     case google
+    case gpt
     case baidu
     case none
     
@@ -18,6 +19,8 @@ enum MachineTranslatorType: String, Codable {
         // https://medium.com/@mahigarg/type-checking-is-operator-in-swift-7a4f72ccb12e#:~:text=In%20Swift%2C%20the%20is%20keyword,or%20a%20more%20specific%20type.
         if translator is GoogleTranslator {
             self = .google
+        } else if translator is GPTTranslator {
+            self = .gpt
         } else if translator is BaiduTranslator {
             self = .baidu
         } else {
@@ -40,6 +43,10 @@ struct MachineTranslator {
         
         self.translators = [
             GoogleTranslator(
+                srcLang: srcLang,
+                trgLang: trgLang
+            ),
+            GPTTranslator(
                 srcLang: srcLang,
                 trgLang: trgLang
             ),

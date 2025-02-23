@@ -119,6 +119,7 @@ class TextMeaningPracticeView: BasePracticeView {
     var translatorIcon: UIImage {
         switch machineTranslatorType {
         case .google: return Icons.googleTranslateIcon
+        case .gpt: return Icons.chatgptIcon
         case .baidu: return Icons.baiduTranslateIcon
         default: return UIImage.init(systemName: "questionmark.square.dashed")!
         }
