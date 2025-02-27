@@ -29,7 +29,7 @@ struct GPTTranslator: TranslationProtocol {
         }
         
         self.gpt.createContent(
-            withPrompt: "Translate the following sentence from \(Strings.languageNamesOfAllLanguages[self.srcLang]![LangCode.en]!) to \(Strings.languageNamesOfAllLanguages[self.trgLang]![LangCode.en]!): \(query)."
+            withPrompt: "Translate the following sentence from \(Strings.languageNamesOfAllLanguages[self.srcLang]![LangCode.en]!) to \(Strings.languageNamesOfAllLanguages[self.trgLang]![LangCode.en]!) without explaining: \(query)."
         ) { gptResponse in
             
             guard let translation = gptResponse else {
