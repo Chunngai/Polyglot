@@ -88,10 +88,26 @@ class SelectionPracticeView: WordPracticeView {
                 let textRect = textView.layoutManager.boundingRect(forGlyphRange: nsRange, in: textView.textContainer)
                 let centerOffsetY = (textView.bounds.height - textRect.height) / 2 - textRect.minY
                 let contentOffsetY = textView.contentOffset.y - centerOffsetY
-                if contentOffsetY > 0 {
-                    let contentOffset = CGPoint(x: 0, y: contentOffsetY)
-                    textView.setContentOffset(contentOffset, animated: false)
-                }
+                let maxContentOffsetY = textView.contentSize.height - textView.bounds.height
+                let adjustedContentOffsetY = min(  // Ensure that the scrolling will not result in a large space at the end of the text view (e.g., when the underscore is near the end of the text).
+                    max(  // Ensure that the underscore is not currently at the visible area of the text view.
+                        contentOffsetY, 
+                        0
+                    ), 
+                    maxContentOffsetY
+                )
+                let contentOffset = CGPoint(
+                    x: 0, 
+                    y: contentOffsetY
+                )
+                textView.setContentOffset(
+                    contentOffset, 
+                    animated: false
+                )
+                // if contentOffsetY > 0 {
+                //     let contentOffset = CGPoint(x: 0, y: contentOffsetY)
+                //     textView.setContentOffset(contentOffset, animated: false)
+                // }
             }
         }
     }
