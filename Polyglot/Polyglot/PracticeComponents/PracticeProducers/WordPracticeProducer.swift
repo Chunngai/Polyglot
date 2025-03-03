@@ -484,6 +484,7 @@ extension WordPracticeProducer {
         var selectionAccentsList = [tokens.accentLocs]
         var selectionTexts = [tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)]
         // Randomly generate two accent sequences.
+        var maxNTries: Int = Self.defaultChoiceNumber * 3
         while true {
             // Generate a random accent sequence.
             let selectionAccents = generateRandomAccentLocs(for: tokens)
@@ -495,6 +496,11 @@ extension WordPracticeProducer {
             
             if selectionAccentsList.count == Self.defaultChoiceNumber {
                 break
+            }
+
+            maxNTries -= 1
+            if maxNTries <= 0 {
+                return nil
             }
         }
                 
