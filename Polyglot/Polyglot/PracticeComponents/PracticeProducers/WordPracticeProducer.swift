@@ -50,7 +50,9 @@ class WordPracticeProducer: BasePracticeProducer {
             Self.word2count = Self.getWord2Count(from: self.practiceList)
         }
     }
-    
+
+    private var lang: LangCode = LangCode.currentLanguage
+        
     // MARK: - Init
     
     override init(words: [Word], articles: [Article]) {
@@ -106,7 +108,7 @@ class WordPracticeProducer: BasePracticeProducer {
         self.addAccentsToPractices()
         WordPracticeProducer.save(
             &practicesToCache,
-            for: LangCode.currentLanguage
+            for: self.lang
         )
     }
 }
@@ -116,8 +118,8 @@ extension WordPracticeProducer {
     private func addAccentsToPractices() {
         
         guard 
-            LangCode.currentLanguage == .ja
-                || LangCode.currentLanguage == .ru
+            self.lang == .ja
+                || self.lang == .ru
         else {
             return
         }
@@ -192,7 +194,7 @@ extension WordPracticeProducer {
             }
         }
         
-        let nRepetitions = LangCode.currentLanguage.configs.wordPracticeRepetition
+        let nRepetitions = self.lang.configs.wordPracticeRepetition
         for word in words {
             
             machineTranslator.translate(query: word) { translations, _ in
@@ -527,7 +529,7 @@ extension WordPracticeProducer {
             return
         }
         
-        let sentences = candidate.text.tokenized(with: LangCode.currentLanguage.sentenceTokenizer)
+        let sentences = candidate.text.tokenized(with: self.lang.sentenceTokenizer)
         guard let targetSentence = sentences.first(where: { (sentence) -> Bool in
             sentence.contains(query)
         }) else {
@@ -548,9 +550,9 @@ extension WordPracticeProducer {
         
         // Reduce the number of tokens.
         // TODO: - Improvement.
-        let rawWords = targetSubSentence.tokenized(with: LangCode.currentLanguage.wordTokenizer)
+        let rawWords = targetSubSentence.tokenized(with: self.lang.wordTokenizer)
         var words: [String] = []
-        if LangCode.currentLanguage == LangCode.ja {
+        if self.lang == LangCode.ja {
             var indexOfLastWord: Int = -1
             for i in 0..<rawWords.count {
                 let rawWord = rawWords[i]
