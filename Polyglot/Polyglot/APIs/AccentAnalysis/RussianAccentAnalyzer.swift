@@ -41,26 +41,24 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
         }
     }
     
-    private var context: NSManagedObjectContext {
-        return persistentContainer.viewContext
-    }
+    // private var context: NSManagedObjectContext {
+    //     return persistentContainer.viewContext
+    // }
     
     // MARK: - AccentAnalyzerProtocol
     
     // Singleton object.
     static var shared: AccentAnalyzerProtocol = RussianAccentAnalyzer()
     
-    private func fix(_ text: String) -> String {
+    private func fixJeJo(_ text: String, context: NSManagedObjectContext) -> String {
         
         var fixedText: String = text
-        
-        let tokens = text.tokenized(with: LangCode.ru.wordTokenizer)
-        for token in tokens {
+        for token in text.tokenized(with: LangCode.ru.wordTokenizer) {
             
             guard token.contains("е") || token.contains("Е") else {
                 continue
             }
-            
+                            
             let request = Je2JoEntity.fetchRequest()
             let predicate = NSPredicate(
                 format: "je_text = %@",
@@ -70,14 +68,15 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
             
             var r: [Je2JoEntity] = []
             do {
-                r = try self.context.fetch(request)
+                r = try context.fetch(request)
             } catch let error {
                 print(error.localizedDescription)
-            }
-            
-            guard !r.isEmpty else {
                 continue
             }
+            guard r.count == 1 else {
+                continue
+            }
+            
             let jo_pos = Int(r[0].jo_pos)
             
             var tokenChars = [Character](token)
@@ -94,8 +93,56 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
             )
             
         }
-        
         return fixedText
+        
+    }
+    
+    func getTokens(_ text: String, context: NSManagedObjectContext) -> [Token] {
+        
+        var tokens: [Token] = []
+        for query in text.lowercased().tokensWithPunctMarks {
+            
+            let request = RussianAccentEntity.fetchRequest()
+            let predicate = NSPredicate(
+                format: "bare_form = %@",
+                query
+            )
+            request.predicate = predicate
+            
+            var r: [RussianAccentEntity] = []
+            do {
+                // let r = try self.context.fetch(request)
+                // The previous line of code occasionally craches.
+                // Not sure if it is a problem about context.
+                // Ref: https://stackoverflow.com/questions/52673217/app-crashing-when-fetching-nsobjects-from-background
+                // https://developer.apple.com/documentation/coredata/using-core-data-in-the-background
+                // https://developer.apple.com/documentation/swiftui/loading_and_displaying_a_large_data_feed
+                r = try context.fetch(request)
+            } catch let error {
+                print(error.localizedDescription)
+            }
+            
+            var baseForm: String? = nil
+            var accentLoc: Int? = nil
+            if !r.isEmpty {
+                if let base_form = r[0].base_form {
+                    baseForm = base_form
+                }
+                if r[0].accent_pos != -1 {  // Has accent pos when != -1.
+                    accentLoc = Int(r[0].accent_pos - 1)
+                }
+            }
+            
+            let token = Token(
+                text: query,
+                baseForm: baseForm,
+                pronunciation: query,
+                accentLoc: accentLoc
+            )
+            tokens.append(token)
+        }
+        return tokens
+        
     }
     
     func analyze(for text: String, completion: @escaping (
@@ -103,49 +150,21 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
         String?  // Fixed text.
     ) -> Void) {
         
-        DispatchQueue.global(qos: .userInitiated).async {
+        // DispatchQueue.global(qos: .userInitiated).async {
+        
+        print("RussianAccentAnalyzer: analyzing \"\(text)\".")
+        
+        let context = persistentContainer.newBackgroundContext()
+        context.perform {
             
-            print("RussianAccentAnalyzer: analyzing \"\(text)\".")
-            
-            let fixedText = self.fix(text)
-            
-            var tokens: [Token] = []
-            for query in fixedText.lowercased().tokensWithPunctMarks {
-                
-                let request = RussianAccentEntity.fetchRequest()
-                let predicate = NSPredicate(
-                    format: "bare_form = %@",
-                    query
-                )
-                request.predicate = predicate
-                
-                do {
-                    let r = try self.context.fetch(request)
-                    
-                    var baseForm: String? = nil
-                    var accentLoc: Int? = nil
-                    if !r.isEmpty {
-                        if let base_form = r[0].base_form {
-                            baseForm = base_form
-                        }
-                        if r[0].accent_pos != -1 {  // Has accent pos when != -1.
-                            accentLoc = Int(r[0].accent_pos - 1)
-                        }
-                    }
-                    
-                    let token = Token(
-                        text: query,
-                        baseForm: baseForm,
-                        pronunciation: query,
-                        accentLoc: accentLoc
-                    )
-                    tokens.append(token)
-                    
-                } catch let error {
-                    print(error.localizedDescription)
-                }
-            }
-            
+            let fixedText = self.fixJeJo(
+                text,
+                context: context
+            )
+            let tokens = self.getTokens(
+                fixedText,
+                context: context
+            )
             completion(
                 tokens,
                 (
@@ -154,12 +173,13 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
                     : fixedText
                 )
             )
+            
         }
         
     }
     
 }
- 
+
 extension RussianAccentAnalyzer {
     
     class D: Codable {
@@ -199,6 +219,8 @@ extension RussianAccentAnalyzer {
             print(error.localizedDescription)
         }
         
+        let context = persistentContainer.viewContext
+        
         // Clear all data.
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = RussianAccentEntity.fetchRequest()
         let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
@@ -210,7 +232,7 @@ extension RussianAccentAnalyzer {
         } catch {
             print("Error when deleting data: \(error)")
         }
-
+        
         var entityCount: Int = 0
         for (bare_form, d) in bare2d {
             
@@ -296,6 +318,8 @@ extension RussianAccentAnalyzer {
             print(error.localizedDescription)
         }
         
+        let context = persistentContainer.viewContext
+        
         // Clear all data.
         let fetchRequest: NSFetchRequest<NSFetchRequestResult> = Je2JoEntity.fetchRequest()
         let batchDeleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
@@ -307,7 +331,7 @@ extension RussianAccentAnalyzer {
         } catch {
             print("Error when deleting data: \(error)")
         }
-
+        
         var entityCount: Int = 0
         for d in l {
             
