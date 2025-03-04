@@ -123,12 +123,7 @@ class ReorderingPracticeView: WordPracticeView {
                 make.centerX.equalToSuperview()
                 make.bottom.equalToSuperview().offset(-10)
             }
-            referenceLabel.snp.makeConstraints { (make) in
-                make.top.equalTo(wordBank.snp.top)
-                make.left.equalTo(wordBank.snp.left)
-                make.width.equalTo(wordBank.snp.width)
-            }
-            
+
             rowStack.snp.makeConstraints { (make) in
                 make.bottom.equalTo(wordBank.snp.top).offset(-(
                     rowHeight
@@ -223,7 +218,16 @@ class ReorderingPracticeView: WordPracticeView {
                     item.view.removeFromSuperview()
                 }
             }
-            
+
+            referenceLabel.snp.makeConstraints { (make) in
+                if let lastItemInRowStack = itemsInRowStack.last {
+                    make.top.equalTo(lastItemInRowStack.snp.top)
+                else {
+                    make.top.equalTo(wordBank.snp.top)
+                }
+                make.left.equalTo(wordBank.snp.left)
+                make.width.equalTo(wordBank.snp.width)
+            }
             referenceLabel.isHidden = false
             referenceLabel.text = "\(Strings.referenceLabelPrefix)\(key)"
         }
