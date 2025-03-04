@@ -11,48 +11,24 @@ import UIKit
 import NaturalLanguage
 
 class WordPracticeProducer: BasePracticeProducer {
-        
-    static func getWord2Count(from practiceList: [BasePractice]) -> [String: Int] {
-        
-        var word2count: [String: Int] = [:]
-        for wordPractice in practiceList {
-            guard let wordPractice = wordPractice as? WordPractice else {
-                continue
-            }
-            let word = wordPractice.word.lowercased().replacingOccurrences(of: String(Token.accentSymbol), with: "")
-            if word2count.keys.contains(word) {
-                word2count[word]! += 1
-            } else {
-                word2count[word] = 1
-            }
-        }
-        return word2count
-        
-    }
-    static var word2countMapping: [LangCode: [String: Int]] = {
-        var mapping: [LangCode: [String: Int]] = [:]
-        for lang in LangCode.learningLanguages {
-            mapping[lang] = WordPracticeProducer.getWord2Count(from: WordPracticeProducer.loadCachedPractices(for: lang))
-        }
-        return mapping
-    }()
-    static var word2count: [String: Int] {
+    
+    private var lang: LangCode = LangCode.currentLanguage
+
+    private var word2count: [String: Int] {
         get {
-            return WordPracticeProducer.word2countMapping[LangCode.currentLanguage]!
+            return WordPracticeProducer.word2countMapping[self.lang]!
         }
         set {
-            WordPracticeProducer.word2countMapping[LangCode.currentLanguage]! = newValue
+            WordPracticeProducer.word2countMapping[self.lang]! = newValue
         }
     }
     
     override var practiceList: [BasePractice] {
         didSet {
-            Self.word2count = Self.getWord2Count(from: self.practiceList)
+            self.word2count = Self.getWord2Count(from: self.practiceList)
         }
     }
 
-    private var lang: LangCode = LangCode.currentLanguage
-        
     // MARK: - Init
     
     override init(words: [Word], articles: [Article]) {
@@ -64,7 +40,7 @@ class WordPracticeProducer: BasePracticeProducer {
             self.practiceList.shuffle()
             
             var numberOfAnalyzedWords = 0
-            for word in Self.word2count.keys {
+            for word in self.word2count.keys {
                 analyzeAccents(for: word) { tokens, _, _ in
                     
                     numberOfAnalyzedWords += 1
@@ -76,7 +52,7 @@ class WordPracticeProducer: BasePracticeProducer {
                     let accentedWord = tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)
                     self.word2AccentedWord[word] = accentedWord
                     
-                    if numberOfAnalyzedWords >= Self.word2count.keys.count {
+                    if numberOfAnalyzedWords >= self.word2count.keys.count {
                         self.addAccentsToPractices()
                     }
                 }
@@ -89,11 +65,12 @@ class WordPracticeProducer: BasePracticeProducer {
         
         let wordPractice = self.practiceList.remove(at: 0)
         if let wordPractice = wordPractice as? WordPractice,
-           Self.word2count.keys.contains(wordPractice.word) {
+           self.word2count.keys.contains(wordPractice.word) 
+        {
             
-            Self.word2count[wordPractice.word]! -= 1
-            if Self.word2count[wordPractice.word]! <= 0 {
-                Self.word2count.removeValue(forKey: wordPractice.word)
+            self.word2count[wordPractice.word]! -= 1
+            if self.word2count[wordPractice.word]! <= 0 {
+                self.word2count.removeValue(forKey: wordPractice.word)
             }
             
         }
@@ -642,11 +619,41 @@ extension WordPracticeProducer {
     
 }
 
-
 extension WordPracticeProducer {
     
     // MARK: - Constants
     
     private static let defaultChoiceNumber: Int = 3
+
+    static var word2countMapping: [LangCode: [String: Int]] = {
+        var mapping: [LangCode: [String: Int]] = [:]
+        for lang in LangCode.learningLanguages {
+            mapping[lang] = WordPracticeProducer.getWord2Count(from: WordPracticeProducer.loadCachedPractices(for: lang))
+        }
+        return mapping
+    }()
+
+    // MARK: - Class methods
+    
+    static func getWord2Count(from practiceList: [BasePractice]) -> [String: Int] {
+        
+        var word2count: [String: Int] = [:]
+        for wordPractice in practiceList {
+            guard let wordPractice = wordPractice as? WordPractice else {
+                continue
+            }
+            let word = wordPractice.word.lowercased().replacingOccurrences(
+                of: String(Token.accentSymbol), 
+                with: ""
+            )
+            if word2count.keys.contains(word) {
+                word2count[word]! += 1
+            } else {
+                word2count[word] = 1
+            }
+        }
+        return word2count
+        
+    }
     
 }

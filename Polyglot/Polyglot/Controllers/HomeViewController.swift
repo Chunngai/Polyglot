@@ -102,12 +102,17 @@ class HomeViewController: UIViewController {
             image: Images.wordPracticeImage,
             text: Strings.phraseReview,
             secondaryText: {
-                let nWordsToReview = WordPracticeProducer.word2count.count
+
+                guard let word2count = WordPracticeProducer.word2countMapping[LangCode.currentLanguage] else {
+                    return ""
+                }
+                
+                let nWordsToReview = word2count.count
                 let textForNWordsToReview = nWordsToReview != 0 ? 
                     String(nWordsToReview) : "No"
                 
                 var nWordPractices = 0
-                for count in WordPracticeProducer.word2count.values {
+                for count in word2count.values {
                     nWordPractices += count
                 }
                 
@@ -169,7 +174,12 @@ class HomeViewController: UIViewController {
     }
     
     var isWordPracticeEnabled: Bool {
-        return !WordPracticeProducer.word2count.isEmpty
+
+        guard let word2count = WordPracticeProducer.word2countMapping[LangCode.currentLanguage] else {
+            return false
+        }
+        
+        return !word2count.isEmpty
     }
     
     // MARK: - Models

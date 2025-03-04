@@ -247,11 +247,15 @@ extension TextMeaningPracticeViewController {
 extension TextMeaningPracticeViewController {
     
     func generateWordPractices(from reinforcementWordsInfo: [WordInfo]) {
-        
+
+        guard let word2count = WordPracticeProducer.word2countMapping[LangCode.currentLanguage] else {
+            return
+        }
+            
         var reinforcementWords: [String] = []
         for reinforcementWordInfo in reinforcementWordsInfo {
             let word = reinforcementWordInfo.word
-            guard !WordPracticeProducer.word2count.keys.contains(word) else {
+            guard !word2count.keys.contains(word) else {
                 continue
             }
             reinforcementWords.append(word)
