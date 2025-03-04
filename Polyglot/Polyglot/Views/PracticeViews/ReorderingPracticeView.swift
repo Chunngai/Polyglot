@@ -57,8 +57,6 @@ class ReorderingPracticeView: WordPracticeView {
     
     var translationLabel: UILabel = {
         let label = UILabel()
-        label.textColor = Colors.normalTextColor
-        label.font = UIFont.systemFont(ofSize: Sizes.wordPracticeReorderingFontSize)
         label.numberOfLines = ReorderingPracticeView.translationLabelRowNumberLimit
         label.adjustsFontSizeToFitWidth = true
         return label
@@ -66,12 +64,16 @@ class ReorderingPracticeView: WordPracticeView {
     
     var referenceLabel: UILabel = {
         let label = UILabel()
-        label.textColor = Colors.normalTextColor
-        label.font = UIFont.systemFont(ofSize: Sizes.wordPracticeReorderingFontSize)
         label.isHidden = true
         label.numberOfLines = 0
         return label
     }()
+    
+    let textLabelFont = UIFont.systemFont(ofSize: Sizes.wordPracticeReorderingFontSize)
+    let textLabelParaStyle = Attributes.defaultParaStyle(
+        fontSize: Sizes.wordPracticeReorderingFontSize,
+        lineSpacing: Sizes.wordPracticeReorderingFontSize * 0.1
+    )
     
     // MARK: - Init
     
@@ -126,7 +128,7 @@ class ReorderingPracticeView: WordPracticeView {
 
             rowStack.snp.makeConstraints { (make) in
                 make.bottom.equalTo(wordBank.snp.top).offset(-(
-                    rowHeight
+                    rowHeight * 0.5
 //                    + ReorderingPracticeView.rowStackVerticalSpacing * 2
                 ))
                 make.width.equalTo(Sizes.reorderingRowStackWidth)
@@ -161,8 +163,15 @@ class ReorderingPracticeView: WordPracticeView {
         
         self.words = words
         self.shuffledWords = words.shuffled()
-                
-        self.translationLabel.text = translation
+        
+        self.translationLabel.attributedText = NSAttributedString(
+            string: translation,
+            attributes: [
+                .foregroundColor: Colors.normalTextColor,
+                .font: textLabelFont,
+                .paragraphStyle: textLabelParaStyle
+            ]
+        )
         
         // Determine the font size and font here.
         let font1 = self.calculateWordBankItemFont(
@@ -220,16 +229,37 @@ class ReorderingPracticeView: WordPracticeView {
             }
 
             referenceLabel.snp.makeConstraints { (make) in
-                if let lastItemInRowStack = itemsInRowStack.last {
-                    make.top.equalTo(lastItemInRowStack.snp.top)
+                if let lastItemInRowStack = itemsInRowStack.last, lastItemInRowStack.frame.maxY > rowStack.frame.maxY {
+                    make.top.equalTo(lastItemInRowStack.snp.bottom).offset(20)
+                }
                 else {
-                    make.top.equalTo(wordBank.snp.top)
+                    make.top.equalTo(rowStack.snp.bottom).offset(20)
                 }
                 make.left.equalTo(wordBank.snp.left)
                 make.width.equalTo(wordBank.snp.width)
             }
             referenceLabel.isHidden = false
-            referenceLabel.text = "\(Strings.referenceLabelPrefix)\(key)"
+            referenceLabel.attributedText = {
+                let attrText: NSMutableAttributedString = NSMutableAttributedString()
+                attrText.append(NSAttributedString(
+                    string: Strings.referenceLabelPrefix,
+                    attributes: [
+                        .foregroundColor : Colors.weakTextColor,
+                        .font : textLabelFont,
+                        .paragraphStyle: textLabelParaStyle
+                        
+                    ])
+                )
+                attrText.append(NSAttributedString(
+                    string: key,
+                    attributes: [
+                        .foregroundColor : Colors.normalTextColor,
+                        .font : textLabelFont,
+                        .paragraphStyle: textLabelParaStyle
+                    ])
+                )
+                return attrText
+            }()
         }
         
     }

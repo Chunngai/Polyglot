@@ -173,9 +173,9 @@ struct Attributes {
     
     // MARK: - Paras.
     
-    static func defaultParaStyle(fontSize: CGFloat, alignment: NSTextAlignment = .left) -> NSMutableParagraphStyle {
+    static func defaultParaStyle(fontSize: CGFloat, alignment: NSTextAlignment = .left, lineSpacing: CGFloat? = nil) -> NSMutableParagraphStyle {
         let paraStyle = NSMutableParagraphStyle()
-        paraStyle.lineSpacing = fontSize * 0.6
+        paraStyle.lineSpacing = lineSpacing ?? (fontSize * 0.6)
         paraStyle.paragraphSpacing = fontSize * 0.8
         paraStyle.alignment = alignment
         return paraStyle
