@@ -34,12 +34,13 @@ class WordPracticeProducer: BasePracticeProducer {
     override func next() {
         
         let wordPractice = self.practiceList.removeFirst()
-        if let wordPractice = wordPractice as? WordPractice,
-           self.wordPracticeCounter.keys.contains(wordPractice.word) 
-        {
-            self.wordPracticeCounter[wordPractice.word]! -= 1
-            if self.wordPracticeCounter[wordPractice.word]! <= 0 {
-                self.wordPracticeCounter.removeValue(forKey: wordPractice.word)
+        if let wordPractice = wordPractice as? WordPractice {
+            let key = Self.makeKeyForWordPracticeCount(from: wordPractice.word)
+            if self.wordPracticeCounter.keys.contains(key) {
+                self.wordPracticeCounter[key]! -= 1
+                if self.wordPracticeCounter[key]! <= 0 {
+                    self.wordPracticeCounter.removeValue(forKey: key)
+                }
             }
         }
         sendWordPracticeCounterUpdateNotification()
@@ -134,10 +135,11 @@ extension WordPracticeProducer {
         let nRepetitions = self.lang.configs.wordPracticeRepetition
         for word in words {
 
-            if skipDuplicates && wordPracticeCounter.keys.contains(word) {
+            if skipDuplicates && wordPracticeCounter.keys.contains(Self.makeKeyForWordPracticeCount(from: word)) {
                 continue
             }
-            wordPracticeCounter[word] = 0
+            let key = Self.makeKeyForWordPracticeCount(from: word)
+            wordPracticeCounter[key] = 0
             
             var practicesForWord: [WordPractice] = []
             
@@ -157,7 +159,7 @@ extension WordPracticeProducer {
                         direction: .textToMeaning
                     ) {
                         self.practiceList.append(practice)
-                        self.wordPracticeCounter[word]! += 1
+                        self.wordPracticeCounter[key]! += 1
                         practicesForWord.append(practice)
                     }
                     
@@ -168,7 +170,7 @@ extension WordPracticeProducer {
                         direction: .meaningToText
                     ) {
                         self.practiceList.append(practice)
-                        self.wordPracticeCounter[word]! += 1
+                        self.wordPracticeCounter[key]! += 1
                         practicesForWord.append(practice)
                     }
                     
@@ -179,7 +181,7 @@ extension WordPracticeProducer {
                         direction: .meaningToText
                     )
                     self.practiceList.append(practice)
-                    self.wordPracticeCounter[word]! += 1
+                    self.wordPracticeCounter[key]! += 1
                     practicesForWord.append(practice)
                 }
                 self.cache()
@@ -194,7 +196,7 @@ extension WordPracticeProducer {
                     query: word
                 ) {
                     self.practiceList.append(practice)
-                    self.wordPracticeCounter[word]! += 1
+                    self.wordPracticeCounter[key]! += 1
                     practicesForWord.append(practice)
                 }
             }
@@ -208,7 +210,7 @@ extension WordPracticeProducer {
                     completion: { practice in
                         if let practice = practice {
                             self.practiceList.append(practice)
-                            self.wordPracticeCounter[word]! += 1
+                            self.wordPracticeCounter[key]! += 1
                             practicesForWord.append(practice)
                             
                             self.cache()
@@ -242,7 +244,7 @@ extension WordPracticeProducer {
                         tokens: tokens
                     ) {
                         self.practiceList.append(practice)
-                        self.wordPracticeCounter[word]! += 1
+                        self.wordPracticeCounter[key]! += 1
                     }
                 }
 
@@ -273,6 +275,8 @@ extension WordPracticeProducer {
                 practiceForReinforcement.correctness = nil
                 
                 self.practiceList.append(practiceForReinforcement)
+                self.wordPracticeCounter[Self.makeKeyForWordPracticeCount(from: practiceForReinforcement.word)]! += 1
+                self.sendWordPracticeCounterUpdateNotification()
             }
         }
     }
@@ -626,6 +630,13 @@ extension WordPracticeProducer {
 
     // MARK: - Class methods
 
+    static func makeKeyForWordPracticeCount(from word: String) -> String {
+        return word.replacingOccurrences(
+            of: String(Token.accentSymbol),
+            with: ""
+        )
+    }
+    
     static func countWordPractices(for lang: LangCode) -> [String: Int] {
         return Self.countWordPractices(from: Self.loadCachedPractices(for: lang))
     }
@@ -637,14 +648,13 @@ extension WordPracticeProducer {
             guard let wordPractice = wordPractice as? WordPractice else {
                 continue
             }
-            let word = wordPractice.word.lowercased().replacingOccurrences(
-                of: String(Token.accentSymbol), 
-                with: ""
-            )
-            if wordPracticeCounter.keys.contains(word) {
-                wordPracticeCounter[word]! += 1
+            let word = wordPractice.word
+            
+            let key = Self.makeKeyForWordPracticeCount(from: word)
+            if wordPracticeCounter.keys.contains(key) {
+                wordPracticeCounter[key]! += 1
             } else {
-                wordPracticeCounter[word] = 1
+                wordPracticeCounter[key] = 1
             }
         }
         return wordPracticeCounter
