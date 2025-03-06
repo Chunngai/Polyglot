@@ -38,25 +38,6 @@ class WordPracticeProducer: BasePracticeProducer {
         if !cachedWordPractices.isEmpty {
             self.practiceList.append(contentsOf: cachedWordPractices)
             self.practiceList.shuffle()
-            
-            var numberOfAnalyzedWords = 0
-            for word in self.word2count.keys {
-                analyzeAccents(for: word) { tokens, _, _ in
-                    
-                    numberOfAnalyzedWords += 1
-                    
-                    guard !tokens.isEmpty else {
-                        return
-                    }
-                    
-                    let accentedWord = tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)
-                    self.word2AccentedWord[word] = accentedWord
-                    
-                    if numberOfAnalyzedWords >= self.word2count.keys.count {
-                        self.addAccentsToPractices()
-                    }
-                }
-            }
         }
         
     }
@@ -77,12 +58,10 @@ class WordPracticeProducer: BasePracticeProducer {
         
     }
     
-    private var word2AccentedWord: [String:String] = [:]
     override func cache() {
         guard var practicesToCache = self.practiceList as? [WordPractice] else {
             return
         }
-        self.addAccentsToPractices()
         WordPracticeProducer.save(
             &practicesToCache,
             for: self.lang
@@ -92,87 +71,70 @@ class WordPracticeProducer: BasePracticeProducer {
 
 extension WordPracticeProducer {
     
-    private func addAccentsToPractices() {
+    private func addAccents(to practice: BasePractice, with accentedWord: String) {
         
         guard 
             self.lang == .ja
-                || self.lang == .ru
+            || self.lang == .ru
         else {
             return
         }
-        
-        for practice in self.practiceList {
-            
-            guard let practice = practice as? WordPractice else {
-                continue
-            }
-            
-            guard practice.practiceType != .accentSelection else {
-                continue
-            }
-            
-            guard word2AccentedWord.keys.contains(practice.word) else {
-                continue
-            }
-            
-            for (word, accentedWord) in word2AccentedWord {
-                practice.word = practice.word.replacingOccurrences(
-                    of: word,
-                    with: accentedWord
-                )
-                practice.query = practice.query.replacingOccurrences(
-                    of: word,
-                    with: accentedWord
-                )
-                practice.key = practice.key.replacingOccurrences(
-                    of: word,
-                    with: accentedWord
-                )
-//                practice.prompt = practice.prompt.replacingOccurrences(
-//                    of: word,
-//                    with: accentedWord
-//                )
-                practice.prompt = prompt(
-                    for: practice.practiceType,
-                    withWord: practice.query
-                )
-                if practice.context != nil {
-                    practice.context! = practice.context!.replacingOccurrences(
-                        of: word,
-                        with: accentedWord
-                    )
-                }
-            }
-            
-            if practice.choices != nil {
-                for (i, choice) in practice.choices!.enumerated() {
-                    if word2AccentedWord.keys.contains(choice) {
-                        practice.choices![i] = word2AccentedWord[choice]!
-                    }
-                }
-            }
-            
-            if practice.reorderingWordList != nil {
-                practice.reorderingWordList = practice.key.split(with: Strings.wordSeparator)
-            }
-            
+                    
+        guard let practice = practice as? WordPractice else {
+            return
         }
+        
+        guard practice.practiceType != .accentSelection else {
+            return
+        }
+
+        let originalWord = practice.word
+        
+        practice.word = practice.word.replacingOccurrences(
+            of: word,
+            with: accentedWord
+        )
+        practice.query = practice.query.replacingOccurrences(
+            of: word,
+            with: accentedWord
+        )
+        practice.key = practice.key.replacingOccurrences(
+            of: word,
+            with: accentedWord
+        )
+        // Do not use replacement for prompts.
+        // Otherwise words in the prompts may be replaced.
+        practice.prompt = prompt(
+            for: practice.practiceType,
+            withWord: practice.query
+        )
+        if practice.context != nil {
+            practice.context! = practice.context!.replacingOccurrences(
+                of: word,
+                with: accentedWord
+            )
+        }
+        
+        if practice.choices != nil {
+            for (i, choice) in practice.choices!.enumerated() {
+                if choice = originalWord {
+                    practice.choices![i] = accentedWord
+                }
+            }
+        }
+        
+        if practice.reorderingWordList != nil {
+            practice.reorderingWordList = practice.key.split(with: Strings.wordSeparator)
+        }
+            
     }
     
     func makeAndCachePractices(for words: [String]) {
-        
-        for word in words {
-            analyzeAccents(for: word) { tokens, _, _ in
-                guard !tokens.isEmpty else {
-                    return
-                }
-                let accentedWord = tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)
-                self.word2AccentedWord[word] = accentedWord
-            }
-        }
-        
+
         let nRepetitions = self.lang.configs.wordPracticeRepetition
         for word in words {
+
+            var practicesForWord: [WordPractice] = []
             
             machineTranslator.translate(query: word) { translations, _ in
                 
@@ -190,6 +152,7 @@ extension WordPracticeProducer {
                         direction: .textToMeaning
                     ) {
                         self.practiceList.append(practice)
+                        practicesForWord.append(practice)
                     }
                     
                     if let practice = self.makeMeaningSelectionPractice(
@@ -199,6 +162,7 @@ extension WordPracticeProducer {
                         direction: .meaningToText
                     ) {
                         self.practiceList.append(practice)
+                        practicesForWord.append(practice)
                     }
                     
                     let practice = self.makeMeaningFillingPractice(
@@ -208,12 +172,55 @@ extension WordPracticeProducer {
                         direction: .meaningToText
                     )
                     self.practiceList.append(practice)
+                    practicesForWord.append(practice)
                 }
                 self.cache()
                 
             }
             
+            for _ in 0..<nRepetitions {
+                
+                if let practice = makeContextSelectionPractice(
+                    word: word,
+                    query: word
+                ) {
+                    practiceList.append(practice)
+                    practicesForWord.append(practice)
+                }
+            }
+            self.cache()
+                
+            for _ in 0..<nRepetitions {
+                makeReorderingPractice(
+                    word: word,
+                    query: word,
+                    completion: { practice in
+                        if let practice = practice {
+                            self.practiceList.append(practice)
+                            practicesForWord.append(practice)
+                            self.cache()
+                        }
+                    }
+                )
+                
+            }
+
+            // Add accents to all practices for the word,
+            // and add accent practices.
             analyzeAccents(for: word) { tokens, fixedText, text in
+                                       
+                guard !tokens.isEmpty else {
+                    return
+                }
+
+                let accentedWord = tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)
+                for practice in practicesForWord.values {
+                    self.addAccents(
+                        to: practice,
+                        with: accentedWord
+                    )
+                }
+                                       
                 for _ in 0..<nRepetitions {
                     if let practice = self.makeAccentSelectionPractice(
                         word: fixedText ?? text,
@@ -223,37 +230,14 @@ extension WordPracticeProducer {
                         self.practiceList.append(practice)
                     }
                 }
-                self.cache()
-            }
 
-            for _ in 0..<nRepetitions {
-                
-                if let practice = makeContextSelectionPractice(
-                    word: word,
-                    query: word
-                ) {
-                    practiceList.append(practice)
-                }
-            }
-            cache()
-                
-            for _ in 0..<nRepetitions {
-                makeReorderingPractice(
-                    word: word,
-                    query: word,
-                    completion: { practice in
-                        if let practice = practice {
-                            self.practiceList.append(practice)
-                            self.cache()
-                        }
-                    }
-                )
-                
+                self.cache()
+                                       
             }
                         
-        }  // for word in words {
+        }
 
-    }  // func makeAndCachePractices(for words: [String])
+    }
     
 }
 
@@ -269,7 +253,6 @@ extension WordPracticeProducer {
         if currentPractice.correctness != .correct {
             // Re-add the practice for reinforcement.
             DispatchQueue.global(qos: .userInitiated).async {
-                // Re-create the practice.
                 let practiceForReinforcement = WordPractice(from: currentPractice)
                 practiceForReinforcement.correctness = nil
                 
