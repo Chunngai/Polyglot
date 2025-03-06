@@ -13,22 +13,9 @@ import NaturalLanguage
 class WordPracticeProducer: BasePracticeProducer {
     
     private var lang: LangCode = LangCode.currentLanguage
-
-    private var word2count: [String: Int] {
-        get {
-            return WordPracticeProducer.word2countMapping[self.lang]!
-        }
-        set {
-            WordPracticeProducer.word2countMapping[self.lang]! = newValue
-        }
-    }
     
-    override var practiceList: [BasePractice] {
-        didSet {
-            self.word2count = Self.getWord2Count(from: self.practiceList)
-        }
-    }
-
+    var wordToPracticeCounter: [String: Int] = [:]
+    
     // MARK: - Init
     
     override init(words: [Word], articles: [Article]) {
@@ -38,6 +25,8 @@ class WordPracticeProducer: BasePracticeProducer {
         if !cachedWordPractices.isEmpty {
             self.practiceList.append(contentsOf: cachedWordPractices)
             self.practiceList.shuffle()
+
+            self.wordToPracticeCounter = WordPracticeProducer.countWordPractices(from: self.practiceList)
         }
         
     }
@@ -608,19 +597,15 @@ extension WordPracticeProducer {
     
     private static let defaultChoiceNumber: Int = 3
 
-    static var word2countMapping: [LangCode: [String: Int]] = {
-        var mapping: [LangCode: [String: Int]] = [:]
-        for lang in LangCode.learningLanguages {
-            mapping[lang] = WordPracticeProducer.getWord2Count(from: WordPracticeProducer.loadCachedPractices(for: lang))
-        }
-        return mapping
-    }()
-
     // MARK: - Class methods
+
+    static func countWordPractices(for lang: LangCode) -> [String: Int] {
+        return Self.countWordPractices(from: Self.loadCachedPractices(for: lang))
+    }
     
-    static func getWord2Count(from practiceList: [BasePractice]) -> [String: Int] {
+    static func countWordPractices(from practiceList: [BasePractice]) -> [String: Int] {
         
-        var word2count: [String: Int] = [:]
+        var wordPracticeCounter: [String: Int] = [:]
         for wordPractice in practiceList {
             guard let wordPractice = wordPractice as? WordPractice else {
                 continue
@@ -629,13 +614,13 @@ extension WordPracticeProducer {
                 of: String(Token.accentSymbol), 
                 with: ""
             )
-            if word2count.keys.contains(word) {
-                word2count[word]! += 1
+            if wordPracticeCounter.keys.contains(word) {
+                wordPracticeCounter[word]! += 1
             } else {
-                word2count[word] = 1
+                wordPracticeCounter[word] = 1
             }
         }
-        return word2count
+        return wordPracticeCounter
         
     }
     
