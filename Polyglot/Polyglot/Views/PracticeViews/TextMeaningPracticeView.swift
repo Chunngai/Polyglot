@@ -409,12 +409,12 @@ extension TextMeaningPracticeView {
     
     func highlightExistingReinforcementWords() {
 
-        guard let word2count = WordPracticeProducer.word2countMapping[LangCode.currentLanguage] else {
+        guard let wordPracticeCounter = WordPracticeProducer.countWordPractices(for: LangCode.currentLanguage) else {
             return
         }
         
-        for wordToPractice in word2count.keys {
-            let range = (textView.text as NSString).range(of: wordToPractice)
+        for wordPractice in wordPracticeCounter.keys {
+            let range = (textView.text as NSString).range(of: wordPractice)
             if range.location == NSNotFound {
                 continue
             }
@@ -424,7 +424,7 @@ extension TextMeaningPracticeView {
             
             textView.reinforcementWordsInfo.append(WordInfo(
                 textRange: textRange,
-                word: wordToPractice,
+                word: wordPractice,
                 meaning: "",
                 canDelete: false
             ))
