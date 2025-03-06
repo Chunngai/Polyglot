@@ -58,7 +58,10 @@ class ReorderingPracticeView: WordPracticeView {
     var translationLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = ReorderingPracticeView.translationLabelRowNumberLimit
+        // https://developer.apple.com/documentation/uikit/uilabel
         label.adjustsFontSizeToFitWidth = true
+        label.minimumScaleFactor = Sizes.wordPracticeReorderingSmallestFontSize / Sizes.wordPracticeReorderingFontSize
+        label.allowsDefaultTighteningForTruncation = true
         return label
     }()
     
