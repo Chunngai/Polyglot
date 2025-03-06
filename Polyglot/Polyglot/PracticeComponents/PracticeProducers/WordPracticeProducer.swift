@@ -15,9 +15,6 @@ class WordPracticeProducer: BasePracticeProducer {
     private var lang: LangCode = LangCode.currentLanguage
     
     var wordPracticeCounter: [String: Int] = [:]
-    var wordsToPractice: [String] {
-        return wordPracticeCounter.keys
-    }
     
     // MARK: - Init
     
@@ -38,12 +35,12 @@ class WordPracticeProducer: BasePracticeProducer {
         
         let wordPractice = self.practiceList.remove(at: 0)
         if let wordPractice = wordPractice as? WordPractice,
-           self.word2count.keys.contains(wordPractice.word) 
+           self.wordPracticeCounter.keys.contains(wordPractice.word) 
         {
             
-            self.word2count[wordPractice.word]! -= 1
-            if self.word2count[wordPractice.word]! <= 0 {
-                self.word2count.removeValue(forKey: wordPractice.word)
+            self.wordPracticeCounter[wordPractice.word]! -= 1
+            if self.wordPracticeCounter[wordPractice.word]! <= 0 {
+                self.wordPracticeCounter.removeValue(forKey: wordPractice.word)
             }
             
         }
@@ -121,14 +118,26 @@ extension WordPracticeProducer {
             
     }
     
+    private func sendWordPracticeCounterUpdateNotification() {
+        NotificationCenter.default.post(Notification(
+            name: .wordPracticeCounterUpdated, 
+            object: nil, 
+            userInfo: [
+                "lang": self.lang,
+                "wordPracticeCounter": self.wordPracticeCounter
+            ]
+        ))
+    }
+    
     func makeAndCachePractices(for words: [String], skipDuplicates: Bool = true) {
 
         let nRepetitions = self.lang.configs.wordPracticeRepetition
         for word in words {
 
-            if skipDuplicates && wordsToPractice.contains(word) {
+            if skipDuplicates && wordPracticeCounter.keys.contains(word) {
                 continue
             }
+            wordPracticeCounter[word]! = 0
             
             var practicesForWord: [WordPractice] = []
             
@@ -148,6 +157,7 @@ extension WordPracticeProducer {
                         direction: .textToMeaning
                     ) {
                         self.practiceList.append(practice)
+                        self.wordPracticeCounter[word]! += 1
                         practicesForWord.append(practice)
                     }
                     
@@ -158,6 +168,7 @@ extension WordPracticeProducer {
                         direction: .meaningToText
                     ) {
                         self.practiceList.append(practice)
+                        self.wordPracticeCounter[word]! += 1
                         practicesForWord.append(practice)
                     }
                     
@@ -168,10 +179,12 @@ extension WordPracticeProducer {
                         direction: .meaningToText
                     )
                     self.practiceList.append(practice)
+                    self.wordPracticeCounter[word]! += 1
                     practicesForWord.append(practice)
                 }
                 self.cache()
-                
+                self.sendWordPracticeCounterUpdateNotification()
+                                                      
             }
             
             for _ in 0..<nRepetitions {
@@ -180,11 +193,13 @@ extension WordPracticeProducer {
                     word: word,
                     query: word
                 ) {
-                    practiceList.append(practice)
+                    self.practiceList.append(practice)
+                    self.wordPracticeCounter[word]! += 1
                     practicesForWord.append(practice)
                 }
             }
             self.cache()
+            self.sendWordPracticeCounterUpdateNotification()
                 
             for _ in 0..<nRepetitions {
                 makeReorderingPractice(
@@ -193,8 +208,11 @@ extension WordPracticeProducer {
                     completion: { practice in
                         if let practice = practice {
                             self.practiceList.append(practice)
+                            self.wordPracticeCounter[word]! += 1
                             practicesForWord.append(practice)
+                            
                             self.cache()
+                            self.sendWordPracticeCounterUpdateNotification()
                         }
                     }
                 )
@@ -224,10 +242,12 @@ extension WordPracticeProducer {
                         tokens: tokens
                     ) {
                         self.practiceList.append(practice)
+                        self.wordPracticeCounter[word]! += 1
                     }
                 }
 
                 self.cache()
+                self.sendWordPracticeCounterUpdateNotification()
                                        
             }
                         
@@ -631,4 +651,8 @@ extension WordPracticeProducer {
         
     }
     
+}
+
+extension Notification.Name {
+    static let wordPracticeCounterUpdated = Notification.Name("wordPracticeCounterUpdated")
 }
