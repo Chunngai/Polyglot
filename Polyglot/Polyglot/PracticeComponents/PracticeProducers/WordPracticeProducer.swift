@@ -15,6 +15,9 @@ class WordPracticeProducer: BasePracticeProducer {
     private var lang: LangCode = LangCode.currentLanguage
     
     var wordToPracticeCounter: [String: Int] = [:]
+    var wordsToPractice: [String] {
+        return wordToPracticeCounter.keys
+    }
     
     // MARK: - Init
     
@@ -118,11 +121,15 @@ extension WordPracticeProducer {
             
     }
     
-    func makeAndCachePractices(for words: [String]) {
+    func makeAndCachePractices(for words: [String], skipDuplicates: Bool = true) {
 
         let nRepetitions = self.lang.configs.wordPracticeRepetition
         for word in words {
 
+            if skipDuplicates && wordsToPractice.contains(word) {
+                continue
+            }
+            
             var practicesForWord: [WordPractice] = []
             
             machineTranslator.translate(query: word) { translations, _ in
