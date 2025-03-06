@@ -11,12 +11,6 @@ import UIKit
 
 extension UITextView {
     
-    func valueOf(textPosition: UITextPosition) -> Int {
-        // https://stackoverflow.com/questions/19369438/uitextposition-to-int
-        
-        return offset(from: beginningOfDocument, to: textPosition)
-    }
-    
     func selectBeginning() {
         self.selectedTextRange = self.textRange(
             from: self.beginningOfDocument,
@@ -51,6 +45,12 @@ extension UITextView {
 
 extension UITextView {
     
+    func valueOf(textPosition: UITextPosition) -> Int {
+        // https://stackoverflow.com/questions/19369438/uitextposition-to-int
+        
+        return offset(from: beginningOfDocument, to: textPosition)
+    }
+    
     func contentOffset(for range: NSRange) -> CGPoint? {
         
         // https://chatgpt.com/share/67339f83-c420-800d-8940-76dbce8c05d2
@@ -78,6 +78,22 @@ extension UITextView {
         contentOffset.y = boundingRect.origin.y - textContainerInset.top
         return contentOffset
         
+    }
+    
+}
+
+extension UITextView {
+    
+    var lineCount: Int {
+        // https://cloud.tencent.com.cn/developer/information/Swift%203-%20UITextView总行计数器
+        var lineCount = 0
+        self.layoutManager.enumerateLineFragments(forGlyphRange: NSRange(
+            location: 0,
+            length: self.text.count
+        )) { (_, _, _, _, _) in
+            lineCount += 1
+        }
+        return lineCount
     }
     
 }

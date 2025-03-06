@@ -153,21 +153,30 @@ class ReorderingPracticeView: WordPracticeView {
             // is done after `updateValues()`.
             // Thus the layout of the translation text view is here
             // but not written in `updateLayouts()`.
-            textViewBackgroundView.snp.makeConstraints { (make) in
+            textViewBackgroundView.snp.updateConstraints { (make) in
                 make.top.equalToSuperview()
                 make.width.equalToSuperview()
                 make.centerX.equalToSuperview()
                 make.height.equalTo({
+                    
                     var avgTextHeight: CGFloat = 0
-                    let n = min(self.words.count, 3)
+                    let n = min(
+                        self.words.count,
+                        3
+                    )
                     for i in 0..<n {
                         avgTextHeight += words[i].textSize(withFont: textLabelFont).height
                     }
                     avgTextHeight /= CGFloat(n)
-                    
                     let lineHeight = avgTextHeight + textLabelParaStyle.lineSpacing
+                    
+                    let lineCount = CGFloat(min(
+                        self.translationTextView.lineCount,
+                        Self.translationLabelRowNumberLimit
+                    ))
+                    
                     let height = (
-                        lineHeight * CGFloat(Self.translationLabelRowNumberLimit)
+                        lineHeight * lineCount
                         + translationTextView.textContainerInset.top
                         + translationTextView.textContainerInset.bottom
                     ) * (10 / 9)  // x * 10/9 * 9/10 (below) = 1
