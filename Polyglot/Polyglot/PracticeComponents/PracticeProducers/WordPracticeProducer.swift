@@ -13,22 +13,9 @@ import NaturalLanguage
 class WordPracticeProducer: BasePracticeProducer {
     
     private var lang: LangCode = LangCode.currentLanguage
-
-    private var word2count: [String: Int] {
-        get {
-            return WordPracticeProducer.word2countMapping[self.lang]!
-        }
-        set {
-            WordPracticeProducer.word2countMapping[self.lang]! = newValue
-        }
-    }
     
-    override var practiceList: [BasePractice] {
-        didSet {
-            self.word2count = Self.getWord2Count(from: self.practiceList)
-        }
-    }
-
+    private var wordPracticeCounter: [String: Int] = [:]
+    
     // MARK: - Init
     
     override init(words: [Word], articles: [Article]) {
@@ -38,23 +25,24 @@ class WordPracticeProducer: BasePracticeProducer {
         if !cachedWordPractices.isEmpty {
             self.practiceList.append(contentsOf: cachedWordPractices)
             self.practiceList.shuffle()
+
+            self.wordPracticeCounter = WordPracticeProducer.countWordPractices(from: self.practiceList)
         }
         
     }
     
     override func next() {
         
-        let wordPractice = self.practiceList.remove(at: 0)
+        let wordPractice = self.practiceList.removeFirst()
         if let wordPractice = wordPractice as? WordPractice,
-           self.word2count.keys.contains(wordPractice.word) 
+           self.wordPracticeCounter.keys.contains(wordPractice.word) 
         {
-            
-            self.word2count[wordPractice.word]! -= 1
-            if self.word2count[wordPractice.word]! <= 0 {
-                self.word2count.removeValue(forKey: wordPractice.word)
+            self.wordPracticeCounter[wordPractice.word]! -= 1
+            if self.wordPracticeCounter[wordPractice.word]! <= 0 {
+                self.wordPracticeCounter.removeValue(forKey: wordPractice.word)
             }
-            
         }
+        sendWordPracticeCounterUpdateNotification()
         
     }
     
@@ -129,11 +117,28 @@ extension WordPracticeProducer {
             
     }
     
-    func makeAndCachePractices(for words: [String]) {
+    private func sendWordPracticeCounterUpdateNotification() {
+        // // https://stackoverflow.com/questions/55382533/how-to-observe-the-value-of-a-global-variable-and-act-on-a-change-within-the-vie
+        NotificationCenter.default.post(Notification(
+            name: .wordPracticeCounterUpdated, 
+            object: nil, 
+            userInfo: [
+                "lang": self.lang,
+                "wordPracticeCounter": self.wordPracticeCounter
+            ]
+        ))
+    }
+    
+    func makeAndCachePractices(for words: [String], skipDuplicates: Bool = true) {
 
         let nRepetitions = self.lang.configs.wordPracticeRepetition
         for word in words {
 
+            if skipDuplicates && wordPracticeCounter.keys.contains(word) {
+                continue
+            }
+            wordPracticeCounter[word] = 0
+            
             var practicesForWord: [WordPractice] = []
             
             machineTranslator.translate(query: word) { translations, _ in
@@ -152,6 +157,7 @@ extension WordPracticeProducer {
                         direction: .textToMeaning
                     ) {
                         self.practiceList.append(practice)
+                        self.wordPracticeCounter[word]! += 1
                         practicesForWord.append(practice)
                     }
                     
@@ -162,6 +168,7 @@ extension WordPracticeProducer {
                         direction: .meaningToText
                     ) {
                         self.practiceList.append(practice)
+                        self.wordPracticeCounter[word]! += 1
                         practicesForWord.append(practice)
                     }
                     
@@ -172,10 +179,12 @@ extension WordPracticeProducer {
                         direction: .meaningToText
                     )
                     self.practiceList.append(practice)
+                    self.wordPracticeCounter[word]! += 1
                     practicesForWord.append(practice)
                 }
                 self.cache()
-                
+                self.sendWordPracticeCounterUpdateNotification()
+                                                      
             }
             
             for _ in 0..<nRepetitions {
@@ -184,11 +193,13 @@ extension WordPracticeProducer {
                     word: word,
                     query: word
                 ) {
-                    practiceList.append(practice)
+                    self.practiceList.append(practice)
+                    self.wordPracticeCounter[word]! += 1
                     practicesForWord.append(practice)
                 }
             }
             self.cache()
+            self.sendWordPracticeCounterUpdateNotification()
                 
             for _ in 0..<nRepetitions {
                 makeReorderingPractice(
@@ -197,8 +208,11 @@ extension WordPracticeProducer {
                     completion: { practice in
                         if let practice = practice {
                             self.practiceList.append(practice)
+                            self.wordPracticeCounter[word]! += 1
                             practicesForWord.append(practice)
+                            
                             self.cache()
+                            self.sendWordPracticeCounterUpdateNotification()
                         }
                     }
                 )
@@ -228,10 +242,12 @@ extension WordPracticeProducer {
                         tokens: tokens
                     ) {
                         self.practiceList.append(practice)
+                        self.wordPracticeCounter[word]! += 1
                     }
                 }
 
                 self.cache()
+                self.sendWordPracticeCounterUpdateNotification()
                                        
             }
                         
@@ -608,19 +624,15 @@ extension WordPracticeProducer {
     
     private static let defaultChoiceNumber: Int = 3
 
-    static var word2countMapping: [LangCode: [String: Int]] = {
-        var mapping: [LangCode: [String: Int]] = [:]
-        for lang in LangCode.learningLanguages {
-            mapping[lang] = WordPracticeProducer.getWord2Count(from: WordPracticeProducer.loadCachedPractices(for: lang))
-        }
-        return mapping
-    }()
-
     // MARK: - Class methods
+
+    static func countWordPractices(for lang: LangCode) -> [String: Int] {
+        return Self.countWordPractices(from: Self.loadCachedPractices(for: lang))
+    }
     
-    static func getWord2Count(from practiceList: [BasePractice]) -> [String: Int] {
+    static func countWordPractices(from practiceList: [BasePractice]) -> [String: Int] {
         
-        var word2count: [String: Int] = [:]
+        var wordPracticeCounter: [String: Int] = [:]
         for wordPractice in practiceList {
             guard let wordPractice = wordPractice as? WordPractice else {
                 continue
@@ -629,14 +641,18 @@ extension WordPracticeProducer {
                 of: String(Token.accentSymbol), 
                 with: ""
             )
-            if word2count.keys.contains(word) {
-                word2count[word]! += 1
+            if wordPracticeCounter.keys.contains(word) {
+                wordPracticeCounter[word]! += 1
             } else {
-                word2count[word] = 1
+                wordPracticeCounter[word] = 1
             }
         }
-        return word2count
+        return wordPracticeCounter
         
     }
     
+}
+
+extension Notification.Name {
+    static let wordPracticeCounterUpdated = Notification.Name("wordPracticeCounterUpdated")
 }
