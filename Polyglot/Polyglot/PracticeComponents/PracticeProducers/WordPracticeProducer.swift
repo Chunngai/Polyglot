@@ -14,9 +14,9 @@ class WordPracticeProducer: BasePracticeProducer {
     
     private var lang: LangCode = LangCode.currentLanguage
     
-    var wordToPracticeCounter: [String: Int] = [:]
+    var wordPracticeCounter: [String: Int] = [:]
     var wordsToPractice: [String] {
-        return wordToPracticeCounter.keys
+        return wordPracticeCounter.keys
     }
     
     // MARK: - Init
@@ -29,7 +29,7 @@ class WordPracticeProducer: BasePracticeProducer {
             self.practiceList.append(contentsOf: cachedWordPractices)
             self.practiceList.shuffle()
 
-            self.wordToPracticeCounter = WordPracticeProducer.countWordPractices(from: self.practiceList)
+            self.wordPracticeCounter = WordPracticeProducer.countWordPractices(from: self.practiceList)
         }
         
     }
