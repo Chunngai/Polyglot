@@ -91,15 +91,15 @@ extension WordPracticeProducer {
         let originalWord = practice.word
         
         practice.word = practice.word.replacingOccurrences(
-            of: word,
+            of: originalWord,
             with: accentedWord
         )
         practice.query = practice.query.replacingOccurrences(
-            of: word,
+            of: originalWord,
             with: accentedWord
         )
         practice.key = practice.key.replacingOccurrences(
-            of: word,
+            of: originalWord,
             with: accentedWord
         )
         // Do not use replacement for prompts.
@@ -110,14 +110,14 @@ extension WordPracticeProducer {
         )
         if practice.context != nil {
             practice.context! = practice.context!.replacingOccurrences(
-                of: word,
+                of: originalWord,
                 with: accentedWord
             )
         }
         
         if practice.choices != nil {
             for (i, choice) in practice.choices!.enumerated() {
-                if choice = originalWord {
+                if choice == originalWord {
                     practice.choices![i] = accentedWord
                 }
             }
@@ -214,7 +214,7 @@ extension WordPracticeProducer {
                 }
 
                 let accentedWord = tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)
-                for practice in practicesForWord.values {
+                for practice in practicesForWord {
                     self.addAccents(
                         to: practice,
                         with: accentedWord
