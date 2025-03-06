@@ -71,6 +71,20 @@ class HomeViewController: UIViewController {
             return false
         }
     }
+
+    var isPracticeEnabled: Bool {
+        let wordCount = Int(wordMetaData["count"] ?? "0")
+        let articleCount = Int(articleMetaData["count"] ?? "0")
+        if wordCount == 0 || articleCount == 0 {
+            return false
+        }
+        return true
+    }
+
+    var wordPracticeCounter: [String: Int] = WordPracticeProducer.countWordPractices(for: LangCode.currentLanguage)
+    var isWordPracticeEnabled: Bool {
+        return !wordPracticeCounter.isEmpty
+    }
     
     // Collection view.
     
@@ -103,16 +117,12 @@ class HomeViewController: UIViewController {
             text: Strings.phraseReview,
             secondaryText: {
 
-                guard let word2count = WordPracticeProducer.word2countMapping[LangCode.currentLanguage] else {
-                    return ""
-                }
-                
-                let nWordsToReview = word2count.count
+                let nWordsToReview = wordPracticeCounter.count
                 let textForNWordsToReview = nWordsToReview != 0 ? 
                     String(nWordsToReview) : "No"
                 
                 var nWordPractices = 0
-                for count in word2count.values {
+                for count in wordPracticeCounter.values {
                     nWordPractices += count
                 }
                 
@@ -162,24 +172,6 @@ class HomeViewController: UIViewController {
             image: Images.configImage,
             text: Strings.configurations
         )
-    }
-    
-    var isPracticeEnabled: Bool {
-        let wordCount = Int(wordMetaData["count"] ?? "0")
-        let articleCount = Int(articleMetaData["count"] ?? "0")
-        if wordCount == 0 || articleCount == 0 {
-            return false
-        }
-        return true
-    }
-    
-    var isWordPracticeEnabled: Bool {
-
-        guard let word2count = WordPracticeProducer.word2countMapping[LangCode.currentLanguage] else {
-            return false
-        }
-        
-        return !word2count.isEmpty
     }
     
     // MARK: - Models
@@ -306,7 +298,27 @@ class HomeViewController: UIViewController {
         configureHierarchy()
         configureDataSource()
         applyInitialSnapshots()
-        
+
+        // https://stackoverflow.com/questions/55382533/how-to-observe-the-value-of-a-global-variable-and-act-on-a-change-within-the-vie
+        NotificationCenter.default.addObserver(
+            forName: .wordPracticeCounterUpdated, 
+            object: nil, 
+            queue: .main
+        ) { notification in
+           
+            guard 
+                let lang = notification.userInfo?["lang"] as? LangCode,
+                lang == LangCode.currentLanguage
+            else {
+                return
+            }
+
+            if let wordCountPractice = notification.userInfo?["wordPracticeCounter"] as? [String: Int] {
+                self.wordCountPractice = wordCountPractice
+                self.applySnapShots()
+            }
+           
+        }
         // https://stackoverflow.com/questions/41393754/call-a-uiviewcontroller-method-when-application-goes-background-and-come-to-fore
         NotificationCenter.default.addObserver(
             self,
@@ -554,6 +566,7 @@ extension HomeViewController: LanguageSelectionViewControllerDelegate {
         self.wordMetaData = Word.loadMetaData(for: LangCode.currentLanguage)
         self.articleMetaData = Article.loadMetaData(for: LangCode.currentLanguage)
         self.practiceMetaData = BasePracticeProducer.loadMetaData(for: LangCode.currentLanguage)
+        self.wordPracticeCounter = WordPracticeProducer.countWordPractices(for: LangCode.currentLanguage)
         
         navigationItem.title = Strings.homeTitle
         applySnapShots()
