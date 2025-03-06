@@ -55,14 +55,21 @@ class ReorderingPracticeView: WordPracticeView {
     // textWords and randomWords are provided.
     var wordBank: WordBank!
     
-    var translationLabel: UILabel = {
-        let label = UILabel()
-        label.numberOfLines = ReorderingPracticeView.translationLabelRowNumberLimit
-        // https://developer.apple.com/documentation/uikit/uilabel
-        label.adjustsFontSizeToFitWidth = true
-        label.minimumScaleFactor = Sizes.wordPracticeReorderingSmallestFontSize / Sizes.wordPracticeReorderingFontSize
-        label.allowsDefaultTighteningForTruncation = true
-        return label
+    var textViewBackgroundView: UIView = {
+        let view = UIView()
+        view.backgroundColor = Colors.lightGrayBackgroundColor
+        view.layer.masksToBounds = true
+        view.layer.cornerRadius = Sizes.smallCornerRadius
+        view.layer.borderWidth = Sizes.defaultBorderWidth
+        view.layer.borderColor = Colors.borderColor.cgColor
+        return view
+    }()
+    
+    var translationTextView: UITextView = {
+        let textView = UITextView()
+        textView.isEditable = false
+        textView.backgroundColor = Colors.lightGrayBackgroundColor        
+        return textView
     }()
     
     var referenceLabel: UILabel = {
@@ -102,6 +109,15 @@ class ReorderingPracticeView: WordPracticeView {
         counter += 1
         
         if frame != .zero {
+            
+            wordBank.snp.updateConstraints { (make) in
+                make.width.equalTo(Sizes.reorderingWordBankWidth)
+                // https://stackoverflow.com/questions/42437966/how-to-adjust-height-of-uicollectionview-to-be-the-height-of-the-content-size-of
+                make.height.equalTo(wordBank.collectionViewLayout.collectionViewContentSize.height)
+                make.centerX.equalToSuperview()
+                make.bottom.equalToSuperview().offset(-10)
+            }
+            
             rowStack = {
                 let rowNumber: Int = calculateRowNumber(
                     words: self.words,
@@ -120,20 +136,9 @@ class ReorderingPracticeView: WordPracticeView {
             addSubview(rowStack)
             // Move to back, otherwise will obscure the items.
             sendSubviewToBack(rowStack)
-            
-            wordBank.snp.updateConstraints { (make) in
-                make.width.equalTo(Sizes.reorderingWordBankWidth)
-                // https://stackoverflow.com/questions/42437966/how-to-adjust-height-of-uicollectionview-to-be-the-height-of-the-content-size-of
-                make.height.equalTo(wordBank.collectionViewLayout.collectionViewContentSize.height)
-                make.centerX.equalToSuperview()
-                make.bottom.equalToSuperview().offset(-10)
-            }
-
+            // Layout.
             rowStack.snp.makeConstraints { (make) in
-                make.bottom.equalTo(wordBank.snp.top).offset(-(
-                    rowHeight * 0.5
-//                    + ReorderingPracticeView.rowStackVerticalSpacing * 2
-                ))
+                make.bottom.equalTo(wordBank.snp.top).offset(-(rowHeight * 0.5))
                 make.width.equalTo(Sizes.reorderingRowStackWidth)
                 make.centerX.equalToSuperview()
             }
@@ -143,6 +148,39 @@ class ReorderingPracticeView: WordPracticeView {
                     make.height.equalTo(rowHeight)
                 }
             }
+            
+            // The calculation of `wordBankItemFont`
+            // is done after `updateValues()`.
+            // Thus the layout of the translation text view is here
+            // but not written in `updateLayouts()`.
+            textViewBackgroundView.snp.makeConstraints { (make) in
+                make.top.equalToSuperview()
+                make.width.equalToSuperview()
+                make.centerX.equalToSuperview()
+                make.height.equalTo({
+                    var avgTextHeight: CGFloat = 0
+                    let n = min(self.words.count, 3)
+                    for i in 0..<n {
+                        avgTextHeight += words[i].textSize(withFont: textLabelFont).height
+                    }
+                    avgTextHeight /= CGFloat(n)
+                    
+                    let lineHeight = avgTextHeight + textLabelParaStyle.lineSpacing
+                    let height = (
+                        lineHeight * CGFloat(Self.translationLabelRowNumberLimit)
+                        + translationTextView.textContainerInset.top
+                        + translationTextView.textContainerInset.bottom
+                    ) * (10 / 9)  // x * 10/9 * 9/10 (below) = 1
+                    
+                    return height
+                }())
+            }
+            translationTextView.snp.makeConstraints { (make) in
+                make.width.equalToSuperview().multipliedBy(0.95)
+                make.height.equalToSuperview().multipliedBy(0.9)
+                make.centerX.centerY.equalToSuperview()
+            }
+            
         }
     }
     
@@ -151,15 +189,12 @@ class ReorderingPracticeView: WordPracticeView {
     }
     
     private func updateViews() {
-        addSubview(translationLabel)
+        addSubview(textViewBackgroundView)
+        textViewBackgroundView.addSubview(translationTextView)
     }
     
     private func updateLayouts() {
-        translationLabel.snp.makeConstraints { (make) in
-            make.top.equalToSuperview()
-            make.leading.equalToSuperview()
-            make.width.equalToSuperview()
-        }
+        
     }
     
     func updateValues(words: [String], translation: String) {
@@ -167,7 +202,7 @@ class ReorderingPracticeView: WordPracticeView {
         self.words = words
         self.shuffledWords = words.shuffled()
         
-        self.translationLabel.attributedText = NSAttributedString(
+        self.translationTextView.attributedText = NSAttributedString(
             string: translation,
             attributes: [
                 .foregroundColor: Colors.normalTextColor,
