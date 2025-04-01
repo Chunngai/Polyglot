@@ -421,18 +421,26 @@ extension WordPracticeProducer {
         tokens: [Token]
     ) -> WordPractice? {
         
+        // Not needed for one-syllable words.
+        guard tokens.pronunciations.joined(separator: "").count >= 2 else {
+            return nil
+        }
+        
         // TODO: - nil and -1 produces the same accented pronunciation.
         
-        func makePronunciationsWith(accents: [Int?], and tokens: [Token]) -> String {
+        func makePronunciationsWith(accents: [Int?], and tokens: [Token]) -> String? {
             guard accents.count == tokens.count else {
-                return "-"
+                return nil
             }
             
             var tokens = tokens
             for (i, accent) in accents.enumerated() {
                 tokens[i].accentLoc = accent
             }
-            return tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)
+            
+            let accentedTokenPronunciations = languageSpecificPreprocess(tokens.accentedPronunciations)
+            let accentedWord = accentedTokenPronunciations.joined(separator: Strings.wordSeparator)
+            return accentedWord
         }
         
         func generateRandomAccentLocs(for tokens: [Token]) -> [Int?] {
@@ -456,25 +464,73 @@ extension WordPracticeProducer {
             })
         }
         
-        // Not needed for one-syllable words.
-        guard tokens.pronunciations.joined(separator: "").count >= 2 else {
-            return nil
+        func hasSingleVowelOrJo(inAccentedRussianTokenPronunciation accentedRussianTokenPronunciation: String) -> Bool {
+            var vowelCount = 0
+            var joCount = 0
+            for char in Array(accentedRussianTokenPronunciation) {
+                if char == Token.accentSymbol {
+                    continue
+                }
+                if Tokens.russianVowels.contains(String(char)) {
+                    vowelCount += 1
+                }
+                if Tokens.russianJos.contains(String(char)) {
+                    joCount += 1
+                }
+            }
+            
+            if vowelCount == 1 {
+                return true
+            }
+            if joCount == 1 {
+                return true
+            }
+            return false
         }
         
-        var selectionAccentsList = [tokens.accentLocs]
-        var selectionTexts = [tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)]
+        func languageSpecificPreprocess(_ accentedTokenPronunciations: [String]) -> [String] {
+            if LangCode.currentLanguage != .ru {
+                return accentedTokenPronunciations
+            }
+            
+            var accentedTokenPronunciations = accentedTokenPronunciations
+            for (i, accentedTokenPronunciation) in accentedTokenPronunciations.enumerated() {
+                if hasSingleVowelOrJo(inAccentedRussianTokenPronunciation: accentedTokenPronunciation) {
+                    accentedTokenPronunciations[i] = accentedTokenPronunciations[i].replacing(
+                        String(Token.accentSymbol),
+                        with: ""
+                    )
+                }
+            }
+            return accentedTokenPronunciations
+        }
+        
+        let accentedTokenPronunciations = languageSpecificPreprocess(tokens.accentedPronunciations)
+        let accentedWord = accentedTokenPronunciations.joined(separator: Strings.wordSeparator)
+        // Not needed for Russian words without accents.
+        if LangCode.currentLanguage == .ru && tokens.pronunciations == tokens.accentedPronunciations {
+            return nil
+        }
+        var selectionTexts = [accentedWord]
+        
         // Randomly generate two accent sequences.
         var maxNTries: Int = Self.defaultChoiceNumber * 3
         while true {
             // Generate a random accent sequence.
-            let selectionAccents = generateRandomAccentLocs(for: tokens)
-            let selectionText = makePronunciationsWith(accents: selectionAccents, and: tokens)
-            if !selectionTexts.contains(selectionText) {
-                selectionAccentsList.append(selectionAccents)
-                selectionTexts.append(selectionText)
+            let selectionAccentLocs = generateRandomAccentLocs(for: tokens)
+            guard let selectionText = makePronunciationsWith(
+                accents: selectionAccentLocs,
+                and: tokens
+            ) else {
+                continue
             }
             
-            if selectionAccentsList.count == Self.defaultChoiceNumber {
+            if selectionTexts.contains(selectionText) {
+                continue
+            }
+            selectionTexts.append(selectionText)
+            
+            if selectionTexts.count == Self.defaultChoiceNumber {
                 break
             }
 
@@ -483,17 +539,13 @@ extension WordPracticeProducer {
                 return nil
             }
         }
-                
-        // Shuffle the two lists in the same order.
-        // https://stackoverflow.com/questions/32726962/randomize-two-arrays-the-same-way-swift
-        let shuffledIndices = selectionAccentsList.indices.shuffled()
-        selectionTexts = shuffledIndices.map { selectionTexts[$0] }
+        selectionTexts.shuffle()
                 
         return WordPractice(
             practiceType: .accentSelection,
             word: word,
             query: query,
-            key: tokens.accentedPronunciations.joined(separator: Strings.wordSeparator),
+            key: accentedWord,
             prompt: prompt(for: .accentSelection, withWord: query),
             choices: selectionTexts,
             direction: .text

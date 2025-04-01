@@ -13,6 +13,49 @@ struct Token: Codable {
     var text: String
     var baseForm: String?
     var pronunciation: String
+    /*
+        Japanese:
+    
+        経験する (けいけんする)
+        ---
+        け nil
+        い nil
+        け nil
+        ん nil
+        す nil
+        る nil
+    
+        このモードに切り替わる (このモ̚ードにきりかわ̚る)
+        ---
+        こ nil
+        の nil
+        モ Optional(0)
+        ー nil
+        ド nil
+        に nil
+        き nil
+        り nil
+        か nil
+        わ Optional(0)
+        る nil
+        
+        ==========
+     
+        Russian:
+     
+        чем я могу̚ вам помочь
+        ---
+        чем nil
+        я nil
+        могу Optional(3)
+        вам nil
+        помочь nil
+     
+        знакомствo
+        ---
+        знакомствo nil
+        
+    */
     var accentLoc: Int?
     
     init(text: String, baseForm: String?, pronunciation: String, accentLoc: Int?) {

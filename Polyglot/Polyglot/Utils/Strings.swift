@@ -896,4 +896,7 @@ struct Tokens {
         + Tokens._germanWordsToFilterInContentCardGeneration
     )
     
+    static let russianVowels: String = "АЕЁИОУЫЭЮЯаеёиоуыэюя"
+    static let russianJos: String = "Ёё"
+    
 }
