@@ -10,18 +10,93 @@ import UIKit
 
 class WordsTableCell: UITableViewCell {
     
+    var wordLabelAttributedText: NSMutableAttributedString {
+        
+        let attrs: [NSAttributedString.Key: Any] = [
+            .foregroundColor: Colors.normalTextColor,
+            .font: UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        ]
+        var attrText = NSMutableAttributedString(
+            string: word.text,
+            attributes: attrs
+        )
+        
+        guard let tokens = word.tokens else {
+            return attrText
+        }
+        guard LangCode.currentLanguage == .ja || LangCode.currentLanguage == .ru else {
+            return attrText
+        }
+            
+        if LangCode.currentLanguage == .ja {
+            
+            let pronunciation: String = tokens.pronunciations.joined(separator: Strings.wordSeparator)
+            if pronunciation.normalized(
+                caseInsensitive: true,
+                diacriticInsensitive: true
+            ) == word.text.normalized(
+                caseInsensitive: true,
+                diacriticInsensitive: true
+            ) {  // E.g., japanese words with katakana only.
+                
+                let accentLocs = calculateAccentLocs(
+                    for: pronunciation,
+                    with: tokens
+                )
+                setBoldChars(
+                    for: accentLocs,
+                    of: attrText
+                )
+                return attrText
+                
+            } else {
+                
+                attrText = NSMutableAttributedString(
+                    string: "\(word.text) (\(pronunciation))",
+                    attributes: attrs
+                )
+                
+                var accentLocs = calculateAccentLocs(
+                    for: pronunciation,
+                    with: tokens
+                )
+                for i in 0..<accentLocs.count {
+                    accentLocs[i] += word.text.count + 2  // " ("
+                }
+                setBoldChars(
+                    for: accentLocs,
+                    of: attrText
+                )
+                attrText.setTextColor(
+                    for: pronunciation,
+                    with: Colors.weakTextColor
+                )
+                return attrText
+                                
+            }
+            
+        } else if LangCode.currentLanguage == .ru {
+            
+            let accentLocs = calculateAccentLocs(
+                for: word.text,
+                with: tokens
+            )
+            setBoldChars(
+                for: accentLocs,
+                of: attrText
+            )
+            return attrText
+            
+        }
+
+        return attrText
+    }
+    
     // MARK: - Models
     
     var word: Word! {
         didSet {
-            let wordLabelText: NSMutableAttributedString = NSMutableAttributedString(string: word.accentedText)
-            if wordLabelText.string.replacingOccurrences(of: String(Token.accentSymbol), with: "") == word.text {
-                wordLabel.textColor = Colors.normalTextColor
-            } else {
-                wordLabel.textColor = Colors.weakTextColor
-                wordLabelText.setTextColor(for: word.text, with: Colors.normalTextColor)
-            }
-            wordLabel.attributedText = wordLabelText
+            wordLabel.attributedText = wordLabelAttributedText
             wordLabel.setLineSpacing(lineSpacing: 3)  // Should be called after text assignment.
 
             meaningLabel.text = word.meaning
@@ -37,9 +112,7 @@ class WordsTableCell: UITableViewCell {
     private var wordLabel: UILabel = {
         let label = UILabel()
         label.backgroundColor = Colors.defaultBackgroundColor
-        label.textColor = Colors.weakTextColor
         label.lineBreakMode = .byTruncatingTail
-        label.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
         label.textAlignment = .left
         label.numberOfLines = 0
         return label
@@ -98,4 +171,23 @@ class WordsTableCell: UITableViewCell {
     func updateValues(word: Word) {
         self.word = word
     }
+}
+
+extension WordsTableCell {
+    
+    // MARK: - Utils
+    
+    private func setBoldChars(for locations: [Int], of attrStr: NSMutableAttributedString) {
+        
+        for loc in locations {
+            if loc >= attrStr.length {
+                continue
+            }
+            attrStr.bold(for: NSRange(
+                location: loc,
+                length: 1
+            ))
+        }
+    }
+    
 }

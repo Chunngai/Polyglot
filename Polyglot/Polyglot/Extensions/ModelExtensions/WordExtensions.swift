@@ -11,7 +11,8 @@ import Foundation
 extension Token {
     
     // https://stackoverflow.com/questions/31272561/working-with-unicode-code-points-in-swift
-    static let accentSymbol: Character = "\u{031A}"
+//    static let accentSymbol: Character = "\u{031A}"
+    static let accentSymbol: Character = "'"
     
     var accentedPronunciation: String {
         
@@ -51,46 +52,6 @@ extension Array where Iterator.Element == Token {
     
     var accentedPronunciations: [String] {
         self.map { $0.accentedPronunciation }
-    }
-}
-
-extension Word {
-        
-    var accentedText: String {
-        if let tokens = self.tokens {
-            
-            if LangCode.currentLanguage == .ja {
-                
-                let accentedPronunciation: String = tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)
-                if accentedPronunciation.normalized(
-                    caseInsensitive: true,
-                    diacriticInsensitive: false
-                ).replacingOccurrences(
-                    of: String(Token.accentSymbol),
-                    with: ""
-                ) == self.text.normalized(
-                    caseInsensitive: true,
-                    diacriticInsensitive: false
-                ) {  // E.g., japanese words with katakana only.
-                    return accentedPronunciation
-                } else {
-                    return "\(self.text) (\(accentedPronunciation))"
-                }
-                
-            } else if LangCode.currentLanguage == .ru {
-                
-                return addAccentMarks(
-                    for: self.text,
-                    with: self.tokens ?? []
-                )
-                
-            } else {
-                return self.text
-            }
-            
-        } else {
-            return self.text
-        }
     }
 }
 
