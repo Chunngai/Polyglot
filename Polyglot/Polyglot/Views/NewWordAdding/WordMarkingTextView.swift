@@ -1168,7 +1168,12 @@ extension WordMarkingTextView {
             return true
         }
         if !isAddingNewWord && action == #selector(newWordMenuItemTapped) {
-            return true
+            if let word = selectedWord {
+                return !wordsInfo.map { wordInfo in
+                    wordInfo.word
+                }.contains(word)
+            }
+//            return true
         }
         if isAddingNewWord && action == #selector(wordMeaningMenuItemTapped) {
             return true
