@@ -42,6 +42,7 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
     private var attributedTextBeforeEditting: NSAttributedString?
     private var canIncreaseTextLength: Bool = true
     private var isAdjustingSelectedRange: Bool = false
+    private var loc2word: [Int: String] = [:]
     
     private var textBiGram2BiRanges: [BiGram: [BiRange]] = [:]  // A bi-gram may correspond to multiple bi-ranges.
     
@@ -103,6 +104,23 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
         )
         
         self.clozeRanges = clozeRanges
+        
+        for r in clozeRanges {
+            let word = (self.text as NSString).substring(with: r)
+            for loc in r.location..<(r.location+r.length) {
+                if loc >= self.text.count {
+                    continue
+                }
+                // +1: The selected loc will go right by one after typing!
+                // For example,
+                // the content of the cloze is "text",
+                // before typing: |____
+                // after typing: t|___
+                // and since we use the loc of "|" (selectedRange.location)
+                // to get the word, should +1.
+                self.loc2word[loc + 1] = word
+            }
+        }
         
         upperString = text
         lowerString = meaning
@@ -386,10 +404,46 @@ extension ListenAndRepeatPracticeView {
     }
     
     private func checkTypedWordCorrectness() {
-        var typedWord: String = ""
-        var targetWord: String = ""
-        var currentLocation = textView.selectedRange.location
+        
+        let selectedRangeLocation = textView.selectedRange.location
+        guard let targetWord = loc2word[selectedRangeLocation] else {
+            print("checkTypedWordCorrectness(): No target word!")
+            return
+        }
         var rangesToRemove: [NSRange] = []
+        
+        var typedWordRightPart: String = ""
+        var currentLocation = selectedRangeLocation
+        while true {
+            let bgColorOfCurrentLocation = textView.attributedText.backgroundColor(at: currentLocation)
+            if bgColorOfCurrentLocation != Colors.clozeMaskColor {
+                break
+            }
+            let textColorOfCurrentLocation = textView.attributedText.textColor(at: currentLocation)
+            if textColorOfCurrentLocation != (textView.defaultTextAttributes[.foregroundColor] as? UIColor) {
+                break
+            }
+            
+            let charAtCurrentRange = NSRange(
+                location: currentLocation,
+                length: 1
+            )
+            // https://stackoverflow.com/questions/3836670/how-to-get-a-single-nsstring-character-from-an-nsstring
+            let currentChar = textView.attributedText.attributedSubstring(from: charAtCurrentRange).string
+            typedWordRightPart = typedWordRightPart + currentChar
+            
+            if edittedAttrCharRangeToOriginalAttrChar.keys.contains(charAtCurrentRange) {
+                rangesToRemove.append(charAtCurrentRange)
+            }
+            
+            currentLocation += 1
+            if currentLocation >= self.textView.attributedText.length {
+                break
+            }
+        }
+        
+        var typedWordLeftPart: String = ""
+        currentLocation = selectedRangeLocation
         while true {
             currentLocation -= 1
             if currentLocation < 0 {
@@ -400,6 +454,10 @@ extension ListenAndRepeatPracticeView {
             if bgColorOfCurrentLocation != Colors.clozeMaskColor {
                 break
             }
+            let textColorOfCurrentLocation = textView.attributedText.textColor(at: currentLocation)
+            if textColorOfCurrentLocation != (textView.defaultTextAttributes[.foregroundColor] as? UIColor) {
+                break
+            }
             
             let charAtCurrentRange = NSRange(
                 location: currentLocation,
@@ -407,14 +465,14 @@ extension ListenAndRepeatPracticeView {
             )
             // https://stackoverflow.com/questions/3836670/how-to-get-a-single-nsstring-character-from-an-nsstring
             let currentChar = textView.attributedText.attributedSubstring(from: charAtCurrentRange).string
-            typedWord = currentChar + typedWord
+            typedWordLeftPart = currentChar + typedWordLeftPart
             
-            if let originalCharInTargetWord = edittedAttrCharRangeToOriginalAttrChar[charAtCurrentRange]?.string {
-                targetWord = originalCharInTargetWord + targetWord
+            if edittedAttrCharRangeToOriginalAttrChar.keys.contains(charAtCurrentRange) {
                 rangesToRemove.append(charAtCurrentRange)
             }
         }
         
+        let typedWord = typedWordLeftPart + typedWordRightPart
         if typedWord.normalized(
             shouldStrip:true,
             caseInsensitive: true,
@@ -640,13 +698,14 @@ extension ListenAndRepeatPracticeView {
         // When finished typing a word, check its correctness.
         // Case 1: reached the end of the text.
         // Case 2: reached the word boundary.
-        let bgColorOfNewSelectedLocationOfCharToReplace = textView.attributedText.backgroundColor(at: textView.selectedRange.location)
-        if textView.selectedRange.location > self.text.count
-            || bgColorOfNewSelectedLocationOfCharToReplace == textView.backgroundColor
-            || bgColorOfNewSelectedLocationOfCharToReplace == nil  // Otherwise the word at the end of the text cannot be checked properly.
-        {
-            checkTypedWordCorrectness()
-        }
+//        let bgColorOfNewSelectedLocationOfCharToReplace = textView.attributedText.backgroundColor(at: textView.selectedRange.location)
+//        if textView.selectedRange.location > self.text.count
+//            || bgColorOfNewSelectedLocationOfCharToReplace == textView.backgroundColor
+//            || bgColorOfNewSelectedLocationOfCharToReplace == nil  // Otherwise the word at the end of the text cannot be checked properly.
+//        {
+//            checkTypedWordCorrectness()
+//        }
+        checkTypedWordCorrectness()
         
         // Explicitly call this method here instead of executing the code
         // in textViewDidChangeSelection after shouldChangeTextIn.
