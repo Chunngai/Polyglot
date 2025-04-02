@@ -49,27 +49,46 @@ struct BaiduTranslator: TranslationProtocol {
             completion([])
             return
         } else {
-            AF.request(
+            
+            // Set timeout interval (e.g., 10 seconds)
+            let configuration = URLSessionConfiguration.af.default
+            configuration.timeoutIntervalForRequest = Constants.shortRequestTimeLimit
+            configuration.timeoutIntervalForResource = Constants.shortRequestTimeLimit
+            
+            let session = Session(configuration: configuration)
+            session.request(
                 url,
                 method: .post
             ).response { response in
-                guard let data = response.data,
-                      let json = try? JSONSerialization.jsonObject(
-                        with: data,
-                        options: []
-                      ) as? [String: Any] else {
+                // Handle timeout
+                if
+                    let error = response.error,
+                    error.isExplicitlyCancelledError
+                {
                     completion([])
                     return
                 }
                 
+                guard let data = response.data,
+                      let json = try? JSONSerialization.jsonObject(
+                        with: data,
+                        options: []
+                      ) as? [String: Any] 
+                else {
+                    completion([])
+                    return
+                }
+                
+                // Rest of your existing code...
                 if let transResult = json["trans_result"] as? [[String: String]],
-                   transResult.count != 0 {
+                   transResult.count != 0 
+                {
                     completion(transResult.compactMap { d in
                         d["dst"]
                     })
                     return
                 } else if let errorDict = json as? [String: String] {
-                    if errorDict["error_code"] == "54003" {  // Invalid Access Limit.
+                    if errorDict["error_code"] == "54003" {
                         request(
                             url: url,
                             completion: completion,
@@ -77,13 +96,15 @@ struct BaiduTranslator: TranslationProtocol {
                         )
                     } else {
                         print("\(Self.self): \(errorDict)")
+                        
                         completion([])
                         return
                     }
+                } else {
+                    completion([])
+                    return
                 }
-                
             }
-            
         }
     }
     

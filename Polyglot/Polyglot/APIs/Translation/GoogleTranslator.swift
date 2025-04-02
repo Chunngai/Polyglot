@@ -51,12 +51,21 @@ struct GoogleTranslator: TranslationProtocol {
             return
         }
         
-        var request: URLRequest = URLRequest(url: url, timeoutInterval: Constants.shortRequestTimeLimit)
-        request.setValue(Constants.userAgent, forHTTPHeaderField: "User-Agent")
+        var request: URLRequest = URLRequest(
+            url: url,
+            timeoutInterval: Constants.shortRequestTimeLimit
+        )
+        request.setValue(
+            Constants.userAgent,
+            forHTTPHeaderField: "User-Agent"
+        )
         
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             
-            guard let data = data, error == nil else {
+            guard
+                let data = data,
+                error == nil
+            else {
                 print("\(Self.self): \(error?.localizedDescription ?? "Unknown error.")")
                 
                 completion([])
@@ -64,8 +73,10 @@ struct GoogleTranslator: TranslationProtocol {
             }
             
             do {
-                // TODO: - Are there better ways to handle the json data?
-                guard let jsonArray = try JSONSerialization.jsonObject(with: data, options: []) as? [Any] else {
+                guard let jsonArray = try JSONSerialization.jsonObject(
+                    with: data,
+                    options: []
+                ) as? [Any] else {
                     completion([])
                     return
                 }
@@ -74,6 +85,7 @@ struct GoogleTranslator: TranslationProtocol {
                     completion([])
                     return
                 }
+                
                 if resArray.count == 1 {
                     // Return multiple translation candidates.
                     guard let res = resArray[0] as? [Any] else {
@@ -88,8 +100,8 @@ struct GoogleTranslator: TranslationProtocol {
                     let translations = translationArrays.compactMap { (arr) -> String? in
                         (arr as? [Any])?[0] as? String
                     }
-                    
                     completion(translations)
+                    return
                 } else {
                     // Return one translation.
                     var translation: String = ""
@@ -107,12 +119,16 @@ struct GoogleTranslator: TranslationProtocol {
                             continue
                         }
                     }
-                    
                     completion([translation])
+                    return
                 }
             } catch {
+                
                 print("\(Self.self): \(error.localizedDescription)")
+                
                 completion([])
+                return
+                
             }
             
         }

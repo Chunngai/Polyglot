@@ -18,6 +18,8 @@ struct ContentCreator {
     
     var llm: LLM!
     
+    var requestTimeLimit = Constants.requestTimeLimit
+    
     init(_ llm: LLM = LLM.gpt3_5) {
         self.llm = llm
     }
@@ -27,7 +29,8 @@ struct ContentCreator {
         print("ContentCreator: Creating content with prompt: \(prompt)")
         
         guard let urlString = globalConfigs.ChatGPTAPIURL,
-              let url = URL(string: urlString) else {
+              let url = URL(string: urlString) 
+        else {
             completion(nil)
             return
         }
@@ -38,41 +41,76 @@ struct ContentCreator {
         
         var request: URLRequest = URLRequest(
             url: url,
-            timeoutInterval: Constants.requestTimeLimit
+            timeoutInterval: requestTimeLimit
         )
         request.setValue(Constants.userAgent, forHTTPHeaderField: "User-Agent")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         // https://stackoverflow.com/questions/31937686/how-to-make-http-post-request-with-json-body-in-swift
         request.httpMethod = "POST"
-        request.httpBody = try? JSONSerialization.data(withJSONObject: [
-            "model": self.llm.rawValue,
-            "messages": [[
-                "role": "user",
-                "content": prompt
-            ]]
-        ])
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: [
+                "model": self.llm.rawValue,
+                "messages": [[
+                    "role": "user",
+                    "content": prompt
+                ]]
+            ])
+        } catch {
+            print("\(Self.self): \(error.localizedDescription)")
+            
+            completion(nil)
+            return
+        }
         
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
-            guard let data = data, error == nil else {
+            guard
+                let data = data,
+                error == nil
+            else {
                 print(error?.localizedDescription ?? "Error.")
+                
                 completion(nil)
                 return
             }
-            if let responseJSON = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
-                // TODO: - Improve here.
-                if let choicesArr = responseJSON["choices"] as? [Any] {
-                    if let choiceDict = choicesArr[0] as? [String: Any] {
-                        if let messageDict = choiceDict["message"] as? [String: String] {
-                            completion(messageDict["content"] ?? nil)
-                        }
-                    }
+            
+            if let responseJSON = try? JSONSerialization.jsonObject(
+                with: data,
+                options: []
+            ) as? [String: Any] {
+
+                guard let choicesArr = responseJSON["choices"] as? [Any] else {
+                    completion(nil)
+                    return
                 }
+                guard let choiceDict = choicesArr[0] as? [String: Any] else {
+                    completion(nil)
+                    return
+                }
+                guard let messageDict = choiceDict["message"] as? [String: String] else {
+                    completion(nil)
+                    return
+                }
+                guard let content = messageDict["content"] else {
+                    completion(nil)
+                    return
+                }
+                
+                completion(content)
+                return
+                
             } else if let responseString = String(data: data, encoding: .utf8) {
+                
                 print(responseString)
+                
                 completion(nil)
+                return
+                
             } else {
+                
                 completion(nil)
+                return
+                
             }
         }
         task.resume()
