@@ -75,6 +75,16 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
         currentRepetition: Int,
         textAccentLocs: [Int]
     ) {
+        
+        var text = text
+        if LangCode.currentLanguage == .ko {
+            // For Korean, if there is no character after the final cloze,
+            // the typing of the last Korean letter cannot be finished.
+            // To reproduce the bug, replace all "." in the Korean text.
+            // The code below solves it.
+            text = text + " "
+        }
+        
         super.init(
             frame: frame,
             text: text,
