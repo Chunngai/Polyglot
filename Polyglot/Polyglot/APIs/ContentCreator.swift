@@ -31,10 +31,12 @@ struct ContentCreator {
         guard let urlString = globalConfigs.ChatGPTAPIURL,
               let url = URL(string: urlString) 
         else {
+            sendErrorMessage("[\(Self.self)] Invalid API URL: \(globalConfigs.ChatGPTAPIURL ?? "")")
             completion(nil)
             return
         }
         guard let apiKey = globalConfigs.ChatGPTAPIKey else {
+            sendErrorMessage("[\(Self.self)] Invalid API key: \(globalConfigs.ChatGPTAPIKey ?? "")")
             completion(nil)
             return
         }
@@ -58,7 +60,7 @@ struct ContentCreator {
             ])
         } catch {
             print("\(Self.self): \(error.localizedDescription)")
-            
+            sendErrorMessage("[\(Self.self)] \(error.localizedDescription)")
             completion(nil)
             return
         }
@@ -68,8 +70,9 @@ struct ContentCreator {
                 let data = data,
                 error == nil
             else {
-                print(error?.localizedDescription ?? "Error.")
-                
+                let errorMsg = error?.localizedDescription ?? "Request error."
+                print(errorMsg)
+                sendErrorMessage("[\(Self.self)] \(errorMsg)")
                 completion(nil)
                 return
             }
@@ -81,24 +84,29 @@ struct ContentCreator {
 
                 if let error = responseJSON["error"] as? [String: String?],
                    let message = error["message"] as? String {
-                    print(message)
+
+                    sendErrorMessage("\(Self.self): \(message)")
                     completion(nil)
                     return
                 }
                 
                 guard let choicesArr = responseJSON["choices"] as? [Any] else {
+                    sendErrorMessage("[\(Self.self)] Failed to parse the response json.")
                     completion(nil)
                     return
                 }
                 guard let choiceDict = choicesArr[0] as? [String: Any] else {
+                    sendErrorMessage("[\(Self.self)] Failed to parse the response json.")
                     completion(nil)
                     return
                 }
                 guard let messageDict = choiceDict["message"] as? [String: String] else {
+                    sendErrorMessage("[\(Self.self)] Failed to parse the response json.")
                     completion(nil)
                     return
                 }
                 guard let content = messageDict["content"] else {
+                    sendErrorMessage("[\(Self.self)] Failed to parse the response json.")
                     completion(nil)
                     return
                 }
@@ -108,6 +116,7 @@ struct ContentCreator {
                 
             } else {
                 
+                sendErrorMessage("[\(Self.self)] Failed to parse the response.")
                 completion(nil)
                 return
                 

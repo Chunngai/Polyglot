@@ -20,6 +20,17 @@ struct Colors {
     static let activeTextColor: UIColor = .systemBlue
     static let inactiveTextColor: UIColor = .lightGray
     static let lightTextColor: UIColor = .white
+    static let lightErrorColor: UIColor = UIColor(
+        red: 1.0,
+        green: 0.8,
+        blue: 0.8,
+        alpha: 1.0
+    )
+    static let darkErrorColor: UIColor = UIColor.intRGB2UIColor(
+        red: 145,
+        green: 50,
+        blue: 53
+    )
         
     static let activeSystemButtonColor: UIColor = .systemBlue
     static let inactiveSystemButtonColor: UIColor = .lightGray

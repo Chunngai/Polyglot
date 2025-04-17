@@ -38,6 +38,8 @@
 		C69DB5EE2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69DB5ED2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift */; };
 		C69F76662B7D198F0006828A /* TextMeaningPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69F76652B7D198F0006828A /* TextMeaningPractice.swift */; };
 		C69F76682B7D1F9F0006828A /* ListeningPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69F76672B7D1F9F0006828A /* ListeningPractice.swift */; };
+		C69F787C2DB165B6000E0999 /* ErrorMessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69F787B2DB165B6000E0999 /* ErrorMessageView.swift */; };
+		C69F78802DB17EF9000E0999 /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69F787F2DB17EF9000E0999 /* Utils.swift */; };
 		C6A12F642D551A9A00E6C723 /* DuolingoOnlySelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A12F612D551A9A00E6C723 /* DuolingoOnlySelectionViewController.swift */; };
 		C6A1A25D2D6B7A6100B99B49 /* GPTTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A1A25C2D6B7A6100B99B49 /* GPTTranslator.swift */; };
 		C6A1FC402C7B4B9700F01632 /* ReadingPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A1FC3F2C7B4B9700F01632 /* ReadingPractice.swift */; };
@@ -213,6 +215,8 @@
 		C69DB5ED2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListenAndCompletePracticeView.swift; sourceTree = "<group>"; };
 		C69F76652B7D198F0006828A /* TextMeaningPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextMeaningPractice.swift; sourceTree = "<group>"; };
 		C69F76672B7D1F9F0006828A /* ListeningPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningPractice.swift; sourceTree = "<group>"; };
+		C69F787B2DB165B6000E0999 /* ErrorMessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorMessageView.swift; sourceTree = "<group>"; };
+		C69F787F2DB17EF9000E0999 /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		C6A12F612D551A9A00E6C723 /* DuolingoOnlySelectionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DuolingoOnlySelectionViewController.swift; sourceTree = "<group>"; };
 		C6A1A25C2D6B7A6100B99B49 /* GPTTranslator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPTTranslator.swift; sourceTree = "<group>"; };
 		C6A1FC3F2C7B4B9700F01632 /* ReadingPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPractice.swift; sourceTree = "<group>"; };
@@ -655,6 +659,7 @@
 				FF24AB75297073AA00129EEF /* Headers */,
 				C60626092B8072C600429BAF /* Cells */,
 				C60626042B8069D200429BAF /* PracticeViews */,
+				C69F787B2DB165B6000E0999 /* ErrorMessageView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -700,6 +705,7 @@
 				C6AB6E852C8068DB00F660C7 /* Translation */,
 				C6AB6E862C8068E500F660C7 /* AccentAnalysis */,
 				FF4AB0022A9B4C4400908062 /* ContentCreator.swift */,
+				C69F787F2DB17EF9000E0999 /* Utils.swift */,
 			);
 			path = APIs;
 			sourceTree = "<group>";
@@ -1025,6 +1031,7 @@
 				C69DB5EA2B73BE9B00B3BC66 /* TextMeaningPracticeView.swift in Sources */,
 				FF491E752959C4320088FD13 /* SelectionPracticeView.swift in Sources */,
 				FFCBB0E0296B45F300E5B9D9 /* SpeakingPracticeView.swift in Sources */,
+				C69F787C2DB165B6000E0999 /* ErrorMessageView.swift in Sources */,
 				C69B190E2C18B76600E41C86 /* SettingsSwitchingCell.swift in Sources */,
 				FF4964BA29579C5A00414AC5 /* UISearchBarExtensions.swift in Sources */,
 				FF5844312967217700137E00 /* ListViewController.swift in Sources */,
@@ -1092,6 +1099,7 @@
 				FFD7DF7D299DA18000019D51 /* ReorderingPracticeView.swift in Sources */,
 				C60626082B8069F100429BAF /* WordPracticeView.swift in Sources */,
 				FF63DDFC299AC17C0088C10B /* WordBank.swift in Sources */,
+				C69F78802DB17EF9000E0999 /* Utils.swift in Sources */,
 				FF62C9762951382500D41797 /* AppDelegate.swift in Sources */,
 				FF4CA730295E869900423946 /* SpeakingPracticeViewController.swift in Sources */,
 				FF4D7CC62953952C009F6894 /* NSAttributedStringExtensions.swift in Sources */,

@@ -61,6 +61,7 @@ struct MachineTranslator {
     private func _translate(withTranslatorOfIndex i: Int, query: String, completion: @escaping ([String], MachineTranslatorType) -> Void) {
         
         if self.translators.isEmpty || i >= self.translators.count {
+            sendErrorMessage("Translation failed.")
             completion(
                 [],
                 MachineTranslatorType.none

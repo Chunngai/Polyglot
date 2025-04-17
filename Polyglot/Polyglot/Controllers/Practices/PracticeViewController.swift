@@ -138,7 +138,19 @@ class PracticeViewController: UIViewController {
         nextButton.addTarget(self, action: #selector(nextButtonTapped), for: .touchUpInside)
         
         maskView.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(maskViewTapped)))
-        NotificationCenter.default.addObserver(self, selector: #selector(appMovedToBackground), name: UIApplication.willResignActiveNotification, object: nil)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appMovedToBackground),
+            name: UIApplication.willResignActiveNotification,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAPINotification(_:)),
+            name: .apiDidFail,
+            object: nil
+        )
     }
     
     func updateViews() {
@@ -256,6 +268,18 @@ extension PracticeViewController {
         
         // https://stackoverflow.com/questions/53555428/hide-the-keyboard-on-the-button-click
         IQKeyboardManager.shared.resignFirstResponder()
+    }
+    
+    @objc func handleAPINotification(_ notification: Notification) {
+        guard let message = notification.userInfo?["message"] as? String else {
+            return
+        }
+        DispatchQueue.main.async {
+            ErrorMessageView.show(
+                in: self.view,
+                message: message
+            )
+        }
     }
     
     @objc func maskViewTapped() {
