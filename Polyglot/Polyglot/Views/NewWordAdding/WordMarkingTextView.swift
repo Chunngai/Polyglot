@@ -647,13 +647,14 @@ extension WordMarkingTextView {
             prompt
         ) { content in
             
+            self.isColorAnimating = false
+            
             DispatchQueue.main.async {
                 self.contentGenerationDelegate.completedContentGeneration(
                     wordMarkingTextView: self,
                     content: content
                 )
                 
-                self.isColorAnimating = false
                 // Recover to the original color.
                 for (range, color) in originalRange2Color {
                     self.textStorage.setTextColor(
@@ -748,13 +749,13 @@ extension WordMarkingTextView {
             prompt
         ) { content in
             
+            self.isColorAnimating = false
+
             DispatchQueue.main.async {
                 self.contentGenerationDelegate.completedContentGeneration(
                     wordMarkingTextView: self,
                     content: content
                 )
-                
-                self.isColorAnimating = false
             }
             
             // Enable regeneration.
