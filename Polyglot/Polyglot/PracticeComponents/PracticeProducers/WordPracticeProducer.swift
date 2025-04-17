@@ -73,6 +73,9 @@ extension WordPracticeProducer {
             return
         }
         
+        guard practice.practiceType != .meaningFilling else {
+            return
+        }
         guard practice.practiceType != .accentSelection else {
             return
         }

@@ -18,7 +18,7 @@ struct GPTTranslator: TranslationProtocol {
     
     var gpt = {
         var gpt = ContentCreator(.gpt4o)
-        gpt.requestTimeLimit = Constants.shortRequestTimeLimit
+//        gpt.requestTimeLimit = Constants.shortRequestTimeLimit
         return gpt
     }()
     

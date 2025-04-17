@@ -79,6 +79,13 @@ struct ContentCreator {
                 options: []
             ) as? [String: Any] {
 
+                if let error = responseJSON["error"] as? [String: String?],
+                   let message = error["message"] as? String {
+                    print(message)
+                    completion(nil)
+                    return
+                }
+                
                 guard let choicesArr = responseJSON["choices"] as? [Any] else {
                     completion(nil)
                     return
@@ -97,13 +104,6 @@ struct ContentCreator {
                 }
                 
                 completion(content)
-                return
-                
-            } else if let responseString = String(data: data, encoding: .utf8) {
-                
-                print(responseString)
-                
-                completion(nil)
                 return
                 
             } else {
