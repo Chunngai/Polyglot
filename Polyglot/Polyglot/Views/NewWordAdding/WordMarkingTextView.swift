@@ -321,6 +321,11 @@ extension WordMarkingTextView {
                 if self.isColorAnimating {
                     animateToOriginalColor()
                 } else {
+                    // Not animating now. Reset the color.
+                    self.textStorage.setTextColor(
+                        for: range,
+                        with: self.colorAnimationOriginalColor
+                    )
                     // Reset to true for the animation next time.
                     self.isColorAnimating = true
                     return
@@ -344,6 +349,11 @@ extension WordMarkingTextView {
                 if self.isColorAnimating {
                     animateToIntermidiateColor()
                 } else {
+                    // Not animating now. Reset the color.
+                    self.textStorage.setTextColor(
+                        for: range,
+                        with: self.colorAnimationOriginalColor
+                    )
                     // Reset to true for the animation next time.
                     self.isColorAnimating = true
                     return

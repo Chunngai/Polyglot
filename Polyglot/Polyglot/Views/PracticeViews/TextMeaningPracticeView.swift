@@ -556,6 +556,7 @@ extension TextMeaningPracticeView {
             return
         }
         
+        let originalMeaningLang = self.meaningLang
         self.meaningLang = language
         
         textView.isColorAnimating = true
@@ -568,6 +569,7 @@ extension TextMeaningPracticeView {
             self.textView.isColorAnimating = false
             
             guard let translation = translations.first else {
+                self.meaningLang = originalMeaningLang
                 return
             }
                                     
