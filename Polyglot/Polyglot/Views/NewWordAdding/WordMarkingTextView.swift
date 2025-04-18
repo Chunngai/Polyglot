@@ -407,7 +407,10 @@ extension WordMarkingTextView {
             return
         }
         
-        contentCreator.createContent(withPrompt: prompt) { content in
+        contentCreator.createContent(
+            withPrompt: prompt,
+            displayErrorMessageWhenFailed: true
+        ) { content in
             guard var content = content else {
                 completion(nil)
                 return
@@ -431,7 +434,10 @@ extension WordMarkingTextView {
             return
         }
         
-        wordTranslator.translate(query: word) { translations, _ in
+        wordTranslator.translate(
+            query: word,
+            displayErrorMessageWhenFailed: true
+        ) { translations, _ in
             guard !translations.isEmpty else {
                 completion(nil)
                 return

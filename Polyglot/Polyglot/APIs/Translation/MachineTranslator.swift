@@ -58,10 +58,12 @@ struct MachineTranslator {
         
     }
     
-    private func _translate(withTranslatorOfIndex i: Int, query: String, completion: @escaping ([String], MachineTranslatorType) -> Void) {
+    private func _translate(withTranslatorOfIndex i: Int, query: String, displayErrorMessageWhenFailed: Bool, completion: @escaping ([String], MachineTranslatorType) -> Void) {
         
         if self.translators.isEmpty || i >= self.translators.count {
-            sendErrorMessage("Translation failed.")
+            if displayErrorMessageWhenFailed {
+                sendErrorMessage("Translation failed.")
+            }
             completion(
                 [],
                 MachineTranslatorType.none
@@ -78,6 +80,7 @@ struct MachineTranslator {
                     self._translate(
                         withTranslatorOfIndex: i + 1,
                         query: query,
+                        displayErrorMessageWhenFailed: displayErrorMessageWhenFailed,
                         completion: completion
                     )
                 }
@@ -85,13 +88,14 @@ struct MachineTranslator {
         }
     }
 
-    func translate(query: String, completion: @escaping (
+    func translate(query: String, displayErrorMessageWhenFailed: Bool = false, completion: @escaping (
         [String],
         MachineTranslatorType
     ) -> Void) {
         self._translate(
             withTranslatorOfIndex: 0,
             query: query,
+            displayErrorMessageWhenFailed: displayErrorMessageWhenFailed,
             completion: completion
         )
     }
