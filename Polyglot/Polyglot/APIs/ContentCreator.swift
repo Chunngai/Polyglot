@@ -31,12 +31,16 @@ struct ContentCreator {
         guard let urlString = globalConfigs.ChatGPTAPIURL,
               let url = URL(string: urlString) 
         else {
-            displayErrorMessage("Invalid API URL: \(globalConfigs.ChatGPTAPIURL ?? "")")
+            if displayErrorMessageWhenFailed {
+                displayErrorMessage("Invalid API URL: \(globalConfigs.ChatGPTAPIURL ?? "")")
+            }
             completion(nil)
             return
         }
         guard let apiKey = globalConfigs.ChatGPTAPIKey else {
-            displayErrorMessage("Invalid API key: \(globalConfigs.ChatGPTAPIKey ?? "")")
+            if displayErrorMessageWhenFailed {
+                displayErrorMessage("Invalid API key: \(globalConfigs.ChatGPTAPIKey ?? "")")
+            }
             completion(nil)
             return
         }
@@ -60,7 +64,9 @@ struct ContentCreator {
             ])
         } catch {
             print("\(Self.self): \(error.localizedDescription)")
-            displayErrorMessage(error.localizedDescription)
+            if displayErrorMessageWhenFailed {
+                displayErrorMessage(error.localizedDescription)
+            }
             completion(nil)
             return
         }
@@ -72,7 +78,9 @@ struct ContentCreator {
             else {
                 let errorMsg = error?.localizedDescription ?? "Request error."
                 print(errorMsg)
-                displayErrorMessage(errorMsg)
+                if displayErrorMessageWhenFailed {
+                    displayErrorMessage(errorMsg)
+                }
                 completion(nil)
                 return
             }
@@ -85,28 +93,38 @@ struct ContentCreator {
                 if let error = responseJSON["error"] as? [String: String?],
                    let message = error["message"] as? String {
 
-                    displayErrorMessage(message)
+                    if displayErrorMessageWhenFailed {
+                        displayErrorMessage(message)
+                    }
                     completion(nil)
                     return
                 }
                 
                 guard let choicesArr = responseJSON["choices"] as? [Any] else {
-                    displayErrorMessage("Failed to parse the response json.")
+                    if displayErrorMessageWhenFailed {
+                        displayErrorMessage("Failed to parse the response json.")
+                    }
                     completion(nil)
                     return
                 }
                 guard let choiceDict = choicesArr[0] as? [String: Any] else {
-                    displayErrorMessage("Failed to parse the response json.")
+                    if displayErrorMessageWhenFailed {
+                        displayErrorMessage("Failed to parse the response json.")
+                    }
                     completion(nil)
                     return
                 }
                 guard let messageDict = choiceDict["message"] as? [String: String] else {
-                    displayErrorMessage("Failed to parse the response json.")
+                    if displayErrorMessageWhenFailed {
+                        displayErrorMessage("Failed to parse the response json.")
+                    }
                     completion(nil)
                     return
                 }
                 guard let content = messageDict["content"] else {
-                    displayErrorMessage("Failed to parse the response json.")
+                    if displayErrorMessageWhenFailed {
+                        displayErrorMessage("Failed to parse the response json.")
+                    }
                     completion(nil)
                     return
                 }
@@ -115,8 +133,9 @@ struct ContentCreator {
                 return
                 
             } else {
-                
-                displayErrorMessage("Failed to parse the response.")
+                if displayErrorMessageWhenFailed {
+                    displayErrorMessage("Failed to parse the response.")
+                }
                 completion(nil)
                 return
                 

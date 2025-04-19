@@ -124,38 +124,196 @@ extension LangCode {
 }
 
 extension LangCode {
+        
+    func isEnglishText(_ text: String) -> Bool {
+        for char in text.unicodeScalars {
+            // Check if character is an English letter (A-Z, a-z)
+            if !(char.value >= 0x41 && char.value <= 0x5A) && // A-Z
+               !(char.value >= 0x61 && char.value <= 0x7A) {  // a-z
+                return false
+            }
+        }
+        return true
+    }
     
+    func isJapaneseText(_ text: String) -> Bool {
+        for char in text.unicodeScalars {
+            // Check for Hiragana (3040-309F), Katakana (30A0-30FF), Kanji (4E00-9FAF)
+            if !(char.value >= 0x3040 && char.value <= 0x309F) && // Hiragana
+               !(char.value >= 0x30A0 && char.value <= 0x30FF) && // Katakana
+               !(char.value >= 0x4E00 && char.value <= 0x9FAF) {  // Kanji (common)
+                return false
+            }
+        }
+        return true
+    }
+    
+    func isSpanishText(_ text: String) -> Bool {
+        for char in text.unicodeScalars {
+            // Check if character is a Spanish letter (A-Z, a-z, ñ, Ñ, á, é, í, ó, ú, ü, Á, É, Í, Ó, Ú, Ü)
+            if !(char.value >= 0x41 && char.value <= 0x5A) && // A-Z
+               !(char.value >= 0x61 && char.value <= 0x7A) && // a-z
+               char.value != 0xF1 && char.value != 0xD1 &&    // ñ, Ñ
+               !(char.value >= 0xE1 && char.value <= 0xFA) {  // á-ú, Á-Ú
+                return false
+            }
+        }
+        return true
+    }
+    
+    func isRussianText(_ text: String) -> Bool {
+        for char in text.unicodeScalars {
+            // Check for Cyrillic letters (0400-04FF)
+            if !(char.value >= 0x0410 && char.value <= 0x044F) && // А-я
+               char.value != 0x0401 && char.value != 0x0451 {     // Ё, ё
+                return false
+            }
+        }
+        return true
+    }
+    
+    func isKoreanText(_ text: String) -> Bool {
+        for char in text.unicodeScalars {
+            // Check for Hangul syllables (AC00-D7AF) and Hangul Jamo (1100-11FF, 3130-318F)
+            if !(char.value >= 0xAC00 && char.value <= 0xD7AF) && // Hangul syllables
+               !(char.value >= 0x3130 && char.value <= 0x318F) {  // Hangul Jamo
+                return false
+            }
+        }
+        return true
+    }
+    
+    func isGermanText(_ text: String) -> Bool {
+        for char in text.unicodeScalars {
+            // Check if character is a German letter (A-Z, a-z, ä, ö, ü, ß, Ä, Ö, Ü)
+            if !(char.value >= 0x41 && char.value <= 0x5A) && // A-Z
+               !(char.value >= 0x61 && char.value <= 0x7A) && // a-z
+               char.value != 0xE4 && char.value != 0xF6 &&    // ä, ö
+               char.value != 0xFC && char.value != 0xDF &&    // ü, ß
+               char.value != 0xC4 && char.value != 0xD6 &&    // Ä, Ö
+               char.value != 0xDC {                           // Ü
+                return false
+            }
+        }
+        return true
+    }
+        
     private func mayBeAbbr(_ text: String) -> Bool {
         return text == text.uppercased()
     }
     
-    private func containsLatinLetters(_ text: String) -> Bool {
-        let range = text.range(of: "[a-zA-Z]", options: .regularExpression)
-        return range != nil
+//    private func containsLatinLetters(_ text: String) -> Bool {
+//        let range = text.range(of: "[a-zA-Z]", options: .regularExpression)
+//        return range != nil
+//    }
+    
+//    private func clozeFilterForZhJaKo(_ text: String) -> Bool {
+//        return containsLatinLetters(text) || text.isNumericText
+//    }
+//    
+//    private func clozeFilterForLangsWithLatinLetters(_ text: String) -> Bool {
+//        return mayBeAbbr(text) || text.isNumericText
+//    }
+//    
+//    private func clozeFilterForLangsWithSlavicLetters(_ text: String) -> Bool {
+//        return mayBeAbbr(text) || text.isNumericText || containsLatinLetters(text)
+//    }
+    
+    private func englishClozeFilter(_ text: String) -> Bool {
+        if !isEnglishText(text) {
+            return true
+        }
+        if mayBeAbbr(text) {
+            return true
+        }
+        if text.isNumericText {
+            return true
+        }
+        return false
     }
     
-    private func clozeFilterForZhJaKo(_ text: String) -> Bool {
-        return containsLatinLetters(text) || text.isNumericText
+    private func spanishClozeFilter(_ text: String) -> Bool {
+        if !isSpanishText(text) {
+            return true
+        }
+        if mayBeAbbr(text) {
+            return true
+        }
+        if text.isNumericText {
+            return true
+        }
+        return false
     }
     
-    private func clozeFilterForLangsWithLatinLetters(_ text: String) -> Bool {
-        return mayBeAbbr(text) || text.isNumericText
+    private func russianClozeFilter(_ text: String) -> Bool {
+        if !isRussianText(text) {
+            return true
+        }
+        if mayBeAbbr(text) {
+            return true
+        }
+        if text.isNumericText {
+            return true
+        }
+        return false
     }
     
-    private func clozeFilterForLangsWithSlavicLetters(_ text: String) -> Bool {
-        return mayBeAbbr(text) || text.isNumericText || containsLatinLetters(text)
+    private func germanClozeFilter(_ text: String) -> Bool {
+        if !isGermanText(text) {
+            return true
+        }
+        if mayBeAbbr(text) {
+            return true
+        }
+        if text.isNumericText {
+            return true
+        }
+        return false
     }
     
-    var shouldFilter: (String) -> Bool {
+    private func japaneseClozeFilter(_ text: String) -> Bool {
+        if !isJapaneseText(text) {
+            return true
+        }
+        if text.isNumericText {
+            return true
+        }
+        return false
+    }
+    
+    private func koreanClozeFilter(_ text: String) -> Bool {
+        if !isKoreanText(text) {
+            return true
+        }
+        if text.isNumericText {
+            return true
+        }
+        return false
+    }
+    
+    var shouldFilterClozeText: (String) -> Bool {
         switch self {
-        case .zh: return clozeFilterForZhJaKo
-        case .en: return clozeFilterForLangsWithLatinLetters
-        case .ja: return clozeFilterForZhJaKo
-        case .es: return clozeFilterForLangsWithLatinLetters
-        case .ru: return clozeFilterForLangsWithSlavicLetters
-        case .ko: return clozeFilterForZhJaKo
-        case .de: return clozeFilterForLangsWithLatinLetters
-        case .undetermined: return clozeFilterForLangsWithLatinLetters
+        case .zh: return { _ in false }
+        case .en: return englishClozeFilter
+        case .ja: return japaneseClozeFilter
+        case .es: return spanishClozeFilter
+        case .ru: return russianClozeFilter
+        case .ko: return koreanClozeFilter
+        case .de: return germanClozeFilter
+        case .undetermined: return { _ in false }
+        }
+    }
+    
+    var shouldNotFilterPeranthesisText: (String) -> Bool {
+        switch self {
+        case .zh: return { _ in true }
+        case .en: return isEnglishText
+        case .ja: return isJapaneseText
+        case .es: return isSpanishText
+        case .ru: return isRussianText
+        case .ko: return isKoreanText
+        case .de: return isGermanText
+        case .undetermined: return { _ in true }
         }
     }
     

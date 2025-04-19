@@ -390,4 +390,79 @@ extension TextMeaningPracticeProducer {
         
     }
     
+    func removeTextInParenthesesNotInTargetLanguage(from text: String) -> String {
+        
+        /*
+         
+        Input: BERT (Bidirectional Encoder Representations from Transformers) は、Googleが開発した自然言語処理（NLP）モデルです。文脈を理解する能力が非常に高く、検索エンジンやチャットボットなどのアプリケーションで活用されています. BERTは、Transformerアーキテクチャをベースにしており、文章を双方向から理解することで、より正確な意味解析を可能にします.﻿
+         
+        Output: BERTは、Googleが開発した自然言語処理モデルです。文脈を理解する能力が非常に高く、検索エンジンやチャットボットなどのアプリケーションで活用されています. BERTは、Transformerアーキテクチャをベースにしており、文章を双方向から理解することで、より正確な意味解析を可能にします.﻿
+         
+        */
+        
+        let pattern = "[\\(（]([^)）]+)[\\)）]"
+        guard let regex = try? NSRegularExpression(pattern: pattern) else {
+            return text
+        }
+        
+        var result = text
+        let matches = regex.matches(
+            in: text,
+            range: NSRange(
+                text.startIndex...,
+                in: text
+            )
+        )
+        
+        // Process matches in reverse order to avoid index issues when modifying the string
+        for match in matches.reversed() {
+            
+            guard
+                let range = Range(
+                    match.range,
+                    in: result
+                ),
+                let contentRange = Range(
+                    match.range(at: 1),
+                    in: result
+                )
+            else {
+                continue
+            }
+    //        print(
+    //            text.substring(with: range).debugDescription,
+    //            text.substring(with: contentRange).debugDescription
+    //        )
+                    
+            let content = String(result[contentRange])
+            if LangCode.currentLanguage.shouldNotFilterPeranthesisText(content) {
+                continue
+            }
+            
+            var removalRange = range
+            
+            // Check for space before
+            if range.lowerBound > result.startIndex {
+                let prevIndex = result.index(before: range.lowerBound)
+                if result[prevIndex] == " " {
+                    removalRange = prevIndex..<removalRange.upperBound
+//                    print(1, result.substring(with: removalRange).debugDescription)
+                }
+            }
+            
+            // Check for space after
+            if range.upperBound < result.endIndex {
+                let nextIndex = result.index(range.upperBound, offsetBy: 0)
+                if nextIndex < result.endIndex && result[nextIndex] == " " {
+                    removalRange = removalRange.lowerBound..<result.index(after: nextIndex)
+//                    print(2, result.substring(with: removalRange).debugDescription)
+                }
+            }
+            
+            result.replaceSubrange(removalRange, with: "")
+        }
+        
+        return result
+    }
+    
 }

@@ -115,9 +115,9 @@ extension ListeningPracticeProducer {
         machineTranslatorType: MachineTranslatorType
     ) -> [ListeningPractice] {
                     
-        var clozeRanges: [NSRange] = text.tokenRanges.compactMap { tokenRange in
+        let clozeRanges: [NSRange] = text.tokenRanges.compactMap { tokenRange in
             let token = (text as NSString).substring(with: tokenRange)
-            if !LangCode.currentLanguage.shouldFilter(token) {
+            if !LangCode.currentLanguage.shouldFilterClozeText(token) {
                 return tokenRange
             } else {
                 return nil
@@ -216,10 +216,11 @@ extension ListeningPracticeProducer {
             machineTranslator: self.machineTranslator,
             contentCreator: self.contentCreator
         ) { text, meaning, textSource, isTextMachineTranslated, machineTranslatorType in
+                        
             for practice in self.makePractice(
                 practiceType: practiceType,
                 granularity: granularity,
-                text: text,
+                text: self.removeTextInParenthesesNotInTargetLanguage(from: text),
                 meaning: meaning,
                 textSource: textSource,
                 isTextMachineTranslated: isTextMachineTranslated,
@@ -230,6 +231,7 @@ extension ListeningPracticeProducer {
         }
         
     }
+    
 }
 
 extension ListeningPracticeProducer {

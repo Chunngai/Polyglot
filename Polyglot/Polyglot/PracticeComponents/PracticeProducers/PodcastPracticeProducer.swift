@@ -90,7 +90,7 @@ class PodcastPracticeProducer: TextMeaningPracticeProducer {
                     from: self.words
                 )
                 let practice = PodcastPractice(
-                    text: sentence,
+                    text: self.removeTextInParenthesesNotInTargetLanguage(from: sentence),
                     meaning: "",
                     textLang: LangCode.currentLanguage,
                     meaningLang: LangCode.currentLanguage.configs.languageForTranslation,
