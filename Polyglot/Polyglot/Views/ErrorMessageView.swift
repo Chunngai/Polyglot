@@ -81,14 +81,19 @@ class ErrorMessageView: UIView {
         messageLabelBackgroundView.addSubview(messageLabel)
                 
         messageLabelBackgroundView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
+//            make.leading.equalToSuperview().offset(Self.closeButtonRadius)
+//            make.trailing.equalToSuperview().offset(-Self.closeButtonRadius)
+//            make.bottom.equalToSuperview()
+//            make.top.equalToSuperview().offset(Self.closeButtonRadius)
+            make.leading.equalToSuperview()
+            make.trailing.equalToSuperview()
             make.bottom.equalToSuperview()
             make.top.equalToSuperview()
         }
         
         messageLabel.snp.makeConstraints { make in
             let padding = Self.closeButtonRadius
-            make.top.equalToSuperview().offset(padding * 2)
+            make.top.equalToSuperview().offset(padding)
             make.leading.equalToSuperview().offset(padding)
             make.trailing.equalToSuperview().offset(-padding)
             make.bottom.equalToSuperview().offset(-padding)
@@ -117,7 +122,7 @@ extension ErrorMessageView {
         view.addSubview(errorView)
         
         errorView.snp.makeConstraints { make in
-            make.width.equalToSuperview().multipliedBy(0.85)
+            make.width.equalToSuperview().multipliedBy(0.9)
             make.centerX.equalToSuperview()
             make.top.equalToSuperview().offset(100)
         }
