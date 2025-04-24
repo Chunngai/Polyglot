@@ -68,6 +68,13 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
             let sentences = para.text.tokenized(with: LangCode.currentLanguage.sentenceTokenizer)
             for (sentenceId, sentence) in sentences.enumerated() {
                 
+                if !LangCode.isText(
+                    sentence,
+                    in: LangCode.currentLanguage
+                ) {
+                    continue
+                }
+                
                 let (
                     existingPhraseRanges,
                     existingPhraseMeanings

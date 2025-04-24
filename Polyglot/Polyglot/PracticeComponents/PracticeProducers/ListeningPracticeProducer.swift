@@ -216,7 +216,14 @@ extension ListeningPracticeProducer {
             machineTranslator: self.machineTranslator,
             contentCreator: self.contentCreator
         ) { text, meaning, textSource, isTextMachineTranslated, machineTranslatorType in
-                        
+    
+            if !LangCode.isText(
+                text,
+                in: LangCode.currentLanguage
+            ) {
+                return
+            }
+            
             for practice in self.makePractice(
                 practiceType: practiceType,
                 granularity: granularity,

@@ -435,7 +435,7 @@ extension TextMeaningPracticeProducer {
     //        )
                     
             let content = String(result[contentRange])
-            if LangCode.currentLanguage.shouldNotFilterPeranthesisText(content) {
+            if !LangCode.currentLanguage.shouldFilterPeranthesisText(in: content) {
                 continue
             }
             

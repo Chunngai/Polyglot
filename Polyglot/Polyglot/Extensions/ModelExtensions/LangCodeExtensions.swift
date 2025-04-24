@@ -125,77 +125,131 @@ extension LangCode {
 
 extension LangCode {
         
-    func isEnglishText(_ text: String) -> Bool {
-        for char in text.unicodeScalars {
-            // Check if character is an English letter (A-Z, a-z)
-            if !(char.value >= 0x41 && char.value <= 0x5A) && // A-Z
-               !(char.value >= 0x61 && char.value <= 0x7A) {  // a-z
-                return false
-            }
-        }
-        return true
-    }
+//    func isEnglishText(_ text: String) -> Bool {
+//        for char in text.unicodeScalars {
+//            // Check if character is an English letter (A-Z, a-z)
+//            if !(char.value >= 0x41 && char.value <= 0x5A) && // A-Z
+//               !(char.value >= 0x61 && char.value <= 0x7A) {  // a-z
+//                return false
+//            }
+//        }
+//        return true
+//    }
+//    
+//    func isJapaneseText(_ text: String) -> Bool {
+//        for char in text.unicodeScalars {
+//            // Check for Hiragana (3040-309F), Katakana (30A0-30FF), Kanji (4E00-9FAF)
+//            if !(char.value >= 0x3040 && char.value <= 0x309F) && // Hiragana
+//               !(char.value >= 0x30A0 && char.value <= 0x30FF) && // Katakana
+//               !(char.value >= 0x4E00 && char.value <= 0x9FAF) {  // Kanji (common)
+//                return false
+//            }
+//        }
+//        return true
+//    }
+//    
+//    func isSpanishText(_ text: String) -> Bool {
+//        for char in text.unicodeScalars {
+//            // Check if character is a Spanish letter (A-Z, a-z, ñ, Ñ, á, é, í, ó, ú, ü, Á, É, Í, Ó, Ú, Ü)
+//            if !(char.value >= 0x41 && char.value <= 0x5A) && // A-Z
+//               !(char.value >= 0x61 && char.value <= 0x7A) && // a-z
+//               char.value != 0xF1 && char.value != 0xD1 &&    // ñ, Ñ
+//               !(char.value >= 0xE1 && char.value <= 0xFA) {  // á-ú, Á-Ú
+//                return false
+//            }
+//        }
+//        return true
+//    }
+//    
+//    func isRussianText(_ text: String) -> Bool {
+//        for char in text.unicodeScalars {
+//            // Check for Cyrillic letters (0400-04FF)
+//            if !(char.value >= 0x0410 && char.value <= 0x044F) && // А-я
+//               char.value != 0x0401 && char.value != 0x0451 {     // Ё, ё
+//                return false
+//            }
+//        }
+//        return true
+//    }
+//    
+//    func isKoreanText(_ text: String) -> Bool {
+//        for char in text.unicodeScalars {
+//            // Check for Hangul syllables (AC00-D7AF) and Hangul Jamo (1100-11FF, 3130-318F)
+//            if !(char.value >= 0xAC00 && char.value <= 0xD7AF) && // Hangul syllables
+//               !(char.value >= 0x3130 && char.value <= 0x318F) {  // Hangul Jamo
+//                return false
+//            }
+//        }
+//        return true
+//    }
+//    
+//    func isGermanText(_ text: String) -> Bool {
+//        for char in text.unicodeScalars {
+//            // Check if character is a German letter (A-Z, a-z, ä, ö, ü, ß, Ä, Ö, Ü)
+//            if !(char.value >= 0x41 && char.value <= 0x5A) && // A-Z
+//               !(char.value >= 0x61 && char.value <= 0x7A) && // a-z
+//               char.value != 0xE4 && char.value != 0xF6 &&    // ä, ö
+//               char.value != 0xFC && char.value != 0xDF &&    // ü, ß
+//               char.value != 0xC4 && char.value != 0xD6 &&    // Ä, Ö
+//               char.value != 0xDC {                           // Ü
+//                return false
+//            }
+//        }
+//        return true
+//    }
     
-    func isJapaneseText(_ text: String) -> Bool {
+    static func isText(_ text: String, in language: LangCode) -> Bool {
+        
+        // Define Unicode ranges for each language
+        let languageRanges: [LangCode: [ClosedRange<UInt32>]] = [
+            .en: [
+                0x0041...0x005A, 0x0061...0x007A // Basic Latin letters
+            ],
+            .ja: [
+                0x3040...0x309F, // Hiragana
+                0x30A0...0x30FF, // Katakana
+                0x4E00...0x9FFF, // CJK Unified Ideographs (common kanji)
+                0x3400...0x4DBF, // CJK Unified Ideographs Extension A
+                0xFF66...0xFF9F  // Halfwidth Katakana
+            ],
+            .es: [
+                0x0041...0x005A, 0x0061...0x007A, // Basic Latin
+                0x00C1...0x00C1, 0x00E1...0x00E1, // Áá
+                0x00C9...0x00C9, 0x00E9...0x00E9, // Éé
+                0x00CD...0x00CD, 0x00ED...0x00ED, // Íí
+                0x00D3...0x00D3, 0x00F3...0x00F3, // Óó
+                0x00DA...0x00DA, 0x00FA...0x00FA, // Úú
+                0x00D1...0x00D1, 0x00F1...0x00F1, // Ññ
+            ],
+            .ru: [
+                0x0400...0x04FF // Cyrillic
+            ],
+            .ko: [
+                0xAC00...0xD7AF, 0x1100...0x11FF, 0x3130...0x318F // Hangul
+            ],
+            .de: [
+                0x0041...0x005A, 0x0061...0x007A, // Basic Latin
+                0x00C4...0x00C4, 0x00E4...0x00E4, // Ää
+                0x00D6...0x00D6, 0x00F6...0x00F6, // Öö
+                0x00DC...0x00DC, 0x00FC...0x00FC, // Üü
+                0x1E9E...0x1E9E, 0x00DF...0x00DF  // ẞß
+            ]
+        ]
+        
+        guard let ranges = languageRanges[language] else {
+            return false // Unknown language
+        }
+        
         for char in text.unicodeScalars {
-            // Check for Hiragana (3040-309F), Katakana (30A0-30FF), Kanji (4E00-9FAF)
-            if !(char.value >= 0x3040 && char.value <= 0x309F) && // Hiragana
-               !(char.value >= 0x30A0 && char.value <= 0x30FF) && // Katakana
-               !(char.value >= 0x4E00 && char.value <= 0x9FAF) {  // Kanji (common)
-                return false
+            let codePoint = char.value
+            for range in ranges {
+                if range.contains(codePoint) {
+                    return true
+                }
             }
         }
-        return true
-    }
-    
-    func isSpanishText(_ text: String) -> Bool {
-        for char in text.unicodeScalars {
-            // Check if character is a Spanish letter (A-Z, a-z, ñ, Ñ, á, é, í, ó, ú, ü, Á, É, Í, Ó, Ú, Ü)
-            if !(char.value >= 0x41 && char.value <= 0x5A) && // A-Z
-               !(char.value >= 0x61 && char.value <= 0x7A) && // a-z
-               char.value != 0xF1 && char.value != 0xD1 &&    // ñ, Ñ
-               !(char.value >= 0xE1 && char.value <= 0xFA) {  // á-ú, Á-Ú
-                return false
-            }
-        }
-        return true
-    }
-    
-    func isRussianText(_ text: String) -> Bool {
-        for char in text.unicodeScalars {
-            // Check for Cyrillic letters (0400-04FF)
-            if !(char.value >= 0x0410 && char.value <= 0x044F) && // А-я
-               char.value != 0x0401 && char.value != 0x0451 {     // Ё, ё
-                return false
-            }
-        }
-        return true
-    }
-    
-    func isKoreanText(_ text: String) -> Bool {
-        for char in text.unicodeScalars {
-            // Check for Hangul syllables (AC00-D7AF) and Hangul Jamo (1100-11FF, 3130-318F)
-            if !(char.value >= 0xAC00 && char.value <= 0xD7AF) && // Hangul syllables
-               !(char.value >= 0x3130 && char.value <= 0x318F) {  // Hangul Jamo
-                return false
-            }
-        }
-        return true
-    }
-    
-    func isGermanText(_ text: String) -> Bool {
-        for char in text.unicodeScalars {
-            // Check if character is a German letter (A-Z, a-z, ä, ö, ü, ß, Ä, Ö, Ü)
-            if !(char.value >= 0x41 && char.value <= 0x5A) && // A-Z
-               !(char.value >= 0x61 && char.value <= 0x7A) && // a-z
-               char.value != 0xE4 && char.value != 0xF6 &&    // ä, ö
-               char.value != 0xFC && char.value != 0xDF &&    // ü, ß
-               char.value != 0xC4 && char.value != 0xD6 &&    // Ä, Ö
-               char.value != 0xDC {                           // Ü
-                return false
-            }
-        }
-        return true
+        
+        return false
     }
         
     private func mayBeAbbr(_ text: String) -> Bool {
@@ -220,7 +274,7 @@ extension LangCode {
 //    }
     
     private func englishClozeFilter(_ text: String) -> Bool {
-        if !isEnglishText(text) {
+        if !LangCode.isText(text, in: .en) {
             return true
         }
         if mayBeAbbr(text) {
@@ -233,7 +287,7 @@ extension LangCode {
     }
     
     private func spanishClozeFilter(_ text: String) -> Bool {
-        if !isSpanishText(text) {
+        if !LangCode.isText(text, in: .es) {
             return true
         }
         if mayBeAbbr(text) {
@@ -246,7 +300,7 @@ extension LangCode {
     }
     
     private func russianClozeFilter(_ text: String) -> Bool {
-        if !isRussianText(text) {
+        if !LangCode.isText(text, in: .ru) {
             return true
         }
         if mayBeAbbr(text) {
@@ -259,7 +313,7 @@ extension LangCode {
     }
     
     private func germanClozeFilter(_ text: String) -> Bool {
-        if !isGermanText(text) {
+        if !LangCode.isText(text, in: .de) {
             return true
         }
         if mayBeAbbr(text) {
@@ -272,7 +326,7 @@ extension LangCode {
     }
     
     private func japaneseClozeFilter(_ text: String) -> Bool {
-        if !isJapaneseText(text) {
+        if !LangCode.isText(text, in: .ja) {
             return true
         }
         if text.isNumericText {
@@ -282,7 +336,7 @@ extension LangCode {
     }
     
     private func koreanClozeFilter(_ text: String) -> Bool {
-        if !isKoreanText(text) {
+        if !LangCode.isText(text, in: .ko) {
             return true
         }
         if text.isNumericText {
@@ -304,17 +358,11 @@ extension LangCode {
         }
     }
     
-    var shouldNotFilterPeranthesisText: (String) -> Bool {
-        switch self {
-        case .zh: return { _ in true }
-        case .en: return isEnglishText
-        case .ja: return isJapaneseText
-        case .es: return isSpanishText
-        case .ru: return isRussianText
-        case .ko: return isKoreanText
-        case .de: return isGermanText
-        case .undetermined: return { _ in true }
+    func shouldFilterPeranthesisText(_ text: String) -> Bool {
+        if text.isNumericText {
+            return false
         }
+        return !LangCode.isText(text, in: self)
     }
     
 }
