@@ -358,7 +358,7 @@ extension LangCode {
         }
     }
     
-    func shouldFilterPeranthesisText(_ text: String) -> Bool {
+    func shouldFilterPeranthesisText(in text: String) -> Bool {
         if text.isNumericText {
             return false
         }

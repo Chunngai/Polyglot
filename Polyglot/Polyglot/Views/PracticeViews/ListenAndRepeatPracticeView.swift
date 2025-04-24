@@ -664,6 +664,14 @@ extension ListenAndRepeatPracticeView {
 
             let newEdittedCharLocation = edittedCharRange.location - 1
             guard newEdittedCharLocation >= 0 else {
+                // Example:
+                // when typed "매콤", then delete the two chars one by one,
+                // the deletion process is (|: cursor/selected loc, _: a loc):
+                // 매콤| -> 매|_ -> _|_,
+                // i.e., after deleting all, the cursor (selected loc)
+                // is not at the beginning of the cloze).
+                // adjustSelectedRange() solves that.
+                adjustSelectedRange()
                 return
             }
             edittedCharRange = NSRange(
