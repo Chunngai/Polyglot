@@ -399,6 +399,7 @@ struct LangConfigs: Codable {
     var listeningPracticeDuration: Int
     var speakingPracticeDuration: Int
     var readingPracticeDuration: Int
+    var podcastPracticeDuration: Int
     
 //    var practiceRepetition: Int
     var wordPracticeRepetition: Int
@@ -422,6 +423,7 @@ struct LangConfigs: Codable {
         listeningPracticeDuration: Int,
         speakingPracticeDuration: Int,
         readingPracticeDuration: Int,
+        podcastPracticeDuration: Int,
         wordPracticeRepetition: Int,
         listeningPracticeRepetition: Int,
         speakingPracticeRepetition: Int,
@@ -439,6 +441,7 @@ struct LangConfigs: Codable {
         self.listeningPracticeDuration = listeningPracticeDuration
         self.speakingPracticeDuration = speakingPracticeDuration
         self.readingPracticeDuration = readingPracticeDuration
+        self.podcastPracticeDuration = podcastPracticeDuration
         self.wordPracticeRepetition = wordPracticeRepetition
         self.listeningPracticeRepetition = listeningPracticeRepetition
         self.speakingPracticeRepetition = speakingPracticeRepetition
@@ -461,6 +464,7 @@ struct LangConfigs: Codable {
         case listeningPracticeDuration
         case speakingPracticeDuration
         case readingPracticeDuration
+        case podcastPracticeDuration
         
         case practiceRepetition  // Old.
         case wordPracticeRepetition
@@ -488,6 +492,7 @@ struct LangConfigs: Codable {
         try container.encode(listeningPracticeDuration, forKey: .listeningPracticeDuration)
         try container.encode(speakingPracticeDuration, forKey: .speakingPracticeDuration)
         try container.encode(readingPracticeDuration, forKey: .readingPracticeDuration)
+        try container.encode(podcastPracticeDuration, forKey: .podcastPracticeDuration)
         try container.encode(wordPracticeRepetition, forKey: .wordPracticeRepetition)
         try container.encode(listeningPracticeRepetition, forKey: .listeningPracticeRepetition)
         try container.encode(speakingPracticeRepetition, forKey: .speakingPracticeRepetition)
@@ -529,6 +534,11 @@ struct LangConfigs: Codable {
             readingPracticeDuration = try values.decode(Int.self, forKey: .readingPracticeDuration)
         } catch {
             readingPracticeDuration = Self.defaultConfigs.readingPracticeDuration
+        }
+        do {
+            podcastPracticeDuration = try values.decode(Int.self, forKey: .podcastPracticeDuration)
+        } catch {
+            podcastPracticeDuration = Self.defaultConfigs.podcastPracticeDuration
         }
         do {
             wordPracticeRepetition = try values.decode(Int.self, forKey: .wordPracticeRepetition)
@@ -613,6 +623,7 @@ struct LangConfigs: Codable {
         listeningPracticeDuration: 5,
         speakingPracticeDuration: 5,
         readingPracticeDuration: 5,
+        podcastPracticeDuration: 5,
         wordPracticeRepetition: 2,
         listeningPracticeRepetition: 2,
         speakingPracticeRepetition: 2,

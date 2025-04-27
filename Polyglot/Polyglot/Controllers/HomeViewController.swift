@@ -894,7 +894,7 @@ extension HomeViewController: UICollectionViewDelegate {
                 vc.practiceDuration = LangCode.currentLanguage.configs.readingPracticeDuration
             } else if row == 3 {
                 vc = PodcastPracticeViewController()
-                vc.practiceDuration = 0
+                vc.practiceDuration = LangCode.currentLanguage.configs.podcastPracticeDuration
             } else {
                 fatalError("Not Implemented.")
             }

@@ -28,8 +28,8 @@ class PodcastPracticeViewController: TextMeaningPracticeViewController {
     override func updateSetups() {
         super.updateSetups()
         
-        timingBar.isHidden = true
-        timingBar.stop()
+//        timingBar.isHidden = true
+//        timingBar.stop()
         
         doneButton.isHidden = true
         nextButton.isHidden = true
@@ -104,16 +104,17 @@ extension PodcastPracticeViewController: AVSpeechSynthesizerDelegate {
         if synthesizingTimes == nil {
             return
         }
-        
-        synthesizingTimes! += 1
-        if synthesizingTimes == 1 {
-            speechSynthesizer.speak(slowSpeedUtterance)
-        } else if synthesizingTimes == 2 {
-            speechSynthesizer.speak(normalSpeedUtterance)
-        } else {
-            practiceProducer.next()
-            updatePracticeView()
-            synthesizingTimes = 0
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            self.synthesizingTimes! += 1
+            if self.synthesizingTimes == 1 {
+                self.speechSynthesizer.speak(self.slowSpeedUtterance)
+            } else if self.synthesizingTimes == 2 {
+                self.speechSynthesizer.speak(self.normalSpeedUtterance)
+            } else {
+                self.practiceProducer.next()
+                self.updatePracticeView()
+                self.synthesizingTimes = 0
+            }
         }
         
     }
