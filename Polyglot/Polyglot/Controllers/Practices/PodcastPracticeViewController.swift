@@ -111,6 +111,13 @@ extension PodcastPracticeViewController: AVSpeechSynthesizerDelegate {
             } else if self.synthesizingTimes == 2 {
                 self.speechSynthesizer.speak(self.normalSpeedUtterance)
             } else {
+                
+                guard !self.shouldFinishPracticing else {
+                    self.practiceMetaData["recentPodcastPracticeDate"] = Date().repr(of: Date.defaultDateAndTimeFormat)
+                    self.stopPracticing()
+                    return
+                }
+                
                 self.practiceProducer.next()
                 self.updatePracticeView()
                 self.synthesizingTimes = 0
