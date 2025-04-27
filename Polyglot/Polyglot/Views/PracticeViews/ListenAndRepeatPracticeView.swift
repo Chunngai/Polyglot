@@ -861,8 +861,8 @@ extension ListenAndRepeatPracticeView {
         let bgColorOfCharToReplace = textView.attributedText.backgroundColor(at: textView.selectedRange.location)
         let bgColorBeforeCharToReplace = {
             var positionBeforeCharToReplace: Int = textView.selectedRange.location - 1
-            if positionBeforeCharToReplace <= 0 {
-                positionBeforeCharToReplace += 1
+            if positionBeforeCharToReplace < 0 {
+                positionBeforeCharToReplace = 0  // Avoit oob.
             }
             let bgColorBeforeCharToReplace = textView.attributedText.backgroundColor(at: positionBeforeCharToReplace)
             return bgColorBeforeCharToReplace
