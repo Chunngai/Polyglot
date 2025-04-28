@@ -161,12 +161,12 @@ extension Strings {
     }
     
     static let _articleAdding: [LangCode : String] = [
-        LangCode.en : "Add a new article",
+        LangCode.en : "Add a New Article",
         LangCode.ja : "新しい記事を追加してください",
-        LangCode.es : "Añade un nuevo artículo",
-        LangCode.ru : "Добавьте новую статью",
+        LangCode.es : "Añade un Nuevo Artículo",
+        LangCode.ru : "Добавьте Новую Статью",
         LangCode.ko : "새로운 기사를 추가하세요",
-        LangCode.de : "Neuen Artikel hinzufügen",
+        LangCode.de : "Neuen Artikel Hinzufügen",
     ]
     static var articleAdding: String {
         return Strings._articleAdding[LangCode.currentLanguage]!

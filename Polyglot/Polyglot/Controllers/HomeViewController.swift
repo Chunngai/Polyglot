@@ -653,6 +653,36 @@ extension HomeViewController {
             content.text = item.text
             content.secondaryText = item.secondaryText
             content.textProperties.color = Colors.normalTextColor
+            
+            // Set fixed height for the cell
+//            let fixedHeight: CGFloat = 60 // Set your desired height here
+//            content.directionalLayoutMargins = NSDirectionalEdgeInsets(
+//                top: (fixedHeight - content.textProperties.font.lineHeight) / 2,
+//                leading: content.directionalLayoutMargins.leading,
+//                bottom: (fixedHeight - content.textProperties.font.lineHeight) / 2,
+//                trailing: content.directionalLayoutMargins.trailing
+//            )
+            
+            // Add padding to the top and bottom of the cell
+            content.directionalLayoutMargins = NSDirectionalEdgeInsets(
+                top: 
+                    content.secondaryTextProperties.font.lineHeight / 2
+                + (
+                    content.secondaryText == nil
+                    ? content.secondaryTextProperties.font.lineHeight / 2
+                    : 0
+                ), // Increase top padding
+                leading: content.directionalLayoutMargins.leading,
+                bottom: 
+                    content.secondaryTextProperties.font.lineHeight / 2
+                + (
+                    content.secondaryText == nil
+                    ? content.secondaryTextProperties.font.lineHeight / 2
+                    : 0
+                ), // Increase bottom padding
+                trailing: content.directionalLayoutMargins.trailing
+            )
+            
             if indexPath.section == HomeViewController.listSection && indexPath.row == 1 {
                 content.secondaryTextProperties.color = .systemYellow  // Reminder for article adding.
             }
