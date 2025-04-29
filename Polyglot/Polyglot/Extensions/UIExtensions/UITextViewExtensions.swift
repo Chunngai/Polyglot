@@ -22,29 +22,6 @@ extension UITextView {
 
 extension UITextView {
     
-    func imageAttributedString(icon: UIImage, font: UIFont) -> NSAttributedString {
-        let textAttachment = NSTextAttachment()
-        textAttachment.image = icon
-        
-        // Use the line height of the font for the image height to align with the text height
-        let lineHeight = font.lineHeight
-        // Adjust the width of the image to maintain the aspect ratio, if necessary
-        let aspectRatio = textAttachment.image!.size.width / textAttachment.image!.size.height
-        let imageWidth = lineHeight * aspectRatio
-        textAttachment.bounds = CGRect(
-            x: 0,
-            y: (font.capHeight - lineHeight) / 2,
-            width: imageWidth,
-            height: lineHeight
-        )
-        
-        return NSAttributedString(attachment: textAttachment)
-    }
-    
-}
-
-extension UITextView {
-    
     func valueOf(textPosition: UITextPosition) -> Int {
         // https://stackoverflow.com/questions/19369438/uitextposition-to-int
         
@@ -94,6 +71,70 @@ extension UITextView {
             lineCount += 1
         }
         return lineCount
+    }
+    
+}
+
+protocol TextAnimationDelegate: UITextView {
+    
+    var isColorAnimating: Bool { get set }
+    
+    var colorAnimationOriginalColor: UIColor { get set }
+    var colorAnimationIntermediateColor: UIColor { get set }
+    
+}
+
+extension TextAnimationDelegate {
+    
+    func startTextColorTransitionAnimation(for range: NSRange) {
+
+        func animateToIntermidiateColor() {
+            
+            UIView.transition(
+                with: self,
+                duration: 1.0,
+                options: .transitionCrossDissolve
+            ) {
+                self.textStorage.setTextColor(
+                    for: range,
+                    with: self.colorAnimationIntermediateColor
+                )
+            } completion: { ifFinished in
+                if self.isColorAnimating {
+                    animateToOriginalColor()
+                } else {
+                    // Reset to true for the animation next time.
+                    self.isColorAnimating = true
+                    return
+                }
+            }
+            
+        }
+        
+        func animateToOriginalColor() {
+            
+            UIView.transition(
+                with: self,
+                duration: 1.0,
+                options: .transitionCrossDissolve
+            ) {
+                self.textStorage.setTextColor(
+                    for: range,
+                    with: self.colorAnimationOriginalColor
+                )
+            } completion: { ifFinished in
+                if self.isColorAnimating {
+                    animateToIntermidiateColor()
+                } else {
+                    // Reset to true for the animation next time.
+                    self.isColorAnimating = true
+                    return
+                }
+            }
+            
+        }
+        
+        animateToIntermidiateColor()
     }
     
 }

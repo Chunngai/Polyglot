@@ -33,6 +33,30 @@ extension NSAttributedString {
     
 }
 
+extension NSAttributedString {
+    
+    static func imageAttributedString(icon: UIImage, font: UIFont) -> NSAttributedString {
+        
+        let textAttachment = NSTextAttachment()
+        textAttachment.image = icon
+        
+        // Use the line height of the font for the image height to align with the text height
+        let lineHeight = font.lineHeight
+        // Adjust the width of the image to maintain the aspect ratio, if necessary
+        let aspectRatio = textAttachment.image!.size.width / textAttachment.image!.size.height
+        let imageWidth = lineHeight * aspectRatio
+        textAttachment.bounds = CGRect(
+            x: 0,
+            y: (font.capHeight - lineHeight) / 2,
+            width: imageWidth,
+            height: lineHeight
+        )
+        
+        return NSAttributedString(attachment: textAttachment)
+    }
+    
+}
+
 extension NSMutableAttributedString {
     
     func replacingAll(_ stringToReplace: String, with replacement: String) {

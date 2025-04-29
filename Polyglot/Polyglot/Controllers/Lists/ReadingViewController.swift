@@ -158,6 +158,11 @@ extension ReadingViewController: ReadingEditViewControllerDelegate {
     func edit(articleId: String, newTitle: String, newTopic: String, newBody: String, newSource: String) {
         articles.updateArticle(of: articleId, newTitle: newTitle, newTopic: newTopic, newBody: newBody, newSource: newSource)
     }
+    
+    func edit(articleId: String, newTitle: String, newTopic: String, newCaptionEvents: [YoutubeVideoParser.CaptionEvent], newSource: String) {
+        articles.updateArticle(of: articleId, newTitle: newTitle, newTopic: newTopic, newCaptionEvents: newCaptionEvents, newSource: newSource)
+    }
+    
 }
 
 extension ReadingViewController: UISearchResultsUpdating {

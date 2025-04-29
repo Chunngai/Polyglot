@@ -51,6 +51,42 @@ extension Article {
     }
 }
 
+extension Article {
+    
+    var captionEvents: [YoutubeVideoParser.CaptionEvent] {
+        
+        var captionEvents: [YoutubeVideoParser.CaptionEvent] = []
+        for para in paras {
+            
+            guard let startMs = para.startMs,
+                  let durationMs = para.durationMs
+            else {
+                continue
+            }
+            
+            captionEvents.append(YoutubeVideoParser.CaptionEvent(
+                startMs: startMs,
+                durationMs: durationMs,
+                segs: para.text
+            ))
+            
+        }
+        
+        return captionEvents
+        
+    }
+    
+    var isYoutubeVideo: Bool {
+        for para in self.paras {
+            if para.startMs != nil {
+                return true
+            }
+        }
+        return false
+    }
+    
+}
+
 extension Array where Iterator.Element == Article {
 
     // TODO: - Simplify the for loops?
@@ -72,6 +108,15 @@ extension Array where Iterator.Element == Article {
         for i in 0..<count {
             if self[i].id == id {
                 self[i].update(newTitle: newTitle, newTopic: newTopic, newBody: newBody, newSource: newSource)
+                return
+            }
+        }
+    }
+    
+    mutating func updateArticle(of id: String, newTitle: String? = nil, newTopic: String? = nil, newCaptionEvents: [YoutubeVideoParser.CaptionEvent]? = nil, newSource: String? = nil) {
+        for i in 0..<count {
+            if self[i].id == id {
+                self[i].update(newTitle: newTitle, newTopic: newTopic, newCaptionEvents: newCaptionEvents, newSource: newSource)
                 return
             }
         }

@@ -573,6 +573,30 @@ extension Strings {
         return Strings._articleSplitingTitles[LangCode.currentLanguage]!
     }
     
+    private static let _youtubeVideoRetrievingCaptionsPrompts: [LangCode : String] = [
+        LangCode.en: "Retrieving Caption for Youtube Video",
+        LangCode.ja: "YouTube動画の字幕を取得中",
+        LangCode.es: "Obteniendo Subtítulos para el Video de YouTube",
+        LangCode.ru: "Получение Субтитров для Видео на YouTube",
+        LangCode.ko: "YouTube 동영상 자막 검색 중",
+        LangCode.de: "Untertitel für YouTube-Video Werden Abgerufen",
+    ]
+    static var youtubeVideoRetrievingCaptionsPrompt: String {
+        return Strings._youtubeVideoRetrievingCaptionsPrompts[LangCode.currentLanguage]!
+    }
+    
+    private static let _youtubeVideoBodyTextPrompts: [LangCode : String] = [
+        LangCode.en: "[Caption for the Youtube Video, not Editable.]\n\n",
+        LangCode.ja: "[YouTube動画のキャプション、編集不可。]\n\n",
+        LangCode.es: "[Subtítulo para el Video de YouTube, no Editable.]\n\n",
+        LangCode.ru: "[Подпись к Видео на YouTube, не Редактируется.]\n\n",
+        LangCode.ko: "[YouTube 동영상 캡션, 수정 불가능.]\n\n",
+        LangCode.de: "[Beschriftung für das YouTube-Video, nicht Bearbeitbar.]\n\n",
+    ]
+    static var youtubeVideoBodyTextPrompt: String {
+        return Strings._youtubeVideoBodyTextPrompts[LangCode.currentLanguage]!
+    }
+    
     static let windowsNewLineSymbol: String = "\r\n"
     static let macNewLineSymbol: String = "\n\r"
 }

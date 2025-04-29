@@ -49,6 +49,10 @@ class AutoResizingTextViewWithPrompt: UITextView {
     // The table view that contains cells with AutoResizingTextViewWithPrompt.
     var tableViewForHeightAdjustment: UITableView?
     
+    // MARK: - Controllers
+    
+    var delegate_: AutoResizingTextViewWithPromptDelegate!
+    
     // MARK: - Init
     
     override init(frame: CGRect, textContainer: NSTextContainer?) {
@@ -196,5 +200,19 @@ extension AutoResizingTextViewWithPrompt {
             UIView.setAnimationsEnabled(true)
         }
     }
+    
+}
+
+extension AutoResizingTextViewWithPrompt {
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        delegate_.textViewDidEndEditing(textView)
+    }
+    
+}
+
+protocol AutoResizingTextViewWithPromptDelegate {
+    
+    func textViewDidEndEditing(_ textView: UITextView)
     
 }

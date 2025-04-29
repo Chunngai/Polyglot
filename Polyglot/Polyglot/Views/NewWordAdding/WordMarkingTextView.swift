@@ -8,7 +8,7 @@
 
 import UIKit
 
-class WordMarkingTextView: UITextView, UITextViewDelegate {
+class WordMarkingTextView: UITextView, UITextViewDelegate, TextAnimationDelegate {
     
     // New word adding.
     
@@ -303,57 +303,6 @@ extension WordMarkingTextView {
 }
 
 extension WordMarkingTextView {
-    
-    func startTextColorTransitionAnimation(for range: NSRange) {
-
-        func animateToIntermidiateColor() {
-            
-            UIView.transition(
-                with: self,
-                duration: 1.0,
-                options: .transitionCrossDissolve
-            ) {
-                self.textStorage.setTextColor(
-                    for: range,
-                    with: self.colorAnimationIntermediateColor
-                )
-            } completion: { ifFinished in
-                if self.isColorAnimating {
-                    animateToOriginalColor()
-                } else {
-                    // Reset to true for the animation next time.
-                    self.isColorAnimating = true
-                    return
-                }
-            }
-            
-        }
-        
-        func animateToOriginalColor() {
-            
-            UIView.transition(
-                with: self,
-                duration: 1.0,
-                options: .transitionCrossDissolve
-            ) {
-                self.textStorage.setTextColor(
-                    for: range,
-                    with: self.colorAnimationOriginalColor
-                )
-            } completion: { ifFinished in
-                if self.isColorAnimating {
-                    animateToIntermidiateColor()
-                } else {
-                    // Reset to true for the animation next time.
-                    self.isColorAnimating = true
-                    return
-                }
-            }
-            
-        }
-        
-        animateToIntermidiateColor()
-    }
     
     // MARK: - Content Generation
     

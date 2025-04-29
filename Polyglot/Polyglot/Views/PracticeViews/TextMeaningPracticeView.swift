@@ -291,7 +291,7 @@ class TextMeaningPracticeView: BasePracticeView {
                 )
             }
             
-            attributedText.append(textView.imageAttributedString(
+            attributedText.append(NSAttributedString.imageAttributedString(
                 icon: upperIcon,
                 font: iconFont
             ))
@@ -340,7 +340,7 @@ class TextMeaningPracticeView: BasePracticeView {
                 )
             }
             
-            attributedText.append(textView.imageAttributedString(
+            attributedText.append(NSAttributedString.imageAttributedString(
                 icon: lowerIcon,
                 font: iconFont
             ))
@@ -581,7 +581,7 @@ extension TextMeaningPracticeView {
                 
                 self.textView.textStorage.replaceCharacters(
                     in: self.rangeOfTranslatorIcon!,
-                    with: self.textView.imageAttributedString(
+                    with: NSAttributedString.imageAttributedString(
                         icon: self.translatorIcon,
                         font: self.iconFont
                     )

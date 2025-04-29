@@ -8,6 +8,15 @@
 
 import UIKit
 
+class ReadingEditTableCellTextView: AutoResizingTextViewWithPrompt, TextAnimationDelegate {
+    
+    var isColorAnimating: Bool = false
+    
+    var colorAnimationOriginalColor: UIColor = Colors.normalTextColor
+    var colorAnimationIntermediateColor: UIColor = Colors.inactiveTextColor
+    
+}
+
 class ReadingEditTableCell: UITableViewCell {
         
     // MARK: - Controllers
@@ -20,8 +29,8 @@ class ReadingEditTableCell: UITableViewCell {
     
     // MARK: - Views
     
-    var textView: AutoResizingTextViewWithPrompt = {
-        let textView = AutoResizingTextViewWithPrompt()
+    var textView: ReadingEditTableCellTextView = {
+        let textView = ReadingEditTableCellTextView()
         return textView
     }()
     

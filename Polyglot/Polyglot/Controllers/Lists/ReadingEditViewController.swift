@@ -15,11 +15,12 @@ class ReadingEditViewController: UIViewController {
         self.cell(for: ReadingEditViewController.titleIdentifier),
         self.cell(for: ReadingEditViewController.topicIdentifier),
         self.cell(for: ReadingEditViewController.sourceIdentifier),
-        self.cell(for: ReadingEditViewController.paraSplitingIdentifier),
         self.cell(for: ReadingEditViewController.bodyIdentifier)
     ]
     
     var query: String?
+    
+    var captionEvents: [YoutubeVideoParser.CaptionEvent] = []
     
     // MARK: - Models
     
@@ -115,6 +116,12 @@ class ReadingEditViewController: UIViewController {
     func updateValues(article: Article, query: String?) {
         self.article = article
         self.query = query
+        
+        self.captionEvents = article.captionEvents
+        if !self.captionEvents.isEmpty {
+            self.cells[Self.bodyIdentifier].textView.isEditable = false
+            self.addPromptForYoutubeVideoBodyText()
+        }
     }
 }
  
@@ -128,7 +135,7 @@ extension ReadingEditViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if section == 0 {
-            return 4
+            return 3
         } else {
             return 1
         }
@@ -146,8 +153,6 @@ extension ReadingEditViewController: UITableViewDataSource {
                 return cells[ReadingEditViewController.topicIdentifier]
             } else if row == 2 {
                 return cells[ReadingEditViewController.sourceIdentifier]
-            } else if row == 3 {
-                return cells[ReadingEditViewController.paraSplitingIdentifier]
             }
         } else if section == 1 {
             return cells[ReadingEditViewController.bodyIdentifier]
@@ -202,6 +207,8 @@ extension ReadingEditViewController {
         
         let cell = ReadingEditTableCell()
         cell.delegate = self
+        cell.textView.delegate_ = self
+        cell.textView.tag = identifier
         
         let prompt = getPrompt(for: identifier)  // Dynamically loading instead of using constants, coz `lang` will change.
         let text = getText(for: identifier)
@@ -215,14 +222,6 @@ extension ReadingEditViewController {
             textAttributes: textAttributes,
             textViewTag: identifier
         )
-        
-        if identifier == Self.paraSplitingIdentifier {
-            cell.textView.isEditable = false
-            cell.addGestureRecognizer(UITapGestureRecognizer(
-                target: self,
-                action: #selector(paraSplitingButtonTapped)
-            ))
-        }
 
         return cell
     }
@@ -232,7 +231,6 @@ extension ReadingEditViewController {
         case ReadingEditViewController.titleIdentifier: return Strings.articleTitlePrompt
         case ReadingEditViewController.topicIdentifier: return Strings.articleTopicPrompt
         case ReadingEditViewController.sourceIdentifier: return Strings.articleSourcePrompt
-        case ReadingEditViewController.paraSplitingIdentifier: return Strings.paraSplitingPrompt
         default: return ""
         }
     }
@@ -255,10 +253,20 @@ extension ReadingEditViewController {
             "title": cells[ReadingEditViewController.titleIdentifier].textView.content,
             "topic": cells[ReadingEditViewController.topicIdentifier].textView.content,
             "source": cells[ReadingEditViewController.sourceIdentifier].textView.content,
-            "body": cells[ReadingEditViewController.bodyIdentifier].textView.content
-                // Handle Windows and Mac newline symbols.
-                .replacingOccurrences(of: Strings.windowsNewLineSymbol, with: "\n")
-                .replacingOccurrences(of: Strings.macNewLineSymbol, with: "\n"),
+            "body": {
+                
+                var body = cells[ReadingEditViewController.bodyIdentifier].textView.content
+                    // Handle Windows and Mac newline symbols.
+                    .replacingOccurrences(of: Strings.windowsNewLineSymbol, with: "\n")
+                    .replacingOccurrences(of: Strings.macNewLineSymbol, with: "\n")
+                
+                if body.starts(with: Strings.youtubeVideoBodyTextPrompt) {
+                    body = String(body.dropFirst(Strings.youtubeVideoBodyTextPrompt.count))
+                }
+                
+                return body
+                
+            }(),
         ]
     }
 }
@@ -384,28 +392,48 @@ extension ReadingEditViewController {
         
         if let article = article {
             // Edit an existing article.
-            delegate.edit(
-                articleId: article.id,
-                newTitle: content["title"]!,
-                newTopic: content["topic"]!,
-                newBody: content["body"]!,
-                newSource: content["source"]!
-            )
+            if self.captionEvents.isEmpty {
+                delegate.edit(
+                    articleId: article.id,
+                    newTitle: content["title"]!,
+                    newTopic: content["topic"]!,
+                    newBody: content["body"]!,
+                    newSource: content["source"]!
+                )
+            } else {
+                delegate.edit(
+                    articleId: article.id,
+                    newTitle: content["title"]!,
+                    newTopic: content["topic"]!,
+                    newCaptionEvents: captionEvents,
+                    newSource: content["source"]!
+                )
+            }
         } else {
             // Add a new article.
-            let newArticle = Article(
-                title: content["title"]!,
-                topic: content["topic"]!,
-                body: content["body"]!,
-                source: content["source"]!
-            )
+            var newArticle: Article
+            if self.captionEvents.isEmpty {
+                newArticle = Article(
+                    title: content["title"]!,
+                    topic: content["topic"]!,
+                    body: content["body"]!,
+                    source: content["source"]!
+                )
+            } else {
+                newArticle = Article(
+                    title: content["title"]!,
+                    topic: content["topic"]!,
+                    captionEvents: captionEvents,
+                    source: content["source"]!
+                )
+            }
             delegate.add(article: newArticle)
         }
         
         navigationController?.dismiss(animated: true, completion: nil)
     }
     
-    @objc private func paraSplitingButtonTapped() {
+    private func splitBodyText() {
         self.cells[ReadingEditViewController.bodyIdentifier].textView.text = self.content["body"]?
             .replacingOccurrences(
                 of: "\n",
@@ -413,6 +441,147 @@ extension ReadingEditViewController {
             )
             .replaceMultipleBlankLinesWithSingleLine()
     }
+    
+    private func maybeGenerateBodyText() {
+        
+        let bodyTextView = self.cells[Self.bodyIdentifier].textView
+        bodyTextView.isEditable = false
+        
+        let source = self.cells[Self.sourceIdentifier].textView.content
+        guard let youtubeVideoParser = YoutubeVideoParser(urlString: source) else {
+            
+            bodyTextView.isEditable = true  // Not a youtube video.
+            if bodyTextView.text.starts(with: Strings.youtubeVideoBodyTextPrompt) {
+                bodyTextView.text = String(bodyTextView.text.dropFirst(Strings.youtubeVideoBodyTextPrompt.count))
+            }
+            
+            return
+            
+        }
+        
+        bodyTextView.text = Strings.youtubeVideoRetrievingCaptionsPrompt
+        if let videoID = youtubeVideoParser.videoID {
+            bodyTextView.text += " (ID: \(videoID))"
+        }
+        
+        bodyTextView.isColorAnimating = true
+        bodyTextView.startTextColorTransitionAnimation(for: NSRange(
+            location: 0,
+            length: bodyTextView.text.utf16.count
+        ))
+        
+        func rollback() {
+            bodyTextView.isColorAnimating = false
+            bodyTextView.text = ""
+            bodyTextView.textColor = bodyTextView.colorAnimationOriginalColor
+        }
+        
+        youtubeVideoParser.getHTML { html, error in
+            
+            if let error = error {
+                print(error)
+                DispatchQueue.main.async {
+                    rollback()
+                }
+                return
+            }
+            
+            guard let html = html else {
+                DispatchQueue.main.async {
+                    rollback()
+                }
+                return
+            }
+            
+            // Title.
+            if let videoTitle = youtubeVideoParser.retrieveTitle(from: html) {
+                DispatchQueue.main.async {
+                    self.cells[Self.titleIdentifier].textView.text = videoTitle
+                }
+            }
+            
+            // Body.
+            
+            youtubeVideoParser.retrieveCaptions(from: html) { captionEvents, error in
+                
+                DispatchQueue.main.async {
+                    rollback()
+                }
+                
+                if let error = error {
+                    print(error)
+                    return
+                }
+                
+                guard let captionEvents = captionEvents else {
+                    return
+                }
+                
+                self.captionEvents = captionEvents
+                
+                DispatchQueue.main.async {
+                    self.tableView.performBatchUpdates {  // Without this line some text will not be visible due to text view content change.
+                        
+                        bodyTextView.text = captionEvents.map({ captionEvent in
+                            return captionEvent.segs
+                        }).joined(separator: "\n\n")
+                        self.addPromptForYoutubeVideoBodyText()
+                        
+                    }
+                }
+                
+            }
+            
+        }
+        
+    }
+    
+    private func addPromptForYoutubeVideoBodyText() {
+        
+        let bodyTextView = self.cells[Self.bodyIdentifier].textView
+        let bodyTextAttrs = Self.textAttributes[Self.bodyIdentifier]
+        
+        let attrText = NSMutableAttributedString(
+            string: Strings.youtubeVideoBodyTextPrompt,
+            attributes: bodyTextAttrs
+        )
+        attrText.setTextColor(
+            for: NSRange(
+                location: 0,
+                length: attrText.length
+            ),
+            with: Colors.weakTextColor
+        )
+        
+        attrText.append(NSAttributedString(
+            string: bodyTextView.text,
+            attributes: bodyTextAttrs
+        ))
+        
+        bodyTextView.attributedText = attrText
+        
+    }
+    
+}
+
+extension ReadingEditViewController: AutoResizingTextViewWithPromptDelegate {
+    
+    // MARK: - AutoResizingTextViewWithPromptDelegate
+    
+    func textViewDidEndEditing(_ textView: UITextView) {
+        
+        if textView.tag == Self.sourceIdentifier {
+            
+            self.maybeGenerateBodyText()
+            
+        } else if textView.tag == Self.bodyIdentifier {
+            
+            self.splitBodyText()
+            
+        }
+        
+    }
+    
 }
 
 extension ReadingEditViewController {
@@ -424,8 +593,7 @@ extension ReadingEditViewController {
     private static let titleIdentifier: Int = 0
     private static let topicIdentifier: Int = 1
     private static let sourceIdentifier: Int = 2
-    private static let paraSplitingIdentifier: Int = 3
-    private static let bodyIdentifier: Int = 4
+    private static let bodyIdentifier: Int = 3
     
     private static let promptAttributesForText: [NSAttributedString.Key : Any] = {
         var attrs = Attributes.defaultLongTextAttributes(fontSize: Sizes.mediumFontSize)
@@ -442,7 +610,6 @@ extension ReadingEditViewController {
         ReadingEditViewController.titleIdentifier: ReadingEditViewController.promptAttributesForText,
         ReadingEditViewController.topicIdentifier: ReadingEditViewController.promptAttributesForText,
         ReadingEditViewController.sourceIdentifier: ReadingEditViewController.promptAttributesForText,
-        ReadingEditViewController.paraSplitingIdentifier: ReadingEditViewController.promptAttributesForButton,
     ]
     
     private static let textAttributes: [Int: [NSAttributedString.Key : Any]] = [
@@ -475,5 +642,6 @@ protocol ReadingEditViewControllerDelegate {
     
     func add(article: Article)
     func edit(articleId: String, newTitle: String, newTopic: String, newBody: String, newSource: String)
+    func edit(articleId: String, newTitle: String, newTopic: String, newCaptionEvents: [YoutubeVideoParser.CaptionEvent], newSource: String)
     
 }

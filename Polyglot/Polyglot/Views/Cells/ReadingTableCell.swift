@@ -14,9 +14,36 @@ class ReadingTableCell: UITableViewCell {
     
     var article: Article! {
         didSet {
-            titleLabel.text = article.title
+            titleLabel.attributedText = {
+                
+                let attrText = NSMutableAttributedString(string: "")
+                
+                if article.isYoutubeVideo {
+                    attrText.append(NSAttributedString.imageAttributedString(
+                        icon: Icons.youtubeIcon,
+                        font: (Self.titleLabelAttributes[.font] as! UIFont)
+                    ))
+                    attrText.append(NSAttributedString(string: "  "))
+                }
+                
+                attrText.append(NSAttributedString(string: article.title))
+                
+                attrText.addAttributes(
+                    Self.titleLabelAttributes,
+                    range: NSRange(
+                        location: 0,
+                        length: attrText.length
+                    )
+                )
+                
+                return attrText
+                
+            }()
             bodyLabel.text = article.body
-                .replacingOccurrences(of: "\n\n", with: "\n")  // Avoid empty lines.
+                .replacingOccurrences(
+                    of: "\n\n",
+                    with: "\n"
+                )  // Avoid empty lines.
         }
     }
     
@@ -92,5 +119,11 @@ extension ReadingTableCell {
     // MARK: - Constants
     
     private static let bodyLabelNumberOfLines: Int = 2
+    
+    private static let titleLabelAttributes: [NSAttributedString.Key : Any] = [
+        .backgroundColor : Colors.defaultBackgroundColor,
+        .foregroundColor : Colors.normalTextColor,
+        .font : UIFont.systemFont(ofSize: Sizes.smallFontSize)
+    ]
     
 }

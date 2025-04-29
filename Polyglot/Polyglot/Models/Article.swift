@@ -16,13 +16,21 @@ struct Paragraph: Codable {
     var text: String
     var meaning: String?
     
-    init(text: String, meaning: String? = nil) {
+    // For Youtube video captions.
+    var startMs: Int?
+    var durationMs: Int?
+    
+    init(text: String, meaning: String? = nil, startMs: Int? = nil, durationMs: Int? = nil) {
         
         self.id = UUID().uuidString
         self.cDate = Date()
         
         self.text = text
         self.meaning = meaning
+        
+        self.startMs = startMs
+        self.durationMs = durationMs
+        
     }
     
     static let textMeaningSeparator = "\n"
@@ -42,6 +50,7 @@ struct Paragraph: Codable {
         
         self.init(text: text, meaning: meaning)
     }
+    
 }
 
 struct Article {
@@ -65,6 +74,20 @@ struct Article {
         self.topic = topic?.strip()
         self.paras = Article.makeParas(from: body)
         self.source = source?.strip()
+        
+    }
+    
+    init(title: String, topic: String? = nil, captionEvents: [YoutubeVideoParser.CaptionEvent], source: String? = nil) {
+                
+        self.cDate = Date()
+        self.id = UUID().uuidString
+        self.mDate = cDate
+        
+        self.title = title.strip().normalizeQuotes()
+        self.topic = topic?.strip()
+        self.paras = Article.makeParas(from: captionEvents)
+        self.source = source?.strip()
+        
     }
     
     mutating func update(newTitle: String? = nil, newTopic: String? = nil, newBody: String? = nil, newSource: String? = nil) {
@@ -86,6 +109,29 @@ struct Article {
         }
         
         self.mDate = Date()
+        
+    }
+    
+    mutating func update(newTitle: String? = nil, newTopic: String? = nil, newCaptionEvents: [YoutubeVideoParser.CaptionEvent]? = nil, newSource: String? = nil) {
+        
+        if let newTitle = newTitle {
+            self.title = newTitle.strip().normalizeQuotes()
+        }
+        
+        if let newTopic = newTopic {
+            self.topic = newTopic.strip()
+        }
+        
+        if let newCaptionEvents = newCaptionEvents {
+            updateParas(with: newCaptionEvents)
+        }
+        
+        if let newSource = newSource {
+            self.source = newSource.strip()
+        }
+        
+        self.mDate = Date()
+        
     }
 }
 
@@ -119,6 +165,23 @@ extension Article {
         }
         
         return paras
+    }
+    
+    private static func makeParas(from captionEvents: [YoutubeVideoParser.CaptionEvent]) -> [Paragraph] {
+        
+        return captionEvents.map { captionEvent in
+            var segs = captionEvent.segs
+            segs = segs
+                .strip()
+                .normalizeQuotes()
+                .replaceMultipleSpacesWithSingleOne()
+            return Paragraph(
+                text: segs,
+                startMs: captionEvent.startMs,
+                durationMs: captionEvent.durationMs
+            )
+        }
+        
     }
     
     private mutating func updateParas(with newBody: String) {
@@ -156,6 +219,11 @@ extension Article {
         
         self.paras = newParas
     }
+    
+    private mutating func updateParas(with newCaptionEvents: [YoutubeVideoParser.CaptionEvent]) {
+        self.paras = Self.makeParas(from: newCaptionEvents)
+    }
+    
 }
 
 extension Article: Codable {

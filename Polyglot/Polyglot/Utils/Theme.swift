@@ -136,6 +136,7 @@ struct Icons {
     static let googleTranslateIcon = UIImage(imageLiteralResourceName: "google-translate")
     static let baiduTranslateIcon = UIImage(imageLiteralResourceName: "baidu-translate")
     static let duolingoIcon = UIImage(imageLiteralResourceName: "duolingo")
+    static let youtubeIcon = UIImage(imageLiteralResourceName: "youtube")
     
     // Ref: https://stackoverflow.com/questions/31803157/how-can-i-color-a-uiimage-in-swift
     static let start1Icon = UIImage(imageLiteralResourceName: "start_1").withRenderingMode(.alwaysTemplate)
