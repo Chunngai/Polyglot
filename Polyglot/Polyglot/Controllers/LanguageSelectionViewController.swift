@@ -86,6 +86,14 @@ extension LanguageSelectionViewController: UITableViewDataSource {
 
 extension LanguageSelectionViewController: UITableViewDelegate {
     
+    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+        return Sizes.mediumFontSize * 3
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return Sizes.mediumFontSize * 3
+    }
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         selectedLang = langs[indexPath.row]
         self.delegate.updateLanguage(as: selectedLang)
