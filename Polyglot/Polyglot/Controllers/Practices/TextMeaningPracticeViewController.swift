@@ -91,10 +91,6 @@ class TextMeaningPracticeViewController: PracticeViewController {
     
     // MARK: - Methods to be Overwritten
     
-    func makePrompt() -> String {
-        fatalError("makePrompt() has not been implemented.")
-    }
-    
     func makePracticeView() -> TextMeaningPracticeView {
         fatalError("makePracticeView() has not been implemented.")
     }

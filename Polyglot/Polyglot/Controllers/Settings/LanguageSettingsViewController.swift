@@ -49,9 +49,10 @@ class LanguageSettingsViewController: SettingsViewController {
             
             phraseReviewPracticeDuration: Int((cells[2][0] as! SettingsSlidingCell).slider.value),
             listeningPracticeDuration: Int((cells[2][1] as! SettingsSlidingCell).slider.value),
-            speakingPracticeDuration: Int((cells[2][2] as! SettingsSlidingCell).slider.value),
-            readingPracticeDuration: Int((cells[2][3] as! SettingsSlidingCell).slider.value),
-            podcastPracticeDuration: Int((cells[2][4] as! SettingsSlidingCell).slider.value),
+            videoShadowingPracticeDuration: Int((cells[2][2] as! SettingsSlidingCell).slider.value),
+            speakingPracticeDuration: Int((cells[2][3] as! SettingsSlidingCell).slider.value),
+            readingPracticeDuration: Int((cells[2][4] as! SettingsSlidingCell).slider.value),
+            podcastPracticeDuration: Int((cells[2][5] as! SettingsSlidingCell).slider.value),
             
             wordPracticeRepetition: Int((cells[3][0] as! SettingsSlidingCell).slider.value),
             listeningPracticeRepetition: Int((cells[3][1] as! SettingsSlidingCell).slider.value),
@@ -159,6 +160,19 @@ class LanguageSettingsViewController: SettingsViewController {
                     cell.slider.minimumValue = 5
                     cell.slider.maximumValue = 30
                     cell.slider.value = Float(LangCode.currentLanguage.configs.listeningPracticeDuration)
+                    cell.formatingFunc = { (sliderVal: Float) -> String in
+                        return "\(String(Int(sliderVal))) mins"  // TODO: - Update localization
+                    }
+                    cell.label.text = cell.formatingFunc(cell.slider.value)
+                    return cell
+                }(),
+                {
+                    let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
+                    cell.imageView?.image = Images.videoShadowingPracticeImage
+                    cell.step = 5
+                    cell.slider.minimumValue = 5
+                    cell.slider.maximumValue = 30
+                    cell.slider.value = Float(LangCode.currentLanguage.configs.videoShadowingPracticeDuration)
                     cell.formatingFunc = { (sliderVal: Float) -> String in
                         return "\(String(Int(sliderVal))) mins"  // TODO: - Update localization
                     }

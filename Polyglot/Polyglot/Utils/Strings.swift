@@ -196,16 +196,28 @@ extension Strings {
         return Strings._reading[LangCode.currentLanguage]!
     }
     
-    static let _listening: [LangCode : String] = [
-        LangCode.en : "Shadowing",
-        LangCode.ja : "シャドーイング",
-        LangCode.es : "Shadowing",
-        LangCode.ru : "Теневой Повтор",
-        LangCode.ko : "섀도잉",
-        LangCode.de : "Shadowing",
+    static let _textShadowing: [LangCode : String] = [
+        LangCode.en : "Text Shadowing",
+        LangCode.ja : "テキストシャドーイング",
+        LangCode.es : "Text Shadowing",
+        LangCode.ru : "Текстовый Теневой Повтор",
+        LangCode.ko : "텍스트 섀도잉",
+        LangCode.de : "Text Shadowing",
     ]
-    static var listening: String {
-        return Strings._listening[LangCode.currentLanguage]!
+    static var textShadowing: String {
+        return Strings._textShadowing[LangCode.currentLanguage]!
+    }
+    
+    static let _videoShadowing: [LangCode : String] = [
+        LangCode.en : "Video Shadowing",
+        LangCode.ja : "ビデオシャドーイング",
+        LangCode.es : "Video Shadowing",
+        LangCode.ru : "Видео Теневой Повтор",
+        LangCode.ko : "비디오 섀도잉",
+        LangCode.de : "Video Shadowing",
+    ]
+    static var videoShadowing: String {
+        return Strings._videoShadowing[LangCode.currentLanguage]!
     }
     
     static let _speaking: [LangCode : String] = [

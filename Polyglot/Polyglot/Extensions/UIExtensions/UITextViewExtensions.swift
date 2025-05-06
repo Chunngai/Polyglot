@@ -11,11 +11,51 @@ import UIKit
 
 extension UITextView {
     
+    // MARK: - Ranges
+    
+    func nsRange(from textRange: UITextRange) -> NSRange {
+        // Ref: https://stackoverflow.com/questions/21149767/convert-selectedtextrange-uitextrange-to-nsrange
+        let location = offset(from: beginningOfDocument, to: textRange.start)
+        let length = offset(from: textRange.start, to: textRange.end)
+        return NSRange(location: location, length: length)
+    }
+    
+    func textRange(from nsRange: NSRange) -> UITextRange? {
+        // Ref: https://stackoverflow.com/questions/9126709/create-uitextrange-from-nsrange
+        if let rangeStart = position(from: beginningOfDocument, offset: nsRange.location),
+           let rangeEnd = position(from: rangeStart, offset: nsRange.length) {
+            return textRange(from: rangeStart, to: rangeEnd)
+        }
+        return nil
+    }
+    
+}
+
+extension UITextView {
+    
     func selectBeginning() {
         self.selectedTextRange = self.textRange(
             from: self.beginningOfDocument,
             to: self.beginningOfDocument
         )
+    }
+    
+    func scrollToTop(for range: NSRange, animated: Bool) {
+        
+        guard range.location != NSNotFound else { return }
+        
+        // Get the start position of the range
+        guard let startPosition = self.position(from: self.beginningOfDocument, offset: range.location) else {
+            return
+        }
+        
+        // Get the rect for the caret at the start position
+        let caretRect = self.caretRect(for: startPosition)
+        
+        // Scroll to make the caret rect visible at the top
+        let desiredOffset = max(0, caretRect.origin.y - self.contentInset.top)
+        self.setContentOffset(CGPoint(x: 0, y: desiredOffset), animated: animated)
+        
     }
     
 }

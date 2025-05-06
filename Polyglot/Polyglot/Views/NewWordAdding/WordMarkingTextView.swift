@@ -222,28 +222,6 @@ extension WordMarkingTextView {
 
 extension WordMarkingTextView {
     
-    // MARK: - Ranges
-    
-    func nsRange(from textRange: UITextRange) -> NSRange {
-        // Ref: https://stackoverflow.com/questions/21149767/convert-selectedtextrange-uitextrange-to-nsrange
-        let location = offset(from: beginningOfDocument, to: textRange.start)
-        let length = offset(from: textRange.start, to: textRange.end)
-        return NSRange(location: location, length: length)
-    }
-    
-    func textRange(from nsRange: NSRange) -> UITextRange? {
-        // Ref: https://stackoverflow.com/questions/9126709/create-uitextrange-from-nsrange
-        if let rangeStart = position(from: beginningOfDocument, offset: nsRange.location),
-           let rangeEnd = position(from: rangeStart, offset: nsRange.length) {
-            return textRange(from: rangeStart, to: rangeEnd)
-        }
-        return nil
-    }
-    
-}
-
-extension WordMarkingTextView {
-    
     // MARK: - Highlighting
     
     func highlight(_ textRange: UITextRange, with color: UIColor?) {

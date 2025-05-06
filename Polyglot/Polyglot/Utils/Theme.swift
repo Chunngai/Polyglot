@@ -91,6 +91,7 @@ struct Images {
     
     static let wordPracticeImage: UIImage = UIImage.init(systemName: "square.and.pencil")!
     static let listeningPracticeImage: UIImage = UIImage.init(systemName: "beats.headphones")!
+    static let videoShadowingPracticeImage: UIImage = UIImage.init(systemName: "film")!
     static let translationPracticeImage: UIImage = UIImage.init(systemName: "bubble")!
     static let readingPracticeImage: UIImage = UIImage.init(systemName: "book.closed")!
     static let podcastPracticeImage: UIImage = UIImage.init(systemName: "radio")!
@@ -113,6 +114,14 @@ struct Images {
 //    static let listeningPracticeDisallowSpeechRecordingImage: UIImage = UIImage.init(systemName: "mic.slash")!
  
     static let textMeaningPracticeReinforceImage: UIImage = Icons.refreshIcon
+    
+    static let videoShadowingPracticeRewindButtonImage = UIImage(systemName: "gobackward.5")!
+    static let videoShadowingPracticePlayButtonImage = UIImage(systemName: "play.fill")!
+    static let videoShadowingPracticePauseButtonImage = UIImage(systemName: "pause.fill")!
+    static let videoShadowingPracticeForwardButtonImage = UIImage(systemName: "goforward.5")!
+    
+    static let videoShadowingPracticeHideTextImage: UIImage = UIImage(systemName: "eye.slash")!
+    static let videoShadowingPracticeShowTextImage: UIImage = UIImage(systemName: "eye")!
     
     // Settings images.
     
@@ -172,12 +181,17 @@ struct Sizes {
     // MARK: - Spacings.
     
     static let defaultStackSpacing: CGFloat = 15
+    static let smallStackSpacing: CGFloat = 10
     
     // MARK: - Widths.
     
     static let reorderingRowStackWidth: CGFloat = UIScreen.main.bounds.width * 0.8
     static let reorderingWordBankWidth: CGFloat = UIScreen.main.bounds.width * 0.8
     static let defaultBorderWidth: CGFloat = 2
+    
+    // MARK: - Button Sizes.
+    
+    static let videoShadowingControlButtonSize: CGFloat = 24
     
 }
 

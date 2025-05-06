@@ -19,7 +19,7 @@ class DuolingoOnlySelectionViewController: UIViewController {
 
         var text: String {
             switch self {
-            case .shadowing: return Strings.listening
+            case .shadowing: return Strings.textShadowing
             case .speaking: return Strings.speaking
             case .reading: return Strings.reading
             case .podcast: return Strings.podcast

@@ -25,10 +25,6 @@ class ReadingPracticeViewController: TextMeaningPracticeViewController {
     }
     
     // MARK: - Methods from the Super Class
- 
-    override func makePrompt() -> String {
-        Strings.readingPracticePrompt
-    }
     
     override func makePracticeView() -> TextMeaningPracticeView {
         let practice = practiceProducer.currentPractice as! ReadingPractice

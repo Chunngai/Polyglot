@@ -214,11 +214,6 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController, Listen
     
     // MARK: - Methods from the Super Class
     
-    override func makePrompt() -> String {
-        let currentPractice = practiceProducer.currentPractice as! ListeningPractice
-        return currentPractice.prompt
-    }
-    
     override func makePracticeView() -> TextMeaningPracticeView {
         let currentPractice = practiceProducer.currentPractice as! ListeningPractice
         switch currentPractice.practiceType {

@@ -512,7 +512,7 @@ extension TextMeaningPracticeView: WordMarkingTextViewContentGenerationDelegate 
 
 extension TextMeaningPracticeView: WordMarkingTextViewTappingDelegate {
     
-    func tapped(at tappedTextRange: UITextRange) {
+    @objc dynamic func tapped(at tappedTextRange: UITextRange) {
         
         guard let rangeOfTranslatorIcon = rangeOfTranslatorIcon else {
             return

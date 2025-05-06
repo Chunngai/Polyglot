@@ -397,6 +397,7 @@ struct LangConfigs: Codable {
     
     var phraseReviewPracticeDuration: Int
     var listeningPracticeDuration: Int
+    var videoShadowingPracticeDuration: Int
     var speakingPracticeDuration: Int
     var readingPracticeDuration: Int
     var podcastPracticeDuration: Int
@@ -421,6 +422,7 @@ struct LangConfigs: Codable {
         slowVoiceRate: Float,
         phraseReviewPracticeDuration: Int,
         listeningPracticeDuration: Int,
+        videoShadowingPracticeDuration: Int,
         speakingPracticeDuration: Int,
         readingPracticeDuration: Int,
         podcastPracticeDuration: Int,
@@ -439,6 +441,7 @@ struct LangConfigs: Codable {
         self.slowVoiceRate = slowVoiceRate
         self.phraseReviewPracticeDuration = phraseReviewPracticeDuration
         self.listeningPracticeDuration = listeningPracticeDuration
+        self.videoShadowingPracticeDuration = videoShadowingPracticeDuration
         self.speakingPracticeDuration = speakingPracticeDuration
         self.readingPracticeDuration = readingPracticeDuration
         self.podcastPracticeDuration = podcastPracticeDuration
@@ -462,6 +465,7 @@ struct LangConfigs: Codable {
         
         case phraseReviewPracticeDuration
         case listeningPracticeDuration
+        case videoShadowingPracticeDuration
         case speakingPracticeDuration
         case readingPracticeDuration
         case podcastPracticeDuration
@@ -490,6 +494,7 @@ struct LangConfigs: Codable {
         try container.encode(slowVoiceRate, forKey: .slowVoiceRate)
         try container.encode(phraseReviewPracticeDuration, forKey: .phraseReviewPracticeDuration)
         try container.encode(listeningPracticeDuration, forKey: .listeningPracticeDuration)
+        try container.encode(videoShadowingPracticeDuration, forKey: .videoShadowingPracticeDuration)
         try container.encode(speakingPracticeDuration, forKey: .speakingPracticeDuration)
         try container.encode(readingPracticeDuration, forKey: .readingPracticeDuration)
         try container.encode(podcastPracticeDuration, forKey: .podcastPracticeDuration)
@@ -519,6 +524,11 @@ struct LangConfigs: Codable {
             phraseReviewPracticeDuration = try values.decode(Int.self, forKey: .phraseReviewPracticeDuration)
         } catch {
             phraseReviewPracticeDuration = Self.defaultConfigs.phraseReviewPracticeDuration
+        }
+        do {
+            videoShadowingPracticeDuration = try values.decode(Int.self, forKey: .videoShadowingPracticeDuration)
+        } catch {
+            videoShadowingPracticeDuration = Self.defaultConfigs.videoShadowingPracticeDuration
         }
         do {
             listeningPracticeDuration = try values.decode(Int.self, forKey: .listeningPracticeDuration)
@@ -621,6 +631,7 @@ struct LangConfigs: Codable {
         slowVoiceRate: 0.3,
         phraseReviewPracticeDuration: 5,
         listeningPracticeDuration: 5,
+        videoShadowingPracticeDuration: 5,
         speakingPracticeDuration: 5,
         readingPracticeDuration: 5,
         podcastPracticeDuration: 5,

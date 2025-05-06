@@ -54,12 +54,16 @@
 		C6B9DE8C2B7E177E004F0C88 /* SpeakingPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B9DE8B2B7E177E004F0C88 /* SpeakingPractice.swift */; };
 		C6BA7AA72C7F52CA00C6FFD3 /* RussianAccentRetrievalModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = C6BA7AA52C7F52CA00C6FFD3 /* RussianAccentRetrievalModel.xcdatamodeld */; };
 		C6BA7AAA2C7F52F800C6FFD3 /* RussianAccentEntity+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BA7AA82C7F52F800C6FFD3 /* RussianAccentEntity+CoreDataClass.swift */; };
+		C6BACDEA2DC3D3810096CC21 /* VideoShadowingPractice.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BACDE92DC3D3810096CC21 /* VideoShadowingPractice.swift */; };
+		C6BACDF02DC3E2200096CC21 /* VideoShadowingPracticeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BACDEF2DC3E2200096CC21 /* VideoShadowingPracticeView.swift */; };
 		C6BC063D2C726D2C00B2DF44 /* MachineTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BC063C2C726D2C00B2DF44 /* MachineTranslator.swift */; };
 		C6BC06412C726D9E00B2DF44 /* TranslationProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6BC06402C726D9E00B2DF44 /* TranslationProtocol.swift */; };
 		C6C8C3132B75F95500FBC43B /* CFStringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C8C3122B75F95500FBC43B /* CFStringExtensions.swift */; };
 		C6C8C3152B75F96A00FBC43B /* CFRangeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C8C3142B75F96A00FBC43B /* CFRangeExtensions.swift */; };
 		C6C8C3172B7617F200FBC43B /* Text.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C8C3162B7617F200FBC43B /* Text.swift */; };
 		C6D2E5702DC105FB008FB30A /* YoutubeVideoParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D2E56D2DC105FB008FB30A /* YoutubeVideoParser.swift */; };
+		C6D2E5792DC1FBBC008FB30A /* VideoShadowingPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D2E5782DC1FBBC008FB30A /* VideoShadowingPracticeViewController.swift */; };
+		C6D2E57B2DC1FFF0008FB30A /* VideoShadowingPracticeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D2E57A2DC1FFF0008FB30A /* VideoShadowingPracticeProducer.swift */; };
 		C6E1E0312AC5C2F600E4AF72 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E1E0302AC5C2F600E4AF72 /* HomeViewController.swift */; };
 		C6E8D3CC2C8E3788009E42F5 /* russian_word_forms.json in Resources */ = {isa = PBXBuildFile; fileRef = C6E8D3CB2C8E3788009E42F5 /* russian_word_forms.json */; };
 		C6E8D3D22C8E3A31009E42F5 /* formatted_je2jo.json in Resources */ = {isa = PBXBuildFile; fileRef = C6E8D3D12C8E3A31009E42F5 /* formatted_je2jo.json */; };
@@ -232,12 +236,16 @@
 		C6B9DE8B2B7E177E004F0C88 /* SpeakingPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakingPractice.swift; sourceTree = "<group>"; };
 		C6BA7AA62C7F52CA00C6FFD3 /* RussianAccentRetrievalModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = RussianAccentRetrievalModel.xcdatamodel; sourceTree = "<group>"; };
 		C6BA7AA82C7F52F800C6FFD3 /* RussianAccentEntity+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RussianAccentEntity+CoreDataClass.swift"; sourceTree = SOURCE_ROOT; };
+		C6BACDE92DC3D3810096CC21 /* VideoShadowingPractice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoShadowingPractice.swift; sourceTree = "<group>"; };
+		C6BACDEF2DC3E2200096CC21 /* VideoShadowingPracticeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoShadowingPracticeView.swift; sourceTree = "<group>"; };
 		C6BC063C2C726D2C00B2DF44 /* MachineTranslator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MachineTranslator.swift; sourceTree = "<group>"; };
 		C6BC06402C726D9E00B2DF44 /* TranslationProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslationProtocol.swift; sourceTree = "<group>"; };
 		C6C8C3122B75F95500FBC43B /* CFStringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CFStringExtensions.swift; sourceTree = "<group>"; };
 		C6C8C3142B75F96A00FBC43B /* CFRangeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CFRangeExtensions.swift; sourceTree = "<group>"; };
 		C6C8C3162B7617F200FBC43B /* Text.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Text.swift; sourceTree = "<group>"; };
 		C6D2E56D2DC105FB008FB30A /* YoutubeVideoParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YoutubeVideoParser.swift; sourceTree = "<group>"; };
+		C6D2E5782DC1FBBC008FB30A /* VideoShadowingPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoShadowingPracticeViewController.swift; sourceTree = "<group>"; };
+		C6D2E57A2DC1FFF0008FB30A /* VideoShadowingPracticeProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoShadowingPracticeProducer.swift; sourceTree = "<group>"; };
 		C6E1E0302AC5C2F600E4AF72 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		C6E8D3CB2C8E3788009E42F5 /* russian_word_forms.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = russian_word_forms.json; path = ../../../russian_word_forms.json; sourceTree = "<group>"; };
 		C6E8D3D12C8E3A31009E42F5 /* formatted_je2jo.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = formatted_je2jo.json; path = ../../../formatted_je2jo.json; sourceTree = "<group>"; };
@@ -379,6 +387,7 @@
 				FFD7DF7C299DA18000019D51 /* ReorderingPracticeView.swift */,
 				C69DB5EB2B73C05700B3BC66 /* ListenAndRepeatPracticeView.swift */,
 				C69DB5ED2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift */,
+				C6BACDEF2DC3E2200096CC21 /* VideoShadowingPracticeView.swift */,
 				FFCBB0DF296B45F300E5B9D9 /* SpeakingPracticeView.swift */,
 				C6A1FC432C7B4E7700F01632 /* ReadingPracticeView.swift */,
 				C69CB0E92D3D5B5900C43FE7 /* PodcastPracticeView.swift */,
@@ -431,6 +440,7 @@
 				C60625F62B7FB5E800429BAF /* TextMeaningPracticeViewController.swift */,
 				FF495EA12959244C00EA7EA9 /* WordsPracticeViewController.swift */,
 				C6F5FB792B7202AF0040A26B /* ListeningPracticeViewController.swift */,
+				C6D2E5782DC1FBBC008FB30A /* VideoShadowingPracticeViewController.swift */,
 				FF4CA72F295E869900423946 /* SpeakingPracticeViewController.swift */,
 				C6A1FC452C7B4F7400F01632 /* ReadingPracticeViewController.swift */,
 				C69CB0E12D3D551000C43FE7 /* PodcastPracticeViewController.swift */,
@@ -445,6 +455,7 @@
 				FF591ED52967960C0004CB80 /* WordPractice.swift */,
 				C69F76652B7D198F0006828A /* TextMeaningPractice.swift */,
 				C69F76672B7D1F9F0006828A /* ListeningPractice.swift */,
+				C6BACDE92DC3D3810096CC21 /* VideoShadowingPractice.swift */,
 				C6B9DE8B2B7E177E004F0C88 /* SpeakingPractice.swift */,
 				C6A1FC3F2C7B4B9700F01632 /* ReadingPractice.swift */,
 				C69CB0E72D3D5AB200C43FE7 /* PodcastPractice.swift */,
@@ -684,6 +695,7 @@
 				C606260C2B80765E00429BAF /* TextMeaningPracticeProducer.swift */,
 				FFBD60402969D713004165FC /* WordPracticeProducer.swift */,
 				C6F5FB7D2B72067F0040A26B /* ListeningPracticeProducer.swift */,
+				C6D2E57A2DC1FFF0008FB30A /* VideoShadowingPracticeProducer.swift */,
 				FFBD60442969D733004165FC /* SpeakingPracticeProducer.swift */,
 				C6A1FC412C7B4C6900F01632 /* ReadingPracticeProducer.swift */,
 				C69CB0E52D3D577200C43FE7 /* PodcastPracticeProducer.swift */,
@@ -1066,7 +1078,9 @@
 				C6E8D3DA2C8E3B8A009E42F5 /* Je2JoEntity+CoreDataProperties.swift in Sources */,
 				C6E1E0312AC5C2F600E4AF72 /* HomeViewController.swift in Sources */,
 				FF50251429524D100097C2CB /* ReadingTableCell.swift in Sources */,
+				C6BACDF02DC3E2200096CC21 /* VideoShadowingPracticeView.swift in Sources */,
 				C69CB0E82D3D5AB200C43FE7 /* PodcastPractice.swift in Sources */,
+				C6D2E57B2DC1FFF0008FB30A /* VideoShadowingPracticeProducer.swift in Sources */,
 				FF491E802959ED730088FD13 /* Separator.swift in Sources */,
 				C60626062B8069E600429BAF /* BasePracticeView.swift in Sources */,
 				C69F76682B7D1F9F0006828A /* ListeningPractice.swift in Sources */,
@@ -1079,6 +1093,7 @@
 				C606260D2B80765E00429BAF /* TextMeaningPracticeProducer.swift in Sources */,
 				C69DB5EE2B73C08800B3BC66 /* ListenAndCompletePracticeView.swift in Sources */,
 				FFCBB0D7296B0AA200E5B9D9 /* PracticeViewController.swift in Sources */,
+				C6BACDEA2DC3D3810096CC21 /* VideoShadowingPractice.swift in Sources */,
 				FF495E9C295903DF00EA7EA9 /* WordsTableCell.swift in Sources */,
 				C619E68F2AC8154F00A30B27 /* LangCell.swift in Sources */,
 				C6A1A25D2D6B7A6100B99B49 /* GPTTranslator.swift in Sources */,
@@ -1111,6 +1126,7 @@
 				FF4964CF2958CE4400414AC5 /* Word.swift in Sources */,
 				FF706E032951549C00DBCF8E /* UIImageExtensions.swift in Sources */,
 				C606260F2B8076A000429BAF /* TextGranularity.swift in Sources */,
+				C6D2E5792DC1FBBC008FB30A /* VideoShadowingPracticeViewController.swift in Sources */,
 				FF5FE946297431C30002691C /* ArrayExtensions.swift in Sources */,
 				C6F3F6A72C121AC800346A70 /* GlobalSettingsViewController.swift in Sources */,
 				FF5D129129577AC4005DEEDE /* NavController.swift in Sources */,

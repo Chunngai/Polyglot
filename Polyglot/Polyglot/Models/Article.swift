@@ -17,10 +17,10 @@ struct Paragraph: Codable {
     var meaning: String?
     
     // For Youtube video captions.
-    var startMs: Int?
-    var durationMs: Int?
+    var startMs: Double?
+    var durationMs: Double?
     
-    init(text: String, meaning: String? = nil, startMs: Int? = nil, durationMs: Int? = nil) {
+    init(text: String, meaning: String? = nil, startMs: Double? = nil, durationMs: Double? = nil) {
         
         self.id = UUID().uuidString
         self.cDate = Date()

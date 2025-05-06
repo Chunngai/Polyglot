@@ -10,9 +10,9 @@ import Foundation
 
 struct YoutubeVideoParser {
     
-    struct CaptionEvent {
-        let startMs: Int
-        let durationMs: Int
+    struct CaptionEvent: Codable {
+        let startMs: Double
+        let durationMs: Double
         let segs: String
     }
     
@@ -217,8 +217,8 @@ struct YoutubeVideoParser {
                     var captionEvents: [CaptionEvent] = []
                     
                     for event in events {
-                        guard let startMs = event["tStartMs"] as? Int,
-                              let durationMs = event["dDurationMs"] as? Int,
+                        guard let startMs = event["tStartMs"] as? Double,
+                              let durationMs = event["dDurationMs"] as? Double,
                               let segsArray = event["segs"] as? [[String: Any]]
                         else {
                             continue
@@ -229,7 +229,10 @@ struct YoutubeVideoParser {
                                 let s = $0["utf8"] as? String,
                                 !s.strip().isEmpty
                             {
-                                return s.strip()
+                                return s.strip().replacingOccurrences(
+                                    of: "\n",
+                                    with: " "
+                                )
                             }
                             return nil
                         }.joined(separator: " ").strip()

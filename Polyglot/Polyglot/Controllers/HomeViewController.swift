@@ -72,6 +72,19 @@ class HomeViewController: UIViewController {
         }
     }
 
+    var isVideoShadowingPracticeEnabled: Bool {
+        guard
+            let videoCountString = articleMetaData["video_count"],
+            let videoCount = Int(videoCountString)
+        else {
+            return false
+        }
+        if videoCount == 0 {
+            return false
+        }
+        return true
+    }
+    
     var isPracticeEnabled: Bool {
         let wordCount = Int(wordMetaData["count"] ?? "0")
         let articleCount = Int(articleMetaData["count"] ?? "0")
@@ -136,14 +149,24 @@ class HomeViewController: UIViewController {
         )
     ]}
     
-    var practiceItems: [HomeItem] {[
+    var shadowingItems: [HomeItem] {[
         HomeItem(
             image: Images.listeningPracticeImage,
-            text: Strings.listening,
+            text: Strings.textShadowing,
             secondaryText: practiceMetaData["recentListeningPracticeDate"] != nil
             ? "\(Strings.recentPractice): \(practiceMetaData["recentListeningPracticeDate"]!)"
             : nil
         ),
+        HomeItem(
+            image: Images.videoShadowingPracticeImage,
+            text: Strings.videoShadowing,
+            secondaryText: practiceMetaData["recentVideoShadowingPracticeDate"] != nil
+            ? "\(Strings.recentPractice): \(practiceMetaData["recentVideoShadowingPracticeDate"]!)"
+            : nil
+        )
+    ]}
+    
+    var practiceItems: [HomeItem] {[
         HomeItem(
             image: Images.translationPracticeImage,
             text: Strings.speaking,
@@ -215,6 +238,9 @@ class HomeViewController: UIViewController {
             Article.save(&newValue, for: LangCode.currentLanguage)
             
             articleMetaData["count"] = String(newValue.count)
+            articleMetaData["video_count"] = String(articles.compactMap({
+                $0.isYoutubeVideo ? 1 : nil
+            }).count)
             articleMetaData["newestCDate"] = newValue.map({ article in
                 article.cDate
             }).max()?.repr(from: Date.defaultDateFormatter)
@@ -604,6 +630,7 @@ extension HomeViewController {
             if sectionIndex == HomeViewController.languageSection ||
                 sectionIndex == HomeViewController.listSection ||
                 sectionIndex == HomeViewController.phraseReviewSection ||
+                sectionIndex == HomeViewController.shadowingSection ||
                 sectionIndex == HomeViewController.practiceSection ||
                 sectionIndex == HomeViewController.settingsSection {
                 
@@ -689,8 +716,12 @@ extension HomeViewController {
             if indexPath.section == HomeViewController.phraseReviewSection {
                 content.textProperties.color = self.isWordPracticeEnabled ? Colors.normalTextColor : Colors.weakTextColor
             }
-            if indexPath.section == HomeViewController.practiceSection {
+            if (indexPath.section == HomeViewController.shadowingSection && indexPath.row == 0)
+                || indexPath.section == HomeViewController.practiceSection {
                 content.textProperties.color = self.isPracticeEnabled ? Colors.normalTextColor : Colors.weakTextColor
+            }
+            if indexPath.section == Self.shadowingSection && indexPath.row == 1 {
+                content.textProperties.color = self.isVideoShadowingPracticeEnabled ? Colors.normalTextColor : Colors.weakTextColor
             }
             cell.contentConfiguration = content
             
@@ -785,6 +816,7 @@ extension HomeViewController {
             if section == HomeViewController.languageSection ||
                 section == HomeViewController.listSection ||
                 section == HomeViewController.phraseReviewSection ||
+                section == HomeViewController.shadowingSection ||
                 section == HomeViewController.practiceSection ||
                 section == HomeViewController.settingsSection {
                 return collectionView.dequeueConfiguredReusableCell(
@@ -814,6 +846,7 @@ extension HomeViewController {
             HomeViewController.languageSection,
             HomeViewController.listSection,
             HomeViewController.phraseReviewSection,
+            HomeViewController.shadowingSection,
             HomeViewController.practiceSection,
             HomeViewController.settingsSection
         ]
@@ -830,6 +863,7 @@ extension HomeViewController {
                 HomeViewController.languageSection,
                 HomeViewController.listSection,
                 HomeViewController.phraseReviewSection,
+                HomeViewController.shadowingSection,
                 HomeViewController.practiceSection,
                 HomeViewController.settingsSection
             ],
@@ -837,6 +871,7 @@ extension HomeViewController {
                 [languageItem],
                 listItems,
                 phraseReviewItems,
+                shadowingItems,
                 practiceItems,
                 [settingsItem]
             ]
@@ -906,28 +941,46 @@ extension HomeViewController: UICollectionViewDelegate {
                 completion: nil
             )
             
-        } else if section == HomeViewController.practiceSection {
+        } else if section == HomeViewController.shadowingSection
+                    || section == HomeViewController.practiceSection {
             
-            guard isPracticeEnabled else {
-                return
+            var vc: PracticeViewController = PracticeViewController()
+            if section == Self.shadowingSection {
+                if row == 0 {
+                    
+                    guard isPracticeEnabled else {
+                        return
+                    }
+                    
+                    vc = ListeningPracticeViewController()
+                    vc.practiceDuration = LangCode.currentLanguage.configs.listeningPracticeDuration
+               } else if row == 1 {
+                   
+                   guard isVideoShadowingPracticeEnabled else {
+                       return
+                   }
+                   
+                   vc = VideoShadowingPracticeViewController()
+                   vc.practiceDuration = LangCode.currentLanguage.configs.videoShadowingPracticeDuration
+               }
+            } else if section == Self.practiceSection {
+                
+                guard isPracticeEnabled else {
+                    return
+                }
+                
+                if row == 0 {
+                    vc = TranslationPracticeViewController()
+                    vc.practiceDuration = LangCode.currentLanguage.configs.speakingPracticeDuration
+                } else if row == 1 {
+                    vc = ReadingPracticeViewController()
+                    vc.practiceDuration = LangCode.currentLanguage.configs.readingPracticeDuration
+                } else if row == 2 {
+                    vc = PodcastPracticeViewController()
+                    vc.practiceDuration = LangCode.currentLanguage.configs.podcastPracticeDuration
+                }
             }
-            
-            let vc: PracticeViewController
-            if row == 0 {
-                vc = ListeningPracticeViewController()
-                vc.practiceDuration = LangCode.currentLanguage.configs.listeningPracticeDuration
-            } else if row == 1 {
-                vc = TranslationPracticeViewController()
-                vc.practiceDuration = LangCode.currentLanguage.configs.speakingPracticeDuration
-            } else if row == 2 {
-                vc = ReadingPracticeViewController()
-                vc.practiceDuration = LangCode.currentLanguage.configs.readingPracticeDuration
-            } else if row == 3 {
-                vc = PodcastPracticeViewController()
-                vc.practiceDuration = LangCode.currentLanguage.configs.podcastPracticeDuration
-            } else {
-                fatalError("Not Implemented.")
-            }
+                
             vc.delegate = self
             
             navigationController?.present(
@@ -1041,7 +1094,8 @@ extension HomeViewController {
     static let languageSection: Int = 0
     static let listSection: Int = 1
     static let phraseReviewSection: Int = 2
-    static let practiceSection: Int = 3
-    static let settingsSection: Int = 4
+    static let shadowingSection: Int = 3
+    static let practiceSection: Int = 4
+    static let settingsSection: Int = 5
     
 }

@@ -11,7 +11,7 @@ import Foundation
 enum TextSource: Codable, Equatable {
     case article(
         articleId: String,
-        paragraphId: String,
+        paragraphId: String?,
         sentenceId: Int?
     )
     case chatGpt
@@ -48,7 +48,7 @@ extension TextSource {
         switch type {
         case "article":
             let articleId = try container.decode(String.self, forKey: .articleId)
-            let paragraphId = try container.decode(String.self, forKey: .paragraphId)
+            let paragraphId = try container.decode(String?.self, forKey: .paragraphId)
             let sentenceId = try container.decode(Int?.self, forKey: .sentenceId)
             self = .article(
                 articleId: articleId,
