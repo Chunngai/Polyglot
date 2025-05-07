@@ -256,6 +256,8 @@ class HomeViewController: UIViewController {
         }
     }
     
+    var shouldNotApplySnapshotsInArticleMetaDataDidSet = false
+    
     var wordMetaData: [String:String] = Word.loadMetaData(for: LangCode.currentLanguage) {
         didSet {
             Word.saveMetaData(
@@ -273,8 +275,10 @@ class HomeViewController: UIViewController {
                 &articleMetaData,
                 for: LangCode.currentLanguage
             )
-            DispatchQueue.main.async {  // May be called by the accent retrieving in a closure.
-                self.applySnapShots()
+            if !shouldNotApplySnapshotsInArticleMetaDataDidSet {
+                DispatchQueue.main.async {  // May be called by the accent retrieving in a closure.
+                    self.applySnapShots()
+                }
             }
         }
     }

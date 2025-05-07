@@ -15,6 +15,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
     var rootViewController = HomeViewController()
 
+    private var youtubeURL: URL?
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         
@@ -36,7 +37,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // https://stackoverflow.com/questions/58973143/method-scene-openurlcontexts-is-not-called
         let urlinfo = connectionOptions.urlContexts
         if let url = urlinfo.first?.url {
-            handleIncomingURL(url)
+            self.youtubeURL = url
+            self.chooseLanguage()
         }
         
     }
@@ -80,16 +82,41 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             return
         }
             
-        handleIncomingURL(url)
+        self.youtubeURL = url
+        self.chooseLanguage()
         
     }
     
-    func handleIncomingURL(_ url: URL) {
+}
 
+extension SceneDelegate {
+    
+    private func chooseLanguage() {
+        
+        // Choose the language of the video.
+        
+        let langSelectionVC = LanguageSelectionViewController()
+        langSelectionVC.delegate = self
+        langSelectionVC.langs = LangCode.learningLanguages
+        langSelectionVC.selectedLang = LangCode.currentLanguage
+        rootViewController.navigationController?.pushViewController(
+            langSelectionVC,
+            animated: true
+        )
+        
+    }
+    
+    private func handleIncomingURL(_ url: URL) {
+
+        rootViewController.shouldNotApplySnapshotsInArticleMetaDataDidSet = true
+        
         let readingViewController = ReadingViewController()
         readingViewController.delegate = rootViewController
         rootViewController.navigationController?.pushViewController(
             readingViewController,
+            // If false, will crash due to the `applySnapshots` in the didSet of `articleMetaData` in the root controller.
+            // Reason not resolved.
+            // Using a workaround now with `shouldNotApplySnapshotsInArticleMetaDataDidSet`.
             animated: false
         )
         
@@ -103,8 +130,24 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         )
 
         readingEditViewController.handleSharedURLFromYoutube(url: url)
+        
+        rootViewController.shouldNotApplySnapshotsInArticleMetaDataDidSet = false
 
     }
     
 }
 
+extension SceneDelegate: LanguageSelectionViewControllerDelegate {
+    
+    func updateLanguage(as language: LangCode) {
+        
+        rootViewController.navigationController?.popViewController(animated: true)
+        rootViewController.updateLanguage(as: language)
+        
+        if let youtubeURL = self.youtubeURL {
+            handleIncomingURL(youtubeURL)
+        }
+        
+    }
+    
+}
