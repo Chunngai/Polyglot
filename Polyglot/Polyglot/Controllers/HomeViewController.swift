@@ -670,7 +670,7 @@ extension HomeViewController {
                 var top: CGFloat = 30
                 // Set different content insets for the first section
                 if sectionIndex == HomeViewController.listSection {
-                    top = Self.topViewInitialHeight + 20
+                    top = Self.topViewInitialHeight + 30
                 }
                 section.contentInsets = NSDirectionalEdgeInsets(
                     top: top,
@@ -1224,7 +1224,7 @@ extension HomeViewController {
     static let practiceSection: Int = 3
     static let settingsSection: Int = 4
     
-    static let topViewInitialHeight: CGFloat = 100
+    static let topViewInitialHeight: CGFloat = 110
     static let topViewSmallestHeight: CGFloat = 60
     static let topViewGreatestImageScale: CGFloat = 0.8
     static let topViewSmallestImageScale: CGFloat = 0.5
