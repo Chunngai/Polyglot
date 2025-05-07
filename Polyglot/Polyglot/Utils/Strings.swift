@@ -279,6 +279,43 @@ extension Strings {
     static var configurations: String {
         return Strings._configurations[LangCode.currentLanguage]!
     }
+    
+    static let _noPhraseToReview: [LangCode : String] = [
+        LangCode.en : "No Phrase To Review",
+        LangCode.ja : "復習するフレーズがありません",
+        LangCode.es : "No Hay Frases Para Revisar",
+        LangCode.ru : "Нет Фраз Для Повторения",
+        LangCode.ko : "복습할 문구가 없습니다",
+        LangCode.de : "Keine Phrasen Zum Überprüfen",
+    ]
+    static var noPhraseToReview: String {
+        return Strings._noPhraseToReview[LangCode.currentLanguage]!
+    }
+    
+    static let _nPhrasesToReview: [LangCode : String] = [
+        LangCode.en : "# Phrases To Review",
+        LangCode.ja : "復習するフレーズ #件",
+        LangCode.es : "# Frases Para Revisar",
+        LangCode.ru : "# Фраз Для Повторения",
+        LangCode.ko : "복습할 문구 #개",
+        LangCode.de : "# Phrasen Zum Überprüfen",
+    ]
+    static var nPhrasesToReview: String {
+        return Strings._nPhrasesToReview[LangCode.currentLanguage]!
+    }
+    
+    static let _practices: [LangCode : String] = [
+        LangCode.en : "Practices",
+        LangCode.ja : "練習",
+        LangCode.es : "Prácticas",
+        LangCode.ru : "Практики",
+        LangCode.ko : "연습",
+        LangCode.de : "Übungen",
+    ]
+    static var practices: String {
+        return Strings._practices[LangCode.currentLanguage]!
+    }
+    
 }
 
 extension Strings {

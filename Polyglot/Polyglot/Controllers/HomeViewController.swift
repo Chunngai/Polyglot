@@ -136,17 +136,21 @@ class HomeViewController: UIViewController {
             secondaryText: {
 
                 let nWordsToReview = wordPracticeCounter.count
-                let textForNWordsToReview = nWordsToReview != 0 ? 
-                    String(nWordsToReview) : "No"
-                
+                if nWordsToReview == 0 {
+                    return Strings.noPhraseToReview
+                }
+                                
                 var nWordPractices = 0
                 for count in wordPracticeCounter.values {
                     nWordPractices += count
                 }
                 
-                var s = "\(textForNWordsToReview) Phrases to Review"
+                var s = Strings.nPhrasesToReview.replacingOccurrences(
+                    of: "#",
+                    with: String(nWordsToReview)
+                )
                 if nWordsToReview != 0 {
-                    s += " (\(nWordPractices) Practices)"
+                    s += " (\(nWordPractices) \(Strings.practices))"
                 }
                 
                 return s
