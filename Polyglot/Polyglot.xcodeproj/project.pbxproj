@@ -65,11 +65,15 @@
 		C6D2E5702DC105FB008FB30A /* YoutubeVideoParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D2E56D2DC105FB008FB30A /* YoutubeVideoParser.swift */; };
 		C6D2E5792DC1FBBC008FB30A /* VideoShadowingPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D2E5782DC1FBBC008FB30A /* VideoShadowingPracticeViewController.swift */; };
 		C6D2E57B2DC1FFF0008FB30A /* VideoShadowingPracticeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D2E57A2DC1FFF0008FB30A /* VideoShadowingPracticeProducer.swift */; };
+		C6DA80842DCB911500AAD9B4 /* ShareViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DA80832DCB911500AAD9B4 /* ShareViewController.swift */; };
+		C6DA80872DCB911500AAD9B4 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C6DA80852DCB911500AAD9B4 /* MainInterface.storyboard */; };
+		C6DA808B2DCB911500AAD9B4 /* YoutubeShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C6DA80812DCB911500AAD9B4 /* YoutubeShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C6E1E0312AC5C2F600E4AF72 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E1E0302AC5C2F600E4AF72 /* HomeViewController.swift */; };
 		C6E8D3CC2C8E3788009E42F5 /* russian_word_forms.json in Resources */ = {isa = PBXBuildFile; fileRef = C6E8D3CB2C8E3788009E42F5 /* russian_word_forms.json */; };
 		C6E8D3D22C8E3A31009E42F5 /* formatted_je2jo.json in Resources */ = {isa = PBXBuildFile; fileRef = C6E8D3D12C8E3A31009E42F5 /* formatted_je2jo.json */; };
 		C6E8D3D92C8E3B8A009E42F5 /* Je2JoEntity+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E8D3D72C8E3B8A009E42F5 /* Je2JoEntity+CoreDataClass.swift */; };
 		C6E8D3DA2C8E3B8A009E42F5 /* Je2JoEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E8D3D82C8E3B8A009E42F5 /* Je2JoEntity+CoreDataProperties.swift */; };
+		C6F2A22C2DCBA47000B52F55 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F2A22B2DCBA47000B52F55 /* Logger.swift */; };
 		C6F3F6A72C121AC800346A70 /* GlobalSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F3F6A62C121AC800346A70 /* GlobalSettingsViewController.swift */; };
 		C6F3F6AB2C12239C00346A70 /* SettingsInputCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F3F6AA2C12239C00346A70 /* SettingsInputCell.swift */; };
 		C6F3F6AD2C12242E00346A70 /* SettingsButtonCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F3F6AC2C12242E00346A70 /* SettingsButtonCell.swift */; };
@@ -144,6 +148,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		C6DA80892DCB911500AAD9B4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FF62C96A2951382500D41797 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = C6DA80802DCB911500AAD9B4;
+			remoteInfo = YoutubeShareExtension;
+		};
 		FF62C9892951382600D41797 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = FF62C96A2951382500D41797 /* Project object */;
@@ -175,6 +186,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		C6DA808C2DCB911500AAD9B4 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				C6DA808B2DCB911500AAD9B4 /* YoutubeShareExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FF8E5BC0298DB9BF003B6FB1 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -248,11 +270,16 @@
 		C6D2E56D2DC105FB008FB30A /* YoutubeVideoParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YoutubeVideoParser.swift; sourceTree = "<group>"; };
 		C6D2E5782DC1FBBC008FB30A /* VideoShadowingPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoShadowingPracticeViewController.swift; sourceTree = "<group>"; };
 		C6D2E57A2DC1FFF0008FB30A /* VideoShadowingPracticeProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoShadowingPracticeProducer.swift; sourceTree = "<group>"; };
+		C6DA80812DCB911500AAD9B4 /* YoutubeShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = YoutubeShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		C6DA80832DCB911500AAD9B4 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
+		C6DA80862DCB911500AAD9B4 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainInterface.storyboard; sourceTree = "<group>"; };
+		C6DA80882DCB911500AAD9B4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C6E1E0302AC5C2F600E4AF72 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		C6E8D3CB2C8E3788009E42F5 /* russian_word_forms.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = russian_word_forms.json; path = ../../../russian_word_forms.json; sourceTree = "<group>"; };
 		C6E8D3D12C8E3A31009E42F5 /* formatted_je2jo.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = formatted_je2jo.json; path = ../../../formatted_je2jo.json; sourceTree = "<group>"; };
 		C6E8D3D72C8E3B8A009E42F5 /* Je2JoEntity+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Je2JoEntity+CoreDataClass.swift"; sourceTree = "<group>"; };
 		C6E8D3D82C8E3B8A009E42F5 /* Je2JoEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Je2JoEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		C6F2A22B2DCBA47000B52F55 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
 		C6F3F6A62C121AC800346A70 /* GlobalSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalSettingsViewController.swift; sourceTree = "<group>"; };
 		C6F3F6AA2C12239C00346A70 /* SettingsInputCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInputCell.swift; sourceTree = "<group>"; };
 		C6F3F6AC2C12242E00346A70 /* SettingsButtonCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsButtonCell.swift; sourceTree = "<group>"; };
@@ -337,6 +364,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		C6DA807E2DCB911500AAD9B4 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FF62C96F2951382500D41797 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -506,6 +540,16 @@
 			path = AccentAnalysis;
 			sourceTree = "<group>";
 		};
+		C6DA80822DCB911500AAD9B4 /* YoutubeShareExtension */ = {
+			isa = PBXGroup;
+			children = (
+				C6DA80832DCB911500AAD9B4 /* ShareViewController.swift */,
+				C6DA80852DCB911500AAD9B4 /* MainInterface.storyboard */,
+				C6DA80882DCB911500AAD9B4 /* Info.plist */,
+			);
+			path = YoutubeShareExtension;
+			sourceTree = "<group>";
+		};
 		FF24AB75297073AA00129EEF /* Headers */ = {
 			isa = PBXGroup;
 			children = (
@@ -588,6 +632,7 @@
 				FF62C9742951382500D41797 /* Polyglot */,
 				FF62C98B2951382600D41797 /* PolyglotTests */,
 				FF62C9962951382600D41797 /* PolyglotUITests */,
+				C6DA80822DCB911500AAD9B4 /* YoutubeShareExtension */,
 				FF62C9732951382500D41797 /* Products */,
 				FF62C9AA29513B7200D41797 /* Frameworks */,
 				BE6764694D03A1E47A5AE00F /* Pods */,
@@ -600,6 +645,7 @@
 				FF62C9722951382500D41797 /* Polyglot.app */,
 				FF62C9882951382600D41797 /* PolyglotTests.xctest */,
 				FF62C9932951382600D41797 /* PolyglotUITests.xctest */,
+				C6DA80812DCB911500AAD9B4 /* YoutubeShareExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -626,6 +672,7 @@
 				FF62C97E2951382600D41797 /* Assets.xcassets */,
 				FF62C9832951382600D41797 /* Info.plist */,
 				C6BA7AA52C7F52CA00C6FFD3 /* RussianAccentRetrievalModel.xcdatamodeld */,
+				C6F2A22B2DCBA47000B52F55 /* Logger.swift */,
 			);
 			path = Polyglot;
 			sourceTree = "<group>";
@@ -768,6 +815,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		C6DA80802DCB911500AAD9B4 /* YoutubeShareExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = C6DA80912DCB911500AAD9B4 /* Build configuration list for PBXNativeTarget "YoutubeShareExtension" */;
+			buildPhases = (
+				C6DA807D2DCB911500AAD9B4 /* Sources */,
+				C6DA807E2DCB911500AAD9B4 /* Frameworks */,
+				C6DA807F2DCB911500AAD9B4 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = YoutubeShareExtension;
+			productName = YoutubeShareExtension;
+			productReference = C6DA80812DCB911500AAD9B4 /* YoutubeShareExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		FF62C9712951382500D41797 /* Polyglot */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = FF62C99C2951382600D41797 /* Build configuration list for PBXNativeTarget "Polyglot" */;
@@ -778,10 +842,12 @@
 				FF62C9702951382500D41797 /* Resources */,
 				D06BA752CDE8744B961BD4E0 /* [CP] Embed Pods Frameworks */,
 				FF8E5BC0298DB9BF003B6FB1 /* Embed Frameworks */,
+				C6DA808C2DCB911500AAD9B4 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				C6DA808A2DCB911500AAD9B4 /* PBXTargetDependency */,
 			);
 			name = Polyglot;
 			productName = Polyglot;
@@ -833,10 +899,13 @@
 		FF62C96A2951382500D41797 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1150;
+				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 1150;
 				ORGANIZATIONNAME = Sola;
 				TargetAttributes = {
+					C6DA80802DCB911500AAD9B4 = {
+						CreatedOnToolsVersion = 15.0;
+					};
 					FF62C9712951382500D41797 = {
 						CreatedOnToolsVersion = 11.5;
 					};
@@ -872,6 +941,7 @@
 				FF62C9712951382500D41797 /* Polyglot */,
 				FF62C9872951382600D41797 /* PolyglotTests */,
 				FF62C9922951382600D41797 /* PolyglotUITests */,
+				C6DA80802DCB911500AAD9B4 /* YoutubeShareExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -894,6 +964,14 @@
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
+		C6DA807F2DCB911500AAD9B4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C6DA80872DCB911500AAD9B4 /* MainInterface.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FF62C9702951382500D41797 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1024,6 +1102,14 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		C6DA807D2DCB911500AAD9B4 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C6DA80842DCB911500AAD9B4 /* ShareViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FF62C96E2951382500D41797 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1123,6 +1209,7 @@
 				C6D2E5702DC105FB008FB30A /* YoutubeVideoParser.swift in Sources */,
 				C69F78802DB17EF9000E0999 /* Utils.swift in Sources */,
 				FF62C9762951382500D41797 /* AppDelegate.swift in Sources */,
+				C6F2A22C2DCBA47000B52F55 /* Logger.swift in Sources */,
 				FF4CA730295E869900423946 /* SpeakingPracticeViewController.swift in Sources */,
 				FF4D7CC62953952C009F6894 /* NSAttributedStringExtensions.swift in Sources */,
 				FF495E992959039A00EA7EA9 /* WordExtensions.swift in Sources */,
@@ -1174,6 +1261,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		C6DA808A2DCB911500AAD9B4 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = C6DA80802DCB911500AAD9B4 /* YoutubeShareExtension */;
+			targetProxy = C6DA80892DCB911500AAD9B4 /* PBXContainerItemProxy */;
+		};
 		FF62C98A2951382600D41797 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = FF62C9712951382500D41797 /* Polyglot */;
@@ -1186,7 +1278,81 @@
 		};
 /* End PBXTargetDependency section */
 
+/* Begin PBXVariantGroup section */
+		C6DA80852DCB911500AAD9B4 /* MainInterface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				C6DA80862DCB911500AAD9B4 /* Base */,
+			);
+			name = MainInterface.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
 /* Begin XCBuildConfiguration section */
+		C6DA808D2DCB911500AAD9B4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 496YMB94F5;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = YoutubeShareExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = YoutubeShareExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Sola. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Polyglot.Polyglot.YoutubeShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C6DA808E2DCB911500AAD9B4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 496YMB94F5;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = YoutubeShareExtension/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = YoutubeShareExtension;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "Copyright © 2025 Sola. All rights reserved.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Polyglot.Polyglot.YoutubeShareExtension;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		FF62C99A2951382600D41797 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1305,7 +1471,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 0477CAFF69ADE59B41094933 /* Pods-Polyglot.debug.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 496YMB94F5;
 				INFOPLIST_FILE = Polyglot/Info.plist;
@@ -1325,7 +1493,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = DEDB21A8073730D28A47A161 /* Pods-Polyglot.release.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 496YMB94F5;
 				INFOPLIST_FILE = Polyglot/Info.plist;
@@ -1434,6 +1604,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		C6DA80912DCB911500AAD9B4 /* Build configuration list for PBXNativeTarget "YoutubeShareExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				C6DA808D2DCB911500AAD9B4 /* Debug */,
+				C6DA808E2DCB911500AAD9B4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		FF62C96D2951382500D41797 /* Build configuration list for PBXProject "Polyglot" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

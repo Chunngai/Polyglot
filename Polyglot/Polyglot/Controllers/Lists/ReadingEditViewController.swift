@@ -269,6 +269,20 @@ extension ReadingEditViewController {
             }(),
         ]
     }
+    
+    func handleSharedURLFromYoutube(url: URL) {
+        
+        self.cells[Self.sourceIdentifier].textView.text = url.absoluteString.replacingOccurrences(
+            of: "\(Constants.youtubeURLSchemeName)://\(Constants.youtubeURLHostName)?url=",
+            with: ""
+        ).replacingOccurrences(
+            of: "%3D",
+            with: "="
+        )
+        self.maybeGenerateBodyText()
+        
+    }
+    
 }
 
 extension ReadingEditViewController {

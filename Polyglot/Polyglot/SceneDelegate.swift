@@ -13,12 +13,13 @@ import AVFAudio
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    var rootViewController = HomeViewController()
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         
         self.window = UIWindow(windowScene: scene as! UIWindowScene)
-        self.window?.rootViewController = NavController(rootViewController: HomeViewController())
+        self.window?.rootViewController = NavController(rootViewController: rootViewController)
         self.window?.makeKeyAndVisible()
         
         guard let _ = (scene as? UIWindowScene) else { return }
@@ -30,6 +31,14 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         // https://stackoverflow.com/questions/44343858/make-ios-text-to-speech-work-when-ringer-is-muted
         try? AVAudioSession.sharedInstance().setCategory(.playback)
+        
+        // Handle shared youtube urls when the app is firstly launched.
+        // https://stackoverflow.com/questions/58973143/method-scene-openurlcontexts-is-not-called
+        let urlinfo = connectionOptions.urlContexts
+        if let url = urlinfo.first?.url {
+            handleIncomingURL(url)
+        }
+        
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -64,6 +73,38 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         TimingBar.isTimingEnabled = false
     }
 
+    // Handle URL when app is running (foreground/background)
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
 
+        guard let url = URLContexts.first?.url else {
+            return
+        }
+            
+        handleIncomingURL(url)
+        
+    }
+    
+    func handleIncomingURL(_ url: URL) {
+
+        let readingViewController = ReadingViewController()
+        readingViewController.delegate = rootViewController
+        rootViewController.navigationController?.pushViewController(
+            readingViewController,
+            animated: false
+        )
+        
+        let readingEditViewController = ReadingEditViewController()
+        readingEditViewController.delegate = readingViewController
+        let readingEditNavController = NavController(rootViewController: readingEditViewController)
+        rootViewController.navigationController?.present(
+            readingEditNavController,
+            animated: false,
+            completion: nil
+        )
+
+        readingEditViewController.handleSharedURLFromYoutube(url: url)
+
+    }
+    
 }
 
