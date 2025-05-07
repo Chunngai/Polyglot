@@ -48,6 +48,7 @@
 		C6A1FC462C7B4F7400F01632 /* ReadingPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A1FC452C7B4F7400F01632 /* ReadingPracticeViewController.swift */; };
 		C6A22FEE2C7118A200484B59 /* BaiduTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A22FED2C7118A200484B59 /* BaiduTranslator.swift */; };
 		C6A22FF22C712DBC00484B59 /* LangCodeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A22FF12C712DBC00484B59 /* LangCodeExtensions.swift */; };
+		C6A406A02DCB5CF400C27F63 /* HomeScreenTopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A4069F2DCB5CF400C27F63 /* HomeScreenTopView.swift */; };
 		C6A666F72B75EC03002B4DEE /* US2UKSpellingMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A666F62B75EC03002B4DEE /* US2UKSpellingMapping.swift */; };
 		C6AB6E822C8063EE00F660C7 /* AccentAnalyzerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6AB6E812C8063EE00F660C7 /* AccentAnalyzerProtocol.swift */; };
 		C6B5187C2AF2C19C00451B90 /* AutoResizingTextViewWithPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B5187B2AF2C19C00451B90 /* AutoResizingTextViewWithPrompt.swift */; };
@@ -230,6 +231,7 @@
 		C6A1FC452C7B4F7400F01632 /* ReadingPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReadingPracticeViewController.swift; sourceTree = "<group>"; };
 		C6A22FED2C7118A200484B59 /* BaiduTranslator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaiduTranslator.swift; sourceTree = "<group>"; };
 		C6A22FF12C712DBC00484B59 /* LangCodeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCodeExtensions.swift; sourceTree = "<group>"; };
+		C6A4069F2DCB5CF400C27F63 /* HomeScreenTopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreenTopView.swift; sourceTree = "<group>"; };
 		C6A666F62B75EC03002B4DEE /* US2UKSpellingMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = US2UKSpellingMapping.swift; sourceTree = "<group>"; };
 		C6AB6E812C8063EE00F660C7 /* AccentAnalyzerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccentAnalyzerProtocol.swift; sourceTree = "<group>"; };
 		C6B5187B2AF2C19C00451B90 /* AutoResizingTextViewWithPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoResizingTextViewWithPrompt.swift; sourceTree = "<group>"; };
@@ -662,6 +664,7 @@
 		FF62C9A729513A3700D41797 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				C6A4069F2DCB5CF400C27F63 /* HomeScreenTopView.swift */,
 				FF5292092952012E00858B55 /* ThreeButtonSelectionStack.swift */,
 				FF491E7F2959ED730088FD13 /* Separator.swift */,
 				FF4964CA2958BAFD00414AC5 /* TimingBar.swift */,
@@ -1128,6 +1131,7 @@
 				C606260F2B8076A000429BAF /* TextGranularity.swift in Sources */,
 				C6D2E5792DC1FBBC008FB30A /* VideoShadowingPracticeViewController.swift in Sources */,
 				FF5FE946297431C30002691C /* ArrayExtensions.swift in Sources */,
+				C6A406A02DCB5CF400C27F63 /* HomeScreenTopView.swift in Sources */,
 				C6F3F6A72C121AC800346A70 /* GlobalSettingsViewController.swift in Sources */,
 				FF5D129129577AC4005DEEDE /* NavController.swift in Sources */,
 				FF4964C22957B01100414AC5 /* UITextViewExtensions.swift in Sources */,

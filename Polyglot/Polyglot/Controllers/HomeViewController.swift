@@ -50,6 +50,18 @@ struct HomeItem: Hashable {
 
 class HomeViewController: UIViewController {
     
+    // MARK: - Top View
+    
+    var homeScreenTitle: String? {
+        Strings.languageNamesOfAllLanguages[LangCode.currentLanguage]?[LangCode.currentLanguage]
+    }
+    
+    var topViewImageScale: CGFloat = HomeViewController.topViewGreatestImageScale
+    
+    var isScrollViewInitialized = false
+    
+    // MARK: - Practices
+    
     var shouldAddArticle: Bool {
         guard let newestCDateString = articleMetaData["newestCDate"],
               let newestCDate = Date.from(
@@ -99,16 +111,9 @@ class HomeViewController: UIViewController {
         return !wordPracticeCounter.isEmpty
     }
     
-    // Collection view.
+    // MARK: - Collection view.
     
     var dataSource: UICollectionViewDiffableDataSource<Int, HomeItem>!
-    
-    var languageItem: HomeItem {
-        HomeItem(
-            image: Images.langImage.scaledToListIconSize(),
-            text: Strings.languageNamesOfAllLanguages[LangCode.currentLanguage]![LangCode.currentLanguage]!
-        )
-    }
     
     var listItems: [HomeItem] {[
         HomeItem(
@@ -297,6 +302,14 @@ class HomeViewController: UIViewController {
             
     // MARK: - Views
     
+    lazy var topView: HomeScreenTopView = {
+        let topView = HomeScreenTopView()
+        topView.backgroundColor = self.collectionView.backgroundColor
+        topView.imageView.image = Images.langImage.scale(to: Self.topViewGreatestImageScale)
+        topView.languageLabel.text = homeScreenTitle
+        return topView
+    }()
+    
     var collectionView: UICollectionView!
 
     // MARK: - Init
@@ -309,10 +322,24 @@ class HomeViewController: UIViewController {
         }
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        navigationController?.navigationBar.isHidden = true
+        UIApplication.shared.statusBarUIView?.backgroundColor = .systemGroupedBackground
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        navigationController?.navigationBar.isHidden = false
+        UIApplication.shared.statusBarUIView?.backgroundColor = nil
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
     
-        uploadFilesToServer()
+//        uploadFilesToServer()
         
         updateSetups()
         updateViews()
@@ -354,38 +381,30 @@ class HomeViewController: UIViewController {
         )
         
         synthesizer.delegate = self
+        topView.delegate = self
+        
     }
     
     private func updateViews() {
-        navigationController?.navigationBar.prefersLargeTitles = true
         
-        navigationItem.title = Strings.homeTitle
-        navigationItem.largeTitleDisplayMode = .always
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            image: Images.settingsImage,
-            style: .plain,
-            target: self,
-            action: #selector(settingsTapped)
-        )
+        navigationItem.title = homeScreenTitle
+        
+        view.addSubview(topView)
+        
     }
     
     private func updateLayouts() {
-        
+        topView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.top.equalToSuperview().offset(UIApplication.shared.statusBarFrame.maxY)
+            make.height.equalTo(Self.topViewInitialHeight)
+        }
     }
 }
 
 extension HomeViewController {
     
     // MARK: - Selectors
-    
-    @objc
-    private func settingsTapped() {
-        let settingsVC = GlobalSettingsViewController()
-        navigationController?.pushViewController(
-            settingsVC,
-            animated: true
-        )
-    }
     
     @objc private func appMovedToForeground() {
         DispatchQueue.global(qos: .userInitiated).async {
@@ -594,7 +613,11 @@ extension HomeViewController: LanguageSelectionViewControllerDelegate {
         self.practiceMetaData = BasePracticeProducer.loadMetaData(for: LangCode.currentLanguage)
         self.wordPracticeCounter = WordPracticeProducer.countWordPractices(for: LangCode.currentLanguage)
         
-        navigationItem.title = Strings.homeTitle
+        self.topView.imageView.image = Images.langImage.scale(to: self.topViewImageScale)
+        self.topView.languageLabel.text = homeScreenTitle
+        // Scroll to top.
+        self.collectionView.contentOffset.y = -collectionView.adjustedContentInset.top
+        
         applySnapShots()
     }
     
@@ -627,8 +650,7 @@ extension HomeViewController {
             
             let section: NSCollectionLayoutSection
             
-            if sectionIndex == HomeViewController.languageSection ||
-                sectionIndex == HomeViewController.listSection ||
+            if sectionIndex == HomeViewController.listSection ||
                 sectionIndex == HomeViewController.phraseReviewSection ||
                 sectionIndex == HomeViewController.shadowingSection ||
                 sectionIndex == HomeViewController.practiceSection ||
@@ -640,8 +662,14 @@ extension HomeViewController {
                     using: configuration,
                     layoutEnvironment: layoutEnvironment
                 )
+                
+                var top: CGFloat = 30
+                // Set different content insets for the first section
+                if sectionIndex == HomeViewController.listSection {
+                    top = Self.topViewInitialHeight + 20
+                }
                 section.contentInsets = NSDirectionalEdgeInsets(
-                    top: 30,
+                    top: top,
                     leading: 20,
                     bottom: 0,
                     trailing: 20
@@ -745,8 +773,7 @@ extension HomeViewController {
                     placement: .trailing(displayed: .always)
                 )))
             }
-            if indexPath.section == HomeViewController.languageSection
-                || indexPath.section == HomeViewController.listSection
+            if indexPath.section == HomeViewController.listSection
                 || indexPath.section == HomeViewController.settingsSection {
                 cellAccessories.append(UICellAccessory.disclosureIndicator())
             }
@@ -813,8 +840,7 @@ extension HomeViewController {
             
             let section = indexPath.section
             
-            if section == HomeViewController.languageSection ||
-                section == HomeViewController.listSection ||
+            if section == HomeViewController.listSection ||
                 section == HomeViewController.phraseReviewSection ||
                 section == HomeViewController.shadowingSection ||
                 section == HomeViewController.practiceSection ||
@@ -843,7 +869,6 @@ extension HomeViewController {
     func applyInitialSnapshots() {
 
         let sections: [Int] = [
-            HomeViewController.languageSection,
             HomeViewController.listSection,
             HomeViewController.phraseReviewSection,
             HomeViewController.shadowingSection,
@@ -860,7 +885,6 @@ extension HomeViewController {
     func applySnapShots() {
         for (section, items) in zip(
             [
-                HomeViewController.languageSection,
                 HomeViewController.listSection,
                 HomeViewController.phraseReviewSection,
                 HomeViewController.shadowingSection,
@@ -868,7 +892,6 @@ extension HomeViewController {
                 HomeViewController.settingsSection
             ],
             [
-                [languageItem],
                 listItems,
                 phraseReviewItems,
                 shadowingItems,
@@ -897,18 +920,7 @@ extension HomeViewController: UICollectionViewDelegate {
         let section = indexPath.section
         let row = indexPath.row
                 
-        if section == HomeViewController.languageSection {
-            
-            let vc = LanguageSelectionViewController()
-            vc.delegate = self
-            vc.langs = LangCode.learningLanguages
-            vc.selectedLang = LangCode.currentLanguage
-            navigationController?.pushViewController(
-                vc,
-                animated: true
-            )
-            
-        } else if section == HomeViewController.listSection {
+        if section == HomeViewController.listSection {
             
             let vc: ListViewController
             if row == 0 {
@@ -1005,6 +1017,92 @@ extension HomeViewController: UICollectionViewDelegate {
             )
         }
     }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        
+        func topViewImageScale(for height: CGFloat) -> CGFloat {
+            
+            let scaleMin = Self.topViewSmallestImageScale
+            let scaleMax = Self.topViewGreatestImageScale
+            let hMin = Self.topViewSmallestHeight
+            let hMax = Self.topViewInitialHeight
+            let normalizedHeight = (height - hMin) / (hMax - hMin)
+            let scale = scaleMin + (scaleMax - scaleMin) * normalizedHeight
+            return scale
+            
+        }
+        
+        func topViewLabelAlpha(for contentOffset: CGFloat) -> CGFloat {
+            
+            let alphaMin: CGFloat = 0
+            let alphaMax: CGFloat = 1
+            let cMin = -scrollView.adjustedContentInset.top
+            let cMax: CGFloat = Self.scrollViewMaxContentOffsetForHidingTopViewLanguageChangingButton
+            let normalizedAlpha = (contentOffset - cMin) / (cMax - cMin)
+            let alpha = alphaMin + (alphaMax - alphaMin) * normalizedAlpha
+            return 1 - alpha
+            
+        }
+        
+        if !isScrollViewInitialized {
+            isScrollViewInitialized = true
+            return
+        }
+        
+//        print("scrollView.contentOffset.y: \(scrollView.contentOffset.y)")
+        
+        var isTopBouncing = false
+        if scrollView.contentOffset.y < -scrollView.adjustedContentInset.top {
+//            print("isTopBouncing")
+            isTopBouncing = true
+        }
+        
+//        var isBottomBouncing = false
+//        if scrollView.contentOffset.y > (
+//            scrollView.contentSize.height
+//            - scrollView.bounds.height
+//            + scrollView.adjustedContentInset.bottom
+//        ) {
+//            // Bottom bouncing.
+//            // https://stackoverflow.com/questions/20805214/how-to-detect-scrollview-bounce-ios
+//            print("isBottomBouncing")
+//            isBottomBouncing = true
+//        }
+        
+        let offsetDiff = scrollView.adjustedContentInset.top + scrollView.contentOffset.y
+//        print("offsetDiff: \(offsetDiff)")
+        
+        var languageViewNewHeight = Self.topViewInitialHeight - offsetDiff
+        if isTopBouncing {
+            languageViewNewHeight = Self.topViewInitialHeight
+        }
+//        if
+//            isBottomBouncing,
+//            let navBarHeight = navigationController?.navigationBar.frame.height,
+//            languageViewNewHeight < navBarHeight
+//        {
+//            languageViewNewHeight = navBarHeight
+//        }
+        if languageViewNewHeight < Self.topViewSmallestHeight
+        {
+            languageViewNewHeight = Self.topViewSmallestHeight
+        }
+//        print("languageViewNewHeight: \(languageViewNewHeight)")
+        
+        topView.snp.updateConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.top.equalToSuperview().offset(UIApplication.shared.statusBarFrame.maxY)
+            make.height.equalTo(languageViewNewHeight)
+        }
+        self.topViewImageScale = topViewImageScale(for: languageViewNewHeight)
+        topView.imageView.image = Images.langImage.scale(to: self.topViewImageScale)
+        topView.changeLanguageButton.alpha = topViewLabelAlpha(for: scrollView.contentOffset.y)
+        view.layoutIfNeeded()
+//        print("languageView.frame: \(topView.frame)")
+//        print("---")
+        
+    }
+    
 }
 
 extension HomeViewController: CardCellDelegate {
@@ -1086,16 +1184,46 @@ extension HomeViewController: AVSpeechSynthesizerDelegate {
     }
 }
 
+extension HomeViewController: HomeScreenTopViewDelegate {
+    
+    func changeLanguage() {
+        
+        let vc = LanguageSelectionViewController()
+        vc.delegate = self
+        vc.langs = LangCode.learningLanguages
+        vc.selectedLang = LangCode.currentLanguage
+        navigationController?.pushViewController(
+            vc,
+            animated: true
+        )
+        
+    }
+    
+    func openSettings() {
+        let settingsVC = GlobalSettingsViewController()
+        navigationController?.pushViewController(
+            settingsVC,
+            animated: true
+        )
+    }
+    
+}
+
 
 extension HomeViewController {
     
     // MARK: - Constants
     
-    static let languageSection: Int = 0
-    static let listSection: Int = 1
-    static let phraseReviewSection: Int = 2
-    static let shadowingSection: Int = 3
-    static let practiceSection: Int = 4
-    static let settingsSection: Int = 5
+    static let listSection: Int = 0
+    static let phraseReviewSection: Int = 1
+    static let shadowingSection: Int = 2
+    static let practiceSection: Int = 3
+    static let settingsSection: Int = 4
+    
+    static let topViewInitialHeight: CGFloat = 100
+    static let topViewSmallestHeight: CGFloat = 60
+    static let topViewGreatestImageScale: CGFloat = 0.8
+    static let topViewSmallestImageScale: CGFloat = 0.5
+    static let scrollViewMaxContentOffsetForHidingTopViewLanguageChangingButton: CGFloat = -30
     
 }

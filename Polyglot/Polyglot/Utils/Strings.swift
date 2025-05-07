@@ -136,6 +136,18 @@ extension Strings {
         return Strings._languageSelectionViewControllerTitle[LangCode.currentLanguage]!
     }
     
+    static let _changeLanguage: [LangCode: String] = [
+        LangCode.en : "Change Language",
+        LangCode.ja : "言語を変更",
+        LangCode.es : "Cambiar Idioma",
+        LangCode.ru : "Изменить Язык",
+        LangCode.ko : "언어 변경",
+        LangCode.de : "Sprache Ändern",
+    ]
+    static var changeLanguage: String {
+        return Strings._changeLanguage[LangCode.currentLanguage]!
+    }
+    
     static let _phrases: [LangCode : String] = [
         LangCode.en : "Phrases",
         LangCode.ja : "フレーズ",
