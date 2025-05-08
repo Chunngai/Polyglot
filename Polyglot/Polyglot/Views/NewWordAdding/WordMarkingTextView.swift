@@ -89,7 +89,7 @@ class WordMarkingTextView: UITextView, UITextViewDelegate, TextAnimationDelegate
     }
     var contentGenerationInfoList: [ContentGenerationInfo?] = []
         
-    var isColorAnimating = true
+    var isColorAnimating = false
     lazy var colorAnimationOriginalColor: UIColor = defaultTextAttributes[.foregroundColor] as? UIColor ?? Colors.normalTextColor
     lazy var colorAnimationIntermediateColor: UIColor = Colors.inactiveTextColor
     // For storing the original text length.

@@ -102,28 +102,28 @@ struct ContentCreator {
                 
                 guard let choicesArr = responseJSON["choices"] as? [Any] else {
                     if displayErrorMessageWhenFailed {
-                        displayErrorMessage("Failed to parse the response json.")
+                        displayErrorMessage("Failed to parse the response json: `guard let choicesArr = responseJSON[\"choices\"] as? [Any]`")
                     }
                     completion(nil)
                     return
                 }
                 guard let choiceDict = choicesArr[0] as? [String: Any] else {
                     if displayErrorMessageWhenFailed {
-                        displayErrorMessage("Failed to parse the response json.")
+                        displayErrorMessage("Failed to parse the response json: `guard let choiceDict = choicesArr[0] as? [String: Any]`")
                     }
                     completion(nil)
                     return
                 }
-                guard let messageDict = choiceDict["message"] as? [String: String] else {
+                guard let messageDict = choiceDict["message"] as? [String: Any] else {
                     if displayErrorMessageWhenFailed {
-                        displayErrorMessage("Failed to parse the response json.")
+                        displayErrorMessage("Failed to parse the response json: `guard let messageDict = choiceDict[\"message\"] as? [String: String]`")
                     }
                     completion(nil)
                     return
                 }
-                guard let content = messageDict["content"] else {
+                guard let content = messageDict["content"] as? String else {
                     if displayErrorMessageWhenFailed {
-                        displayErrorMessage("Failed to parse the response json.")
+                        displayErrorMessage("Failed to parse the response json: `guard let content = messageDict[\"content\"]`")
                     }
                     completion(nil)
                     return

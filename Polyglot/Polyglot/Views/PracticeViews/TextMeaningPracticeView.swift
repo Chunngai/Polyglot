@@ -567,6 +567,15 @@ extension TextMeaningPracticeView {
         ).translate(query: self.text) { translations, translatorType in
             
             self.textView.isColorAnimating = false
+            // Restore the text color.
+            if let rangeOfTranslationText = self.rangeOfTranslationText {
+                DispatchQueue.main.async {
+                    self.textView.textStorage.setTextColor(
+                        for: rangeOfTranslationText,
+                        with: self.textView.colorAnimationOriginalColor
+                    )
+                }
+            }
             
             guard let translation = translations.first else {
                 self.meaningLang = originalMeaningLang
@@ -600,12 +609,18 @@ extension TextMeaningPracticeView {
                         attributes: self.textView.defaultTextAttributes
                     )
                 )
+                
+                // Seems that it cannot be placed outside the block,
+                // else the end of the translation of the original lang
+                // will remain if the new translation is shorter.
                 self.rangeOfTranslationText = NSRange(
                     location: self.rangeOfTranslationText!.location,
                     length: self.meaning.utf16.count
                 )
                 
-                // TODO: - Proper to write here?
+                // Update stuff in the text view.
+                
+                self.textView.originalTextLength = self.rangeOfTranslationText!.location + self.rangeOfTranslationText!.length
                 
                 let lengthDiff = translation.utf16.count - originalMeaning.utf16.count
                 for (i, info) in self.textView.contentGenerationInfoList.enumerated() {
