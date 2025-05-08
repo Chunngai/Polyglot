@@ -623,6 +623,7 @@ extension HomeViewController: LanguageSelectionViewControllerDelegate {
         
         self.topView.imageView.image = Images.langImage.scale(to: self.topViewImageScale)
         self.topView.languageLabel.text = homeScreenTitle
+        self.topView.changeLanguageButton.setTitle(Strings.changeLanguage, for: .normal)
         // Scroll to top.
         self.collectionView.contentOffset.y = -collectionView.adjustedContentInset.top
         
@@ -1228,7 +1229,7 @@ extension HomeViewController {
     static let practiceSection: Int = 3
     static let settingsSection: Int = 4
     
-    static let topViewInitialHeight: CGFloat = 110
+    static let topViewInitialHeight: CGFloat = 130
     static let topViewSmallestHeight: CGFloat = 60
     static let topViewGreatestImageScale: CGFloat = 0.8
     static let topViewSmallestImageScale: CGFloat = 0.5

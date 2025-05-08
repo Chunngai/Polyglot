@@ -52,6 +52,12 @@ class HomeScreenTopView: UIView {
         return button
     }()
     
+    var languageChangingTappingView: UIView = {
+        let view = UIView()
+        view.backgroundColor = nil
+        return view
+    }()
+    
     override init(frame: CGRect = .zero) {
         super.init(frame: frame)
           
@@ -66,19 +72,24 @@ class HomeScreenTopView: UIView {
     
     private func updateSetups() {
         
-        imageView.addGestureRecognizer(UITapGestureRecognizer(
+//        imageView.addGestureRecognizer(UITapGestureRecognizer(
+//            target: self,
+//            action: #selector(changeLanguageButtonTapped)
+//        ))
+//        languageLabel.addGestureRecognizer(UITapGestureRecognizer(
+//            target: self,
+//            action: #selector(changeLanguageButtonTapped)
+//        ))
+//        changeLanguageButton.addTarget(
+//            self,
+//            action: #selector(changeLanguageButtonTapped),
+//            for: .touchUpInside
+//        )
+        
+        languageChangingTappingView.addGestureRecognizer(UITapGestureRecognizer(
             target: self,
             action: #selector(changeLanguageButtonTapped)
         ))
-        languageLabel.addGestureRecognizer(UITapGestureRecognizer(
-            target: self,
-            action: #selector(changeLanguageButtonTapped)
-        ))
-        changeLanguageButton.addTarget(
-            self,
-            action: #selector(changeLanguageButtonTapped),
-            for: .touchUpInside
-        )
         
         settingsButton.addTarget(
             self,
@@ -93,6 +104,8 @@ class HomeScreenTopView: UIView {
         addSubview(imageView)
         addSubview(languageLabel)
         addSubview(changeLanguageButton)
+        addSubview(languageChangingTappingView)
+        
         addSubview(settingsButton)
         
     }
@@ -112,6 +125,11 @@ class HomeScreenTopView: UIView {
         changeLanguageButton.snp.makeConstraints { make in
             make.leading.equalTo(languageLabel)
             make.bottom.equalTo(imageView).offset(-2)
+        }
+        
+        languageChangingTappingView.snp.makeConstraints { make in
+            make.top.leading.bottom.equalTo(imageView)
+            make.trailing.equalTo(changeLanguageButton)
         }
         
         settingsButton.snp.makeConstraints { make in
