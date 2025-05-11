@@ -66,20 +66,29 @@ class TextMeaningPracticeView: BasePracticeView {
     var textView: WordMarkingTextView!
     
     let listenButton: UIButton = {
-        let button = UIButton()
-        button.setImage(
-            Images.listeningPracticeProduceSpeechImage,
-            for: .normal
-        )
+        let button = Buttons.createControlButton(from: Images.listeningPracticeProduceSpeechImage)
+        button.isEnabled = true
         return button
     }()
     let speakButton: UIButton = {
-        let button = UIButton()
-        button.setImage(
-            Images.listeningPracticeStartToRecordSpeechImage,
-            for: .normal
-        )
+        let button = Buttons.createControlButton(from: Images.listeningPracticeStartToRecordSpeechImage)
+        button.isEnabled = true
         return button
+    }()
+    lazy var controlsView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.distribution = .fillEqually
+        stackView.alignment = .center
+        stackView.spacing = Sizes.smallStackSpacing
+        stackView.backgroundColor = Colors.lightGrayBackgroundColor
+        stackView.layer.masksToBounds = true
+        stackView.layer.cornerRadius = Sizes.defaultCornerRadius
+        
+        stackView.addArrangedSubview(listenButton)
+        stackView.addArrangedSubview(speakButton)
+        
+        return stackView
     }()
     
     let reinforceButton: UIButton = {
@@ -222,8 +231,9 @@ class TextMeaningPracticeView: BasePracticeView {
     func updateViews() {
         addSubview(mainView)
         mainView.addSubview(textView)
-        mainView.addSubview(listenButton)
-        mainView.addSubview(speakButton)
+//        mainView.addSubview(listenButton)
+//        mainView.addSubview(speakButton)
+        mainView.addSubview(controlsView)
         mainView.addSubview(reinforceButton)
         mainView.addSubview(reinforceTextButton)
         mainView.addSubview(repetitionsLabel)
@@ -241,26 +251,34 @@ class TextMeaningPracticeView: BasePracticeView {
             make.top.bottom.leading.trailing.equalToSuperview().inset(20)
         }
         
-        listenButton.snp.makeConstraints { make in
-            // Consistent with the done/next buttons.
-            make.leading.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
-            make.bottom.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
-            make.height.equalTo(Sizes.roundButtonRadius)
-        }
-        speakButton.snp.makeConstraints { make in
-            make.leading.equalTo(listenButton.snp.trailing).offset(listenButton.intrinsicContentSize.width * 0.5)
-            make.centerY.equalTo(listenButton.snp.centerY)
-            make.height.equalTo(Sizes.roundButtonRadius)
+//        listenButton.snp.makeConstraints { make in
+//            // Consistent with the done/next buttons.
+//            make.leading.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
+//            make.bottom.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
+//            make.height.equalTo(Sizes.roundButtonRadius)
+//        }
+//        speakButton.snp.makeConstraints { make in
+//            make.leading.equalTo(listenButton.snp.trailing).offset(listenButton.intrinsicContentSize.width * 0.5)
+//            make.centerY.equalTo(listenButton.snp.centerY)
+//            make.height.equalTo(Sizes.roundButtonRadius)
+//        }
+        controlsView.snp.makeConstraints { make in
+            make.width.equalTo(200)
+            make.centerX.equalToSuperview()
+            make.bottom.equalToSuperview().inset(20)
+            make.height.equalTo(60)
         }
         
         reinforceButton.snp.makeConstraints { make in
-            make.leading.bottom.equalTo(listenButton)
-            make.height.equalTo(Sizes.roundButtonRadius)
+//            make.leading.bottom.equalTo(listenButton)
+//            make.height.equalTo(Sizes.roundButtonRadius)
+            make.leading.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
+            make.centerY.equalTo(controlsView.snp.centerY)
         }
-        reinforceTextButton.snp.makeConstraints { make in
-            make.leading.equalTo(reinforceButton.snp.trailing).offset(5)
-            make.centerY.equalTo(reinforceButton.snp.centerY)
-        }
+//        reinforceTextButton.snp.makeConstraints { make in
+//            make.leading.equalTo(reinforceButton.snp.trailing).offset(5)
+//            make.centerY.equalTo(reinforceButton.snp.centerY)
+//        }
         
         repetitionsLabel.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
@@ -374,8 +392,10 @@ class TextMeaningPracticeView: BasePracticeView {
     }
     
     func updateViewsAfterSubmission() {
-        listenButton.isHidden = true
-        speakButton.isHidden = true
+//        listenButton.isHidden = true
+//        speakButton.isHidden = true
+        listenButton.isEnabled = false
+        speakButton.isEnabled = false
         
         reinforceButton.isHidden = false
         reinforceTextButton.isHidden = false

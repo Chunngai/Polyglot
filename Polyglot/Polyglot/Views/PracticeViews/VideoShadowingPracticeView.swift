@@ -48,19 +48,32 @@ class VideoShadowingPracticeView: TextMeaningPracticeView {
         return webView
     }()
     
-    lazy var rewindButton = createControlButton(
-        image: Images.videoShadowingPracticeRewindButtonImage,
-        action: #selector(rewindButtonTapped(_:))
-    )
-    lazy var playPauseButton = createControlButton(
-        image: Images.videoShadowingPracticePlayButtonImage,
-        action: #selector(playPauseButtonTapped(_:))
-    )
-    lazy var forwardButton = createControlButton(
-        image: Images.videoShadowingPracticeForwardButtonImage,
-        action: #selector(forwardButtonTapped(_:))
-    )
-    
+    lazy var rewindButton: UIButton = {
+        let button = Buttons.createControlButton(from: Images.videoShadowingPracticeRewindButtonImage)
+        button.addTarget(
+            self,
+            action: #selector(rewindButtonTapped(_:)),
+            for: .touchUpInside
+        )
+        return button
+    }()
+    lazy var playPauseButton: UIButton = {
+        let button = Buttons.createControlButton(from: Images.videoShadowingPracticePlayButtonImage)
+        button.addTarget(
+            self,
+            action: #selector(playPauseButtonTapped(_:)),
+            for: .touchUpInside)
+        return button
+    }()
+    lazy var forwardButton: UIButton = {
+        let button = Buttons.createControlButton(from: Images.videoShadowingPracticeForwardButtonImage)
+        button.addTarget(
+            self,
+            action: #selector(forwardButtonTapped(_:)),
+            for: .touchUpInside
+        )
+        return button
+    }()
     lazy var youtubeControlsView: UIStackView = {
         
         let stackView = UIStackView()
@@ -185,7 +198,7 @@ class VideoShadowingPracticeView: TextMeaningPracticeView {
         }
         
         hideTextButton.snp.makeConstraints { make in
-            make.leading.trailing.equalTo(listenButton)
+            make.leading.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
             make.centerY.equalTo(youtubeControlsView.snp.centerY)
         }
     }
@@ -195,18 +208,6 @@ class VideoShadowingPracticeView: TextMeaningPracticeView {
 extension VideoShadowingPracticeView {
     
     // MARK: - Utils
-    
-    private func createControlButton(image: UIImage, action: Selector) -> UIButton {
-        let button = UIButton(type: .system)
-        button.setImage(image, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: Sizes.videoShadowingControlButtonSize)
-        button.addTarget(
-            self,
-            action: action,
-            for: .touchUpInside
-        )
-        return button
-    }
     
     private func loadYouTubeVideo() {
         let embedHTML = """

@@ -148,8 +148,10 @@ struct Icons {
     static let youtubeIcon = UIImage(imageLiteralResourceName: "youtube")
     
     // Ref: https://stackoverflow.com/questions/31803157/how-can-i-color-a-uiimage-in-swift
-    static let start1Icon = UIImage(imageLiteralResourceName: "start_1").withRenderingMode(.alwaysTemplate)
-    static let pause1Icon = UIImage(imageLiteralResourceName: "pause_1").withRenderingMode(.alwaysTemplate)
+//    static let start1Icon = UIImage(imageLiteralResourceName: "start_1").withRenderingMode(.alwaysTemplate)
+//    static let pause1Icon = UIImage(imageLiteralResourceName: "pause_1").withRenderingMode(.alwaysTemplate)
+    static let start1Icon = UIImage.init(systemName: "play.fill")!.withRenderingMode(.alwaysTemplate)
+    static let pause1Icon = UIImage.init(systemName: "pause.fill")!.withRenderingMode(.alwaysTemplate)
     static let micIcon = UIImage(imageLiteralResourceName: "mic").resize(widthRatio: 0.8, heightRatio: 0.8).withRenderingMode(.alwaysTemplate)
     static let micFilledIcon = UIImage(imageLiteralResourceName: "mic.filled").resize(widthRatio: 0.8, heightRatio: 0.8).withRenderingMode(.alwaysTemplate)
     static let refreshIcon = UIImage(imageLiteralResourceName: "refresh").withRenderingMode(.alwaysTemplate)
@@ -193,7 +195,7 @@ struct Sizes {
     
     // MARK: - Button Sizes.
     
-    static let videoShadowingControlButtonSize: CGFloat = 24
+    static let controlButtonSize: CGFloat = 24
     
 }
 
@@ -242,5 +244,16 @@ struct Attributes {
 struct Feedbacks {
     
     static let defaultFeedbackGenerator = UISelectionFeedbackGenerator()
+    
+}
+
+struct Buttons {
+    
+    static func createControlButton(from image: UIImage) -> UIButton {
+        let button = UIButton(type: .system)
+        button.setImage(image, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: Sizes.controlButtonSize)
+        return button
+    }
     
 }
