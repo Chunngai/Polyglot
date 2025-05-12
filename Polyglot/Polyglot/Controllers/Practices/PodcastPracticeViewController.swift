@@ -52,8 +52,9 @@ class PodcastPracticeViewController: TextMeaningPracticeViewController {
             textAccentLocs: practice.textAccentLocs
         )
         
-        practiceView.speakButton.isHidden = true
-        practiceView.listenButton.isHidden = true
+//        practiceView.speakButton.isHidden = true
+//        practiceView.listenButton.isHidden = true
+        practiceView.controlsView.isHidden = true
         practiceView.repetitionsLabel.isHidden = true
         
         return practiceView

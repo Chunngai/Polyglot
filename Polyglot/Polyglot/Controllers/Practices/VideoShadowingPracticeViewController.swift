@@ -59,13 +59,38 @@ extension VideoShadowingPracticeViewController {
     override func timingBarTimeUp(timingBar: TimingBar) {
         
         super.timingBarTimeUp(timingBar: timingBar)
-        self.stopPracticing()
+//        self.stopPracticing()
+        
+        if let practiceView = practiceView as? VideoShadowingPracticeView {
+            
+            practiceView.youtubeWebView.evaluateJavaScript("pause()") { result, error in
+                if let error = error {
+                    print("JavaScript执行错误: \(error)")
+                }
+            }
+            
+            practiceView.rewindButton.isEnabled = false
+            practiceView.playPauseButton.isEnabled = false
+            practiceView.forwardButton.isEnabled = false
+            
+            practiceView.currentTimestamp { timestamp in
+                if timestamp != 0 {
+                    self.practiceProducer.cache(timestamp: timestamp)
+                    // IMPORTANT TO UPDATE THE META DATA!
+                    self.practiceMetaData = VideoShadowingPracticeProducer.loadMetaData(for: LangCode.currentLanguage)
+                }
+            }
+            
+        }
+        
+        nextButton.isHidden = false
         
         return
     
     }
     
-    override func stopPracticing() {
+    @objc override func nextButtonTapped() {
+        super.doneButtonTapped()
         
         if let practiceView = practiceView as? TextMeaningPracticeView {
             
@@ -81,18 +106,7 @@ extension VideoShadowingPracticeViewController {
         
         practiceMetaData["recentVideoShadowingPracticeDate"] = Date().repr(of: Date.defaultDateAndTimeFormat)
         
-        if let practiceView = practiceView as? VideoShadowingPracticeView {
-            practiceView.currentTimestamp { timestamp in
-                if timestamp != 0 {
-                    self.practiceProducer.cache(timestamp: timestamp)
-                    // IMPORTANT TO UPDATE THE META DATA!
-                    self.practiceMetaData = VideoShadowingPracticeProducer.loadMetaData(for: LangCode.currentLanguage)
-                }
-            }
-        }
-        
-        super.stopPracticing()
-        
+        self.stopPracticing()
     }
     
 }

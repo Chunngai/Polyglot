@@ -259,6 +259,12 @@ extension VideoShadowingPracticeView {
                 function stopTimeUpdates() {
                     clearInterval(timeUpdateInterval);
                 }
+                function play() {
+                    player.playVideo();
+                }
+                function pause() {
+                    player.pauseVideo();
+                }
                 function playPause() {
                     if (player.getPlayerState() === YT.PlayerState.PLAYING) {
                         player.pauseVideo();

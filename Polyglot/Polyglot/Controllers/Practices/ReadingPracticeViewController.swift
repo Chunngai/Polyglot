@@ -43,8 +43,9 @@ class ReadingPracticeViewController: TextMeaningPracticeViewController {
             textAccentLocs: practice.textAccentLocs
         )
         
-        practiceView.speakButton.isHidden = true
-        practiceView.listenButton.isHidden = true
+//        practiceView.speakButton.isHidden = true
+//        practiceView.listenButton.isHidden = true
+        practiceView.controlsView.isHidden = true
         return practiceView
     }
     
