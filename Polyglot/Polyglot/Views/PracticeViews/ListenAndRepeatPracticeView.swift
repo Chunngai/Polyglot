@@ -30,9 +30,19 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
     private var isSubmitted: Bool = false {
         didSet {
             if isSubmitted {
-                textView.canAddNewWord = true
+                textView.canMarkWords = true
+                
+                textView.isEditable = false
+                textView.addGestureRecognizer(textView.tapGestureRecognizer)
             } else {
-                textView.canAddNewWord = false
+                textView.canMarkWords = false
+                
+                textView.isEditable = true
+                textView.removeGestureRecognizer(textView.tapGestureRecognizer)
+                
+                textView.autocorrectionType = .no
+                textView.spellCheckingType = .no
+                textView.autocapitalizationType = .none
             }
         }
     }

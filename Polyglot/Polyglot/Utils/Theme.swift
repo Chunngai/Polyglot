@@ -123,6 +123,8 @@ struct Images {
     static let videoShadowingPracticeHideTextImage: UIImage = UIImage(systemName: "eye.slash")!
     static let videoShadowingPracticeShowTextImage: UIImage = UIImage(systemName: "eye")!
     
+    static let videoShadowingPracticeMarkTextButtonImage: UIImage = UIImage(systemName: "highlighter")!
+    
     // Settings images.
     
     static let settingsImage: UIImage = UIImage.init(systemName: "gearshape")!

@@ -37,21 +37,7 @@ class WordMarkingTextView: UITextView, UITextViewDelegate, TextAnimationDelegate
     // For deleting new words.
     var currentSelectedTextRange: UITextRange!
     
-    var canAddNewWord: Bool = true {
-        didSet {
-            if canAddNewWord {
-                isEditable = false
-                addGestureRecognizer(tapGestureRecognizer)
-            } else {
-                isEditable = true
-                removeGestureRecognizer(tapGestureRecognizer)
-                
-                autocorrectionType = .no
-                spellCheckingType = .no
-                autocapitalizationType = .none
-            }
-        }
-    }
+    var canMarkWords: Bool = true
     var tapGestureRecognizer: UITapGestureRecognizer!
     
     // Text attributes.
@@ -1090,7 +1076,14 @@ extension WordMarkingTextView {
         
     override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
 
-        if !canAddNewWord {
+        if action == #selector(copy(_:)) {
+            if isDeletingReinforcementWord {
+                return false
+            }
+            return true
+        }
+        
+        if !canMarkWords {
             return false
         }
         
@@ -1102,12 +1095,6 @@ extension WordMarkingTextView {
             return false
         }
         
-        if action == #selector(copy(_:)) {
-            if isDeletingReinforcementWord {
-                return false
-            }
-            return true
-        }
         if !isAddingNewWord && action == #selector(newWordMenuItemTapped) {
             if let word = selectedWord {
                 return !wordsInfo.map { wordInfo in

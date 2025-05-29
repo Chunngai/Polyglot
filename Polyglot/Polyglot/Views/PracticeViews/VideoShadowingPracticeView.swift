@@ -25,6 +25,18 @@ class VideoShadowingPracticeView: TextMeaningPracticeView {
     var isTextHidden: Bool = true
     var isTogglingTextHiddenState: Bool = false
     
+    var isMarkingText: Bool = false {
+        didSet {
+            if isMarkingText {
+                self.textView.canMarkWords = true
+                self.markTextButton.tintColor = Colors.inactiveSystemButtonColor
+            } else {
+                self.textView.canMarkWords = false
+                self.markTextButton.tintColor = Colors.activeSystemButtonColor
+            }
+        }
+    }
+    
     // MARK: - Views
     
     lazy var youtubeWebView: WKWebView = {
@@ -106,6 +118,20 @@ class VideoShadowingPracticeView: TextMeaningPracticeView {
         return button
     }()
     
+    lazy var markTextButton: UIButton = {
+        let button = UIButton()
+        button.addTarget(
+            self,
+            action: #selector(markTextButtonTapped),
+            for: .touchUpInside
+        )
+        button.setImage(
+            Images.videoShadowingPracticeMarkTextButtonImage,
+            for: .normal
+        )
+        return button
+    }()
+    
     // MARK: - Init
     
     init(
@@ -164,6 +190,7 @@ class VideoShadowingPracticeView: TextMeaningPracticeView {
         loadYouTubeVideo()
         disablePlaying()
         
+        textView.canMarkWords = false
         textView.tappingDelegate = self
     }
     
@@ -175,6 +202,7 @@ class VideoShadowingPracticeView: TextMeaningPracticeView {
         addSubview(youtubeWebView)
         addSubview(youtubeControlsView)
         addSubview(hideTextButton)
+        addSubview(markTextButton)
     }
     
     override func updateLayouts() {
@@ -200,6 +228,11 @@ class VideoShadowingPracticeView: TextMeaningPracticeView {
         
         hideTextButton.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
+            make.centerY.equalTo(youtubeControlsView.snp.centerY)
+        }
+        
+        markTextButton.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
             make.centerY.equalTo(youtubeControlsView.snp.centerY)
         }
     }
@@ -488,6 +521,10 @@ extension VideoShadowingPracticeView {
         }
     }
     
+    @objc private func markTextButtonTapped() {
+        self.isMarkingText.toggle()
+    }
+    
 }
 
 extension VideoShadowingPracticeView {
@@ -613,7 +650,11 @@ extension VideoShadowingPracticeView: WKScriptMessageHandler {
 extension VideoShadowingPracticeView {
     
     override func tapped(at tappedTextRange: UITextRange) {
-        super.tapped(at: tappedTextRange)
+        
+        if self.isMarkingText {
+            super.tapped(at: tappedTextRange)
+            return
+        }
         
         // Get the full text of the text view
         guard let fullText = textView.text else {
