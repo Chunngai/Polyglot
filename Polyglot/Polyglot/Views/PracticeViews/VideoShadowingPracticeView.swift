@@ -368,7 +368,15 @@ extension VideoShadowingPracticeView {
     
     @objc private func rewindButtonTapped(_ sender: UIButton) {
         
-        self.youtubeWebView.evaluateJavaScript("rewind(5)")
+        self.youtubeWebView.evaluateJavaScript("rewind(5)") { _, error in
+            if let error = error {
+                print("Rewind error: \(error)")
+            }
+            
+            self.currentTimestamp { t in
+                self.updateHighlightedCaption(for: t)
+            }
+        }
 
     }
     
@@ -405,8 +413,16 @@ extension VideoShadowingPracticeView {
     }
     
     @objc private func forwardButtonTapped(_ sender: UIButton) {
-        
-        self.youtubeWebView.evaluateJavaScript("forward(5)")
+                
+        self.youtubeWebView.evaluateJavaScript("forward(5)") { _, error in
+            if let error = error {
+                print("Forward error: \(error)")
+            }
+            
+            self.currentTimestamp { t in
+                self.updateHighlightedCaption(for: t)
+            }
+        }
 
     }
     
@@ -560,15 +576,15 @@ extension VideoShadowingPracticeView: WKScriptMessageHandler {
         if message.name == Self.youtubeWebViewPlayerHandler {
             if
                 let messageBody = message.body as? String,
-                    messageBody == "ready"
+                messageBody == "ready"
             {
                 print("Player is ready")
             } else if let state = message.body as? Int {
                 // Handle player state changes
                 handlePlayerStateChange(state)
             }
-        } else 
-        if message.name == Self.youtubeWebViewTimeHandler,
+        } else if
+            message.name == Self.youtubeWebViewTimeHandler,
             let time = message.body as? Double
         {
             updateHighlightedCaption(for: time)
