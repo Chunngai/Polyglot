@@ -68,11 +68,7 @@ extension VideoShadowingPracticeViewController {
                     print("JavaScript执行错误: \(error)")
                 }
             }
-            practiceView.youtubeWebView.isUserInteractionEnabled = false
-            
-            practiceView.rewindButton.isEnabled = false
-            practiceView.playPauseButton.isEnabled = false
-            practiceView.forwardButton.isEnabled = false
+            practiceView.disablePlaying()
             
             practiceView.currentTimestamp { timestamp in
                 if timestamp != 0 {

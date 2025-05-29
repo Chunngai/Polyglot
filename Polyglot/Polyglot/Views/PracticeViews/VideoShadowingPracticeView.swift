@@ -162,6 +162,7 @@ class VideoShadowingPracticeView: TextMeaningPracticeView {
         super.updateSetups()
         
         loadYouTubeVideo()
+        disablePlaying()
         
         textView.tappingDelegate = self
     }
@@ -358,6 +359,22 @@ extension VideoShadowingPracticeView {
         textView.highlightAll()
         textView.underlineAll()
         
+    }
+    
+    func disablePlaying() {
+        youtubeWebView.isUserInteractionEnabled = false
+        
+        rewindButton.isEnabled = false
+        playPauseButton.isEnabled = false
+        forwardButton.isEnabled = false
+    }
+    
+    func enablePlaying() {
+        youtubeWebView.isUserInteractionEnabled = true
+        
+        rewindButton.isEnabled = true
+        playPauseButton.isEnabled = true
+        forwardButton.isEnabled = true
     }
     
 }
@@ -578,7 +595,7 @@ extension VideoShadowingPracticeView: WKScriptMessageHandler {
                 let messageBody = message.body as? String,
                 messageBody == "ready"
             {
-                print("Player is ready")
+                enablePlaying()
             } else if let state = message.body as? Int {
                 // Handle player state changes
                 handlePlayerStateChange(state)
