@@ -939,9 +939,16 @@ extension WordMarkingTextView {
     @objc private func newWordMenuItemTapped() {
 
         // Obtain the new word, its selected range, and its selected text range.
-        if let selectedTextRange = selectedTextRange,
+        if 
+            let selectedTextRange = selectedTextRange,
             !selectedTextRange.isEmpty,
-            let word = text(in: selectedTextRange) {
+            var word = text(in: selectedTextRange) 
+        {
+            
+            word = word
+                .replacingOccurrences(of: "\n", with: " ")
+                .replacingOccurrences(of: Strings.windowsNewLineSymbol, with: " ")
+                .replacingOccurrences(of: Strings.macNewLineSymbol, with: " ")
             
             // Store the info of the new word.
             currentWordInfo = WordInfo(
