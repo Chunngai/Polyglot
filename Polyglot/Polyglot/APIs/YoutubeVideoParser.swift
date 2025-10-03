@@ -169,6 +169,37 @@ struct YoutubeVideoParser {
         }
         
     }
+    
+    func replaceLangParameter(in url: URL, with languageCode: String) -> URL? {
+        // Parse the URL components
+        guard var components = URLComponents(
+            url: url,
+            resolvingAgainstBaseURL: false
+        ) else {
+            return nil
+        }
+        
+        // Parse the query items
+        var queryItems = components.queryItems ?? []
+        
+        // Check if lang parameter already exists
+        if let existingIndex = queryItems.firstIndex(where: { $0.name == "lang" }) {
+            // Replace the existing lang value
+            queryItems[existingIndex].value = languageCode
+        } else {
+            // Add new lang parameter
+            let langQueryItem = URLQueryItem(
+                name: "lang",
+                value: languageCode
+            )
+            queryItems.append(langQueryItem)
+        }
+        
+        components.queryItems = queryItems
+        
+        return components.url
+    }
+
 
     func retrieveCaptions(from html: String, completion: @escaping ([CaptionEvent]?, Error?) -> Void) {
         
@@ -181,17 +212,26 @@ struct YoutubeVideoParser {
             return
         }
         
-        var timedTextUrl = String(html[timedTextUrlRange])
+        var timedTextUrlStr = String(html[timedTextUrlRange])
             .replacingOccurrences(of: #"\{"captionTracks":\[\{"baseUrl":""#, with: "", options: .regularExpression)
             .replacingOccurrences(of: "\"", with: "")
             .replacingOccurrences(of: "\\u0026", with: "&")
-        print("timedTextUrl: \(timedTextUrl)")
+        print("timedTextUrl: \(timedTextUrlStr)")
         // Add additional parameters
-        timedTextUrl += Self.timedTextAdditionalKVArgs
-        print("timedTextUrl: \(timedTextUrl)")
+        timedTextUrlStr += Self.timedTextAdditionalKVArgs
+        print("timedTextUrl: \(timedTextUrlStr)")
+        
+        guard var timedTextUrl: URL = URL(string: timedTextUrlStr) else {
+            completion(nil, NSError(domain: "", code: -202, userInfo: [NSLocalizedDescriptionKey: "Failed to convert the timed text url \(timedTextUrlStr) to a URL object"]))
+            return
+        }
+        timedTextUrl = replaceLangParameter(
+            in: timedTextUrl,
+            with: LangCode.currentLanguage.rawValue
+        ) ?? timedTextUrl
         
         // Second request to get the captions
-        var timedTextRequest = URLRequest(url: URL(string: timedTextUrl)!)
+        var timedTextRequest = URLRequest(url: timedTextUrl)
         timedTextRequest.allHTTPHeaderFields = Self.timedTextRequestHeaders
         timedTextRequest.timeoutInterval = Constants.requestTimeLimit
         
@@ -203,7 +243,7 @@ struct YoutubeVideoParser {
             }
             
             guard let data = data else {
-                completion(nil, NSError(domain: "", code: -202, userInfo: [NSLocalizedDescriptionKey: "Failed to get caption data"]))
+                completion(nil, NSError(domain: "", code: -203, userInfo: [NSLocalizedDescriptionKey: "Failed to get caption data"]))
                 return
             }
             
@@ -249,7 +289,7 @@ struct YoutubeVideoParser {
                     
                     completion(captionEvents, nil)
                 } else {
-                    completion(nil, NSError(domain: "", code: -203, userInfo: [NSLocalizedDescriptionKey: "Invalid caption JSON format"]))
+                    completion(nil, NSError(domain: "", code: -204, userInfo: [NSLocalizedDescriptionKey: "Invalid caption JSON format"]))
                 }
             } catch {
                 completion(nil, error)
@@ -310,6 +350,6 @@ extension YoutubeVideoParser {
         "x-youtube-client-version": "2.20250428.01.00"
     ]
     
-    static let timedTextAdditionalKVArgs = "&fmt=json3&xorb=2&xobt=3&xovt=3&cbr=Chrome&cbrver=135.0.0.0&c=WEB&cver=2.20250428.01.00&cplayer=UNIPLAYER&cos=Windows&cosver=10.0&cplatform=DESKTOP"
+    static let timedTextAdditionalKVArgs = "&potc=1&pot=&fmt=json3&xorb=2&xobt=3&xovt=3&cbr=Chrome&cbrver=135.0.0.0&c=WEB&cver=2.20250428.01.00&cplayer=UNIPLAYER&cos=Windows&cosver=10.0&cplatform=DESKTOP"
     
 }

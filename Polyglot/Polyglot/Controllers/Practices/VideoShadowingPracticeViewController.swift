@@ -69,6 +69,8 @@ extension VideoShadowingPracticeViewController {
                 }
             }
             practiceView.disablePlaying()
+            practiceView.markTextButton.isHidden = true
+            practiceView.isMarkingText = true
             
             practiceView.currentTimestamp { timestamp in
                 if timestamp != 0 {
