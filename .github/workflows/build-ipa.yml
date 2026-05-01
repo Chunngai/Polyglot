@@ -1,0 +1,53 @@
+name: Build iOS Development IPA
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:    # 允许手动触发
+
+jobs:
+  build-ipa:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build iOS IPA (Development)
+        uses: sparkfabrik/ios-build-action@v2.3.0
+        with:
+          # 项目路径
+          workspace-path: Polyglot.xcworkspace
+          project-path: Polyglot.xcodeproj
+          scheme: Polyglot
+          configuration: Release
+          export-method: development    # 关键：开发版，可装自己手机
+          
+          # CocoaPods
+          build-pods: true
+          pods-path: Podfile
+          
+          # 输出
+          output-path: Polyglot-Dev.ipa
+          
+          # Apple 团队
+          team-id: ${{ secrets.APPLE_TEAM_ID }}
+          team-name: ${{ secrets.APPLE_TEAM_NAME }}
+          
+          # Match 自动管理证书（开发模式）
+          match-build-type: development
+          match-git-url: ${{ secrets.MATCH_GIT_URL }}
+          match-git-basic-authorization: ${{ secrets.MATCH_GIT_BASIC_AUTH }}
+          match-password: ${{ secrets.MATCH_PASSWORD }}
+          
+          # 不上传 App Store
+          upload-to-testflight: false
+          increment-build-number: false
+          
+          # 不上传 BrowserStack
+          browserstack-upload: false
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Polyglot-iPA
+          path: Polyglot-Dev.ipa
