@@ -472,11 +472,12 @@ extension ReadingEditViewController {
             return
             
         }
+        guard let videoID = youtubeVideoParser.videoID else {
+            return
+        }
         
         bodyTextView.text = Strings.youtubeVideoRetrievingCaptionsPrompt
-        if let videoID = youtubeVideoParser.videoID {
-            bodyTextView.text += " (ID: \(videoID))"
-        }
+        bodyTextView.text += " (ID: \(videoID))"
         
         bodyTextView.isColorAnimating = true
         bodyTextView.startTextColorTransitionAnimation(for: NSRange(
@@ -516,7 +517,7 @@ extension ReadingEditViewController {
             
             // Body.
             
-            youtubeVideoParser.retrieveCaptions(from: html) { captionEvents, error in
+            youtubeVideoParser.retrieveCaptions(from: videoID, maxTries: 3) { captionEvents, error in
                 
                 DispatchQueue.main.async {
                     rollback()
@@ -524,10 +525,6 @@ extension ReadingEditViewController {
                 
                 if let error = error {
                     print(error)
-                    return
-                }
-                
-                guard let captionEvents = captionEvents else {
                     return
                 }
                 

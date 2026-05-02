@@ -333,7 +333,15 @@ extension VideoShadowingPracticeView {
         </html>
         """
         
-        youtubeWebView.loadHTMLString(embedHTML, baseURL: nil)
+//        youtubeWebView.loadHTMLString(embedHTML, baseURL: nil)
+        
+        // https://www.doubao.com/thread/waa92aadaba42450a
+        youtubeWebView.load(
+            embedHTML.data(using: .utf8)!,
+            mimeType: "text/html",
+            characterEncodingName: "utf-8",
+            baseURL: URL(string: "https://yourdomain.com")!
+        )
     }
     
     func currentTimestamp(completion: @escaping (Double) -> Void) {

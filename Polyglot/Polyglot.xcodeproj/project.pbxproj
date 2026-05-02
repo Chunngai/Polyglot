@@ -62,6 +62,7 @@
 		C6C8C3132B75F95500FBC43B /* CFStringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C8C3122B75F95500FBC43B /* CFStringExtensions.swift */; };
 		C6C8C3152B75F96A00FBC43B /* CFRangeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C8C3142B75F96A00FBC43B /* CFRangeExtensions.swift */; };
 		C6C8C3172B7617F200FBC43B /* Text.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6C8C3162B7617F200FBC43B /* Text.swift */; };
+		C6CA505E2E8FD9C50095325A /* YoutubeTranscriptAPISwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CA505D2E8FD9C50095325A /* YoutubeTranscriptAPISwift.swift */; };
 		C6D2E5702DC105FB008FB30A /* YoutubeVideoParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D2E56D2DC105FB008FB30A /* YoutubeVideoParser.swift */; };
 		C6D2E5792DC1FBBC008FB30A /* VideoShadowingPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D2E5782DC1FBBC008FB30A /* VideoShadowingPracticeViewController.swift */; };
 		C6D2E57B2DC1FFF0008FB30A /* VideoShadowingPracticeProducer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D2E57A2DC1FFF0008FB30A /* VideoShadowingPracticeProducer.swift */; };
@@ -267,6 +268,7 @@
 		C6C8C3122B75F95500FBC43B /* CFStringExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CFStringExtensions.swift; sourceTree = "<group>"; };
 		C6C8C3142B75F96A00FBC43B /* CFRangeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CFRangeExtensions.swift; sourceTree = "<group>"; };
 		C6C8C3162B7617F200FBC43B /* Text.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Text.swift; sourceTree = "<group>"; };
+		C6CA505D2E8FD9C50095325A /* YoutubeTranscriptAPISwift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YoutubeTranscriptAPISwift.swift; sourceTree = "<group>"; };
 		C6D2E56D2DC105FB008FB30A /* YoutubeVideoParser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = YoutubeVideoParser.swift; sourceTree = "<group>"; };
 		C6D2E5782DC1FBBC008FB30A /* VideoShadowingPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoShadowingPracticeViewController.swift; sourceTree = "<group>"; };
 		C6D2E57A2DC1FFF0008FB30A /* VideoShadowingPracticeProducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoShadowingPracticeProducer.swift; sourceTree = "<group>"; };
@@ -771,6 +773,7 @@
 				FF4AB0022A9B4C4400908062 /* ContentCreator.swift */,
 				C6D2E56D2DC105FB008FB30A /* YoutubeVideoParser.swift */,
 				C69F787F2DB17EF9000E0999 /* Utils.swift */,
+				C6CA505D2E8FD9C50095325A /* YoutubeTranscriptAPISwift.swift */,
 			);
 			path = APIs;
 			sourceTree = "<group>";
@@ -1186,6 +1189,7 @@
 				FF495E9C295903DF00EA7EA9 /* WordsTableCell.swift in Sources */,
 				C619E68F2AC8154F00A30B27 /* LangCell.swift in Sources */,
 				C6A1A25D2D6B7A6100B99B49 /* GPTTranslator.swift in Sources */,
+				C6CA505E2E8FD9C50095325A /* YoutubeTranscriptAPISwift.swift in Sources */,
 				C69CB0EA2D3D5B5900C43FE7 /* PodcastPracticeView.swift in Sources */,
 				C6F5FB7E2B72067F0040A26B /* ListeningPracticeProducer.swift in Sources */,
 				FF584434296732B400137E00 /* DictionaryExtensions.swift in Sources */,
