@@ -209,7 +209,8 @@ class ReorderingPracticeView: WordPracticeView {
     func updateValues(words: [String], translation: String) {
         
         self.words = words
-        self.shuffledWords = words.shuffled()
+//        self.shuffledWords = words.shuffled()
+        self.shuffledWords = words.sorted()
         
         self.translationTextView.attributedText = NSAttributedString(
             string: translation,
