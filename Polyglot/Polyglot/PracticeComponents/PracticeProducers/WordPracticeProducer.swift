@@ -448,7 +448,7 @@ extension WordPracticeProducer {
         
         func generateRandomAccentLocs(for tokens: [Token]) -> [Int?] {
             return tokens.pronunciations.map({ (pronunciation) -> Int? in
-                if pronunciation.count > 1 {  // Old jp accent interface.
+                if pronunciation.count > 1 {  // Old jp accent interface or other langs (e.g., Russian).
                     // E.g., if the pronunciation has two chars,
                     // vals will be [0, 1].
                     var vals: [Int?] = Array<Int>(0..<pronunciation.count)
@@ -508,6 +508,35 @@ extension WordPracticeProducer {
             return accentedTokenPronunciations
         }
         
+        func matchLanguageSpecificRequirements(_ accentedText: String) -> Bool {
+            
+            if LangCode.currentLanguage == .ru {
+                
+                var previousChar: Character?
+                for currentChar in accentedText {
+                    // 如果当前是重音符号，检查前一个字符
+                    if currentChar == Token.accentSymbol {
+                        // 重音不能在第一位
+                        guard let prev = previousChar else {
+                            return false
+                        }
+                        // 前一个必须是俄语元音
+                        guard Tokens.russianVowels.contains(prev) else {
+                            return false
+                        }
+                    }
+                    
+                    // 更新前一个字符
+                    previousChar = currentChar
+                }
+                
+                // 所有重音都合法
+                return true
+            }
+            
+            return true
+        }
+        
         let accentedTokenPronunciations = languageSpecificPreprocess(tokens.accentedPronunciations)
         let accentedWord = accentedTokenPronunciations.joined(separator: Strings.wordSeparator)
         // Not needed for Russian words without accents.
@@ -528,6 +557,9 @@ extension WordPracticeProducer {
                 continue
             }
             
+            if !matchLanguageSpecificRequirements(selectionText) {
+                continue
+            }
             if selectionTexts.contains(selectionText) {
                 continue
             }
