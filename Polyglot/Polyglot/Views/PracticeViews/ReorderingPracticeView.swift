@@ -223,16 +223,17 @@ class ReorderingPracticeView: WordPracticeView {
         )
         
         // Determine the font size and font here.
-        let font1 = self.calculateWordBankItemFont(
-            with: self.words,
-            itemHorizontalPadding: Self.rowStackHorizontalSpacing
-        )
-        let font2 = self.calculateWordBankItemFont(
-            with: self.shuffledWords,
-            itemHorizontalPadding: WordBank.itemHorizontalPadding
-        )
-        self.wordBankItemFont = font1.pointSize < font2.pointSize ?
-            font1 : font2
+//        let font1 = self.calculateWordBankItemFont(
+//            with: self.words,
+//            itemHorizontalPadding: Self.rowStackHorizontalSpacing
+//        )
+//        let font2 = self.calculateWordBankItemFont(
+//            with: self.shuffledWords,
+//            itemHorizontalPadding: WordBank.itemHorizontalPadding
+//        )
+//        self.wordBankItemFont = font1.pointSize < font2.pointSize ?
+//            font1 : font2
+        self.wordBankItemFont = UIFont.systemFont(ofSize: Sizes.wordPracticeReorderingFontSize)
         
         wordBank = WordBank(
             words: shuffledWords,
@@ -819,5 +820,8 @@ extension ReorderingPracticeView {
     
     static let rowNumberLimit: Int = 5
     static let translationLabelRowNumberLimit: Int = 4
+    
+    static let maxRowStackNum: Int = 4
+    static let maxWordBankNum: Int = 4
     
 }

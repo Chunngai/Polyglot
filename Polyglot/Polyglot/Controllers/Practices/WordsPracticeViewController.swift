@@ -187,6 +187,28 @@ class WordsPracticeViewController: PracticeViewController {
         }
         // Make a new one.
         practiceView = makePracticeView()
+
+        if
+            let newPracticeView = practiceView as? ReorderingPracticeView
+        {
+            let nori = newPracticeView.calculateRowNumber(
+                words: newPracticeView.words,
+                font: newPracticeView.wordBankItemFont,
+                itemHorizontalPadding: ReorderingPracticeView.rowStackHorizontalSpacing
+            )
+            let nshuffled = newPracticeView.calculateRowNumber(
+                words: newPracticeView.shuffledWords,
+                font: newPracticeView.wordBankItemFont,
+                itemHorizontalPadding: ReorderingPracticeView.rowStackHorizontalSpacing
+            )
+//            print(nori, nshuffled)
+            
+            if nori > ReorderingPracticeView.maxRowStackNum || nshuffled > ReorderingPracticeView.maxWordBankNum {
+//                print("Skipping this reordering practice")
+                self.nextButtonTapped()
+            }
+        }
+        
         // Add to the main view and update layouts.
         mainView.addSubview(practiceView)
         practiceView.snp.makeConstraints { (make) in
