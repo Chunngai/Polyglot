@@ -179,7 +179,8 @@ class ReorderingPracticeView: WordPracticeView {
                         lineHeight * lineCount
                         + translationTextView.textContainerInset.top
                         + translationTextView.textContainerInset.bottom
-                    ) * (10 / 9)  // x * 10/9 * 9/10 (below) = 1
+                    ) 
+//                    * (10 / 9)  // x * 10/9 * 9/10 (below) = 1
                     
                     return height
                 }())
@@ -357,8 +358,9 @@ extension ReorderingPracticeView {
             
             let itemWidth = (
                 WordBank.itemHorizontalPadding
-                    + word.textSize(withFont: font).width
-                    + WordBank.itemHorizontalPadding
+                + word.textSize(withFont: font).width
+                + WordBank.itemHorizontalPadding
+                + ReorderingPracticeView.rowStackHorizontalSpacing  // Space btw two items
             )
             
             summedWidth += itemWidth
