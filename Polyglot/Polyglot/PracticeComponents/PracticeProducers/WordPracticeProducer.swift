@@ -79,6 +79,9 @@ extension WordPracticeProducer {
         guard practice.practiceType != .accentSelection else {
             return
         }
+        guard practice.practiceType != .imageFilling else {
+            return
+        }
 
         let originalWord = practice.word
         
@@ -189,7 +192,7 @@ extension WordPracticeProducer {
                 }
                 self.cache()
                 self.sendWordPracticeCounterUpdateNotification()
-                                                      
+                
             }
             
             for _ in 0..<nRepetitions {
@@ -205,7 +208,7 @@ extension WordPracticeProducer {
             }
             self.cache()
             self.sendWordPracticeCounterUpdateNotification()
-                
+            
             for _ in 0..<nRepetitions {
                 makeReorderingPractice(
                     word: word,
@@ -222,6 +225,26 @@ extension WordPracticeProducer {
                     }
                 )
                 
+            }
+
+            for _ in 0..<nRepetitions {
+                imageCreator.generateImage(for: word) { imageUrl in
+                    guard let imageUrl = imageUrl else { return }
+
+                    if let practice = self.makeImageSelectionPractice(word: word, imageUrl: imageUrl) {
+                        self.practiceList.append(practice)
+                        self.wordPracticeCounter[key]! += 1
+                        practicesForWord.append(practice)
+                    }
+
+                    let practice = self.makeImageFillingPractice(word: word, imageUrl: imageUrl)
+                    self.practiceList.append(practice)
+                    self.wordPracticeCounter[key]! += 1
+                    practicesForWord.append(practice)
+
+                    self.cache()
+                    self.sendWordPracticeCounterUpdateNotification()
+                }
             }
 
             // Add accents to all practices for the word,
@@ -299,6 +322,10 @@ extension WordPracticeProducer {
             return Strings.accentSelectionPracticePrompt
         case .reordering:
             return Strings.reorderingPracticePrompt
+        case .imageSelection:
+            return Strings.imageSelectionPracticePrompt
+        case .imageFilling:
+            return Strings.imageFillingPracticePrompt
         }
         
     }
@@ -643,6 +670,7 @@ extension WordPracticeProducer {
         if words.isEmpty {
             print("Empty words. Target subsentence: \(targetSubSentence). Skipping.")
             completion(nil)
+            return
         }
         
         // Check line number.
@@ -672,10 +700,39 @@ extension WordPracticeProducer {
         }
                 
     }
+
+    private func makeImageSelectionPractice(word: String, imageUrl: String) -> WordPractice? {
+        guard let choices = choices(for: word, textForChoice: { $0.text }) else {
+            return nil
+        }
+        return WordPractice(
+            practiceType: .imageSelection,
+            word: word,
+            query: word,
+            key: word,
+            prompt: prompt(for: .imageSelection, withWord: word),
+            choices: choices,
+            imageUrl: imageUrl,
+            direction: .meaningToText
+        )
+    }
+
+    private func makeImageFillingPractice(word: String, imageUrl: String) -> WordPractice {
+        return WordPractice(
+            practiceType: .imageFilling,
+            word: word,
+            query: word,
+            key: word,
+            prompt: prompt(for: .imageFilling, withWord: word),
+            imageUrl: imageUrl,
+            direction: .meaningToText
+        )
+    }
+
 }
 
 extension WordPracticeProducer {
-    
+
     // MARK: - IO
     
     static func fileName(for lang: String) -> String {

@@ -15,22 +15,26 @@ struct ContentCreator {
         case gpt4 = "gpt-4"
         case gpt4o = "gpt-4o"
         case gpt5_4 = "gpt-5.4"
+        case gpt_image2 = "gpt-image-2-ca"
     }
     
     var llm: LLM!
     
-    var requestTimeLimit = Constants.requestTimeLimit
+    var requestTimeLimit: TimeInterval
     
-    init(_ llm: LLM = LLM.gpt5_4) {
+    init(_ llm: LLM = LLM.gpt5_4, requestTimeLimit: TimeInterval = Constants.requestTimeLimit) {
         self.llm = llm
+        self.requestTimeLimit = requestTimeLimit
     }
     
     func createContent(withPrompt prompt: String, displayErrorMessageWhenFailed: Bool = false, completion: @escaping (String?) -> Void) {
         
         print("ContentCreator: Creating content with prompt: \(prompt)")
         
-        guard let urlString = globalConfigs.ChatGPTAPIURL,
-              let url = URL(string: urlString) 
+        guard let baseURLString = globalConfigs.ChatGPTAPIURL,
+              let baseURL = URL(string: baseURLString),
+              let host = baseURL.host,
+              let url = URL(string: "https://\(host)/v1/chat/completions")
         else {
             if displayErrorMessageWhenFailed {
                 displayErrorMessage("Invalid API URL: \(globalConfigs.ChatGPTAPIURL ?? "")")
@@ -153,7 +157,65 @@ struct ContentCreator {
 }
 
 extension ContentCreator {
-    
+
+    func generateImage(for word: String, completion: @escaping (String?) -> Void) {
+
+        guard let apiKey = globalConfigs.ChatGPTAPIKey,
+              let baseURLString = globalConfigs.ChatGPTAPIURL,
+              let baseURL = URL(string: baseURLString),
+              let host = baseURL.host,
+              let url = URL(string: "https://\(host)/v1/images/generations")
+        else {
+            completion(nil)
+            return
+        }
+
+        var request = URLRequest(url: url, timeoutInterval: requestTimeLimit)
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        request.httpMethod = "POST"
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: [
+                "model": self.llm.rawValue,
+                "prompt": "A clear, simple illustration representing '\(word)' with no text or labels.",
+                "n": 1,
+                "size": "256x256",
+                "response_format": "b64_json"
+            ])
+        } catch {
+            completion(nil)
+            return
+        }
+
+        URLSession.shared.dataTask(with: request) { data, _, error in
+            
+            guard let data = data, error == nil,
+                  let json = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
+                  let dataArr = json["data"] as? [[String: Any]],
+                  let b64 = dataArr.first?["b64_json"] as? String,
+                  let imageData = Data(base64Encoded: b64)
+            else {
+                completion(nil)
+                return
+            }
+
+            let fileName = "practice_image_\(UUID().uuidString).png"
+            let fileURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                .appendingPathComponent(fileName)
+            do {
+                try imageData.write(to: fileURL)
+                completion(fileURL.path)
+            } catch {
+                completion(nil)
+            }
+        }.resume()
+
+    }
+
+}
+
+extension ContentCreator {
+
     private func makeSentenceGenerationPrompt(for word: String, in lang: LangCode) -> String {
         switch lang {
         case LangCode.en: return "Please write a sentence containing the phrase: \(word). Note that you cannot change the form of the given phrase."
@@ -165,7 +227,7 @@ extension ContentCreator {
         default: return ""
         }
     }
-    
+
     private func makeParagraphGenerationPrompt(for word: String, in lang: LangCode) -> String {
         switch lang {
         case LangCode.en: return "Please write a paragraph containing the phrase: \(word). Note that you cannot change the form of the given phrase."

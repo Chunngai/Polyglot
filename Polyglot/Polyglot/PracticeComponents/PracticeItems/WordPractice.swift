@@ -22,6 +22,7 @@ class WordPractice: BasePractice, Codable {
     var context: String?
     var reorderingWordList: [String]?
     var reorderingTextTranslation: String?
+    var imageUrl: String?
     var articleId: String?
     var paragraphId: String?
     // 0: text -> meaning.
@@ -41,6 +42,7 @@ class WordPractice: BasePractice, Codable {
         context: String? = nil,
         reorderingWordList: [String]? = nil,
         reorderingTextTranslation: String? = nil,
+        imageUrl: String? = nil,
         articleId: String? = nil,
         paragraphId: String? = nil,
         direction: PracticeDirection,
@@ -56,6 +58,7 @@ class WordPractice: BasePractice, Codable {
         self.context = context
         self.reorderingWordList = reorderingWordList
         self.reorderingTextTranslation = reorderingTextTranslation
+        self.imageUrl = imageUrl
         self.articleId = articleId
         self.paragraphId = paragraphId
         self.direction = direction
@@ -76,6 +79,7 @@ class WordPractice: BasePractice, Codable {
         case context
         case reorderingWordList
         case reorderingTextTranslation
+        case imageUrl
         case articleId
         case paragraphId
         case direction
@@ -97,6 +101,7 @@ class WordPractice: BasePractice, Codable {
         try container.encode(context, forKey: .context)
         try container.encode(reorderingWordList, forKey: .reorderingWordList)
         try container.encode(reorderingTextTranslation, forKey: .reorderingTextTranslation)
+        try container.encode(imageUrl, forKey: .imageUrl)
         try container.encode(articleId, forKey: .articleId)
         try container.encode(paragraphId, forKey: .paragraphId)
         try container.encode(direction, forKey: .direction)
@@ -116,6 +121,7 @@ class WordPractice: BasePractice, Codable {
         context = try values.decode(String?.self, forKey: .context)
         reorderingWordList = try values.decode([String]?.self, forKey: .reorderingWordList)
         reorderingTextTranslation = try values.decode(String?.self, forKey: .reorderingTextTranslation)
+        imageUrl = try values.decode(String?.self, forKey: .imageUrl)
         articleId = try values.decode(String?.self, forKey: .articleId)
         paragraphId = try values.decode(String?.self, forKey: .paragraphId)
         direction = try values.decode(PracticeDirection.self, forKey: .direction)
@@ -134,6 +140,7 @@ class WordPractice: BasePractice, Codable {
             context: another.context,
             reorderingWordList: another.reorderingWordList,
             reorderingTextTranslation: another.reorderingTextTranslation,
+            imageUrl: another.imageUrl,
             articleId: another.articleId,
             paragraphId: another.paragraphId,
             direction: another.direction,
@@ -152,6 +159,8 @@ extension WordPractice {
         case contextSelection
         case accentSelection
         case reordering
+        case imageSelection
+        case imageFilling
         
     }
 
@@ -193,7 +202,10 @@ extension WordPractice {
         
         // Do not normalize for accent practices,
         // or the accent mark will be removed.
-        let shouldIgnoreCaseAndAccent = practiceType == .meaningFilling
+        let shouldIgnoreCaseAndAccent = (
+            practiceType == .meaningFilling
+            || practiceType == .imageFilling
+        )
         
         let key = self.key.normalized(
             caseInsensitive: shouldIgnoreCaseAndAccent,

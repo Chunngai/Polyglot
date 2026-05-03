@@ -728,6 +728,30 @@ extension Strings {
     static var reorderingPracticePrompt: String {
         return Strings._reorderingPracticePrompts[LangCode.currentLanguage]!
     }
+
+    private static let _imageSelectionPracticePrompts: [LangCode : String] = [
+        LangCode.en : "Select the word shown in the image.",
+        LangCode.ja : "画像に示された単語を選んでください。",
+        LangCode.es : "Seleccione la palabra mostrada en la imagen.",
+        LangCode.ru : "Выберите слово, показанное на изображении.",
+        LangCode.ko : "이미지에 표시된 단어를 선택하십시오.",
+        LangCode.de : "Wählen Sie das im Bild gezeigte Wort aus.",
+    ]
+    static var imageSelectionPracticePrompt: String {
+        return Strings._imageSelectionPracticePrompts[LangCode.currentLanguage]!
+    }
+
+    private static let _imageFillingPracticePrompts: [LangCode : String] = [
+        LangCode.en : "Fill in the word shown in the image.",
+        LangCode.ja : "画像に示された単語を入力してください。",
+        LangCode.es : "Complete la palabra mostrada en la imagen.",
+        LangCode.ru : "Введите слово, показанное на изображении.",
+        LangCode.ko : "이미지에 표시된 단어를 입력하십시오.",
+        LangCode.de : "Geben Sie das im Bild gezeigte Wort ein.",
+    ]
+    static var imageFillingPracticePrompt: String {
+        return Strings._imageFillingPracticePrompts[LangCode.currentLanguage]!
+    }
     
     private static let _listeningAndRepeatPracticePrompts: [LangCode : String] = [
         LangCode.en : "Listening and Repeating",

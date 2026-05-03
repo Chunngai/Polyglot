@@ -150,6 +150,23 @@ class WordsPracticeViewController: PracticeViewController {
                     practiceView.delegate = self
                     return practiceView
                 }()
+            case .imageSelection:
+                return {
+                    let practiceView = ImageSelectionPracticeView()
+                    practiceView.updateValues(
+                        selectionTexts: currentPractice.choices!,
+                        imageUrl: currentPractice.imageUrl!
+                    )
+                    practiceView.delegate = self
+                    return practiceView
+                }()
+            case .imageFilling:
+                return {
+                    let practiceView = ImageFillingPracticeView()
+                    practiceView.updateValues(imageUrl: currentPractice.imageUrl!)
+                    practiceView.delegate = self
+                    return practiceView
+                }()
             }
         }
         
