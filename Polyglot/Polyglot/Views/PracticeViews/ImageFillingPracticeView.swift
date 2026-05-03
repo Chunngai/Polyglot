@@ -79,8 +79,10 @@ class ImageFillingPracticeView: WordPracticeView {
     required init?(coder: NSCoder) { super.init(coder: coder) }
 
     func updateValues(imageUrl: String) {
+        let fullPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent(imageUrl).path
         DispatchQueue.global(qos: .userInitiated).async {
-            guard let image = UIImage(contentsOfFile: imageUrl) else { return }
+            guard let image = UIImage(contentsOfFile: fullPath) else { return }
             DispatchQueue.main.async { self.imageView.image = image }
         }
     }

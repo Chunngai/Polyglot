@@ -43,8 +43,10 @@ class ImageSelectionPracticeView: WordPracticeView {
 
     func updateValues(selectionTexts: [String], imageUrl: String) {
         selectionStack.set(texts: selectionTexts)
+        let fullPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent(imageUrl).path
         DispatchQueue.global(qos: .userInitiated).async {
-            guard let image = UIImage(contentsOfFile: imageUrl) else { return }
+            guard let image = UIImage(contentsOfFile: fullPath) else { return }
             DispatchQueue.main.async { self.imageView.image = image }
         }
     }

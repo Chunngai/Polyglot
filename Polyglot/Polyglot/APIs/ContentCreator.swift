@@ -204,7 +204,7 @@ extension ContentCreator {
                 .appendingPathComponent(fileName)
             do {
                 try imageData.write(to: fileURL)
-                completion(fileURL.path)
+                completion(fileName)
             } catch {
                 completion(nil)
             }
