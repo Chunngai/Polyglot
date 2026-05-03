@@ -14,13 +14,14 @@ struct ContentCreator {
         case gpt3_5 = "gpt-3.5-turbo-1106"
         case gpt4 = "gpt-4"
         case gpt4o = "gpt-4o"
+        case gpt5_4 = "gpt-5.4"
     }
     
     var llm: LLM!
     
     var requestTimeLimit = Constants.requestTimeLimit
     
-    init(_ llm: LLM = LLM.gpt3_5) {
+    init(_ llm: LLM = LLM.gpt5_4) {
         self.llm = llm
     }
     
