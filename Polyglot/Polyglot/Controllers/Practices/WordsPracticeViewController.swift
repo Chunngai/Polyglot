@@ -189,24 +189,22 @@ class WordsPracticeViewController: PracticeViewController {
         practiceView = makePracticeView()
 
         if
-            let newPracticeView = practiceView as? ReorderingPracticeView
+            let newPracticeView = practiceView as? ReorderingPracticeView,
+            (
+                newPracticeView.calculateRowNumber(
+                    words: newPracticeView.words,
+                    font: newPracticeView.wordBankItemFont,
+                    itemHorizontalPadding: ReorderingPracticeView.rowStackHorizontalSpacing
+                ) > ReorderingPracticeView.maxRowStackNum
+                || newPracticeView.calculateRowNumber(
+                    words: newPracticeView.shuffledWords,
+                    font: newPracticeView.wordBankItemFont,
+                    itemHorizontalPadding: ReorderingPracticeView.rowStackHorizontalSpacing
+                ) > ReorderingPracticeView.maxWordBankNum
+            )
         {
-            let nori = newPracticeView.calculateRowNumber(
-                words: newPracticeView.words,
-                font: newPracticeView.wordBankItemFont,
-                itemHorizontalPadding: ReorderingPracticeView.rowStackHorizontalSpacing
-            )
-            let nshuffled = newPracticeView.calculateRowNumber(
-                words: newPracticeView.shuffledWords,
-                font: newPracticeView.wordBankItemFont,
-                itemHorizontalPadding: ReorderingPracticeView.rowStackHorizontalSpacing
-            )
-//            print(nori, nshuffled)
-            
-            if nori > ReorderingPracticeView.maxRowStackNum || nshuffled > ReorderingPracticeView.maxWordBankNum {
-//                print("Skipping this reordering practice")
-                self.nextButtonTapped()
-            }
+            self.nextButtonTapped()
+            return
         }
         
         // Add to the main view and update layouts.

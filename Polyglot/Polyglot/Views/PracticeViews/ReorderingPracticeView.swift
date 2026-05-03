@@ -179,7 +179,8 @@ class ReorderingPracticeView: WordPracticeView {
                         lineHeight * lineCount
                         + translationTextView.textContainerInset.top
                         + translationTextView.textContainerInset.bottom
-                    ) 
+                        + textLabelParaStyle.lineSpacing
+                    )
 //                    * (10 / 9)  // x * 10/9 * 9/10 (below) = 1
                     
                     return height
