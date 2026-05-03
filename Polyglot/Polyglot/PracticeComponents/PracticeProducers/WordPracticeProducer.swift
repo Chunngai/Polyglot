@@ -227,9 +227,10 @@ extension WordPracticeProducer {
                 
             }
 
-            for _ in 0..<nRepetitions {
-                imageCreator.generateImage(for: word) { imageUrl in
-                    guard let imageUrl = imageUrl else { return }
+            imageCreator.generateImage(for: word) { imageUrl in
+                guard let imageUrl = imageUrl else { return }
+
+                for _ in 0..<nRepetitions {
 
                     if let practice = self.makeImageSelectionPractice(word: word, imageUrl: imageUrl) {
                         self.practiceList.append(practice)
