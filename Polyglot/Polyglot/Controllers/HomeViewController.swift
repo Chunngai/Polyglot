@@ -124,7 +124,8 @@ class HomeViewController: UIViewController {
         HomeItem(
             image: Images.articlesImage,
             text: Strings.articles,
-            secondaryText: shouldAddArticle && LangCode.currentLanguage.configs.shouldRemindToAddNewArticles ? "⚠︎ \(Strings.articleAdding)" : nil,
+//            secondaryText: shouldAddArticle && LangCode.currentLanguage.configs.shouldRemindToAddNewArticles ? "📝 \(Strings.articleAdding)" : nil,
+            secondaryText: nil,
             trinaryText: articleMetaData["count"]
         )
     ]}
@@ -137,7 +138,8 @@ class HomeViewController: UIViewController {
 
                 let nWordsToReview = wordPracticeCounter.count
                 if nWordsToReview == 0 {
-                    return Strings.noPhraseToReview
+//                    return Strings.noPhraseToReview
+                    return nil
                 }
                                 
                 var nWordPractices = 0
@@ -646,6 +648,7 @@ extension HomeViewController {
             .flexibleHeight
         ]
         collectionView.backgroundColor = .systemGroupedBackground
+        collectionView.contentInset.top = 10
         collectionView.delegate = self
         view.addSubview(collectionView)
     }
@@ -664,25 +667,21 @@ extension HomeViewController {
                 sectionIndex == HomeViewController.shadowingSection ||
                 sectionIndex == HomeViewController.practiceSection ||
                 sectionIndex == HomeViewController.settingsSection {
-                
-                let configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
-                
+
+                var configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
+                if sectionIndex != HomeViewController.listSection {
+                    configuration.headerMode = .supplementary
+                }
+
                 section = NSCollectionLayoutSection.list(
                     using: configuration,
                     layoutEnvironment: layoutEnvironment
                 )
-                
-                var top: CGFloat = 30
-                // Set different content insets for the first section
-                if sectionIndex == HomeViewController.listSection {
-                    top = Self.topViewInitialHeight + 30
-                }
-                section.contentInsets = NSDirectionalEdgeInsets(
-                    top: top,
-                    leading: 20,
-                    bottom: 0,
-                    trailing: 20
-                )
+
+                let top: CGFloat = sectionIndex == HomeViewController.listSection
+                    ? Self.topViewInitialHeight + 8
+                    : 0
+                section.contentInsets = NSDirectionalEdgeInsets(top: top, leading: 20, bottom: 0, trailing: 20)
             } else {
                 // Cards.
                 
@@ -705,91 +704,90 @@ extension HomeViewController {
         }
     }
     
+    private func coloredIcon(_ image: UIImage?, color: UIColor) -> UIImage? {
+        let size = CGSize(width: 32, height: 32)
+        return UIGraphicsImageRenderer(size: size).image { _ in
+            color.setFill()
+            UIBezierPath(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: 8).fill()
+            let iconRect = CGRect(x: 7, y: 7, width: 18, height: 18)
+            image?.withTintColor(.white, renderingMode: .alwaysOriginal).draw(in: iconRect)
+        }
+    }
+
     func createListCellRegistration() -> UICollectionView.CellRegistration<UICollectionViewListCell, HomeItem> {
         return UICollectionView.CellRegistration<UICollectionViewListCell, HomeItem> { (
             cell: UICollectionViewListCell,
             indexPath: IndexPath,
             item: HomeItem
         ) in
-            
-            var content: UIListContentConfiguration = UIListContentConfiguration.sidebarSubtitleCell()
-            content.image = item.image
+
+            let section = indexPath.section
+            let row = indexPath.row
+
+            var isEnabled = true
+            if section == HomeViewController.phraseReviewSection {
+                isEnabled = self.isWordPracticeEnabled
+            } else if section == HomeViewController.shadowingSection && row == 0 {
+                isEnabled = self.isPracticeEnabled
+            } else if section == HomeViewController.shadowingSection && row == 1 {
+                isEnabled = self.isVideoShadowingPracticeEnabled
+            } else if section == HomeViewController.practiceSection {
+                isEnabled = self.isPracticeEnabled
+            }
+
+            let accentColor = isEnabled
+                ? (Self.sectionColors[section] ?? .systemBlue)
+                : UIColor.systemGray3
+
+            var content = UIListContentConfiguration.subtitleCell()
+            content.image = self.coloredIcon(item.image, color: accentColor)
+            content.imageProperties.reservedLayoutSize = CGSize(width: 32, height: 32)
+            content.imageProperties.cornerRadius = 8
             content.text = item.text
+            content.textProperties.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+            content.textProperties.color = isEnabled ? .label : .tertiaryLabel
             content.secondaryText = item.secondaryText
-            content.textProperties.color = Colors.normalTextColor
-            
-            // Set fixed height for the cell
-//            let fixedHeight: CGFloat = 60 // Set your desired height here
-//            content.directionalLayoutMargins = NSDirectionalEdgeInsets(
-//                top: (fixedHeight - content.textProperties.font.lineHeight) / 2,
-//                leading: content.directionalLayoutMargins.leading,
-//                bottom: (fixedHeight - content.textProperties.font.lineHeight) / 2,
-//                trailing: content.directionalLayoutMargins.trailing
-//            )
-            
-            // Add padding to the top and bottom of the cell
-            content.directionalLayoutMargins = NSDirectionalEdgeInsets(
-                top: 
-                    content.secondaryTextProperties.font.lineHeight / 2
-                + (
-                    content.secondaryText == nil
-                    ? content.secondaryTextProperties.font.lineHeight / 2
-                    : 0
-                ), // Increase top padding
-                leading: content.directionalLayoutMargins.leading,
-                bottom: 
-                    content.secondaryTextProperties.font.lineHeight / 2
-                + (
-                    content.secondaryText == nil
-                    ? content.secondaryTextProperties.font.lineHeight / 2
-                    : 0
-                ), // Increase bottom padding
-                trailing: content.directionalLayoutMargins.trailing
-            )
-            
-            if indexPath.section == HomeViewController.listSection && indexPath.row == 1 {
-                content.secondaryTextProperties.color = .systemYellow  // Reminder for article adding.
-            }
-            if indexPath.section == HomeViewController.phraseReviewSection {
-                content.textProperties.color = self.isWordPracticeEnabled ? Colors.normalTextColor : Colors.weakTextColor
-            }
-            if (indexPath.section == HomeViewController.shadowingSection && indexPath.row == 0)
-                || indexPath.section == HomeViewController.practiceSection {
-                content.textProperties.color = self.isPracticeEnabled ? Colors.normalTextColor : Colors.weakTextColor
-            }
-            if indexPath.section == Self.shadowingSection && indexPath.row == 1 {
-                content.textProperties.color = self.isVideoShadowingPracticeEnabled ? Colors.normalTextColor : Colors.weakTextColor
-            }
+            content.secondaryTextProperties.font = UIFont.systemFont(ofSize: 12)
+            content.secondaryTextProperties.color = section == HomeViewController.listSection && row == 1
+                ? .systemOrange
+                : .secondaryLabel
+            content.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0)
             cell.contentConfiguration = content
-            
-            var background = UIBackgroundConfiguration.listPlainCell()
-            // https://www.appsloveworld.com/swift/100/44/how-change-the-selection-color-in-compositional-layouts-in-collectionview
-            background.backgroundColorTransformer = UIConfigurationColorTransformer { color in
-                // Set the selection color to white.
-                return .white
-            }
+
+            var background = UIBackgroundConfiguration.listGroupedCell()
+            background.backgroundColorTransformer = UIConfigurationColorTransformer { _ in .systemBackground }
             cell.backgroundConfiguration = background
-            
-            var cellAccessories: [UICellAccessory] = []
-            if indexPath.section == HomeViewController.listSection {
-                cellAccessories.append(UICellAccessory.customView(configuration: .init(
-                    customView: {
-                        let trailingLabel = UILabel()
-                        trailingLabel.text = item.trinaryText
-                        trailingLabel.textColor = .lightGray
-                        return trailingLabel
-                    }(),
+
+            var accessories: [UICellAccessory] = []
+            if section == HomeViewController.listSection {
+                let countLabel = UILabel()
+                countLabel.text = item.trinaryText
+                countLabel.font = UIFont.systemFont(ofSize: 14)
+                countLabel.textColor = .tertiaryLabel
+                accessories.append(.customView(configuration: .init(
+                    customView: countLabel,
                     placement: .trailing(displayed: .always)
                 )))
+                accessories.append(.disclosureIndicator())
+            } else if section == HomeViewController.settingsSection {
+                accessories.append(.disclosureIndicator())
             }
-            if indexPath.section == HomeViewController.listSection
-                || indexPath.section == HomeViewController.settingsSection {
-                cellAccessories.append(UICellAccessory.disclosureIndicator())
-            }
-            cell.accessories = cellAccessories
+            cell.accessories = accessories
         }
     }
     
+    func createSectionHeaderRegistration() -> UICollectionView.SupplementaryRegistration<UICollectionViewListCell> {
+        return UICollectionView.SupplementaryRegistration<UICollectionViewListCell>(
+            elementKind: UICollectionView.elementKindSectionHeader
+        ) { cell, _, indexPath in
+            var config = UIListContentConfiguration.groupedHeader()
+            config.text = Self.sectionTitles[indexPath.section]
+            config.textProperties.font = UIFont.systemFont(ofSize: 13, weight: .semibold)
+            config.textProperties.color = .secondaryLabel
+            cell.contentConfiguration = config
+        }
+    }
+
     func createCardHeaderRegistration() -> UICollectionView.CellRegistration<CardCell, HomeItem> {
         return UICollectionView.CellRegistration<CardCell, HomeItem> { (
             cell: CardCell,
@@ -843,7 +841,8 @@ extension HomeViewController {
         let listCellRegistration = createListCellRegistration()
         let cardHeaderRegistration = createCardHeaderRegistration()
         let cardCellRegistration = createCardCellRegistration()
-        
+        let sectionHeaderRegistration = createSectionHeaderRegistration()
+
         dataSource = UICollectionViewDiffableDataSource<Int, HomeItem>(collectionView: collectionView) {
             (collectionView, indexPath, item) -> UICollectionViewCell? in
             
@@ -872,6 +871,14 @@ extension HomeViewController {
                     item: item
                 )
             }
+        }
+
+        dataSource.supplementaryViewProvider = { collectionView, kind, indexPath in
+            guard kind == UICollectionView.elementKindSectionHeader else { return nil }
+            return collectionView.dequeueConfiguredReusableSupplementary(
+                using: sectionHeaderRegistration,
+                for: indexPath
+            )
         }
     }
     
@@ -1228,7 +1235,22 @@ extension HomeViewController {
     static let shadowingSection: Int = 2
     static let practiceSection: Int = 3
     static let settingsSection: Int = 4
-    
+
+    static let sectionTitles: [Int: String] = [
+        phraseReviewSection: "Review",
+        shadowingSection: "Shadowing",
+        practiceSection: "Practice",
+        settingsSection: "Settings"
+    ]
+
+    static let sectionColors: [Int: UIColor] = [
+        listSection: .systemBlue,
+        phraseReviewSection: .systemPink,
+        shadowingSection: .systemOrange,
+        practiceSection: .systemPurple,
+        settingsSection: .systemGray
+    ]
+
     static let topViewInitialHeight: CGFloat = 130
     static let topViewSmallestHeight: CGFloat = 60
     static let topViewGreatestImageScale: CGFloat = 0.8
