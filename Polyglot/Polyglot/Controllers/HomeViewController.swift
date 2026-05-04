@@ -662,26 +662,28 @@ extension HomeViewController {
             
             let section: NSCollectionLayoutSection
             
-            if sectionIndex == HomeViewController.listSection ||
-                sectionIndex == HomeViewController.phraseReviewSection ||
+            if sectionIndex == HomeViewController.listSection {
+                let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.5), heightDimension: .estimated(90))
+                let item = NSCollectionLayoutItem(layoutSize: itemSize)
+                let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(90))
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+                group.interItemSpacing = .fixed(8)
+                section = NSCollectionLayoutSection(group: group)
+                section.contentInsets = NSDirectionalEdgeInsets(top: Self.topViewInitialHeight + 20, leading: 20, bottom: 0, trailing: 20)
+            } else if sectionIndex == HomeViewController.phraseReviewSection ||
                 sectionIndex == HomeViewController.shadowingSection ||
                 sectionIndex == HomeViewController.practiceSection ||
                 sectionIndex == HomeViewController.settingsSection {
 
                 var configuration = UICollectionLayoutListConfiguration(appearance: .insetGrouped)
-                if sectionIndex != HomeViewController.listSection {
-                    configuration.headerMode = .supplementary
-                }
+                configuration.headerMode = .supplementary
 
                 section = NSCollectionLayoutSection.list(
                     using: configuration,
                     layoutEnvironment: layoutEnvironment
                 )
 
-                let top: CGFloat = sectionIndex == HomeViewController.listSection
-                    ? Self.topViewInitialHeight + 8
-                    : 0
-                section.contentInsets = NSDirectionalEdgeInsets(top: top, leading: 20, bottom: 0, trailing: 20)
+                section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20)
             } else {
                 // Cards.
                 
@@ -775,7 +777,30 @@ extension HomeViewController {
             cell.accessories = accessories
         }
     }
-    
+
+    func createHorizontalListCellRegistration() -> UICollectionView.CellRegistration<UICollectionViewListCell, HomeItem> {
+        return UICollectionView.CellRegistration<UICollectionViewListCell, HomeItem> { cell, indexPath, item in
+            var content = UIListContentConfiguration.subtitleCell()
+            content.image = self.coloredIcon(item.image, color: Self.sectionColors[HomeViewController.listSection] ?? .systemBlue)
+            content.imageProperties.reservedLayoutSize = CGSize(width: 32, height: 32)
+            content.imageProperties.cornerRadius = 8
+            content.text = item.text
+            content.textProperties.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+            content.secondaryText = item.trinaryText
+            content.secondaryTextProperties.font = UIFont.systemFont(ofSize: 14)
+            content.secondaryTextProperties.color = .tertiaryLabel
+            content.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 12, leading: 0, bottom: 12, trailing: 0)
+            cell.contentConfiguration = content
+
+            var background = UIBackgroundConfiguration.listGroupedCell()
+            background.backgroundColorTransformer = UIConfigurationColorTransformer { _ in .systemBackground }
+            background.cornerRadius = 10
+            cell.backgroundConfiguration = background
+
+            cell.accessories = [.disclosureIndicator()]
+        }
+    }
+
     func createSectionHeaderRegistration() -> UICollectionView.SupplementaryRegistration<UICollectionViewListCell> {
         return UICollectionView.SupplementaryRegistration<UICollectionViewListCell>(
             elementKind: UICollectionView.elementKindSectionHeader
@@ -839,17 +864,23 @@ extension HomeViewController {
     
     func configureDataSource() {
         let listCellRegistration = createListCellRegistration()
+        let horizontalListCellRegistration = createHorizontalListCellRegistration()
         let cardHeaderRegistration = createCardHeaderRegistration()
         let cardCellRegistration = createCardCellRegistration()
         let sectionHeaderRegistration = createSectionHeaderRegistration()
 
         dataSource = UICollectionViewDiffableDataSource<Int, HomeItem>(collectionView: collectionView) {
             (collectionView, indexPath, item) -> UICollectionViewCell? in
-            
+
             let section = indexPath.section
-            
-            if section == HomeViewController.listSection ||
-                section == HomeViewController.phraseReviewSection ||
+
+            if section == HomeViewController.listSection {
+                return collectionView.dequeueConfiguredReusableCell(
+                    using: horizontalListCellRegistration,
+                    for: indexPath,
+                    item: item
+                )
+            } else if section == HomeViewController.phraseReviewSection ||
                 section == HomeViewController.shadowingSection ||
                 section == HomeViewController.practiceSection ||
                 section == HomeViewController.settingsSection {
