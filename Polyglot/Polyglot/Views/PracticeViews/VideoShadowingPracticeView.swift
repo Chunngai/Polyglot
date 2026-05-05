@@ -42,6 +42,7 @@ class VideoShadowingPracticeView: TextMeaningPracticeView {
     lazy var youtubeWebView: WKWebView = {
         let configuration = WKWebViewConfiguration()
         configuration.allowsInlineMediaPlayback = true
+        configuration.mediaTypesRequiringUserActionForPlayback = []
         let webView = WKWebView(
             frame: .zero,
             configuration: configuration

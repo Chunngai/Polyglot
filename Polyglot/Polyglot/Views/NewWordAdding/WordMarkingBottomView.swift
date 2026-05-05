@@ -144,6 +144,8 @@ class WordMarkingBottomView: UIView {
     
     private func updateViews() {
         backgroundColor = Colors.lightBlue
+        layer.cornerRadius = Sizes.defaultCornerRadius
+        layer.masksToBounds = true
         
         addSubview(wordLabel)
         addSubview(meaningTextField)

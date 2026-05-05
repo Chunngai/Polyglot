@@ -129,10 +129,11 @@ class TextMeaningPracticeViewController: PracticeViewController {
         // TODO: - Can the code wrapped into WordMarkingTextView?
         if let practiceView = practiceView as? TextMeaningPracticeView {
             view.addSubview(practiceView.textView.wordMarkingBottomView)
+            let bottomViewWidth = view.frame.width * 0.95
             practiceView.textView.wordMarkingBottomView.frame = CGRect(
-                x: view.frame.minX,
+                x: view.frame.midX - bottomViewWidth / 2,
                 y: view.frame.maxY,
-                width: view.frame.width,
+                width: bottomViewWidth,
                 height: newWordBottomViewHeight
             )
             practiceView.languageSelectionDelegate = self
@@ -322,6 +323,15 @@ extension TextMeaningPracticeViewController {
         // TODO: - Add an alert
         
         navigationController?.dismiss(animated: true, completion: nil)
+    }
+    
+}
+
+extension TextMeaningPracticeViewController {
+    
+    override func timingBarTimeUp(timingBar: TimingBar) {
+        super.timingBarTimeUp(timingBar: timingBar)
+        self.stopPracticing()
     }
     
 }

@@ -129,7 +129,7 @@ class WordMarkingTextView: UITextView, UITextViewDelegate, TextAnimationDelegate
     override func layoutSubviews() {
         super.layoutSubviews()
         
-        wordMarkingBottomView.offset = wordMarkingBottomView.frame.height 
+        wordMarkingBottomView.offset = wordMarkingBottomView.frame.height + 20
     }
     
     private func updateSetups() {
