@@ -174,9 +174,9 @@ extension Strings {
     
     static let _articleAdding: [LangCode : String] = [
         LangCode.en : "New Article",
-        LangCode.ja : "新しい記事",
+        LangCode.ja : "新記事",
         LangCode.es : "Nuevo Artículo",
-        LangCode.ru : "Новую Статью",
+        LangCode.ru : "Новая Статья",
         LangCode.ko : "새로운 기사",
         LangCode.de : "Neuer Artikel",
     ]
