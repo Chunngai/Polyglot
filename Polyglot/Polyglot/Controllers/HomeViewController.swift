@@ -124,9 +124,14 @@ class HomeViewController: UIViewController {
         HomeItem(
             image: Images.articlesImage,
             text: Strings.articles,
-//            secondaryText: shouldAddArticle && LangCode.currentLanguage.configs.shouldRemindToAddNewArticles ? "📝 \(Strings.articleAdding)" : nil,
             secondaryText: nil,
             trinaryText: articleMetaData["count"]
+        ),
+        HomeItem(
+            text: Strings.addingNewWordAlertTitle
+        ),
+        HomeItem(
+            text: Strings.articleAdding
         )
     ]}
     
@@ -666,7 +671,7 @@ extension HomeViewController {
                 let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(0.5), heightDimension: .estimated(90))
                 let item = NSCollectionLayoutItem(layoutSize: itemSize)
                 let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(90))
-                let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+                let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item, item])
                 group.interItemSpacing = .fixed(8)
                 section = NSCollectionLayoutSection(group: group)
                 section.contentInsets = NSDirectionalEdgeInsets(top: Self.topViewInitialHeight + 20, leading: 20, bottom: 0, trailing: 20)
@@ -801,6 +806,24 @@ extension HomeViewController {
         }
     }
 
+    func createSimpleTextCellRegistration() -> UICollectionView.CellRegistration<UICollectionViewListCell, HomeItem> {
+        return UICollectionView.CellRegistration<UICollectionViewListCell, HomeItem> { cell, indexPath, item in
+            var content = UIListContentConfiguration.subtitleCell()
+            content.text = item.text
+            content.textProperties.font = UIFont.systemFont(ofSize: Sizes.smallFontSize, weight: .regular)
+            content.textProperties.color = .systemBlue
+            content.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+            cell.contentConfiguration = content
+
+            var background = UIBackgroundConfiguration.listGroupedCell()
+            background.backgroundColor = .clear
+            background.strokeColor = .clear
+            cell.backgroundConfiguration = background
+
+            cell.accessories = []
+        }
+    }
+
     func createSectionHeaderRegistration() -> UICollectionView.SupplementaryRegistration<UICollectionViewListCell> {
         return UICollectionView.SupplementaryRegistration<UICollectionViewListCell>(
             elementKind: UICollectionView.elementKindSectionHeader
@@ -865,6 +888,7 @@ extension HomeViewController {
     func configureDataSource() {
         let listCellRegistration = createListCellRegistration()
         let horizontalListCellRegistration = createHorizontalListCellRegistration()
+        let simpleTextCellRegistration = createSimpleTextCellRegistration()
         let cardHeaderRegistration = createCardHeaderRegistration()
         let cardCellRegistration = createCardCellRegistration()
         let sectionHeaderRegistration = createSectionHeaderRegistration()
@@ -875,11 +899,19 @@ extension HomeViewController {
             let section = indexPath.section
 
             if section == HomeViewController.listSection {
-                return collectionView.dequeueConfiguredReusableCell(
-                    using: horizontalListCellRegistration,
-                    for: indexPath,
-                    item: item
-                )
+                if indexPath.row < 2 {
+                    return collectionView.dequeueConfiguredReusableCell(
+                        using: horizontalListCellRegistration,
+                        for: indexPath,
+                        item: item
+                    )
+                } else {
+                    return collectionView.dequeueConfiguredReusableCell(
+                        using: simpleTextCellRegistration,
+                        for: indexPath,
+                        item: item
+                    )
+                }
             } else if section == HomeViewController.phraseReviewSection ||
                 section == HomeViewController.shadowingSection ||
                 section == HomeViewController.practiceSection ||
@@ -968,22 +1000,37 @@ extension HomeViewController: UICollectionViewDelegate {
         let row = indexPath.row
                 
         if section == HomeViewController.listSection {
-            
-            let vc: ListViewController
+
             if row == 0 {
-                vc = WordsViewController()
+                let vc = WordsViewController()
+                vc.delegate = self
+                navigationController?.pushViewController(vc, animated: true)
             } else if row == 1 {
-                vc = ReadingViewController()
-            } else {
-                fatalError("Not Implemented.")
+                let vc = ReadingViewController()
+                vc.delegate = self
+                navigationController?.pushViewController(vc, animated: true)
+            } else if row == 2 {
+                let vc = WordsViewController()
+                vc.delegate = self
+                navigationController?.pushViewController(vc, animated: true)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    vc.addButtonTapped()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        vc.wordAddingFirstTextFieldPublic?.becomeFirstResponder()
+                    }
+                }
+            } else if row == 3 {
+                let vc = ReadingViewController()
+                vc.delegate = self
+                navigationController?.pushViewController(vc, animated: true)
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    vc.addButtonTapped()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                        vc.lastReadingEditViewController?.titleTextView?.becomeFirstResponder()
+                    }
+                }
             }
-            vc.delegate = self
-            
-            navigationController?.pushViewController(
-                vc,
-                animated: true
-            )
-            
+
         } else if section == HomeViewController.phraseReviewSection {
             
             guard isWordPracticeEnabled else {

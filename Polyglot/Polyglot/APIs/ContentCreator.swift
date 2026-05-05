@@ -177,7 +177,7 @@ extension ContentCreator {
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: [
                 "model": self.llm.rawValue,
-                "prompt": "A clear, simple illustration representing '\(word)' with no text or labels.",
+                "prompt": "A clear, simple illustration representing '\(word)' WITHOUT TEXT",
                 "n": 1,
                 "size": "256x256",
                 "response_format": "b64_json"

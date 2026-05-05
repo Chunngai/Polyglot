@@ -41,6 +41,9 @@ class WordsViewController: ListViewController {
     private var wordAddingFirstTextField: UITextField? {
         return self.lastAlertController?.textFields?[0]
     }
+    var wordAddingFirstTextFieldPublic: UITextField? {
+        return wordAddingFirstTextField
+    }
     private var wordAddingSecondTextField: UITextField? {
         return self.lastAlertController?.textFields?[1]
     }

@@ -173,12 +173,12 @@ extension Strings {
     }
     
     static let _articleAdding: [LangCode : String] = [
-        LangCode.en : "Add a New Article",
-        LangCode.ja : "新しい記事を追加してください",
-        LangCode.es : "Añade un Nuevo Artículo",
-        LangCode.ru : "Добавьте Новую Статью",
-        LangCode.ko : "새로운 기사를 추가하세요",
-        LangCode.de : "Neuen Artikel Hinzufügen",
+        LangCode.en : "New Article",
+        LangCode.ja : "新しい記事",
+        LangCode.es : "Nuevo Artículo",
+        LangCode.ru : "Новую Статью",
+        LangCode.ko : "새로운 기사",
+        LangCode.de : "Neuer Artikel",
     ]
     static var articleAdding: String {
         return Strings._articleAdding[LangCode.currentLanguage]!
@@ -390,12 +390,12 @@ extension Strings {
     // MARK: - Word Adding
     
     private static let _addingNewWordAlertTitles: [LangCode : String] = [
-        LangCode.en : "Add a New Word",
-        LangCode.ja : "新単語を追加",
-        LangCode.es : "Agregar una Nueva Palabra",
-        LangCode.ru : "Добавить новое слово",
-        LangCode.ko : "새 단어 추가",
-        LangCode.de : "Neues Wort hinzufügen",
+        LangCode.en : "New Phrase",
+        LangCode.ja : "新フレーズ",
+        LangCode.es : "Nueva Frase",
+        LangCode.ru : "Новая Фраза",
+        LangCode.ko : "새로운 표현",
+        LangCode.de : "Neue Formulierung",
     ]
     static var addingNewWordAlertTitle: String {
         return Strings._addingNewWordAlertTitles[LangCode.currentLanguage]!

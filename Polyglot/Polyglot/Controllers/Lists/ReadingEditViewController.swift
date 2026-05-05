@@ -29,6 +29,10 @@ class ReadingEditViewController: UIViewController {
     // MARK: - Controllers
     
     var delegate: ReadingViewController!
+
+    var titleTextView: UITextView? {
+        return cells[ReadingEditViewController.titleIdentifier].textView
+    }
     
     // MARK: - Views
     

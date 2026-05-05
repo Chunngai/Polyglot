@@ -9,7 +9,7 @@
 import UIKit
 
 class ReadingViewController: ListViewController {
-    
+
     private var dataSource: [GroupedArticles]! {
         didSet {
             DispatchQueue.main.async {  // Update the table in the main thread.
@@ -17,6 +17,8 @@ class ReadingViewController: ListViewController {
             }
         }
     }
+
+    var lastReadingEditViewController: ReadingEditViewController?
     
     // MARK: - Models
     
@@ -140,10 +142,10 @@ extension ReadingViewController {
     @objc override func addButtonTapped() {
         let readingEditViewController = ReadingEditViewController()
         readingEditViewController.delegate = self
-        
+        self.lastReadingEditViewController = readingEditViewController
+
         let readingEditNavController = NavController(rootViewController: readingEditViewController)
         navigationController?.present(readingEditNavController, animated: true, completion: nil)
-        
     }
 }
 
