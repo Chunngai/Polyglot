@@ -862,7 +862,45 @@ extension Strings {
     }
     
     static let refreshingSymbol = "\u{21BB}"
-    
+
+    // MARK: - Article Selection
+
+    private static let _resetProgress: [LangCode : String] = [
+        LangCode.en : "Reset",
+        LangCode.ja : "リセット",
+        LangCode.es : "Restablecer",
+        LangCode.ru : "Сбросить",
+        LangCode.ko : "초기화",
+        LangCode.de : "Zurücksetzen",
+    ]
+    static var resetProgress: String {
+        return Strings._resetProgress[LangCode.currentLanguage]!
+    }
+
+    private static let _resetProgressConfirm: [LangCode : String] = [
+        LangCode.en : "Reset progress of \u{201C}[MASK]\u{201D}?",
+        LangCode.ja : "「[MASK]」の進捗をリセットしますか？",
+        LangCode.es : "¿Restablecer el progreso de «[MASK]»?",
+        LangCode.ru : "Сбросить прогресс «[MASK]»?",
+        LangCode.ko : "「[MASK]」의 진행 상황을 초기화할까요?",
+        LangCode.de : "Fortschritt von \u{201E}[MASK]\u{201C} zurücksetzen?",
+    ]
+    static func resetProgressConfirm(for title: String) -> String {
+        return Strings._resetProgressConfirm[LangCode.currentLanguage]!.replacingOccurrences(of: "[MASK]", with: title)
+    }
+
+    private static let _restartArticle: [LangCode : String] = [
+        LangCode.en : "\u{201C}[MASK]\u{201D} is complete. Start over?",
+        LangCode.ja : "「[MASK]」は完了しました。最初からやり直しますか？",
+        LangCode.es : "«[MASK]» está completo. ¿Empezar de nuevo?",
+        LangCode.ru : "«[MASK]» завершён. Начать сначала?",
+        LangCode.ko : "「[MASK]」을 완료했습니다. 처음부터 다시 할까요?",
+        LangCode.de : "\u{201E}[MASK]\u{201C} ist abgeschlossen. Von vorne beginnen?",
+    ]
+    static func restartArticle(for title: String) -> String {
+        return Strings._restartArticle[LangCode.currentLanguage]!.replacingOccurrences(of: "[MASK]", with: title)
+    }
+
     // MARK: - Timing
         
     private static let _timeUpAlertTitles: [LangCode : String] = [

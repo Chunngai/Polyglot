@@ -32,8 +32,10 @@ class VideoShadowingPracticeProducer: TextMeaningPracticeProducer {
     
     // MARK: - Init
     
+    var selectedArticle: Article?
+
     init(words: [Word], articles: [Article]) {
-        
+
         super.init(
             words: words,
             articles: articles,
@@ -52,15 +54,14 @@ class VideoShadowingPracticeProducer: TextMeaningPracticeProducer {
     
     override func make() -> [BasePractice] {
         
-        // Randomly choose a youtube video for practice.
-        let youtubeVideos = articles.compactMap { article in
-            if article.isYoutubeVideo {
-                return article
-            } else {
-                return nil
-            }
+        // Use the selected article if provided, otherwise randomly choose.
+        let youtubeVideo: Article
+        if let selected = selectedArticle {
+            youtubeVideo = selected
+        } else {
+            let youtubeVideos = articles.filter { $0.isYoutubeVideo }
+            youtubeVideo = youtubeVideos.randomElement() ?? youtubeVideos[0]
         }
-        let youtubeVideo = youtubeVideos.randomElement() ?? youtubeVideos[0]
         
         // Starting timestamp: load from disk. If not stored on disk, from beginning.
         let metaData = VideoShadowingPracticeProducer.loadMetaData(for: LangCode.currentLanguage)

@@ -58,11 +58,10 @@ class TextMeaningPracticeProducer: BasePracticeProducer {
     override func load(_ cachedPractices: [BasePractice]) {
         if !cachedPractices.isEmpty {
             self.practiceList.append(contentsOf: cachedPractices)
-            self.updateMeaningsAndExistingPhrasesAndAccentLocs()
         } else {
             self.practiceList.append(contentsOf: make())
         }
-        
+
         DispatchQueue.global(qos: .userInitiated).async {
             self.updateMeaningsAndExistingPhrasesAndAccentLocs()
         }
@@ -360,21 +359,10 @@ extension TextMeaningPracticeProducer {
     }
  
     func updateMeaningsAndExistingPhrasesAndAccentLocs() {
-        
-        for practice in self.practiceList {
-            guard let practice = practice as? TextMeaningPractice else {
-                continue
-            }
-            
-            if practice.meaning.isEmpty {
-                self.maybeTranslate(text: practice.text) { translation, isMachineTranslated, translatorType, translationQuery in
-                    practice.meaning = translation
-                    practice.isTextMachineTranslated = isMachineTranslated
-                    practice.machineTranslatorType = translatorType
-                }
-            }
-            
-            // In case that some words have been deleted.
+        let practices = self.practiceList.compactMap { $0 as? TextMeaningPractice }
+
+        // Update phrase ranges and accent locs synchronously first.
+        for practice in practices {
             (
                 practice.existingPhraseRanges,
                 practice.existingPhraseMeanings
@@ -382,12 +370,24 @@ extension TextMeaningPracticeProducer {
                 for: practice.text,
                 from: self.words
             )
-            
             if practice.textAccentLocs.isEmpty {
                 self.calculateAccentLocsForText(in: practice)
             }
         }
-        
+
+        // Translate serially: only send next request after current one completes.
+        let needsTranslation = practices.filter { $0.meaning.isEmpty }
+        func translateNext(_ index: Int) {
+            guard index < needsTranslation.count else { return }
+            let practice = needsTranslation[index]
+            self.maybeTranslate(text: practice.text) { translation, isMachineTranslated, translatorType, _ in
+                practice.meaning = translation
+                practice.isTextMachineTranslated = isMachineTranslated
+                practice.machineTranslatorType = translatorType
+                translateNext(index + 1)
+            }
+        }
+        translateNext(0)
     }
     
     func removeTextInParenthesesNotInTargetLanguage(from text: String) -> String {

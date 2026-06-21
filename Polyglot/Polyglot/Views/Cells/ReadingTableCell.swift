@@ -15,9 +15,9 @@ class ReadingTableCell: UITableViewCell {
     var article: Article! {
         didSet {
             titleLabel.attributedText = {
-                
+
                 let attrText = NSMutableAttributedString(string: "")
-                
+
                 if article.isYoutubeVideo {
                     attrText.append(NSAttributedString.imageAttributedString(
                         icon: Icons.youtubeIcon,
@@ -25,9 +25,9 @@ class ReadingTableCell: UITableViewCell {
                     ))
                     attrText.append(NSAttributedString(string: "  "))
                 }
-                
+
                 attrText.append(NSAttributedString(string: article.title))
-                
+
                 attrText.addAttributes(
                     Self.titleLabelAttributes,
                     range: NSRange(
@@ -35,15 +35,22 @@ class ReadingTableCell: UITableViewCell {
                         length: attrText.length
                     )
                 )
-                
+
                 return attrText
-                
+
             }()
             bodyLabel.text = article.body
                 .replacingOccurrences(
                     of: "\n\n",
                     with: "\n"
-                )  // Avoid empty lines.
+                )
+        }
+    }
+
+    var progressText: String? {
+        didSet {
+            progressLabel.text = progressText
+            progressLabel.isHidden = progressText == nil
         }
     }
     
@@ -57,7 +64,7 @@ class ReadingTableCell: UITableViewCell {
         label.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
         return label
     }()
-    
+
     private var bodyLabel: UILabel = {
         let label = UILabel()
         label.backgroundColor = Colors.defaultBackgroundColor
@@ -65,6 +72,15 @@ class ReadingTableCell: UITableViewCell {
         label.numberOfLines = ReadingTableCell.bodyLabelNumberOfLines
         label.lineBreakMode = .byTruncatingTail
         label.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        return label
+    }()
+
+    private var progressLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .secondaryLabel
+        label.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        label.textAlignment = .right
+        label.isHidden = true
         return label
     }()
     
@@ -83,34 +99,43 @@ class ReadingTableCell: UITableViewCell {
     }
     
     private func updateSetups() {
-        
+
     }
-    
+
     private func updateViews() {
         selectionStyle = .none
-        
-        addSubview(titleLabel)
-        addSubview(bodyLabel)
+
+        contentView.addSubview(progressLabel)
+        contentView.addSubview(titleLabel)
+        contentView.addSubview(bodyLabel)
     }
-    
+
     private func updateLayouts() {
         let padding = titleLabel.font.pointSize
-        
-        titleLabel.snp.makeConstraints { (make) in
+
+        progressLabel.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(padding)
-            make.leading.trailing.equalToSuperview().inset(padding)
+            make.trailing.equalToSuperview().inset(padding)
+            make.width.equalTo(70)
         }
-        
-        bodyLabel.snp.makeConstraints { (make) in
+
+        titleLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(padding)
+            make.leading.equalToSuperview().inset(padding)
+            make.trailing.equalTo(progressLabel.snp.leading).offset(-8)
+        }
+
+        bodyLabel.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(padding / 2)
             make.leading.equalTo(titleLabel.snp.leading)
-            make.trailing.equalTo(titleLabel.snp.trailing)
+            make.trailing.equalToSuperview().inset(padding)
             make.bottom.equalToSuperview().inset(padding)
         }
     }
-    
-    func updateValues(article: Article) {
+
+    func updateValues(article: Article, progressText: String? = nil) {
         self.article = article
+        self.progressText = progressText
     }
 }
 

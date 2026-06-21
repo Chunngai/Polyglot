@@ -609,6 +609,75 @@ extension HomeViewController {
     }
 }
 
+extension HomeViewController {
+
+    // MARK: - Article Selection
+
+    func presentArticleSelection(section: Int, row: Int) {
+        let filter: ArticleSelectionViewController.Filter
+        let practiceType: ArticleSelectionViewController.PracticeType
+        let title: String
+
+        if section == Self.shadowingSection && row == 1 {
+            filter = .videosOnly
+            practiceType = .videoShadowing
+            title = Strings.videoShadowing
+        } else if section == Self.practiceSection && row == 0 {
+            filter = .all
+            practiceType = .speaking
+            title = Strings.speaking
+        } else if section == Self.practiceSection && row == 1 {
+            filter = .all
+            practiceType = .reading
+            title = Strings.reading
+        } else {
+            return
+        }
+
+        let vc = ArticleSelectionViewController(
+            articles: articles,
+            filter: filter,
+            practiceType: practiceType
+        ) { [weak self] article in
+            self?.startPractice(section: section, row: row, article: article)
+        }
+        vc.navigationItem.title = title
+        navigationController?.present(
+            NavController(rootViewController: vc),
+            animated: true
+        )
+    }
+
+    private func startPractice(section: Int, row: Int, article: Article) {
+        var vc: PracticeViewController
+
+        if section == Self.shadowingSection && row == 1 {
+            let shadowVC = VideoShadowingPracticeViewController()
+            shadowVC.selectedArticle = article
+            shadowVC.practiceDuration = LangCode.currentLanguage.configs.videoShadowingPracticeDuration
+            vc = shadowVC
+        } else if section == Self.practiceSection && row == 0 {
+            let speakVC = TranslationPracticeViewController()
+            speakVC.selectedArticle = article
+            speakVC.practiceDuration = LangCode.currentLanguage.configs.speakingPracticeDuration
+            vc = speakVC
+        } else if section == Self.practiceSection && row == 1 {
+            let readVC = ReadingPracticeViewController()
+            readVC.selectedArticle = article
+            readVC.practiceDuration = LangCode.currentLanguage.configs.readingPracticeDuration
+            vc = readVC
+        } else {
+            return
+        }
+
+        vc.delegate = self
+        navigationController?.present(
+            NavController(rootViewController: vc),
+            animated: true
+        )
+    }
+}
+
 extension HomeViewController: LanguageSelectionViewControllerDelegate {
     
     // MARK: - LanguageSelectionViewController Delegate
@@ -779,6 +848,36 @@ extension HomeViewController {
             } else if section == HomeViewController.settingsSection {
                 accessories.append(.disclosureIndicator())
             }
+
+            let needsSelectButton: Bool
+            if section == HomeViewController.shadowingSection && row == 1 {
+                needsSelectButton = self.isVideoShadowingPracticeEnabled
+            } else if section == HomeViewController.practiceSection && (row == 0 || row == 1) {
+                needsSelectButton = self.isPracticeEnabled
+            } else {
+                needsSelectButton = false
+            }
+
+            if needsSelectButton {
+                let button = UIButton(type: .system)
+                let symbolConfig = UIImage.SymbolConfiguration(pointSize: 16, weight: .regular)
+                button.setImage(
+                    UIImage(systemName: "hand.tap", withConfiguration: symbolConfig),
+                    for: .normal
+                )
+                button.tintColor = accentColor
+                let capturedSection = section
+                let capturedRow = row
+                button.addAction(UIAction { [weak self] _ in
+                    self?.presentArticleSelection(section: capturedSection, row: capturedRow)
+                }, for: .touchUpInside)
+                accessories.append(.customView(configuration: .init(
+                    customView: button,
+                    placement: .trailing(displayed: .always),
+                    reservedLayoutWidth: .actual
+                )))
+            }
+
             cell.accessories = accessories
         }
     }

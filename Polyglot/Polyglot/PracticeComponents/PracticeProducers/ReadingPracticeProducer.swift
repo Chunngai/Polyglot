@@ -9,9 +9,13 @@
 import Foundation
 
 class ReadingPracticeProducer: TextMeaningPracticeProducer {
-    
+
+    var selectedArticle: Article?
+    private var currentSelectedParaIndex: Int = 0
+    var isArticleComplete: Bool = false
+
     // MARK: - Init
-    
+
     init(words: [Word], articles: [Article]) {
         super.init(
             words: words, 
@@ -30,32 +34,44 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
         if self.practiceList.isEmpty {
             self.practiceList.append(contentsOf: self.make())
         }
-        while self.practiceList.isEmpty {  // TODO: - Improve here.
-            
-        }
-        
-        // self.currentPracticeIndex SHOULD ALWAYS BE 0
-        // AS DONE PRACTICES WILL BE REMOVED FROM THE LIST.
+        if isArticleComplete || self.practiceList.isEmpty { return }
+
         self.currentPracticeIndex = 0
-        
+
         if self.practiceList.count <= batchSize {
             DispatchQueue.global(qos: .userInitiated).async {
-                self.practiceList.append(contentsOf: self.make())
+                let newPractices = self.make()
+                self.practiceList.append(contentsOf: newPractices)
+                self.updateMeaningsAndExistingPhrasesAndAccentLocs()
             }
         }
     }
     
     override func make() -> [BasePractice] {
-        
-        guard let randomGroupedArticles = self.groupedArticles.randomElement() else {
-            return []
+
+        let randomArticle: Article
+        if let selected = selectedArticle {
+            randomArticle = selected
+        } else {
+            guard let randomGroupedArticles = self.groupedArticles.randomElement() else { return [] }
+            guard let picked = randomGroupedArticles.articles.randomElement() else { return [] }
+            randomArticle = picked
         }
-        guard let randomArticle = randomGroupedArticles.articles.randomElement() else {
-            return []
+
+        // Determine starting paragraph: resume from stored position if using selectedArticle.
+        let startingParaIndex: Int
+        if selectedArticle != nil {
+            let metaData = ReadingPracticeProducer.loadParagraphMetaData(for: LangCode.currentLanguage)
+            let stored = Int(metaData[ReadingPracticeProducer.paragraphMetaKey(for: randomArticle.id)] ?? "0") ?? 0
+            if stored >= randomArticle.paras.count {
+                isArticleComplete = true
+                return []
+            }
+            startingParaIndex = stored
+        } else {
+            startingParaIndex = (0..<randomArticle.paras.count).randomElement() ?? 0
         }
-        guard var paraIndex = (0..<randomArticle.paras.count).randomElement() else {
-            return []
-        }
+        var paraIndex = startingParaIndex
         
         var practiceList: [ReadingPractice] = []
         while true {
@@ -99,20 +115,7 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
                     textAccentLocs: []
                 )
                 practiceList.append(practice)
-                
-                maybeTranslate(text: sentence) { translation, isTranslated, translatorType, translationQuery in
-                    for practice in self.practiceList {
-                        guard let practice = practice as? ReadingPractice else {
-                            continue
-                        }
-                        if practice.text == translationQuery {
-                            practice.meaning = translation
-                            practice.isTextMachineTranslated = isTranslated
-                            practice.machineTranslatorType = translatorType
-                            break
-                        }
-                    }
-                }
+
                 calculateAccentLocsForText(in: practice)
             }
             if practiceList.count >= batchSize {
@@ -122,13 +125,41 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
             paraIndex += 1
         }
         if practiceList.count < batchSize {
-            practiceList.append(contentsOf: self.make() as! [ReadingPractice])
+            if selectedArticle != nil {
+                isArticleComplete = true
+            } else {
+                practiceList.append(contentsOf: self.make() as! [ReadingPractice])
+            }
         }
-        
+
+        // Persist the paragraph we reached so the next session resumes here.
+        if selectedArticle != nil {
+            let savedPara = isArticleComplete ? randomArticle.paras.count : paraIndex + 1
+            currentSelectedParaIndex = savedPara
+            cache(paragraphIndex: savedPara, articleId: randomArticle.id)
+
+            // Translate first practice synchronously so the user enters the practice view quickly.
+            // Then translate the rest in background via updateMeaningsAndExistingPhrasesAndAccentLocs().
+            if let first = practiceList.first, first.meaning.isEmpty {
+                let semaphore = DispatchSemaphore(value: 0)
+                maybeTranslate(text: first.text) { translation, isMachineTranslated, translatorType, _ in
+                    first.meaning = translation
+                    first.isTextMachineTranslated = isMachineTranslated
+                    first.machineTranslatorType = translatorType
+                    semaphore.signal()
+                }
+                semaphore.wait()
+            }
+            DispatchQueue.global(qos: .userInitiated).async {
+                self.updateMeaningsAndExistingPhrasesAndAccentLocs()
+            }
+        }
+
         return practiceList
     }
     
     override func cache() {
+        guard selectedArticle == nil else { return }
         guard var practicesToCache = self.practiceList as? [ReadingPractice] else {
             return
         }
@@ -157,13 +188,55 @@ extension ReadingPracticeProducer {
 }
 
 extension ReadingPracticeProducer {
-    
+
     // MARK: - IO
-    
+
+    static func paragraphMetaKey(for articleId: String) -> String {
+        return "readingParagraph_\(articleId)"
+    }
+
+    static func paragraphMetaFileName(for lang: LangCode) -> String {
+        return "readingParagraphProgress.\(lang.rawValue).json"
+    }
+
+    static func loadParagraphMetaData(for lang: LangCode) -> [String: String] {
+        return (try? readDataFromJson(
+            fileName: paragraphMetaFileName(for: lang),
+            type: [String: String].self
+        ) as? [String: String]) ?? [:]
+    }
+
+    static func saveParagraphMetaData(_ metaData: inout [String: String], for lang: LangCode) {
+        try? writeDataToJson(
+            fileName: paragraphMetaFileName(for: lang),
+            data: metaData
+        )
+    }
+
+    func cache(paragraphIndex: Int, articleId: String) {
+        var metaData = ReadingPracticeProducer.loadParagraphMetaData(for: LangCode.currentLanguage)
+        metaData[ReadingPracticeProducer.paragraphMetaKey(for: articleId)] = String(paragraphIndex)
+        ReadingPracticeProducer.saveParagraphMetaData(&metaData, for: LangCode.currentLanguage)
+    }
+
+    func cacheCurrentProgress() {
+        guard let article = selectedArticle else { return }
+        let paraIndex: Int
+        if let practice = practiceList.first as? ReadingPractice,
+           case let .article(_, paragraphId, _) = practice.textSource,
+           let paragraphId = paragraphId,
+           let idx = article.paras.firstIndex(where: { $0.id == paragraphId }) {
+            paraIndex = idx
+        } else {
+            paraIndex = currentSelectedParaIndex
+        }
+        cache(paragraphIndex: paraIndex, articleId: article.id)
+    }
+
     static func fileName(for lang: String) -> String {
         return "cachedReadingPractices.\(lang).json"
     }
-    
+
     static func loadCachedPractices(for lang: LangCode) -> [ReadingPractice] {
         do {
             let practices = try readDataFromJson(
@@ -175,7 +248,7 @@ extension ReadingPracticeProducer {
             return []
         }
     }
-    
+
     static func save(_ practicesToCache: inout [ReadingPractice], for lang: LangCode) {
         do {
             try writeDataToJson(
@@ -186,5 +259,5 @@ extension ReadingPracticeProducer {
             print(error.localizedDescription)
         }
     }
-    
+
 }

@@ -27,6 +27,7 @@
 		C67B85A22AED943200F7657A /* JapaneseAccentAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67B85A12AED943200F7657A /* JapaneseAccentAnalyzer.swift */; };
 		C67B85A42AED94B800F7657A /* RussianAccentAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67B85A32AED94B800F7657A /* RussianAccentAnalyzer.swift */; };
 		C696B9512B6DEDA600B00A02 /* ContentCardsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C696B9502B6DEDA600B00A02 /* ContentCardsExtensions.swift */; };
+		C697E07D2FE7442100723260 /* ArticleSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C697E07A2FE7442100723260 /* ArticleSelectionViewController.swift */; };
 		C69B190A2C18A91800E41C86 /* SettingsSlidingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B19092C18A91800E41C86 /* SettingsSlidingCell.swift */; };
 		C69B190E2C18B76600E41C86 /* SettingsSwitchingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B190D2C18B76600E41C86 /* SettingsSwitchingCell.swift */; };
 		C69CB0E22D3D551000C43FE7 /* PodcastPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69CB0E12D3D551000C43FE7 /* PodcastPracticeViewController.swift */; };
@@ -235,6 +236,7 @@
 		C67B85A12AED943200F7657A /* JapaneseAccentAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JapaneseAccentAnalyzer.swift; sourceTree = "<group>"; };
 		C67B85A32AED94B800F7657A /* RussianAccentAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RussianAccentAnalyzer.swift; sourceTree = "<group>"; };
 		C696B9502B6DEDA600B00A02 /* ContentCardsExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardsExtensions.swift; sourceTree = "<group>"; };
+		C697E07A2FE7442100723260 /* ArticleSelectionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArticleSelectionViewController.swift; sourceTree = "<group>"; };
 		C69B19092C18A91800E41C86 /* SettingsSlidingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSlidingCell.swift; sourceTree = "<group>"; };
 		C69B190D2C18B76600E41C86 /* SettingsSwitchingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSwitchingCell.swift; sourceTree = "<group>"; };
 		C69CB0E12D3D551000C43FE7 /* PodcastPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastPracticeViewController.swift; sourceTree = "<group>"; };
@@ -473,6 +475,7 @@
 				FF495E952958FFE600EA7EA9 /* WordsViewController.swift */,
 				FF50250D295244F10097C2CB /* ReadingViewController.swift */,
 				FF4B382A29525A4300BB3FFD /* ReadingEditViewController.swift */,
+				C697E07A2FE7442100723260 /* ArticleSelectionViewController.swift */,
 			);
 			path = Lists;
 			sourceTree = "<group>";
@@ -1152,6 +1155,7 @@
 				C6A22FEE2C7118A200484B59 /* BaiduTranslator.swift in Sources */,
 				FF4964C029579DA100414AC5 /* ArticleExtensions.swift in Sources */,
 				FF1780CF2A48EDCD005F588B /* Notifications.swift in Sources */,
+				C697E07D2FE7442100723260 /* ArticleSelectionViewController.swift in Sources */,
 				C6C8C3152B75F96A00FBC43B /* CFRangeExtensions.swift in Sources */,
 				FF4964C92958B05300414AC5 /* RoundButton.swift in Sources */,
 				C6A22FF22C712DBC00484B59 /* LangCodeExtensions.swift in Sources */,
