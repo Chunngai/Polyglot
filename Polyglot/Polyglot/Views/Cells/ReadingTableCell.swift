@@ -50,7 +50,18 @@ class ReadingTableCell: UITableViewCell {
     var progressText: String? {
         didSet {
             progressLabel.text = progressText
-            progressLabel.isHidden = progressText == nil
+            let hasProgress = progressText != nil
+            progressLabel.isHidden = !hasProgress
+            let padding = titleLabel.font.pointSize
+            titleLabel.snp.remakeConstraints { make in
+                make.top.equalToSuperview().inset(padding)
+                make.leading.equalToSuperview().inset(padding)
+                if hasProgress {
+                    make.trailing.equalTo(progressLabel.snp.leading).offset(-8)
+                } else {
+                    make.trailing.equalToSuperview().inset(padding)
+                }
+            }
         }
     }
     
@@ -122,7 +133,7 @@ class ReadingTableCell: UITableViewCell {
         titleLabel.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(padding)
             make.leading.equalToSuperview().inset(padding)
-            make.trailing.equalTo(progressLabel.snp.leading).offset(-8)
+            make.trailing.equalToSuperview().inset(padding)
         }
 
         bodyLabel.snp.makeConstraints { make in

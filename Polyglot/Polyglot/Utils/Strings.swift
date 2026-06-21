@@ -888,9 +888,21 @@ extension Strings {
     static func resetProgressConfirm(for title: String) -> String {
         return Strings._resetProgressConfirm[LangCode.currentLanguage]!.replacingOccurrences(of: "[MASK]", with: title)
     }
+    
+    private static let _restartArticleTitle: [LangCode : String] = [
+        LangCode.en : "Start Over?",
+        LangCode.ja : "やり直しますか？",
+        LangCode.es : "¿Empezar de nuevo?",
+        LangCode.ru : "Начать сначала?",
+        LangCode.ko : "처음부터 다시?",
+        LangCode.de : "Von vorne beginnen?",
+    ]
+    static var restartArticleTitle: String {
+        return Strings._restartArticleTitle[LangCode.currentLanguage]!
+    }
 
     private static let _restartArticle: [LangCode : String] = [
-        LangCode.en : "\u{201C}[MASK]\u{201D} is complete. Start over?",
+        LangCode.en : "[MASK] is complete. Start over?",
         LangCode.ja : "「[MASK]」は完了しました。最初からやり直しますか？",
         LangCode.es : "«[MASK]» está completo. ¿Empezar de nuevo?",
         LangCode.ru : "«[MASK]» завершён. Начать сначала?",

@@ -161,7 +161,7 @@ extension TranslationPracticeViewController {
             stopPracticing()
             return
         }
-        if selectedArticle != nil && (practiceProducer.practiceList.isEmpty || practiceProducer.isArticleComplete) {
+        if selectedArticle != nil && practiceProducer.isArticleComplete && practiceProducer.practiceList.isEmpty {
             stopPracticing()
             return
         }

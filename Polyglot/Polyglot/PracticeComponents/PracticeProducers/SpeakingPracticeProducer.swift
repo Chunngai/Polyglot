@@ -38,9 +38,9 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
             if self.practiceList.isEmpty {
                 self.practiceList.append(contentsOf: self.make())
             }
-            if isArticleComplete || self.practiceList.isEmpty { return }
+            if self.practiceList.isEmpty { return }
             self.currentPracticeIndex = 0
-            if self.practiceList.count <= batchSize && !isBackgroundMakeInProgress {
+            if !isArticleComplete && self.practiceList.count <= batchSize && !isBackgroundMakeInProgress {
                 isBackgroundMakeInProgress = true
                 DispatchQueue.global(qos: .userInitiated).async {
                     let newPractices = self.make()

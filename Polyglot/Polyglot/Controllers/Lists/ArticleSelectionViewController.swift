@@ -173,7 +173,7 @@ class ArticleSelectionViewController: UIViewController {
 
     private func confirmRestart(for article: Article, at indexPath: IndexPath) {
         let alert = UIAlertController(
-            title: nil,
+            title: Strings.restartArticleTitle,
             message: Strings.restartArticle(for: article.title),
             preferredStyle: .alert
         )

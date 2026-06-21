@@ -34,11 +34,11 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
         if self.practiceList.isEmpty {
             self.practiceList.append(contentsOf: self.make())
         }
-        if isArticleComplete || self.practiceList.isEmpty { return }
+        if self.practiceList.isEmpty { return }
 
         self.currentPracticeIndex = 0
 
-        if self.practiceList.count <= batchSize {
+        if !isArticleComplete && self.practiceList.count <= batchSize {
             DispatchQueue.global(qos: .userInitiated).async {
                 let newPractices = self.make()
                 self.practiceList.append(contentsOf: newPractices)
