@@ -54,44 +54,49 @@ struct GPTTranslator: TranslationProtocol {
         ]
     }
     
-    func prompt(with query: String) -> String {
-        
+    func systemPrompt() -> String {
         return """
-Translate the following text from \(self.enNameOfSrcLang!) to \(self.enNameOfTrgLang!) without any explanation.
+Translate the given text from \(self.enNameOfSrcLang!) to \(self.enNameOfTrgLang!).
 
-Sentence: \(promptText1[self.srcLang]!)
-Translation: \(promptText1[self.trgLang]!)
+# Format
+<input> input text
+<output> output text
 
-Sentence: \(promptText2[self.srcLang]!)
-Translation: \(promptText2[self.trgLang]!)
+# Examples
 
-Sentence: \(query)
-Translation:
+<input> \(promptText1[self.srcLang]!)
+<output> \(promptText1[self.trgLang]!)
+
+<input> \(promptText2[self.srcLang]!)
+<output> \(promptText2[self.trgLang]!)
 """
-        
     }
-    
+
+    func userPrompt(with query: String) -> String {
+        return """
+<input> \(query)
+<output>
+"""
+    }
+
     func translate(query: String, completion: @escaping ([String]) -> Void) {
-        
+
         guard !query.strip().isEmpty else {
             completion([query])
             return
         }
-        
-        let prompt = prompt(with: query)
-        print("GPTTranslator prompt: \"\"\"\n\(prompt)\n\"\"\"")
+
         self.gpt.createContent(
-            withPrompt: prompt
+            withSystemPrompt: systemPrompt(),
+            userPrompt: userPrompt(with: query)
         ) { gptResponse in
-            
             guard let translation = gptResponse else {
                 completion([])
                 return
             }
             completion([translation.strip()])
-            
         }
-        
+
     }
     
 }

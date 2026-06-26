@@ -27,10 +27,22 @@ struct ContentCreator {
         self.requestTimeLimit = requestTimeLimit
     }
     
+    func createContent(withSystemPrompt systemPrompt: String, userPrompt: String, displayErrorMessageWhenFailed: Bool = false, completion: @escaping (String?) -> Void) {
+        let messages: [[String: String]] = [
+            ["role": "system", "content": systemPrompt],
+            ["role": "user",   "content": userPrompt]
+        ]
+        createContent(withMessages: messages, displayErrorMessageWhenFailed: displayErrorMessageWhenFailed, completion: completion)
+    }
+
     func createContent(withPrompt prompt: String, displayErrorMessageWhenFailed: Bool = false, completion: @escaping (String?) -> Void) {
-        
-        print("ContentCreator: Creating content with prompt: \(prompt)")
-        
+        createContent(withMessages: [["role": "user", "content": prompt]], displayErrorMessageWhenFailed: displayErrorMessageWhenFailed, completion: completion)
+    }
+
+    private func createContent(withMessages messages: [[String: String]], displayErrorMessageWhenFailed: Bool = false, completion: @escaping (String?) -> Void) {
+
+        print("ContentCreator: Creating content with messages: \(messages)")
+
         guard let baseURLString = globalConfigs.ChatGPTAPIURL,
               let baseURL = URL(string: baseURLString),
               let host = baseURL.host,
@@ -49,7 +61,7 @@ struct ContentCreator {
             completion(nil)
             return
         }
-        
+
         var request: URLRequest = URLRequest(
             url: url,
             timeoutInterval: requestTimeLimit
@@ -62,10 +74,7 @@ struct ContentCreator {
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: [
                 "model": self.llm.rawValue,
-                "messages": [[
-                    "role": "user",
-                    "content": prompt
-                ]]
+                "messages": messages
             ])
         } catch {
             print("\(Self.self): \(error.localizedDescription)")
