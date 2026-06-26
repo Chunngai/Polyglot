@@ -42,18 +42,18 @@ struct MachineTranslator {
         self.trgLang = trgLang
         
         self.translators = [
-            GPTTranslator(
-                srcLang: srcLang,
-                trgLang: trgLang
-            ),
             GoogleTranslator(
                 srcLang: srcLang,
                 trgLang: trgLang
             ),
-            BaiduTranslator(
+            GPTTranslator(
                 srcLang: srcLang,
                 trgLang: trgLang
-            )
+            ),
+//            BaiduTranslator(
+//                srcLang: srcLang,
+//                trgLang: trgLang
+//            )
         ]
         
     }
