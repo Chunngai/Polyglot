@@ -64,6 +64,14 @@ extension VideoShadowingPracticeViewController {
             navigationController?.dismiss(animated: true)
             return
         }
+
+        // Save any words marked during this session (handles both cancel and next-button paths).
+        let wordsToSave = newWords(
+            from: practiceView.textView.wordsInfo,
+            of: practiceView.textSource
+        )
+        add(newWords: wordsToSave)
+
         practiceView.currentTimestamp { [weak self] timestamp in
             guard let self = self else { return }
             if timestamp != 0 {
@@ -81,9 +89,15 @@ extension VideoShadowingPracticeViewController {
 extension VideoShadowingPracticeViewController {
 
     override func timingBarTimeUp(timingBar: TimingBar) {
-
-        super.timingBarTimeUp(timingBar: timingBar)
-//        self.stopPracticing()
+        // Apply PracticeViewController's base timing-bar behavior directly.
+        // Do NOT call super (TextMeaningPracticeViewController.timingBarTimeUp) because
+        // it would call self.stopPracticing() immediately, dismissing the VC before
+        // the user has a chance to review marked words and tap Next.
+        shouldFinishPracticing = true
+        cancelButton.isEnabled = false
+        cancelButton.tintColor = Colors.inactiveSystemButtonColor
+        toggleButton.isEnabled = false
+        toggleButton.tintColor = Colors.inactiveSystemButtonColor
 
         if let practiceView = practiceView as? VideoShadowingPracticeView {
 
@@ -107,8 +121,6 @@ extension VideoShadowingPracticeViewController {
         }
 
         nextButton.isHidden = false
-
-        return
 
     }
 
