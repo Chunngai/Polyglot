@@ -79,13 +79,42 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
             updatedMeta[SpeakingPracticeProducer.paragraphMetaKey(for: article.id)] = String(storedIndex + count)
             SpeakingPracticeProducer.saveParagraphMetaData(&updatedMeta, for: LangCode.currentLanguage)
 
-            // Translate first practice synchronously so user enters practice view quickly.
+            // Concurrently start translation and accent analysis for the first practice.
+            let needsAccent = LangCode.currentLanguage.shouldAddAccentMarksToTextInPractices
+            let accentSemaphore = DispatchSemaphore(value: 0)
+
+            // Extract the sentence upfront so accent analysis can run in parallel with translation.
+            let firstPara = article.paras[storedIndex]
+            let firstSentence = firstPara.text.tokenized(with: LangCode.currentLanguage.sentenceTokenizer).first
+                ?? firstPara.text
+            var firstAccentTokens: [Token] = []
+            var firstAccentFixedText: String? = nil
+            if needsAccent {
+                analyzeAccents(for: firstSentence) { tokens, fixedText, _ in
+                    firstAccentTokens = tokens
+                    firstAccentFixedText = fixedText
+                    accentSemaphore.signal()
+                }
+            }
+
             var firstPractice: SpeakingPractice? = nil
             makePractice(fromArticle: article, atParaIndex: storedIndex) { practice in
                 firstPractice = practice
-                self.calculateAccentLocsForText(in: practice)
             }
             while firstPractice == nil { Thread.sleep(forTimeInterval: 0.05) }
+
+            // Wait for accent with 5s timeout, then apply directly (avoids the
+            // self.practiceList search in calculateAccentLocsForText which would fail
+            // here since firstPractice has not been appended to self.practiceList yet).
+            if needsAccent, let first = firstPractice {
+                accentSemaphore.wait(timeout: .now() + 5)
+                if !firstAccentTokens.isEmpty {
+                    if let fixedText = firstAccentFixedText {
+                        first.text = fixedText
+                    }
+                    first.textAccentLocs = calculateAccentLocs(for: first.text, with: firstAccentTokens)
+                }
+            }
 
             // Fire remaining translations in background and append to practiceList.
             if count > 1 {

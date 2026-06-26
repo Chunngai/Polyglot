@@ -118,7 +118,12 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
                 )
                 practiceList.append(practice)
 
-                calculateAccentLocsForText(in: practice)
+                // Skip for the first practice in article mode: accent is handled
+                // inline below together with translation (concurrent, with 5s timeout).
+                let isFirstArticlePractice = selectedArticle != nil && practiceList.count == 1
+                if !isFirstArticlePractice {
+                    calculateAccentLocsForText(in: practice)
+                }
             }
             if practiceList.count >= batchSize {
                 break
@@ -140,17 +145,40 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
             currentSelectedParaIndex = savedPara
             cache(paragraphIndex: savedPara, articleId: randomArticle.id)
 
-            // Translate first practice synchronously so the user enters the practice view quickly.
-            // Then translate the rest in background via updateMeaningsAndExistingPhrasesAndAccentLocs().
-            if let first = practiceList.first, first.meaning.isEmpty {
-                let semaphore = DispatchSemaphore(value: 0)
-                maybeTranslate(text: first.text) { translation, isMachineTranslated, translatorType, _ in
-                    first.meaning = translation
-                    first.isTextMachineTranslated = isMachineTranslated
-                    first.machineTranslatorType = translatorType
-                    semaphore.signal()
+            // Concurrently fetch translation and accent marks for the first practice,
+            // then proceed. Translation has no timeout; accent marking times out after 5s.
+            if let first = practiceList.first {
+                let translationSemaphore = DispatchSemaphore(value: 0)
+                let accentSemaphore = DispatchSemaphore(value: 0)
+                let needsAccent = LangCode.currentLanguage.shouldAddAccentMarksToTextInPractices
+
+                if first.meaning.isEmpty {
+                    maybeTranslate(text: first.text) { translation, isMachineTranslated, translatorType, _ in
+                        first.meaning = translation
+                        first.isTextMachineTranslated = isMachineTranslated
+                        first.machineTranslatorType = translatorType
+                        translationSemaphore.signal()
+                    }
+                } else {
+                    translationSemaphore.signal()
                 }
-                semaphore.wait()
+
+                if needsAccent {
+                    analyzeAccents(for: first.text) { tokens, fixedText, _ in
+                        if !tokens.isEmpty {
+                            if let fixedText = fixedText {
+                                first.text = fixedText
+                            }
+                            first.textAccentLocs = calculateAccentLocs(for: first.text, with: tokens)
+                        }
+                        accentSemaphore.signal()
+                    }
+                }
+
+                translationSemaphore.wait()
+                if needsAccent {
+                    accentSemaphore.wait(timeout: .now() + 5)
+                }
             }
             DispatchQueue.global(qos: .userInitiated).async {
                 self.updateMeaningsAndExistingPhrasesAndAccentLocs()
