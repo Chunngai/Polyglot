@@ -12,6 +12,7 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
 
     var selectedArticle: Article?
     private var currentSelectedParaIndex: Int = 0
+    private var pendingStartParaIndex: Int = 0
     var isArticleComplete: Bool = false
 
     // MARK: - Init
@@ -68,6 +69,7 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
                 return []
             }
             startingParaIndex = stored
+            pendingStartParaIndex = stored
         } else {
             startingParaIndex = (0..<randomArticle.paras.count).randomElement() ?? 0
         }
@@ -227,6 +229,10 @@ extension ReadingPracticeProducer {
            let paragraphId = paragraphId,
            let idx = article.paras.firstIndex(where: { $0.id == paragraphId }) {
             paraIndex = idx
+        } else if practiceList.isEmpty {
+            // User cancelled before any practice was shown (loading was still in progress).
+            // Roll back to the paragraph we started from, not the end of the batch.
+            paraIndex = pendingStartParaIndex
         } else {
             paraIndex = currentSelectedParaIndex
         }

@@ -12,6 +12,7 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
     
     var selectedArticle: Article?
     var currentSelectedParaIndex: Int = 0
+    private var pendingStartParaIndex: Int = 0
     private var isBackgroundMakeInProgress = false
     var isArticleComplete: Bool = false
 
@@ -72,6 +73,7 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
             let count = min(batchSize, remaining)
 
             // Save progress for the full batch upfront.
+            pendingStartParaIndex = storedIndex
             currentSelectedParaIndex = storedIndex + count
             var updatedMeta = metaData
             updatedMeta[SpeakingPracticeProducer.paragraphMetaKey(for: article.id)] = String(storedIndex + count)
@@ -288,6 +290,8 @@ extension SpeakingPracticeProducer {
            let paragraphId = paragraphId,
            let idx = article.paras.firstIndex(where: { $0.id == paragraphId }) {
             paraIndex = idx
+        } else if practiceList.isEmpty {
+            paraIndex = pendingStartParaIndex
         } else {
             paraIndex = currentSelectedParaIndex
         }
