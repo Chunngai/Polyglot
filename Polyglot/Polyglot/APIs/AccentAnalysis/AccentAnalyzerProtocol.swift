@@ -83,15 +83,15 @@ func addAccentMarks(for text: String, with tokens: [Token]) -> String {
 }
 
 func calculateAccentLocs(for text: String, with tokens: [Token]) -> [Int] {
-    
+
     // Modified from addAccentMarks(for text: String, with tokens: [Token]) -> String.
-    
+
     var accentLocs: [Int] = []
     var curIndexInText: Int = 0
     var tokenIndex: Int = 0
     while tokenIndex < tokens.count {
         let token = tokens[tokenIndex]
-        
+
         // Move to tokens[tokenIndex] in s.
         while !text.lowercased().substring(from: curIndexInText).starts(with: token.text.lowercased()) {
             curIndexInText += 1
@@ -99,7 +99,7 @@ func calculateAccentLocs(for text: String, with tokens: [Token]) -> [Int] {
                 return []
             }
         }
-        
+
         // Insert an accent mark.
         if let accentLoc = token.accentLoc {
             accentLocs.append(curIndexInText + accentLoc)  // Different here.
@@ -108,7 +108,36 @@ func calculateAccentLocs(for text: String, with tokens: [Token]) -> [Int] {
         // Move on.
         tokenIndex += 1
     }
-    
+
     return accentLocs
-    
+
+}
+
+func calculateVerbAspectAnnotations(for text: String, with tokens: [Token]) -> [VerbAspectAnnotation] {
+    var annotations: [VerbAspectAnnotation] = []
+    var curIndexInText = 0
+    for token in tokens {
+        while !text.lowercased().substring(from: curIndexInText).starts(with: token.text.lowercased()) {
+            curIndexInText += 1
+            if curIndexInText >= text.count { return annotations }
+        }
+        if let aspect = token.aspect {
+            let label: String?
+            switch aspect {
+            case "imperfective": label = "(imp.)"
+            case "perfective":   label = "(p.)"
+            case "both":         label = "(bi.)"
+            default:             label = nil
+            }
+            if let label = label {
+                annotations.append(VerbAspectAnnotation(
+                    position: curIndexInText,
+                    length: token.text.count,
+                    label: label
+                ))
+            }
+        }
+        curIndexInText += token.text.count
+    }
+    return annotations
 }

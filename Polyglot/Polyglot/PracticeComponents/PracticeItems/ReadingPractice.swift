@@ -20,7 +20,8 @@ class ReadingPractice: TextMeaningPractice {
         machineTranslatorType: MachineTranslatorType,
         existingPhraseRanges: [NSRange],
         existingPhraseMeanings: [String],
-        textAccentLocs: [Int]
+        textAccentLocs: [Int],
+        verbAspectAnnotations: [VerbAspectAnnotation] = []
     ) {
         super.init(
             text: text,
@@ -34,7 +35,8 @@ class ReadingPractice: TextMeaningPractice {
             existingPhraseMeanings: existingPhraseMeanings,
             totalRepetitions: 1,
             currentRepetition: 0,
-            textAccentLocs: textAccentLocs
+            textAccentLocs: textAccentLocs,
+            verbAspectAnnotations: verbAspectAnnotations
         )
     }
     
@@ -49,7 +51,8 @@ class ReadingPractice: TextMeaningPractice {
             machineTranslatorType: another.machineTranslatorType,
             existingPhraseRanges: another.existingPhraseRanges,
             existingPhraseMeanings: another.existingPhraseMeanings,
-            textAccentLocs: another.textAccentLocs
+            textAccentLocs: another.textAccentLocs,
+            verbAspectAnnotations: another.verbAspectAnnotations
         )
     }
     

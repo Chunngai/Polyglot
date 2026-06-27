@@ -413,9 +413,11 @@ struct LangConfigs: Codable {
     var isDuolingoOnlyForPodcast: Bool
     
     var canGenerateTextsWithLLMsForPractices: Bool
-    
+
     var shouldRemindToAddNewArticles: Bool
-    
+
+    var shouldShowVerbAspectsInPractices: Bool
+
     init(
         languageForTranslation: LangCode,
         voiceRate: Float,
@@ -434,7 +436,8 @@ struct LangConfigs: Codable {
         isDuolingoOnlyForReading: Bool,
         isDuolingoOnlyForPodcast: Bool,
         canGenerateTextsWithLLMsForPractices: Bool,
-        shouldRemindToAddNewArticles: Bool
+        shouldRemindToAddNewArticles: Bool,
+        shouldShowVerbAspectsInPractices: Bool = false
     ) {
         self.languageForTranslation = languageForTranslation
         self.voiceRate = voiceRate
@@ -454,6 +457,7 @@ struct LangConfigs: Codable {
         self.isDuolingoOnlyForPodcast = isDuolingoOnlyForPodcast
         self.canGenerateTextsWithLLMsForPractices = canGenerateTextsWithLLMsForPractices
         self.shouldRemindToAddNewArticles = shouldRemindToAddNewArticles
+        self.shouldShowVerbAspectsInPractices = shouldShowVerbAspectsInPractices
     }
     
     enum CodingKeys: String, CodingKey {
@@ -481,9 +485,11 @@ struct LangConfigs: Codable {
         case isDuolingoOnlyForPodcast
         
         case canGenerateTextsWithLLMsForPractices
-        
+
         case shouldRemindToAddNewArticles
-        
+
+        case shouldShowVerbAspectsInPractices
+
     }
     
     func encode(to encoder: Encoder) throws {
@@ -507,7 +513,8 @@ struct LangConfigs: Codable {
         try container.encode(isDuolingoOnlyForPodcast, forKey: .isDuolingoOnlyForPodcast)
         try container.encode(canGenerateTextsWithLLMsForPractices, forKey: .canGenerateTextsWithLLMsForPractices)
         try container.encode(shouldRemindToAddNewArticles, forKey: .shouldRemindToAddNewArticles)
-    
+        try container.encode(shouldShowVerbAspectsInPractices, forKey: .shouldShowVerbAspectsInPractices)
+
     }
     
     init(from decoder: Decoder) throws {
@@ -591,7 +598,12 @@ struct LangConfigs: Codable {
         } catch {
             shouldRemindToAddNewArticles = Self.defaultConfigs.shouldRemindToAddNewArticles
         }
-        
+        do {
+            shouldShowVerbAspectsInPractices = try values.decode(Bool.self, forKey: .shouldShowVerbAspectsInPractices)
+        } catch {
+            shouldShowVerbAspectsInPractices = Self.defaultConfigs.shouldShowVerbAspectsInPractices
+        }
+
     }
     
     // MARK: - IO

@@ -75,6 +75,7 @@
 		C6E1E0312AC5C2F600E4AF72 /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E1E0302AC5C2F600E4AF72 /* HomeViewController.swift */; };
 		C6E8D3CC2C8E3788009E42F5 /* russian_word_forms.json in Resources */ = {isa = PBXBuildFile; fileRef = C6E8D3CB2C8E3788009E42F5 /* russian_word_forms.json */; };
 		C6E8D3D22C8E3A31009E42F5 /* formatted_je2jo.json in Resources */ = {isa = PBXBuildFile; fileRef = C6E8D3D12C8E3A31009E42F5 /* formatted_je2jo.json */; };
+		C6AA11112E000000000AA001 /* russian_verb_aspects.json in Resources */ = {isa = PBXBuildFile; fileRef = C6AA11102E000000000AA001 /* russian_verb_aspects.json */; };
 		C6E8D3D92C8E3B8A009E42F5 /* Je2JoEntity+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E8D3D72C8E3B8A009E42F5 /* Je2JoEntity+CoreDataClass.swift */; };
 		C6E8D3DA2C8E3B8A009E42F5 /* Je2JoEntity+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E8D3D82C8E3B8A009E42F5 /* Je2JoEntity+CoreDataProperties.swift */; };
 		C6F2A22C2DCBA47000B52F55 /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6F2A22B2DCBA47000B52F55 /* Logger.swift */; };
@@ -285,6 +286,7 @@
 		C6E1E0302AC5C2F600E4AF72 /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
 		C6E8D3CB2C8E3788009E42F5 /* russian_word_forms.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = russian_word_forms.json; path = ../../../russian_word_forms.json; sourceTree = "<group>"; };
 		C6E8D3D12C8E3A31009E42F5 /* formatted_je2jo.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = formatted_je2jo.json; path = ../../../formatted_je2jo.json; sourceTree = "<group>"; };
+		C6AA11102E000000000AA001 /* russian_verb_aspects.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = russian_verb_aspects.json; path = ../../../russian_verb_aspects.json; sourceTree = "<group>"; };
 		C6E8D3D72C8E3B8A009E42F5 /* Je2JoEntity+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Je2JoEntity+CoreDataClass.swift"; sourceTree = "<group>"; };
 		C6E8D3D82C8E3B8A009E42F5 /* Je2JoEntity+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Je2JoEntity+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		C6F2A22B2DCBA47000B52F55 /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
@@ -666,6 +668,7 @@
 			children = (
 				C6E8D3CB2C8E3788009E42F5 /* russian_word_forms.json */,
 				C6E8D3D12C8E3A31009E42F5 /* formatted_je2jo.json */,
+				C6AA11102E000000000AA001 /* russian_verb_aspects.json */,
 				C6BA7AA82C7F52F800C6FFD3 /* RussianAccentEntity+CoreDataClass.swift */,
 				C630C6CA2C8E26B50049ED6A /* RussianAccentEntity+CoreDataProperties.swift */,
 				C6E8D3D72C8E3B8A009E42F5 /* Je2JoEntity+CoreDataClass.swift */,
@@ -991,6 +994,7 @@
 				FF62C97F2951382600D41797 /* Assets.xcassets in Resources */,
 				C6E8D3D22C8E3A31009E42F5 /* formatted_je2jo.json in Resources */,
 				C6E8D3CC2C8E3788009E42F5 /* russian_word_forms.json in Resources */,
+				C6AA11112E000000000AA001 /* russian_verb_aspects.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

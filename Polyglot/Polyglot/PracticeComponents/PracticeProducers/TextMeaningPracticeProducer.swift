@@ -331,27 +331,25 @@ extension TextMeaningPracticeProducer {
     }
 
     func calculateAccentLocsForText(in practice: TextMeaningPractice) {
-        
-        if !LangCode.currentLanguage.shouldAddAccentMarksToTextInPractices {
-            return
-        }
-        
+        let needsAccent = LangCode.currentLanguage.shouldAddAccentMarksToTextInPractices
+        let needsAspect = LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices
+
+        guard needsAccent || needsAspect else { return }
+
         analyzeAccents(for: practice.text) { tokens, fixedText, analysisQuery in
-            guard !tokens.isEmpty else {
-                return
-            }
+            guard !tokens.isEmpty else { return }
             for practice in self.practiceList {
-                guard let practice = practice as? TextMeaningPractice else {
-                    continue
-                }
+                guard let practice = practice as? TextMeaningPractice else { continue }
                 if practice.text == analysisQuery {
                     if let fixedText = fixedText {
                         practice.text = fixedText
                     }
-                    practice.textAccentLocs = calculateAccentLocs(
-                        for: practice.text,
-                        with: tokens
-                    )
+                    if needsAccent {
+                        practice.textAccentLocs = calculateAccentLocs(for: practice.text, with: tokens)
+                    }
+                    if needsAspect {
+                        practice.verbAspectAnnotations = calculateVerbAspectAnnotations(for: practice.text, with: tokens)
+                    }
                     break
                 }
             }
@@ -370,7 +368,7 @@ extension TextMeaningPracticeProducer {
                 for: practice.text,
                 from: self.words
             )
-            if practice.textAccentLocs.isEmpty {
+            if practice.textAccentLocs.isEmpty || practice.verbAspectAnnotations.isEmpty {
                 self.calculateAccentLocsForText(in: practice)
             }
         }

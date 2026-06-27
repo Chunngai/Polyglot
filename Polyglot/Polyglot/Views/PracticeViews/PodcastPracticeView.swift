@@ -25,7 +25,8 @@ class PodcastPracticeView: TextMeaningPracticeView {
         existingPhraseMeanings: [String],
         totalRepetitions: Int = 1,
         currentRepetition: Int = 1,
-        textAccentLocs: [Int]
+        textAccentLocs: [Int],
+        verbAspectAnnotations: [VerbAspectAnnotation] = []
     ) {
         super.init(
             frame: frame,
@@ -41,6 +42,7 @@ class PodcastPracticeView: TextMeaningPracticeView {
             totalRepetitions: totalRepetitions,
             currentRepetition: currentRepetition,
             textAccentLocs: textAccentLocs,
+            verbAspectAnnotations: verbAspectAnnotations,
             repetitionIncrement: 1
         )
         
@@ -77,14 +79,13 @@ class PodcastPracticeView: TextMeaningPracticeView {
     
     override func displayUpper() {
         super.displayUpper()
-        
+
         markAccents(at: textAccentLocs)
+        markVerbAspects(at: verbAspectAnnotations)
     }
 
     override func displayLower() {
         super.displayLower()
-        
-        markAccents(at: textAccentLocs)
     }
     
 }

@@ -93,7 +93,8 @@ class ReadingPracticeViewController: TextMeaningPracticeViewController {
             existingPhraseMeanings: practice.existingPhraseMeanings,
             totalRepetitions: practice.totalRepetitions,
             currentRepetition: practice.currentRepetition,
-            textAccentLocs: practice.textAccentLocs
+            textAccentLocs: practice.textAccentLocs,
+            verbAspectAnnotations: practice.verbAspectAnnotations
         )
         practiceView.controlsView.isHidden = true
         updateProgressPrompt(for: practice)

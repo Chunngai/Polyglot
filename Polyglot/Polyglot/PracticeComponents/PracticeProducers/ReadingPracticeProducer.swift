@@ -165,20 +165,26 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
                     translationSemaphore.signal()
                 }
 
-                if needsAccent {
+                let needsAspect = LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices
+                if needsAccent || needsAspect {
                     analyzeAccents(for: first.text) { tokens, fixedText, _ in
                         if !tokens.isEmpty {
                             if let fixedText = fixedText {
                                 first.text = fixedText
                             }
-                            first.textAccentLocs = calculateAccentLocs(for: first.text, with: tokens)
+                            if needsAccent {
+                                first.textAccentLocs = calculateAccentLocs(for: first.text, with: tokens)
+                            }
+                            if needsAspect {
+                                first.verbAspectAnnotations = calculateVerbAspectAnnotations(for: first.text, with: tokens)
+                            }
                         }
                         accentSemaphore.signal()
                     }
                 }
 
                 translationSemaphore.wait()
-                if needsAccent {
+                if needsAccent || needsAspect {
                     accentSemaphore.wait(timeout: .now() + 10)
                 }
             }

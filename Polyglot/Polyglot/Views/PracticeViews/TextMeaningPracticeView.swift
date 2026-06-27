@@ -22,7 +22,8 @@ class TextMeaningPracticeView: BasePracticeView {
     var totalRepetitions: Int!
     var currentRepetition: Int!
     var textAccentLocs: [Int]!
-    
+    var verbAspectAnnotations: [VerbAspectAnnotation]!
+
     var repetitionIncrement: Int!
     
     var upperString: String!
@@ -154,10 +155,11 @@ class TextMeaningPracticeView: BasePracticeView {
         totalRepetitions: Int,
         currentRepetition: Int,
         textAccentLocs: [Int],
+        verbAspectAnnotations: [VerbAspectAnnotation] = [],
         repetitionIncrement: Int
     ) {
         super.init(frame: frame)
-        
+
         self.text = text
         self.meaning = meaning
         self.textLang = textLang
@@ -170,6 +172,7 @@ class TextMeaningPracticeView: BasePracticeView {
         self.totalRepetitions = totalRepetitions
         self.currentRepetition = currentRepetition
         self.textAccentLocs = textAccentLocs
+        self.verbAspectAnnotations = verbAspectAnnotations
         self.repetitionIncrement = repetitionIncrement
         
         textView = {
@@ -453,6 +456,22 @@ extension TextMeaningPracticeView {
         repetitionsLabel.text = "\(currentRepetition!)/\(totalRepetitions!)"
     }
     
+    func markVerbAspects(at annotations: [VerbAspectAnnotation]) {
+        guard LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices else { return }
+
+        for annotation in annotations {
+            let color: UIColor
+            switch annotation.label {
+            case "(imp.)": color = .systemPurple
+            case "(p.)":   color = .systemBlue
+            default: continue  // "(bi.)" — no designated color, skip
+            }
+            let range = NSRange(location: annotation.position, length: annotation.length)
+            guard range.location + range.length <= textView.textStorage.length else { continue }
+            textView.textStorage.addAttributes([.foregroundColor: color], range: range)
+        }
+    }
+
     func markAccents(at accentLocs: [Int]) {
         for accentLoc in accentLocs {
             

@@ -38,22 +38,24 @@ class LanguageSettingsViewController: SettingsViewController {
         return text
     }
     var hasDuolingoArticles: Bool = false
-    
+    var isRussianLanguage: Bool = LangCode.currentLanguage == .ru
+
     override func saveSettings() {
+        let base = hasDuolingoArticles ? 1 : 0
         LangCode.currentLanguage.configs = LangConfigs(
-            
+
             languageForTranslation: selectedTranslationLang,
-            
+
             voiceRate: (cells[1][0] as! SettingsSlidingCell).slider.value,
             slowVoiceRate: (cells[1][1] as! SettingsSlidingCell).slider.value,
-            
+
             phraseReviewPracticeDuration: Int((cells[2][0] as! SettingsSlidingCell).slider.value),
             listeningPracticeDuration: Int((cells[2][1] as! SettingsSlidingCell).slider.value),
             videoShadowingPracticeDuration: Int((cells[2][2] as! SettingsSlidingCell).slider.value),
             speakingPracticeDuration: Int((cells[2][3] as! SettingsSlidingCell).slider.value),
             readingPracticeDuration: Int((cells[2][4] as! SettingsSlidingCell).slider.value),
             podcastPracticeDuration: Int((cells[2][5] as! SettingsSlidingCell).slider.value),
-            
+
             wordPracticeRepetition: Int((cells[3][0] as! SettingsSlidingCell).slider.value),
             listeningPracticeRepetition: Int((cells[3][1] as! SettingsSlidingCell).slider.value),
             speakingPracticeRepetition: Int((cells[3][2] as! SettingsSlidingCell).slider.value),
@@ -62,11 +64,15 @@ class LanguageSettingsViewController: SettingsViewController {
             isDuolingoOnlyForSpeaking: practiceType2isDuolingoOnly[.speaking]!,
             isDuolingoOnlyForReading: practiceType2isDuolingoOnly[.reading]!,
             isDuolingoOnlyForPodcast: practiceType2isDuolingoOnly[.podcast]!,
-            
-            canGenerateTextsWithLLMsForPractices: (cells[hasDuolingoArticles ? 5 : 4][0] as! SettingsSwitchingCell).switchView.isOn,
-            
-            shouldRemindToAddNewArticles: (cells[hasDuolingoArticles ? 6 : 5][0] as! SettingsSwitchingCell).switchView.isOn
-            
+
+            canGenerateTextsWithLLMsForPractices: (cells[4 + base][0] as! SettingsSwitchingCell).switchView.isOn,
+
+            shouldRemindToAddNewArticles: (cells[5 + base][0] as! SettingsSwitchingCell).switchView.isOn,
+
+            shouldShowVerbAspectsInPractices: isRussianLanguage
+                ? (cells[6 + base][0] as! SettingsSwitchingCell).switchView.isOn
+                : LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices
+
         )
     }
     
@@ -84,6 +90,7 @@ class LanguageSettingsViewController: SettingsViewController {
             "Duolingo Only",
             "Content Generation",
             "Reminders",
+            "Grammar",
         ]
         cells = [
             // Language for translation.
@@ -299,15 +306,29 @@ class LanguageSettingsViewController: SettingsViewController {
                     cell.label.text = "Remind to add new articles"  // TODO: - Update localization
                     return cell
                 }()
+            ],
+            // Russian-specific.
+            [
+                {
+                    let cell = SettingsSwitchingCell(style: .default, reuseIdentifier: "")
+                    cell.imageView?.image = UIImage(systemName: "textformat.abc")
+                    cell.switchView.isOn = LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices
+                    cell.label.text = "Show Verb Aspects"
+                    return cell
+                }()
             ]
-            
+
         ]
-        
+
         if !hasDuolingoArticles {
             headers.remove(at: 4)
             cells.remove(at: 4)
         }
-        
+        if !isRussianLanguage {
+            headers.removeLast()
+            cells.removeLast()
+        }
+
     }
     
     override func updateViews() {

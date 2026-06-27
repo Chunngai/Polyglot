@@ -45,8 +45,18 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
     //     return persistentContainer.viewContext
     // }
     
+    // MARK: - Verb aspects
+
+    private var verbAspects: [String: String] = {
+        guard let url = Bundle.main.url(forResource: "russian_verb_aspects", withExtension: "json"),
+              let data = try? Data(contentsOf: url),
+              let dict = try? JSONDecoder().decode([String: String].self, from: data)
+        else { return [:] }
+        return dict
+    }()
+
     // MARK: - AccentAnalyzerProtocol
-    
+
     // Singleton object.
     static var shared: AccentAnalyzerProtocol = RussianAccentAnalyzer()
     
@@ -132,12 +142,15 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
                     accentLoc = Int(r[0].accent_pos - 1)
                 }
             }
-            
+
+            let aspect = verbAspects[baseForm ?? query]
+
             let token = Token(
                 text: query,
                 baseForm: baseForm,
                 pronunciation: query,
-                accentLoc: accentLoc
+                accentLoc: accentLoc,
+                aspect: aspect
             )
             tokens.append(token)
         }

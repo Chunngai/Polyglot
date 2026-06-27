@@ -8,6 +8,12 @@
 
 import Foundation
 
+struct VerbAspectAnnotation: Codable {
+    var position: Int  // Start index of the verb token in practice.text.
+    var length: Int    // Character count of the verb token.
+    var label: String  // "(imp.)", "(p.)", or "(bi.)" — used only for color selection.
+}
+
 struct CodableRange: Codable {
     var location: Int
     var length: Int
@@ -37,7 +43,8 @@ class TextMeaningPractice: BasePractice, Codable {
     var totalRepetitions: Int
     var currentRepetition: Int
     var textAccentLocs: [Int]
-    
+    var verbAspectAnnotations: [VerbAspectAnnotation]
+
     init(
         text: String,
         meaning: String,
@@ -50,7 +57,8 @@ class TextMeaningPractice: BasePractice, Codable {
         existingPhraseMeanings: [String],
         totalRepetitions: Int,
         currentRepetition: Int,
-        textAccentLocs: [Int]
+        textAccentLocs: [Int],
+        verbAspectAnnotations: [VerbAspectAnnotation] = []
     ) {
         self.text = text
         self.meaning = meaning
@@ -64,8 +72,9 @@ class TextMeaningPractice: BasePractice, Codable {
         self.totalRepetitions = totalRepetitions
         self.currentRepetition = currentRepetition
         self.textAccentLocs = textAccentLocs
+        self.verbAspectAnnotations = verbAspectAnnotations
     }
-    
+
     convenience init(from another: TextMeaningPractice) {
         self.init(
             text: another.text,
@@ -79,7 +88,8 @@ class TextMeaningPractice: BasePractice, Codable {
             existingPhraseMeanings: another.existingPhraseMeanings,
             totalRepetitions: another.totalRepetitions,
             currentRepetition: another.currentRepetition,
-            textAccentLocs: another.textAccentLocs
+            textAccentLocs: another.textAccentLocs,
+            verbAspectAnnotations: another.verbAspectAnnotations
         )
     }
     
@@ -97,8 +107,9 @@ class TextMeaningPractice: BasePractice, Codable {
         case totalRepetitions
         case currentRepetition
         case textAccentLocs
+        case verbAspectAnnotations
     }
-    
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
@@ -114,6 +125,7 @@ class TextMeaningPractice: BasePractice, Codable {
         try container.encode(totalRepetitions, forKey: .totalRepetitions)
         try container.encode(currentRepetition, forKey: .currentRepetition)
         try container.encode(textAccentLocs, forKey: .textAccentLocs)
+        try container.encode(verbAspectAnnotations, forKey: .verbAspectAnnotations)
     }
     
     required init(from decoder: Decoder) throws {
@@ -138,6 +150,11 @@ class TextMeaningPractice: BasePractice, Codable {
             textAccentLocs = try container.decode([Int].self, forKey: .textAccentLocs)
         } catch {
             textAccentLocs = []
+        }
+        do {
+            verbAspectAnnotations = try container.decode([VerbAspectAnnotation].self, forKey: .verbAspectAnnotations)
+        } catch {
+            verbAspectAnnotations = []
         }
     }
     

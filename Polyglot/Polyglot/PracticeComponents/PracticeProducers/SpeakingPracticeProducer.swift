@@ -79,6 +79,7 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
 
             // Concurrently start translation and accent analysis for the first practice.
             let needsAccent = LangCode.currentLanguage.shouldAddAccentMarksToTextInPractices
+            let needsAspect = LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices
             let accentSemaphore = DispatchSemaphore(value: 0)
 
             // Extract the sentence upfront so accent analysis can run in parallel with translation.
@@ -87,7 +88,7 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
                 ?? firstPara.text
             var firstAccentTokens: [Token] = []
             var firstAccentFixedText: String? = nil
-            if needsAccent {
+            if needsAccent || needsAspect {
                 analyzeAccents(for: firstSentence) { tokens, fixedText, _ in
                     firstAccentTokens = tokens
                     firstAccentFixedText = fixedText
@@ -104,13 +105,18 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
             // Wait for accent with 5s timeout, then apply directly (avoids the
             // self.practiceList search in calculateAccentLocsForText which would fail
             // here since firstPractice has not been appended to self.practiceList yet).
-            if needsAccent, let first = firstPractice {
+            if (needsAccent || needsAspect), let first = firstPractice {
                 accentSemaphore.wait(timeout: .now() + 10)
                 if !firstAccentTokens.isEmpty {
                     if let fixedText = firstAccentFixedText {
                         first.text = fixedText
                     }
-                    first.textAccentLocs = calculateAccentLocs(for: first.text, with: firstAccentTokens)
+                    if needsAccent {
+                        first.textAccentLocs = calculateAccentLocs(for: first.text, with: firstAccentTokens)
+                    }
+                    if needsAspect {
+                        first.verbAspectAnnotations = calculateVerbAspectAnnotations(for: first.text, with: firstAccentTokens)
+                    }
                 }
             }
 

@@ -23,7 +23,8 @@ class SpeakingPractice: TextMeaningPractice {
             existingPhraseMeanings: another.existingPhraseMeanings,
             totalRepetitions: another.totalRepetitions,
             currentRepetition: another.currentRepetition,
-            textAccentLocs: another.textAccentLocs
+            textAccentLocs: another.textAccentLocs,
+            verbAspectAnnotations: another.verbAspectAnnotations
         )
     }
     

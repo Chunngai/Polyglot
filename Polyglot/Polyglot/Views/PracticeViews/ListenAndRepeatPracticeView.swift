@@ -84,9 +84,10 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
         existingPhraseMeanings: [String],
         totalRepetitions: Int,
         currentRepetition: Int,
-        textAccentLocs: [Int]
+        textAccentLocs: [Int],
+        verbAspectAnnotations: [VerbAspectAnnotation] = []
     ) {
-        
+
         var text = text
         if LangCode.currentLanguage == .ko {
             // For Korean, if there is no character after the final cloze,
@@ -95,7 +96,7 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
             // The code below solves it.
             text = text + " "
         }
-        
+
         super.init(
             frame: frame,
             text: text,
@@ -110,6 +111,7 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
             totalRepetitions: totalRepetitions,
             currentRepetition: currentRepetition,
             textAccentLocs: textAccentLocs,
+            verbAspectAnnotations: verbAspectAnnotations,
             repetitionIncrement: LangCode.currentLanguage.configs.listeningPracticeRepetition
         )
         
@@ -201,16 +203,18 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
             for i in 0..<textAccentLocs.count {
                 textAccentLocs[i] += 2
             }
+            for i in 0..<verbAspectAnnotations.count {
+                verbAspectAnnotations[i].position += 2
+            }
         }
-        
+
         markAccents(at: textAccentLocs)
-        
+        markVerbAspects(at: verbAspectAnnotations)
+
     }
-    
+
     override func displayLower() {
         super.displayLower()
-        
-        markAccents(at: textAccentLocs)
     }
     
     override func submit() -> Any {
