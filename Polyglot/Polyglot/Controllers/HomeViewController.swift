@@ -1421,10 +1421,10 @@ extension HomeViewController {
     ]
 
     static let sectionColors: [Int: UIColor] = [
-        listSection: .systemBlue,
+        listSection: .systemMint,
         phraseReviewSection: .systemPink,
-        shadowingSection: .systemOrange,
-        practiceSection: .systemPurple,
+        shadowingSection: .systemPurple,
+        practiceSection: .systemBlue,
         settingsSection: .systemGray
     ]
 
