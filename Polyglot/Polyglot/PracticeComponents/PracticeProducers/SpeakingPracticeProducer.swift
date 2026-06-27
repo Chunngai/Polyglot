@@ -72,12 +72,10 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
             let remaining = article.paras.count - storedIndex
             let count = min(batchSize, remaining)
 
-            // Save progress for the full batch upfront.
+            // Track progress range; disk write is deferred until after loading completes
+            // so a force-quit during loading leaves the stored position unchanged.
             pendingStartParaIndex = storedIndex
             currentSelectedParaIndex = storedIndex + count
-            var updatedMeta = metaData
-            updatedMeta[SpeakingPracticeProducer.paragraphMetaKey(for: article.id)] = String(storedIndex + count)
-            SpeakingPracticeProducer.saveParagraphMetaData(&updatedMeta, for: LangCode.currentLanguage)
 
             // Concurrently start translation and accent analysis for the first practice.
             let needsAccent = LangCode.currentLanguage.shouldAddAccentMarksToTextInPractices
@@ -107,7 +105,7 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
             // self.practiceList search in calculateAccentLocsForText which would fail
             // here since firstPractice has not been appended to self.practiceList yet).
             if needsAccent, let first = firstPractice {
-                accentSemaphore.wait(timeout: .now() + 5)
+                accentSemaphore.wait(timeout: .now() + 10)
                 if !firstAccentTokens.isEmpty {
                     if let fixedText = firstAccentFixedText {
                         first.text = fixedText
@@ -115,6 +113,11 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
                     first.textAccentLocs = calculateAccentLocs(for: first.text, with: firstAccentTokens)
                 }
             }
+
+            // Write progress only after the first practice is ready.
+            var updatedMeta = metaData
+            updatedMeta[SpeakingPracticeProducer.paragraphMetaKey(for: article.id)] = String(storedIndex + count)
+            SpeakingPracticeProducer.saveParagraphMetaData(&updatedMeta, for: LangCode.currentLanguage)
 
             // Fire remaining translations in background and append to practiceList.
             if count > 1 {

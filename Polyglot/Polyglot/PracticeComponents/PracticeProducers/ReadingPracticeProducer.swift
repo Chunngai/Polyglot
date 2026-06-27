@@ -143,10 +143,12 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
         if selectedArticle != nil {
             let savedPara = isArticleComplete ? randomArticle.paras.count : paraIndex + 1
             currentSelectedParaIndex = savedPara
-            cache(paragraphIndex: savedPara, articleId: randomArticle.id)
+            // NOTE: cache() is called AFTER loading completes (below), not here.
+            // This ensures a force-quit during loading leaves the stored position
+            // unchanged so the next launch resumes from the correct paragraph.
 
             // Concurrently fetch translation and accent marks for the first practice,
-            // then proceed. Translation has no timeout; accent marking times out after 5s.
+            // then proceed. Translation has no timeout; accent marking times out after 10s.
             if let first = practiceList.first {
                 let translationSemaphore = DispatchSemaphore(value: 0)
                 let accentSemaphore = DispatchSemaphore(value: 0)
@@ -177,9 +179,13 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
 
                 translationSemaphore.wait()
                 if needsAccent {
-                    accentSemaphore.wait(timeout: .now() + 5)
+                    accentSemaphore.wait(timeout: .now() + 10)
                 }
             }
+
+            // Write progress only after the first practice is ready.
+            cache(paragraphIndex: savedPara, articleId: randomArticle.id)
+
             DispatchQueue.global(qos: .userInitiated).async {
                 self.updateMeaningsAndExistingPhrasesAndAccentLocs()
             }
