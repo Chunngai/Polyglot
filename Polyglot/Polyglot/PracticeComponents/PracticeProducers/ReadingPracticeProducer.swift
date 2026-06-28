@@ -14,6 +14,7 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
     private var currentSelectedParaIndex: Int = 0
     private var pendingStartParaIndex: Int = 0
     var isArticleComplete: Bool = false
+    private var cancelledDuringLoading = false
 
     // MARK: - Init
 
@@ -189,7 +190,10 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
                 }
             }
 
-            // Write progress only after the first practice is ready.
+            // Write progress only after the first practice is ready, and only if the
+            // user has not already cancelled (cacheCurrentProgress may have saved the
+            // correct roll-back position while make() was still blocked on the semaphore).
+            guard !cancelledDuringLoading else { return practiceList }
             cache(paragraphIndex: savedPara, articleId: randomArticle.id)
 
             DispatchQueue.global(qos: .userInitiated).async {
@@ -269,9 +273,9 @@ extension ReadingPracticeProducer {
            let paragraphId = paragraphId,
            let idx = article.paras.firstIndex(where: { $0.id == paragraphId }) {
             paraIndex = idx
+            cancelledDuringLoading = false  // Stable state: reset so future make() calls write normally.
         } else if practiceList.isEmpty {
-            // User cancelled before any practice was shown (loading was still in progress).
-            // Roll back to the paragraph we started from, not the end of the batch.
+            cancelledDuringLoading = true  // Prevent make() from overwriting this position.
             paraIndex = pendingStartParaIndex
         } else {
             paraIndex = currentSelectedParaIndex

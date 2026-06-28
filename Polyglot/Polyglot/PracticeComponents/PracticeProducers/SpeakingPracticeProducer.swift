@@ -15,6 +15,7 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
     private var pendingStartParaIndex: Int = 0
     private var isBackgroundMakeInProgress = false
     var isArticleComplete: Bool = false
+    private var cancelledDuringLoading = false
 
     // MARK: - Init
 
@@ -120,10 +121,14 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
                 }
             }
 
-            // Write progress only after the first practice is ready.
-            var updatedMeta = metaData
-            updatedMeta[SpeakingPracticeProducer.paragraphMetaKey(for: article.id)] = String(storedIndex + count)
-            SpeakingPracticeProducer.saveParagraphMetaData(&updatedMeta, for: LangCode.currentLanguage)
+            // Write progress only after the first practice is ready, and only if the
+            // user has not already cancelled (cacheCurrentProgress may have saved the
+            // correct roll-back position while make() was still blocked on the semaphore).
+            if !cancelledDuringLoading {
+                var updatedMeta = metaData
+                updatedMeta[SpeakingPracticeProducer.paragraphMetaKey(for: article.id)] = String(storedIndex + count)
+                SpeakingPracticeProducer.saveParagraphMetaData(&updatedMeta, for: LangCode.currentLanguage)
+            }
 
             // Fire remaining translations in background and append to practiceList.
             if count > 1 {
@@ -328,7 +333,9 @@ extension SpeakingPracticeProducer {
            let paragraphId = paragraphId,
            let idx = article.paras.firstIndex(where: { $0.id == paragraphId }) {
             paraIndex = idx
+            cancelledDuringLoading = false  // Stable state: reset so future make() calls write normally.
         } else if practiceList.isEmpty {
+            cancelledDuringLoading = true  // Prevent make() from overwriting this position.
             paraIndex = pendingStartParaIndex
         } else {
             paraIndex = currentSelectedParaIndex

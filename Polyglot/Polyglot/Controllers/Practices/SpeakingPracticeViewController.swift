@@ -174,6 +174,11 @@ extension TranslationPracticeViewController {
 
 extension TranslationPracticeViewController {
     
+    @objc override func appMovedToBackground() {
+        super.appMovedToBackground()
+        practiceProducer.cacheCurrentProgress()
+    }
+
     override func stopPracticing() {
         practiceProducer.cacheCurrentProgress()
         practiceProducer.cache()

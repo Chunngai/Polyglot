@@ -138,6 +138,45 @@ class TextMeaningPracticeView: BasePracticeView {
     var upperIcon: UIImage?
     var lowerIcon: UIImage?
     lazy var iconFont: UIFont = textView.defaultTextAttributes[.font] as! UIFont
+
+    private lazy var impAspectLegendLabel: UILabel = {
+        let label = UILabel()
+        let attrStr = NSMutableAttributedString()
+        attrStr.append(NSAttributedString(string: "■ ", attributes: [
+            .foregroundColor: UIColor.systemPurple,
+            .font: UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        ]))
+        attrStr.append(NSAttributedString(string: "imp.", attributes: [
+            .foregroundColor: UIColor.secondaryLabel,
+            .font: UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        ]))
+        label.attributedText = attrStr
+        return label
+    }()
+
+    private lazy var perfAspectLegendLabel: UILabel = {
+        let label = UILabel()
+        let attrStr = NSMutableAttributedString()
+        attrStr.append(NSAttributedString(string: "■ ", attributes: [
+            .foregroundColor: UIColor.systemBlue,
+            .font: UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        ]))
+        attrStr.append(NSAttributedString(string: "p.", attributes: [
+            .foregroundColor: UIColor.secondaryLabel,
+            .font: UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        ]))
+        label.attributedText = attrStr
+        return label
+    }()
+
+    private lazy var aspectLegendView: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [impAspectLegendLabel, perfAspectLegendLabel])
+        stack.axis = .horizontal
+        stack.spacing = 10
+        stack.alignment = .center
+        stack.isHidden = true
+        return stack
+    }()
     
     // MARK: - Init
     
@@ -241,6 +280,7 @@ class TextMeaningPracticeView: BasePracticeView {
         mainView.addSubview(reinforceTextButton)
         mainView.addSubview(repetitionsLabel)
         mainView.addSubview(contentGenerationSpinner)
+        mainView.addSubview(aspectLegendView)
         
         displayUpper()
     }
@@ -290,6 +330,10 @@ class TextMeaningPracticeView: BasePracticeView {
         contentGenerationSpinner.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.centerY.equalTo(listenButton.snp.centerY)
+        }
+        aspectLegendView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
+            make.bottom.equalTo(controlsView.snp.top).offset(-8)
         }
     }
     
@@ -459,17 +503,24 @@ extension TextMeaningPracticeView {
     func markVerbAspects(at annotations: [VerbAspectAnnotation]) {
         guard LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices else { return }
 
+        var hasImp = false
+        var hasPerf = false
+
         for annotation in annotations {
             let color: UIColor
             switch annotation.label {
-            case "(imp.)": color = .systemPurple
-            case "(p.)":   color = .systemBlue
+            case "(imp.)": color = .systemPurple; hasImp = true
+            case "(p.)":   color = .systemBlue;   hasPerf = true
             default: continue  // "(bi.)" — no designated color, skip
             }
             let range = NSRange(location: annotation.position, length: annotation.length)
             guard range.location + range.length <= textView.textStorage.length else { continue }
             textView.textStorage.addAttributes([.foregroundColor: color], range: range)
         }
+
+        impAspectLegendLabel.isHidden = !hasImp
+        perfAspectLegendLabel.isHidden = !hasPerf
+        aspectLegendView.isHidden = !hasImp && !hasPerf
     }
 
     func markAccents(at accentLocs: [Int]) {
