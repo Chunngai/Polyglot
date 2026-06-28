@@ -832,7 +832,7 @@ extension WordPracticeProducer {
             }
             let word = wordPractice.word
             
-            let key = Self.makeKeyForWordPracticeCount(from: word)
+            let key = Self.normalizedKey(from: word)
             if wordPracticeCounter.keys.contains(key) {
                 wordPracticeCounter[key]! += 1
             } else {
