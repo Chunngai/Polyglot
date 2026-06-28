@@ -520,7 +520,20 @@ extension TextMeaningPracticeView {
 
         impAspectLegendLabel.isHidden = !hasImp
         perfAspectLegendLabel.isHidden = !hasPerf
-        aspectLegendView.isHidden = !hasImp && !hasPerf
+        let legendVisible = hasImp || hasPerf
+        aspectLegendView.isHidden = !legendVisible
+
+        // When the legend is visible it sits above controlsView, so increase the
+        // text container's bottom inset to prevent content from scrolling behind it.
+        // Layout: textView.bottom is mainView.bottom-20; controlsView height=60,
+        // bottom inset=20 → controlsView.top at -80; legend is 8pt above that.
+        // Total gap from textView.bottom to legend.top ≈ 60+8+20=88 → use 96 for buffer.
+        textView.textContainerInset = UIEdgeInsets(
+            top: textView.textContainerInset.top,
+            left: textView.textContainerInset.left,
+            bottom: legendVisible ? 96 : Sizes.roundButtonRadius,
+            right: textView.textContainerInset.right
+        )
     }
 
     func markAccents(at accentLocs: [Int]) {
