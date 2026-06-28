@@ -383,6 +383,66 @@ extension Strings {
     static var exitWithoutSavingAlertBody: String {
         return Strings._exitWithoutSavingAlertBodies[LangCode.currentLanguage]!
     }
+
+    private static let _editProgress: [LangCode : String] = [
+        LangCode.en : "Edit Progress",
+        LangCode.ja : "進捗を編集",
+        LangCode.es : "Editar Progreso",
+        LangCode.ru : "Изменить Прогресс",
+        LangCode.ko : "진행 상황 수정",
+        LangCode.de : "Fortschritt Bearbeiten",
+    ]
+    static var editProgress: String {
+        return Strings._editProgress[LangCode.currentLanguage]!
+    }
+
+    private static let _deleteWordPracticesAlertTitles: [LangCode : String] = [
+        LangCode.en : "Remove Word",
+        LangCode.ja : "単語を削除",
+        LangCode.es : "Eliminar Palabra",
+        LangCode.ru : "Удалить Слово",
+        LangCode.ko : "단어 삭제",
+        LangCode.de : "Wort Entfernen",
+    ]
+    static var deleteWordPracticesAlertTitle: String {
+        return Strings._deleteWordPracticesAlertTitles[LangCode.currentLanguage]!
+    }
+
+    private static let _deleteWordPracticesAlertBodies: [LangCode : String] = [
+        LangCode.en : "Remove all practices for this word?",
+        LangCode.ja : "この単語の練習をすべて削除しますか？",
+        LangCode.es : "¿Eliminar todas las prácticas de esta palabra?",
+        LangCode.ru : "Удалить все упражнения для этого слова?",
+        LangCode.ko : "이 단어의 모든 연습을 삭제하시겠습니까?",
+        LangCode.de : "Alle Übungen für dieses Wort entfernen?",
+    ]
+    static var deleteWordPracticesAlertBody: String {
+        return Strings._deleteWordPracticesAlertBodies[LangCode.currentLanguage]!
+    }
+
+    private static let _delete: [LangCode : String] = [
+        LangCode.en : "Delete",
+        LangCode.ja : "削除",
+        LangCode.es : "Eliminar",
+        LangCode.ru : "Удалить",
+        LangCode.ko : "삭제",
+        LangCode.de : "Löschen",
+    ]
+    static var delete: String {
+        return Strings._delete[LangCode.currentLanguage]!
+    }
+
+    private static let _start: [LangCode : String] = [
+        LangCode.en : "Start",
+        LangCode.ja : "開始",
+        LangCode.es : "Iniciar",
+        LangCode.ru : "Начать",
+        LangCode.ko : "시작",
+        LangCode.de : "Start",
+    ]
+    static var start: String {
+        return Strings._start[LangCode.currentLanguage]!
+    }
 }
 
 extension Strings {

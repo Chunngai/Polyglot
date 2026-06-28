@@ -15,6 +15,7 @@ class WordPracticeProducer: BasePracticeProducer {
     private var lang: LangCode = LangCode.currentLanguage
     
     private var wordPracticeCounter: [String: Int] = [:]
+    var excludedPractices: [WordPractice] = []
     
     // MARK: - Init
     
@@ -48,9 +49,10 @@ class WordPracticeProducer: BasePracticeProducer {
     }
     
     override func cache() {
-        guard var practicesToCache = self.practiceList as? [WordPractice] else {
+        guard let selected = self.practiceList as? [WordPractice] else {
             return
         }
+        var practicesToCache = selected + excludedPractices
         WordPracticeProducer.save(
             &practicesToCache,
             for: self.lang
@@ -784,6 +786,41 @@ extension WordPracticeProducer {
     
     static func countWordPractices(for lang: LangCode) -> [String: Int] {
         return Self.countWordPractices(from: Self.loadCachedPractices(for: lang))
+    }
+
+    static func normalizedKey(from word: String) -> String {
+        let stripped = makeKeyForWordPracticeCount(from: word).lowercased()
+        return stripped.replacingOccurrences(of: #"\s*([^\w\s])\s*"#, with: "$1", options: .regularExpression)
+    }
+
+    static func deleteWordPractices(forKey key: String, lang: LangCode) {
+        var practices = Self.loadCachedPractices(for: lang)
+        practices.removeAll { normalizedKey(from: $0.word) == key }
+        Self.save(&practices, for: lang)
+    }
+
+    static func uniqueWordEntries(for lang: LangCode) -> [(key: String, meaning: String)] {
+        let practices = Self.loadCachedPractices(for: lang)
+        var seen = Set<String>()
+        var meaningByKey: [String: String] = [:]
+        var entries: [(key: String, meaning: String)] = []
+        for p in practices {
+            let wordKey = normalizedKey(from: p.word)
+            if seen.insert(wordKey).inserted {
+                entries.append((key: wordKey, meaning: ""))
+            }
+            if meaningByKey[wordKey] == nil {
+                switch (p.practiceType, p.direction) {
+                case (.meaningSelection, .textToMeaning), (.meaningFilling, .textToMeaning):
+                    meaningByKey[wordKey] = p.key
+                case (.meaningSelection, .meaningToText), (.meaningFilling, .meaningToText):
+                    meaningByKey[wordKey] = p.query
+                default:
+                    break
+                }
+            }
+        }
+        return entries.map { (key: $0.key, meaning: meaningByKey[$0.key] ?? "") }
     }
     
     static func countWordPractices(from practiceList: [BasePractice]) -> [String: Int] {

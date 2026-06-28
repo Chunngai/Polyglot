@@ -200,6 +200,52 @@ class ArticleSelectionViewController: UIViewController {
         present(alert, animated: true)
     }
 
+    private func editProgress(for article: Article, at indexPath: IndexPath) {
+        let total = article.paras.count
+        let key: String
+        switch practiceType {
+        case .reading:  key = ReadingPracticeProducer.paragraphMetaKey(for: article.id)
+        case .speaking: key = SpeakingPracticeProducer.paragraphMetaKey(for: article.id)
+        case .videoShadowing: return
+        }
+        let stored = Int(paragraphMetaData[key] ?? "0") ?? 0
+        let current = min(stored + 1, total)
+
+        let alert = UIAlertController(title: Strings.editProgress, message: nil, preferredStyle: .alert)
+        alert.addTextField { tf in
+            tf.text = "\(current)"
+            tf.keyboardType = .numberPad
+            NotificationCenter.default.addObserver(
+                forName: UITextField.textDidChangeNotification,
+                object: tf,
+                queue: .main
+            ) { [weak tf] _ in
+                guard let tf,
+                      let text = tf.text,
+                      let number = Int(text),
+                      number > total else { return }
+                tf.text = "\(total)"
+            }
+        }
+        alert.addAction(UIAlertAction(title: Strings.cancel, style: .cancel))
+        alert.addAction(UIAlertAction(title: Strings.ok, style: .default) { [weak self] _ in
+            guard let self,
+                  let text = alert.textFields?.first?.text,
+                  let parsed = Int(text) else { return }
+            let number = max(1, min(parsed, total))
+            let newStored = number - 1
+            self.paragraphMetaData[key] = String(newStored)
+            var meta = self.paragraphMetaData
+            switch self.practiceType {
+            case .reading:  ReadingPracticeProducer.saveParagraphMetaData(&meta, for: LangCode.currentLanguage)
+            case .speaking: SpeakingPracticeProducer.saveParagraphMetaData(&meta, for: LangCode.currentLanguage)
+            case .videoShadowing: break
+            }
+            self.tableView.reloadRows(at: [indexPath], with: .none)
+        })
+        present(alert, animated: true)
+    }
+
     private func resetProgress(for article: Article, at indexPath: IndexPath) {
         switch practiceType {
         case .reading:
@@ -244,6 +290,11 @@ extension ArticleSelectionViewController: UITableViewDataSource {
         }
         let article = displayedGroups[indexPath.section].articles[indexPath.row]
         cell.updateValues(article: article, progressText: progressText(for: article))
+        if practiceType != .videoShadowing {
+            cell.onProgressTapped = { [weak self] in
+                self?.editProgress(for: article, at: indexPath)
+            }
+        }
         return cell
     }
 }

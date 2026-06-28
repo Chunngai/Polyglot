@@ -48,7 +48,7 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
                     let newPractices = self.make()
                     self.practiceList.append(contentsOf: newPractices)
                     self.updateMeaningsAndExistingPhrasesAndAccentLocs()
-                    self.isBackgroundMakeInProgress = false
+                    // isBackgroundMakeInProgress is reset by make() itself
                 }
             }
         } else {
@@ -131,7 +131,12 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
             }
 
             // Fire remaining translations in background and append to practiceList.
+            // Set the flag before starting the bg task so that next() (which may be
+            // called even when make() was triggered from the initial-load path via
+            // currentPractice) cannot fire a second make() while this one is still
+            // appending practices — which would interleave batches out of order.
             if count > 1 {
+                isBackgroundMakeInProgress = true
                 DispatchQueue.global(qos: .userInitiated).async {
                     var slots: [SpeakingPractice?] = Array(repeating: nil, count: count - 1)
                     for i in 1..<count {
@@ -145,7 +150,10 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
                         Thread.sleep(forTimeInterval: 0.1)
                     }
                     self.practiceList.append(contentsOf: slots.compactMap { $0 })
+                    self.isBackgroundMakeInProgress = false
                 }
+            } else {
+                isBackgroundMakeInProgress = false
             }
 
             return [firstPractice!]

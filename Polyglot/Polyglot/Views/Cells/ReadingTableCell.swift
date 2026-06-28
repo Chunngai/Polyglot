@@ -47,6 +47,8 @@ class ReadingTableCell: UITableViewCell {
         }
     }
 
+    var onProgressTapped: (() -> Void)?
+
     var progressText: String? {
         didSet {
             progressLabel.text = progressText
@@ -86,12 +88,14 @@ class ReadingTableCell: UITableViewCell {
         return label
     }()
 
-    private var progressLabel: UILabel = {
+    private lazy var progressLabel: UILabel = {
         let label = UILabel()
         label.textColor = .secondaryLabel
         label.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
         label.textAlignment = .right
         label.isHidden = true
+        label.isUserInteractionEnabled = true
+        label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(progressLabelTapped)))
         return label
     }()
     
@@ -142,6 +146,10 @@ class ReadingTableCell: UITableViewCell {
             make.trailing.equalToSuperview().inset(padding)
             make.bottom.equalToSuperview().inset(padding)
         }
+    }
+
+    @objc private func progressLabelTapped() {
+        onProgressTapped?()
     }
 
     func updateValues(article: Article, progressText: String? = nil) {

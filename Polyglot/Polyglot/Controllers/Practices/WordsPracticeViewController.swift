@@ -10,11 +10,31 @@ import UIKit
 import IQKeyboardManagerSwift
 
 class WordsPracticeViewController: PracticeViewController {
-    
-    private lazy var practiceProducer: WordPracticeProducer = WordPracticeProducer(
-        words: words,
-        articles: articles
-    )
+
+    var selectedWordKeys: Set<String>? = nil
+
+    private lazy var practiceProducer: WordPracticeProducer = {
+        let producer = WordPracticeProducer(words: words, articles: articles)
+        if let keys = selectedWordKeys {
+            var selected: [BasePractice] = []
+            var excluded: [WordPractice] = []
+            for practice in producer.practiceList {
+                if let wp = practice as? WordPractice {
+                    if keys.contains(WordPracticeProducer.normalizedKey(from: wp.word)) {
+                        selected.append(wp)
+                    } else {
+                        excluded.append(wp)
+                    }
+                } else {
+                    selected.append(practice)
+                }
+            }
+            producer.practiceList = selected
+            producer.practiceList.shuffle()
+            producer.excludedPractices = excluded
+        }
+        return producer
+    }()
        
     // Code for adjusting the height of the textfield
     // when the keyboard is displayed.

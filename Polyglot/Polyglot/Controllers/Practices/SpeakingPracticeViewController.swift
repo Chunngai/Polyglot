@@ -121,9 +121,9 @@ class TranslationPracticeViewController: TextMeaningPracticeViewController {
 }
 
 extension TranslationPracticeViewController {
-    
+
     // MARK: - Selectors
-    
+
     @objc override func doneButtonTapped() {
         super.doneButtonTapped()
         
