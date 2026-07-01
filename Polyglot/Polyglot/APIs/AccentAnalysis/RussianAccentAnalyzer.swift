@@ -61,101 +61,81 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
     static var shared: AccentAnalyzerProtocol = RussianAccentAnalyzer()
     
     private func fixJeJo(_ text: String, context: NSManagedObjectContext) -> String {
-        
-        var fixedText: String = text
-        for token in text.tokenized(with: LangCode.ru.wordTokenizer) {
-            
-            guard token.contains("е") || token.contains("Е") else {
-                continue
+
+        let wordTokens = text.tokenized(with: LangCode.ru.wordTokenizer)
+        let jeTokens = wordTokens.filter { $0.contains("е") || $0.contains("Е") }
+        guard !jeTokens.isEmpty else { return text }
+
+        let request = Je2JoEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "je_text IN %@", jeTokens.map { $0.lowercased() })
+        let results: [Je2JoEntity]
+        do {
+            results = try context.fetch(request)
+        } catch {
+            print(error.localizedDescription)
+            return text
+        }
+
+        var je2joMap: [String: Int] = [:]
+        for entity in results {
+            if let jeText = entity.je_text {
+                je2joMap[jeText] = Int(entity.jo_pos)
             }
-                            
-            let request = Je2JoEntity.fetchRequest()
-            let predicate = NSPredicate(
-                format: "je_text = %@",
-                token.lowercased()
-            )
-            request.predicate = predicate
-            
-            var r: [Je2JoEntity] = []
-            do {
-                r = try context.fetch(request)
-            } catch let error {
-                print(error.localizedDescription)
-                continue
-            }
-            guard r.count == 1 else {
-                continue
-            }
-            
-            let jo_pos = Int(r[0].jo_pos)
-            
+        }
+
+        var fixedText = text
+        for token in wordTokens {
+            guard let joPos = je2joMap[token.lowercased()] else { continue }
             var tokenChars = [Character](token)
-            tokenChars[jo_pos] = (
-                tokenChars[jo_pos].isLowercase
-                ? "ё"
-                : "Ё"
-            )
-            let jo_text = String(tokenChars)
-            
-            fixedText = fixedText.replacingOccurrences(
-                of: token,
-                with: jo_text
-            )
-            
+            tokenChars[joPos] = tokenChars[joPos].isLowercase ? "ё" : "Ё"
+            fixedText = fixedText.replacingOccurrences(of: token, with: String(tokenChars))
         }
         return fixedText
-        
+
     }
-    
+
     func getTokens(_ text: String, context: NSManagedObjectContext) -> [Token] {
-        
-        var tokens: [Token] = []
-        for query in text.lowercased().tokensWithPunctMarks {
-            
-            let request = RussianAccentEntity.fetchRequest()
-            let predicate = NSPredicate(
-                format: "bare_form = %@",
-                query
-            )
-            request.predicate = predicate
-            
-            var r: [RussianAccentEntity] = []
-            do {
-                // let r = try self.context.fetch(request)
-                // The previous line of code occasionally craches.
-                // Not sure if it is a problem about context.
-                // Ref: https://stackoverflow.com/questions/52673217/app-crashing-when-fetching-nsobjects-from-background
-                // https://developer.apple.com/documentation/coredata/using-core-data-in-the-background
-                // https://developer.apple.com/documentation/swiftui/loading_and_displaying_a_large_data_feed
-                r = try context.fetch(request)
-            } catch let error {
-                print(error.localizedDescription)
+
+        let queries = text.lowercased().tokensWithPunctMarks
+
+        let request = RussianAccentEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "bare_form IN %@", queries)
+        let results: [RussianAccentEntity]
+        do {
+            results = try context.fetch(request)
+        } catch {
+            print(error.localizedDescription)
+            results = []
+        }
+
+        var accentMap: [String: (accentPos: Int16, baseForm: String?)] = [:]
+        for entity in results {
+            if let bareForm = entity.bare_form {
+                accentMap[bareForm] = (entity.accent_pos, entity.base_form)
             }
-            
+        }
+
+        var tokens: [Token] = []
+        for query in queries {
             var baseForm: String? = nil
             var accentLoc: Int? = nil
-            if !r.isEmpty {
-                if let base_form = r[0].base_form {
-                    baseForm = base_form
-                }
-                if r[0].accent_pos != -1 {  // Has accent pos when != -1.
-                    accentLoc = Int(r[0].accent_pos - 1)
+            if let entry = accentMap[query] {
+                baseForm = entry.baseForm
+                if entry.accentPos != -1 {
+                    accentLoc = Int(entry.accentPos - 1)
                 }
             }
-
             let aspect = verbAspects[baseForm ?? query]
-
-            let token = Token(
+            tokens.append(Token(
                 text: query,
                 baseForm: baseForm,
                 pronunciation: query,
                 accentLoc: accentLoc,
                 aspect: aspect
-            )
-            tokens.append(token)
+            ))
         }
         return tokens
-        
+
     }
     
     func analyze(for text: String, completion: @escaping (
