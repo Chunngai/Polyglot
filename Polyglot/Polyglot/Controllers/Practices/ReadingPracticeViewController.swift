@@ -97,6 +97,9 @@ class ReadingPracticeViewController: TextMeaningPracticeViewController {
             verbAspectAnnotations: practice.verbAspectAnnotations
         )
         practiceView.controlsView.isHidden = true
+        if selectedArticle != nil {
+            practiceView.showsReinforceButton = false
+        }
         updateProgressPrompt(for: practice)
         return practiceView
     }

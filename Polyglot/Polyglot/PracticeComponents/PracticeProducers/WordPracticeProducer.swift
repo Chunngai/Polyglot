@@ -36,7 +36,7 @@ class WordPracticeProducer: BasePracticeProducer {
         
         let wordPractice = self.practiceList.removeFirst()
         if let wordPractice = wordPractice as? WordPractice {
-            let key = Self.makeKeyForWordPracticeCount(from: wordPractice.word)
+            let key = Self.normalizedKey(from: wordPractice.word)
             if self.wordPracticeCounter.keys.contains(key) {
                 self.wordPracticeCounter[key]! -= 1
                 if self.wordPracticeCounter[key]! <= 0 {
@@ -143,10 +143,10 @@ extension WordPracticeProducer {
         let nRepetitions = self.lang.configs.wordPracticeRepetition
         for word in words {
 
-            if skipDuplicates && wordPracticeCounter.keys.contains(Self.makeKeyForWordPracticeCount(from: word)) {
+            if skipDuplicates && wordPracticeCounter.keys.contains(Self.normalizedKey(from: word)) {
                 continue
             }
-            let key = Self.makeKeyForWordPracticeCount(from: word)
+            let key = Self.normalizedKey(from: word)
             wordPracticeCounter[key] = 0
             
             var practicesForWord: [WordPractice] = []
@@ -304,7 +304,8 @@ extension WordPracticeProducer {
                 practiceForReinforcement.correctness = nil
                 
                 self.practiceList.append(practiceForReinforcement)
-                self.wordPracticeCounter[Self.makeKeyForWordPracticeCount(from: practiceForReinforcement.word)]! += 1
+                let key = Self.normalizedKey(from: practiceForReinforcement.word)
+                self.wordPracticeCounter[key] = (self.wordPracticeCounter[key] ?? 0) + 1
                 self.sendWordPracticeCounterUpdateNotification()
             }
         }

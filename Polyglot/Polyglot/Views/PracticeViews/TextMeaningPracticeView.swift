@@ -34,6 +34,8 @@ class TextMeaningPracticeView: BasePracticeView {
     var rangeOfTranslatorIcon: NSRange?
     var rangeOfTranslationText: NSRange?
     
+    var showsReinforceButton: Bool = true
+
     var shouldReinforce: Bool = false {
         didSet {
             if shouldReinforce {
@@ -444,8 +446,8 @@ class TextMeaningPracticeView: BasePracticeView {
         listenButton.isEnabled = false
         speakButton.isEnabled = false
         
-        reinforceButton.isHidden = false
-        reinforceTextButton.isHidden = false
+        reinforceButton.isHidden = !showsReinforceButton
+        reinforceTextButton.isHidden = !showsReinforceButton
         
         displayLower()
         

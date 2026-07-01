@@ -100,6 +100,7 @@ class TranslationPracticeViewController: TextMeaningPracticeViewController {
         practiceView.controlsView.isHidden = true
         if selectedArticle != nil {
             practiceView.repetitionsLabel.isHidden = true
+            practiceView.showsReinforceButton = false
         }
         updateProgressPrompt(for: practice)
         return practiceView
