@@ -26,7 +26,8 @@ class TranslationPracticeView: TextMeaningPracticeView {
         totalRepetitions: Int,
         currentRepetition: Int,
         textAccentLocs: [Int],
-        verbAspectAnnotations: [VerbAspectAnnotation] = []
+        verbAspectAnnotations: [VerbAspectAnnotation] = [],
+        nounCaseAnnotations: [NounCaseAnnotation] = []
     ) {
         super.init(
             frame: frame,
@@ -43,6 +44,7 @@ class TranslationPracticeView: TextMeaningPracticeView {
             currentRepetition: currentRepetition,
             textAccentLocs: textAccentLocs,
             verbAspectAnnotations: verbAspectAnnotations,
+            nounCaseAnnotations: nounCaseAnnotations,
             repetitionIncrement: LangCode.currentLanguage.configs.speakingPracticeRepetition
         )
         
@@ -83,9 +85,13 @@ class TranslationPracticeView: TextMeaningPracticeView {
         for i in 0..<verbAspectAnnotations.count {
             verbAspectAnnotations[i].position += upperAttrStr.length
         }
+        for i in 0..<nounCaseAnnotations.count {
+            nounCaseAnnotations[i].position += upperAttrStr.length
+        }
 
         markAccents(at: textAccentLocs)
         markVerbAspects(at: verbAspectAnnotations)
+        markNounCases(at: nounCaseAnnotations)
         
     }
     

@@ -26,7 +26,8 @@ class ReadingPracticeView: TextMeaningPracticeView {
         totalRepetitions: Int,
         currentRepetition: Int,
         textAccentLocs: [Int],
-        verbAspectAnnotations: [VerbAspectAnnotation] = []
+        verbAspectAnnotations: [VerbAspectAnnotation] = [],
+        nounCaseAnnotations: [NounCaseAnnotation] = []
     ) {
         super.init(
             frame: frame,
@@ -43,6 +44,7 @@ class ReadingPracticeView: TextMeaningPracticeView {
             currentRepetition: currentRepetition,
             textAccentLocs: textAccentLocs,
             verbAspectAnnotations: verbAspectAnnotations,
+            nounCaseAnnotations: nounCaseAnnotations,
             repetitionIncrement: 1
         )
         
@@ -92,6 +94,7 @@ class ReadingPracticeView: TextMeaningPracticeView {
 
         markAccents(at: textAccentLocs)
         markVerbAspects(at: verbAspectAnnotations)
+        markNounCases(at: nounCaseAnnotations)
     }
 
     override func displayLower() {

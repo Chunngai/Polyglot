@@ -53,6 +53,7 @@
 		C6A22FF22C712DBC00484B59 /* LangCodeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A22FF12C712DBC00484B59 /* LangCodeExtensions.swift */; };
 		C6A406A02DCB5CF400C27F63 /* HomeScreenTopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A4069F2DCB5CF400C27F63 /* HomeScreenTopView.swift */; };
 		C6A666F72B75EC03002B4DEE /* US2UKSpellingMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A666F62B75EC03002B4DEE /* US2UKSpellingMapping.swift */; };
+		C6A7C24F2FF6BBF7003EC988 /* russian_noun_cases.json in Resources */ = {isa = PBXBuildFile; fileRef = C6A7C24C2FF6BBF7003EC988 /* russian_noun_cases.json */; };
 		C6AA11112E000000000AA001 /* russian_verb_aspects.json in Resources */ = {isa = PBXBuildFile; fileRef = C6AA11102E000000000AA001 /* russian_verb_aspects.json */; };
 		C6AB6E822C8063EE00F660C7 /* AccentAnalyzerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6AB6E812C8063EE00F660C7 /* AccentAnalyzerProtocol.swift */; };
 		C6B5187C2AF2C19C00451B90 /* AutoResizingTextViewWithPrompt.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6B5187B2AF2C19C00451B90 /* AutoResizingTextViewWithPrompt.swift */; };
@@ -264,6 +265,7 @@
 		C6A22FF12C712DBC00484B59 /* LangCodeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCodeExtensions.swift; sourceTree = "<group>"; };
 		C6A4069F2DCB5CF400C27F63 /* HomeScreenTopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreenTopView.swift; sourceTree = "<group>"; };
 		C6A666F62B75EC03002B4DEE /* US2UKSpellingMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = US2UKSpellingMapping.swift; sourceTree = "<group>"; };
+		C6A7C24C2FF6BBF7003EC988 /* russian_noun_cases.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = russian_noun_cases.json; path = ../../../russian_noun_cases.json; sourceTree = "<group>"; };
 		C6AA11102E000000000AA001 /* russian_verb_aspects.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = russian_verb_aspects.json; path = ../../../russian_verb_aspects.json; sourceTree = "<group>"; };
 		C6AB6E812C8063EE00F660C7 /* AccentAnalyzerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccentAnalyzerProtocol.swift; sourceTree = "<group>"; };
 		C6B5187B2AF2C19C00451B90 /* AutoResizingTextViewWithPrompt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoResizingTextViewWithPrompt.swift; sourceTree = "<group>"; };
@@ -672,6 +674,7 @@
 				C6E8D3CB2C8E3788009E42F5 /* russian_word_forms.json */,
 				C6E8D3D12C8E3A31009E42F5 /* formatted_je2jo.json */,
 				C6AA11102E000000000AA001 /* russian_verb_aspects.json */,
+				C6A7C24C2FF6BBF7003EC988 /* russian_noun_cases.json */,
 				C6BA7AA82C7F52F800C6FFD3 /* RussianAccentEntity+CoreDataClass.swift */,
 				C630C6CA2C8E26B50049ED6A /* RussianAccentEntity+CoreDataProperties.swift */,
 				C6E8D3D72C8E3B8A009E42F5 /* Je2JoEntity+CoreDataClass.swift */,
@@ -997,6 +1000,7 @@
 				FF62C97F2951382600D41797 /* Assets.xcassets in Resources */,
 				C6E8D3D22C8E3A31009E42F5 /* formatted_je2jo.json in Resources */,
 				C6E8D3CC2C8E3788009E42F5 /* russian_word_forms.json in Resources */,
+				C6A7C24F2FF6BBF7003EC988 /* russian_noun_cases.json in Resources */,
 				C6AA11112E000000000AA001 /* russian_verb_aspects.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

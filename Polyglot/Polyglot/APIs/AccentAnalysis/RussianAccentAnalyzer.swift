@@ -55,6 +55,16 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
         return dict
     }()
 
+    // MARK: - Noun cases
+
+    private var nounCases: [String: String] = {
+        guard let url = Bundle.main.url(forResource: "russian_noun_cases", withExtension: "json"),
+              let data = try? Data(contentsOf: url),
+              let dict = try? JSONDecoder().decode([String: String].self, from: data)
+        else { return [:] }
+        return dict
+    }()
+
     // MARK: - AccentAnalyzerProtocol
 
     // Singleton object.
@@ -126,12 +136,14 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
                 }
             }
             let aspect = verbAspects[baseForm ?? query]
+            let nounCase = nounCases[query]
             tokens.append(Token(
                 text: query,
                 baseForm: baseForm,
                 pronunciation: query,
                 accentLoc: accentLoc,
-                aspect: aspect
+                aspect: aspect,
+                nounCase: nounCase
             ))
         }
         return tokens

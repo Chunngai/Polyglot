@@ -417,6 +417,7 @@ struct LangConfigs: Codable {
     var shouldRemindToAddNewArticles: Bool
 
     var shouldShowVerbAspectsInPractices: Bool
+    var shouldShowNounCasesInPractices: Bool
 
     init(
         languageForTranslation: LangCode,
@@ -437,7 +438,8 @@ struct LangConfigs: Codable {
         isDuolingoOnlyForPodcast: Bool,
         canGenerateTextsWithLLMsForPractices: Bool,
         shouldRemindToAddNewArticles: Bool,
-        shouldShowVerbAspectsInPractices: Bool = false
+        shouldShowVerbAspectsInPractices: Bool = false,
+        shouldShowNounCasesInPractices: Bool = false
     ) {
         self.languageForTranslation = languageForTranslation
         self.voiceRate = voiceRate
@@ -458,6 +460,7 @@ struct LangConfigs: Codable {
         self.canGenerateTextsWithLLMsForPractices = canGenerateTextsWithLLMsForPractices
         self.shouldRemindToAddNewArticles = shouldRemindToAddNewArticles
         self.shouldShowVerbAspectsInPractices = shouldShowVerbAspectsInPractices
+        self.shouldShowNounCasesInPractices = shouldShowNounCasesInPractices
     }
     
     enum CodingKeys: String, CodingKey {
@@ -489,6 +492,7 @@ struct LangConfigs: Codable {
         case shouldRemindToAddNewArticles
 
         case shouldShowVerbAspectsInPractices
+        case shouldShowNounCasesInPractices
 
     }
     
@@ -514,6 +518,7 @@ struct LangConfigs: Codable {
         try container.encode(canGenerateTextsWithLLMsForPractices, forKey: .canGenerateTextsWithLLMsForPractices)
         try container.encode(shouldRemindToAddNewArticles, forKey: .shouldRemindToAddNewArticles)
         try container.encode(shouldShowVerbAspectsInPractices, forKey: .shouldShowVerbAspectsInPractices)
+        try container.encode(shouldShowNounCasesInPractices, forKey: .shouldShowNounCasesInPractices)
 
     }
     
@@ -602,6 +607,11 @@ struct LangConfigs: Codable {
             shouldShowVerbAspectsInPractices = try values.decode(Bool.self, forKey: .shouldShowVerbAspectsInPractices)
         } catch {
             shouldShowVerbAspectsInPractices = Self.defaultConfigs.shouldShowVerbAspectsInPractices
+        }
+        do {
+            shouldShowNounCasesInPractices = try values.decode(Bool.self, forKey: .shouldShowNounCasesInPractices)
+        } catch {
+            shouldShowNounCasesInPractices = Self.defaultConfigs.shouldShowNounCasesInPractices
         }
 
     }

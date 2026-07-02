@@ -167,7 +167,8 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
                 }
 
                 let needsAspect = LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices
-                if needsAccent || needsAspect {
+                let needsNounCase = LangCode.currentLanguage.configs.shouldShowNounCasesInPractices
+                if needsAccent || needsAspect || needsNounCase {
                     analyzeAccents(for: first.text) { tokens, fixedText, _ in
                         if !tokens.isEmpty {
                             if let fixedText = fixedText {
@@ -179,13 +180,16 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
                             if needsAspect {
                                 first.verbAspectAnnotations = calculateVerbAspectAnnotations(for: first.text, with: tokens)
                             }
+                            if needsNounCase {
+                                first.nounCaseAnnotations = calculateNounCaseAnnotations(for: first.text, with: tokens)
+                            }
                         }
                         accentSemaphore.signal()
                     }
                 }
 
                 translationSemaphore.wait()
-                if needsAccent || needsAspect {
+                if needsAccent || needsAspect || needsNounCase {
                     accentSemaphore.wait(timeout: .now() + 10)
                 }
             }

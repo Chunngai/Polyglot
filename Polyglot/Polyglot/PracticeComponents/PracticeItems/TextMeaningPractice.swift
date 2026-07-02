@@ -14,6 +14,12 @@ struct VerbAspectAnnotation: Codable {
     var label: String  // "(imp.)", "(p.)", or "(bi.)" — used only for color selection.
 }
 
+struct NounCaseAnnotation: Codable {
+    var position: Int
+    var length: Int
+    var label: String  // "gen", "dat", "inst", "prep", "ambiguous"
+}
+
 struct CodableRange: Codable {
     var location: Int
     var length: Int
@@ -44,6 +50,7 @@ class TextMeaningPractice: BasePractice, Codable {
     var currentRepetition: Int
     var textAccentLocs: [Int]
     var verbAspectAnnotations: [VerbAspectAnnotation]
+    var nounCaseAnnotations: [NounCaseAnnotation]
 
     init(
         text: String,
@@ -58,7 +65,8 @@ class TextMeaningPractice: BasePractice, Codable {
         totalRepetitions: Int,
         currentRepetition: Int,
         textAccentLocs: [Int],
-        verbAspectAnnotations: [VerbAspectAnnotation] = []
+        verbAspectAnnotations: [VerbAspectAnnotation] = [],
+        nounCaseAnnotations: [NounCaseAnnotation] = []
     ) {
         self.text = text
         self.meaning = meaning
@@ -73,6 +81,7 @@ class TextMeaningPractice: BasePractice, Codable {
         self.currentRepetition = currentRepetition
         self.textAccentLocs = textAccentLocs
         self.verbAspectAnnotations = verbAspectAnnotations
+        self.nounCaseAnnotations = nounCaseAnnotations
     }
 
     convenience init(from another: TextMeaningPractice) {
@@ -89,10 +98,11 @@ class TextMeaningPractice: BasePractice, Codable {
             totalRepetitions: another.totalRepetitions,
             currentRepetition: another.currentRepetition,
             textAccentLocs: another.textAccentLocs,
-            verbAspectAnnotations: another.verbAspectAnnotations
+            verbAspectAnnotations: another.verbAspectAnnotations,
+            nounCaseAnnotations: another.nounCaseAnnotations
         )
     }
-    
+
     private enum CodingKeys: String, CodingKey {
         case id
         case text
@@ -108,6 +118,7 @@ class TextMeaningPractice: BasePractice, Codable {
         case currentRepetition
         case textAccentLocs
         case verbAspectAnnotations
+        case nounCaseAnnotations
     }
 
     func encode(to encoder: Encoder) throws {
@@ -126,6 +137,7 @@ class TextMeaningPractice: BasePractice, Codable {
         try container.encode(currentRepetition, forKey: .currentRepetition)
         try container.encode(textAccentLocs, forKey: .textAccentLocs)
         try container.encode(verbAspectAnnotations, forKey: .verbAspectAnnotations)
+        try container.encode(nounCaseAnnotations, forKey: .nounCaseAnnotations)
     }
     
     required init(from decoder: Decoder) throws {
@@ -155,6 +167,11 @@ class TextMeaningPractice: BasePractice, Codable {
             verbAspectAnnotations = try container.decode([VerbAspectAnnotation].self, forKey: .verbAspectAnnotations)
         } catch {
             verbAspectAnnotations = []
+        }
+        do {
+            nounCaseAnnotations = try container.decode([NounCaseAnnotation].self, forKey: .nounCaseAnnotations)
+        } catch {
+            nounCaseAnnotations = []
         }
     }
     

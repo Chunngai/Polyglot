@@ -71,7 +71,11 @@ class LanguageSettingsViewController: SettingsViewController {
 
             shouldShowVerbAspectsInPractices: isRussianLanguage
                 ? (cells[6 + base][0] as! SettingsSwitchingCell).switchView.isOn
-                : LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices
+                : LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices,
+
+            shouldShowNounCasesInPractices: isRussianLanguage
+                ? (cells[6 + base][1] as! SettingsSwitchingCell).switchView.isOn
+                : LangCode.currentLanguage.configs.shouldShowNounCasesInPractices
 
         )
     }
@@ -311,9 +315,16 @@ class LanguageSettingsViewController: SettingsViewController {
             [
                 {
                     let cell = SettingsSwitchingCell(style: .default, reuseIdentifier: "")
-                    cell.imageView?.image = UIImage(systemName: "textformat.abc")
+                    cell.imageView?.image = UIImage(systemName: "v.square")
                     cell.switchView.isOn = LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices
                     cell.label.text = "Show Verb Aspects"
+                    return cell
+                }(),
+                {
+                    let cell = SettingsSwitchingCell(style: .default, reuseIdentifier: "")
+                    cell.imageView?.image = UIImage(systemName: "n.square")
+                    cell.switchView.isOn = LangCode.currentLanguage.configs.shouldShowNounCasesInPractices
+                    cell.label.text = "Show Noun Cases"
                     return cell
                 }()
             ]

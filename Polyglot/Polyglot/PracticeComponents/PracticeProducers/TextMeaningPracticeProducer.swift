@@ -333,8 +333,9 @@ extension TextMeaningPracticeProducer {
     func calculateAccentLocsForText(in practice: TextMeaningPractice) {
         let needsAccent = LangCode.currentLanguage.shouldAddAccentMarksToTextInPractices
         let needsAspect = LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices
+        let needsNounCase = LangCode.currentLanguage.configs.shouldShowNounCasesInPractices
 
-        guard needsAccent || needsAspect else { return }
+        guard needsAccent || needsAspect || needsNounCase else { return }
 
         analyzeAccents(for: practice.text) { tokens, fixedText, analysisQuery in
             guard !tokens.isEmpty else { return }
@@ -349,6 +350,9 @@ extension TextMeaningPracticeProducer {
                     }
                     if needsAspect {
                         practice.verbAspectAnnotations = calculateVerbAspectAnnotations(for: practice.text, with: tokens)
+                    }
+                    if needsNounCase {
+                        practice.nounCaseAnnotations = calculateNounCaseAnnotations(for: practice.text, with: tokens)
                     }
                     break
                 }

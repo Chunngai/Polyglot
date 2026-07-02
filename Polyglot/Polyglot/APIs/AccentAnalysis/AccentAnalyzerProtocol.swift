@@ -141,3 +141,36 @@ func calculateVerbAspectAnnotations(for text: String, with tokens: [Token]) -> [
     }
     return annotations
 }
+
+private let prepGoverningPreps: Set<String> = ["в", "во", "на", "о", "об", "обо", "при"]
+private let datGoverningPreps: Set<String>  = ["к", "ко", "благодаря", "вопреки", "согласно", "навстречу"]
+
+func calculateNounCaseAnnotations(for text: String, with tokens: [Token]) -> [NounCaseAnnotation] {
+    var annotations: [NounCaseAnnotation] = []
+    var curIndexInText = 0
+    for (i, token) in tokens.enumerated() {
+        while !text.lowercased().substring(from: curIndexInText).starts(with: token.text.lowercased()) {
+            curIndexInText += 1
+            if curIndexInText >= text.count { return annotations }
+        }
+        if var nounCase = token.nounCase {
+            if nounCase == "dat_or_prep" {
+                let prevText = i > 0 ? tokens[i - 1].text.lowercased() : ""
+                if prepGoverningPreps.contains(prevText) {
+                    nounCase = "prep"
+                } else if datGoverningPreps.contains(prevText) {
+                    nounCase = "dat"
+                } else {
+                    nounCase = "ambiguous"
+                }
+            }
+            annotations.append(NounCaseAnnotation(
+                position: curIndexInText,
+                length: token.text.count,
+                label: nounCase
+            ))
+        }
+        curIndexInText += token.text.count
+    }
+    return annotations
+}

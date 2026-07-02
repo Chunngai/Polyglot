@@ -95,7 +95,8 @@ class TranslationPracticeViewController: TextMeaningPracticeViewController {
             totalRepetitions: practice.totalRepetitions,
             currentRepetition: practice.currentRepetition,
             textAccentLocs: practice.textAccentLocs,
-            verbAspectAnnotations: practice.verbAspectAnnotations
+            verbAspectAnnotations: practice.verbAspectAnnotations,
+            nounCaseAnnotations: practice.nounCaseAnnotations
         )
         practiceView.controlsView.isHidden = true
         if selectedArticle != nil {

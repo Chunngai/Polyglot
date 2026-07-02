@@ -23,6 +23,7 @@ class TextMeaningPracticeView: BasePracticeView {
     var currentRepetition: Int!
     var textAccentLocs: [Int]!
     var verbAspectAnnotations: [VerbAspectAnnotation]!
+    var nounCaseAnnotations: [NounCaseAnnotation]!
 
     var repetitionIncrement: Int!
     
@@ -172,7 +173,55 @@ class TextMeaningPracticeView: BasePracticeView {
     }()
 
     private lazy var aspectLegendView: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [impAspectLegendLabel, perfAspectLegendLabel])
+        let stack = UIStackView(arrangedSubviews: [impAspectLegendLabel, perfAspectLegendLabel, biAspectLegendLabel])
+        stack.axis = .horizontal
+        stack.spacing = 10
+        stack.alignment = .center
+        stack.isHidden = true
+        return stack
+    }()
+
+    private lazy var biAspectLegendLabel: UILabel = {
+        let label = UILabel()
+        let attrStr = NSMutableAttributedString()
+        attrStr.append(NSAttributedString(string: "■ ", attributes: [
+            .foregroundColor: UIColor.systemCyan,
+            .font: UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        ]))
+        attrStr.append(NSAttributedString(string: "bi.", attributes: [
+            .foregroundColor: UIColor.secondaryLabel,
+            .font: UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        ]))
+        label.attributedText = attrStr
+        return label
+    }()
+
+    private lazy var genCaseLegendLabel: UILabel = makeCaseLegendLabel(color: .systemMint, text: "gen.")
+    private lazy var datCaseLegendLabel: UILabel = makeCaseLegendLabel(color: .systemOrange, text: "dat.")
+    private lazy var instCaseLegendLabel: UILabel = makeCaseLegendLabel(color: UIColor(red: 1.0, green: 0.6, blue: 0.8, alpha: 1.0), text: "inst.")
+    private lazy var prepCaseLegendLabel: UILabel = makeCaseLegendLabel(color: .brown, text: "prep.")
+    private lazy var ambiguousCaseLegendLabel: UILabel = makeCaseLegendLabel(color: .systemGray, text: "?")
+
+    private func makeCaseLegendLabel(color: UIColor, text: String) -> UILabel {
+        let label = UILabel()
+        let attrStr = NSMutableAttributedString()
+        attrStr.append(NSAttributedString(string: "■ ", attributes: [
+            .foregroundColor: color,
+            .font: UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        ]))
+        attrStr.append(NSAttributedString(string: text, attributes: [
+            .foregroundColor: UIColor.secondaryLabel,
+            .font: UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        ]))
+        label.attributedText = attrStr
+        return label
+    }
+
+    private lazy var nounCaseLegendView: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [
+            genCaseLegendLabel, datCaseLegendLabel, instCaseLegendLabel,
+            prepCaseLegendLabel, ambiguousCaseLegendLabel
+        ])
         stack.axis = .horizontal
         stack.spacing = 10
         stack.alignment = .center
@@ -197,6 +246,7 @@ class TextMeaningPracticeView: BasePracticeView {
         currentRepetition: Int,
         textAccentLocs: [Int],
         verbAspectAnnotations: [VerbAspectAnnotation] = [],
+        nounCaseAnnotations: [NounCaseAnnotation] = [],
         repetitionIncrement: Int
     ) {
         super.init(frame: frame)
@@ -214,6 +264,7 @@ class TextMeaningPracticeView: BasePracticeView {
         self.currentRepetition = currentRepetition
         self.textAccentLocs = textAccentLocs
         self.verbAspectAnnotations = verbAspectAnnotations
+        self.nounCaseAnnotations = nounCaseAnnotations
         self.repetitionIncrement = repetitionIncrement
         
         textView = {
@@ -282,6 +333,7 @@ class TextMeaningPracticeView: BasePracticeView {
         mainView.addSubview(reinforceTextButton)
         mainView.addSubview(repetitionsLabel)
         mainView.addSubview(contentGenerationSpinner)
+        mainView.addSubview(nounCaseLegendView)
         mainView.addSubview(aspectLegendView)
         
         displayUpper()
@@ -336,6 +388,10 @@ class TextMeaningPracticeView: BasePracticeView {
         aspectLegendView.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
             make.bottom.equalTo(controlsView.snp.top).offset(-8)
+        }
+        nounCaseLegendView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
+            make.bottom.equalTo(aspectLegendView.snp.top).offset(-4)
         }
     }
     
@@ -507,13 +563,15 @@ extension TextMeaningPracticeView {
 
         var hasImp = false
         var hasPerf = false
+        var hasBi = false
 
         for annotation in annotations {
             let color: UIColor
             switch annotation.label {
             case "(imp.)": color = .systemPurple; hasImp = true
             case "(p.)":   color = .systemBlue;   hasPerf = true
-            default: continue  // "(bi.)" — no designated color, skip
+            case "(bi.)":  color = .systemCyan;   hasBi = true
+            default: continue
             }
             let range = NSRange(location: annotation.position, length: annotation.length)
             guard range.location + range.length <= textView.textStorage.length else { continue }
@@ -522,7 +580,8 @@ extension TextMeaningPracticeView {
 
         impAspectLegendLabel.isHidden = !hasImp
         perfAspectLegendLabel.isHidden = !hasPerf
-        let legendVisible = hasImp || hasPerf
+        biAspectLegendLabel.isHidden = !hasBi
+        let legendVisible = hasImp || hasPerf || hasBi
         aspectLegendView.isHidden = !legendVisible
 
         // When the legend is visible it sits above controlsView, so increase the
@@ -534,6 +593,51 @@ extension TextMeaningPracticeView {
             top: textView.textContainerInset.top,
             left: textView.textContainerInset.left,
             bottom: legendVisible ? 96 : Sizes.roundButtonRadius,
+            right: textView.textContainerInset.right
+        )
+    }
+
+    func markNounCases(at annotations: [NounCaseAnnotation]) {
+        guard LangCode.currentLanguage.configs.shouldShowNounCasesInPractices else { return }
+
+        var hasGen = false, hasDat = false, hasInst = false, hasPrep = false, hasAmbiguous = false
+
+        for annotation in annotations {
+            let color: UIColor
+            switch annotation.label {
+            case "gen":       color = .systemMint;   hasGen = true
+            case "dat":       color = .systemOrange; hasDat = true
+            case "inst":      color = UIColor(red: 1.0, green: 0.6, blue: 0.8, alpha: 1.0); hasInst = true
+            case "prep":      color = .brown;        hasPrep = true
+            case "ambiguous": color = .systemGray;   hasAmbiguous = true
+            default: continue
+            }
+            let range = NSRange(location: annotation.position, length: annotation.length)
+            guard range.location + range.length <= textView.textStorage.length else { continue }
+            textView.textStorage.addAttributes([.foregroundColor: color], range: range)
+        }
+
+        genCaseLegendLabel.isHidden = !hasGen
+        datCaseLegendLabel.isHidden = !hasDat
+        instCaseLegendLabel.isHidden = !hasInst
+        prepCaseLegendLabel.isHidden = !hasPrep
+        ambiguousCaseLegendLabel.isHidden = !hasAmbiguous
+        let nounLegendVisible = hasGen || hasDat || hasInst || hasPrep || hasAmbiguous
+        nounCaseLegendView.isHidden = !nounLegendVisible
+
+        let aspectLegendVisible = !aspectLegendView.isHidden
+        let totalLegendHeight: CGFloat
+        if nounLegendVisible && aspectLegendVisible {
+            totalLegendHeight = 120
+        } else if nounLegendVisible || aspectLegendVisible {
+            totalLegendHeight = 96
+        } else {
+            totalLegendHeight = CGFloat(Sizes.roundButtonRadius)
+        }
+        textView.textContainerInset = UIEdgeInsets(
+            top: textView.textContainerInset.top,
+            left: textView.textContainerInset.left,
+            bottom: totalLegendHeight,
             right: textView.textContainerInset.right
         )
     }

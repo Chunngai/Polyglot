@@ -58,9 +58,10 @@ struct Token: Codable {
     */
     var accentLoc: Int?
     var aspect: String?  // "imperfective", "perfective", or "both" — only set for Russian verbs.
+    var nounCase: String?  // "gen", "dat", "inst", "prep", "dat_or_prep", "ambiguous" — only set for Russian nouns.
 
-    init(text: String, baseForm: String?, pronunciation: String, accentLoc: Int?, aspect: String? = nil) {
-        
+    init(text: String, baseForm: String?, pronunciation: String, accentLoc: Int?, aspect: String? = nil, nounCase: String? = nil) {
+
         self.text = text.lowercased().strip()
         if let baseForm = baseForm {
             self.baseForm = baseForm.lowercased().strip()
@@ -70,7 +71,8 @@ struct Token: Codable {
         self.pronunciation = pronunciation.lowercased().strip()
         self.accentLoc = accentLoc
         self.aspect = aspect
-        
+        self.nounCase = nounCase
+
     }
     
 }

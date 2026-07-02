@@ -50,10 +50,9 @@ class PodcastPracticeViewController: TextMeaningPracticeViewController {
             existingPhraseRanges: practice.existingPhraseRanges,
             existingPhraseMeanings: practice.existingPhraseMeanings,
             textAccentLocs: practice.textAccentLocs,
-            verbAspectAnnotations: practice.verbAspectAnnotations
+            verbAspectAnnotations: practice.verbAspectAnnotations,
+            nounCaseAnnotations: practice.nounCaseAnnotations
         )
-
-//        practiceView.speakButton.isHidden = true
 //        practiceView.listenButton.isHidden = true
         practiceView.controlsView.isHidden = true
         practiceView.repetitionsLabel.isHidden = true

@@ -85,15 +85,12 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
         totalRepetitions: Int,
         currentRepetition: Int,
         textAccentLocs: [Int],
-        verbAspectAnnotations: [VerbAspectAnnotation] = []
+        verbAspectAnnotations: [VerbAspectAnnotation] = [],
+        nounCaseAnnotations: [NounCaseAnnotation] = []
     ) {
 
         var text = text
         if LangCode.currentLanguage == .ko {
-            // For Korean, if there is no character after the final cloze,
-            // the typing of the last Korean letter cannot be finished.
-            // To reproduce the bug, replace all "." in the Korean text.
-            // The code below solves it.
             text = text + " "
         }
 
@@ -112,6 +109,7 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
             currentRepetition: currentRepetition,
             textAccentLocs: textAccentLocs,
             verbAspectAnnotations: verbAspectAnnotations,
+            nounCaseAnnotations: nounCaseAnnotations,
             repetitionIncrement: LangCode.currentLanguage.configs.listeningPracticeRepetition
         )
         
@@ -206,10 +204,14 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
             for i in 0..<verbAspectAnnotations.count {
                 verbAspectAnnotations[i].position += 2
             }
+            for i in 0..<nounCaseAnnotations.count {
+                nounCaseAnnotations[i].position += 2
+            }
         }
 
         markAccents(at: textAccentLocs)
         markVerbAspects(at: verbAspectAnnotations)
+        markNounCases(at: nounCaseAnnotations)
 
     }
 
