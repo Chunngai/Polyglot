@@ -36,7 +36,12 @@ class BasePracticeProducer {
         trgLang: LangCode.currentLanguage.configs.languageForTranslation
     )
     var contentCreator: ContentCreator = ContentCreator()
-    var imageCreator: ContentCreator = ContentCreator(.gpt_image2, requestTimeLimit: Constants.imageGenerationRequestTimeLimit)
+    var imageCreator: ContentCreator = ContentCreator(
+        apiURL: globalConfigs.ChatGPTImageAPIURL,
+        apiKey: globalConfigs.ChatGPTImageAPIKey,
+        model: globalConfigs.ChatGPTImageModel,
+        requestTimeLimit: Constants.imageGenerationRequestTimeLimit
+    )
     
     init(words: [Word], articles: [Article]) {
         self.words = words

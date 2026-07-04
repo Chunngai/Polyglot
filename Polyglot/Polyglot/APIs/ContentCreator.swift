@@ -10,20 +10,20 @@ import Foundation
 
 struct ContentCreator {
 
-    enum LLM: String {
-        case gpt3_5 = "gpt-3.5-turbo-1106"
-        case gpt4 = "gpt-4"
-        case gpt4o = "gpt-4o"
-        case gpt5_4 = "gpt-5.4"
-        case gpt_image2 = "gpt-image-2-ca"
-    }
-    
-    var llm: LLM!
-    
+    var apiURL: String?
+    var apiKey: String?
+    var model: String?
     var requestTimeLimit: TimeInterval
-    
-    init(_ llm: LLM = LLM.gpt5_4, requestTimeLimit: TimeInterval = Constants.requestTimeLimit) {
-        self.llm = llm
+
+    init(
+        apiURL: String? = globalConfigs.ChatGPTAPIURL,
+        apiKey: String? = globalConfigs.ChatGPTAPIKey,
+        model: String? = globalConfigs.ChatGPTModel,
+        requestTimeLimit: TimeInterval = Constants.requestTimeLimit
+    ) {
+        self.apiURL = apiURL
+        self.apiKey = apiKey
+        self.model = model
         self.requestTimeLimit = requestTimeLimit
     }
     
@@ -43,20 +43,19 @@ struct ContentCreator {
 
         print("ContentCreator: Creating content with messages: \(messages)")
 
-        guard let baseURLString = globalConfigs.ChatGPTAPIURL,
-              let baseURL = URL(string: baseURLString),
-              let host = baseURL.host,
-              let url = URL(string: "https://\(host)/v1/chat/completions")
+        guard let baseURLString = apiURL,
+              let baseURL = URL(string: baseURLString)
         else {
             if displayErrorMessageWhenFailed {
-                displayErrorMessage("Invalid API URL: \(globalConfigs.ChatGPTAPIURL ?? "")")
+                displayErrorMessage("Invalid API URL: \(apiURL ?? "")")
             }
             completion(nil)
             return
         }
-        guard let apiKey = globalConfigs.ChatGPTAPIKey else {
+        let url = baseURL.appendingPathComponent("v1/chat/completions")
+        guard let apiKey = apiKey else {
             if displayErrorMessageWhenFailed {
-                displayErrorMessage("Invalid API key: \(globalConfigs.ChatGPTAPIKey ?? "")")
+                displayErrorMessage("Invalid API key: \(apiKey ?? "")")
             }
             completion(nil)
             return
@@ -73,7 +72,7 @@ struct ContentCreator {
         request.httpMethod = "POST"
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: [
-                "model": self.llm.rawValue,
+                "model": model ?? "",
                 "messages": messages
             ])
         } catch {
@@ -169,15 +168,14 @@ extension ContentCreator {
 
     func generateImage(for word: String, completion: @escaping (String?) -> Void) {
 
-        guard let apiKey = globalConfigs.ChatGPTAPIKey,
-              let baseURLString = globalConfigs.ChatGPTAPIURL,
-              let baseURL = URL(string: baseURLString),
-              let host = baseURL.host,
-              let url = URL(string: "https://\(host)/v1/images/generations")
+        guard let apiKey = apiKey,
+              let baseURLString = apiURL,
+              let baseURL = URL(string: baseURLString)
         else {
             completion(nil)
             return
         }
+        let url = baseURL.appendingPathComponent("v1/images/generations")
 
         var request = URLRequest(url: url, timeoutInterval: requestTimeLimit)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -185,7 +183,7 @@ extension ContentCreator {
         request.httpMethod = "POST"
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: [
-                "model": self.llm.rawValue,
+                "model": model ?? "",
                 "prompt": "A clear, simple illustration representing '\(word)' WITHOUT TEXT",
                 "n": 1,
                 "size": "256x256",

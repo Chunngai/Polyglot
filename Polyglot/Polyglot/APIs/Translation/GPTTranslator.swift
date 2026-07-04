@@ -16,11 +16,7 @@ struct GPTTranslator: TranslationProtocol {
     var enNameOfSrcLang: String!
     var enNameOfTrgLang: String!
     
-    var gpt = {
-        var gpt = ContentCreator(.gpt5_4)
-//        gpt.requestTimeLimit = Constants.shortRequestTimeLimit
-        return gpt
-    }()
+    var gpt = ContentCreator()
     
     init(srcLang: LangCode, trgLang: LangCode) {
         self.srcLang = srcLang

@@ -10,65 +10,80 @@ import UIKit
 import MessageUI
 
 struct GlobalConfigs: Codable {
-    
+
     var ChatGPTAPIURL: String?
     var ChatGPTAPIKey: String?
-    
+    var ChatGPTModel: String?
+
+    var ChatGPTImageAPIURL: String?
+    var ChatGPTImageAPIKey: String?
+    var ChatGPTImageModel: String?
+
     var baiduTranslateAPPID: String?
     var baiduTranslateAPIKey: String?
-    
+
     var backupEmailAddr: String?
-        
+
     init(
-        ChatGPTAPIURL: String? = nil, ChatGPTAPIKey: String? = nil,
+        ChatGPTAPIURL: String? = nil, ChatGPTAPIKey: String? = nil, ChatGPTModel: String? = nil,
+        ChatGPTImageAPIURL: String? = nil, ChatGPTImageAPIKey: String? = nil, ChatGPTImageModel: String? = nil,
         baiduTranslateAPPID: String? = nil, baiduTranslateAPIKey: String? = nil,
         backupEmailAddr: String? = nil
     ) {
         self.ChatGPTAPIURL = ChatGPTAPIURL
         self.ChatGPTAPIKey = ChatGPTAPIKey
+        self.ChatGPTModel = ChatGPTModel
+        self.ChatGPTImageAPIURL = ChatGPTImageAPIURL
+        self.ChatGPTImageAPIKey = ChatGPTImageAPIKey
+        self.ChatGPTImageModel = ChatGPTImageModel
         self.baiduTranslateAPPID = baiduTranslateAPPID
         self.baiduTranslateAPIKey = baiduTranslateAPIKey
         self.backupEmailAddr = backupEmailAddr
     }
-    
+
     // MARK: - Codable
-    
+
     enum CodingKeys: String, CodingKey {
-    
+
         case ChatGPTAPIURL
         case ChatGPTAPIKey
-        
+        case ChatGPTModel
+
+        case ChatGPTImageAPIURL
+        case ChatGPTImageAPIKey
+        case ChatGPTImageModel
+
         case baiduTranslateAPPID
         case baiduTranslateAPIKey
-        
+
         case backupEmailAddr
     }
-    
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        
+
         try container.encode(ChatGPTAPIURL, forKey: .ChatGPTAPIURL)
         try container.encode(ChatGPTAPIKey, forKey: .ChatGPTAPIKey)
+        try container.encode(ChatGPTModel, forKey: .ChatGPTModel)
+        try container.encode(ChatGPTImageAPIURL, forKey: .ChatGPTImageAPIURL)
+        try container.encode(ChatGPTImageAPIKey, forKey: .ChatGPTImageAPIKey)
+        try container.encode(ChatGPTImageModel, forKey: .ChatGPTImageModel)
         try container.encode(baiduTranslateAPPID, forKey: .baiduTranslateAPPID)
         try container.encode(baiduTranslateAPIKey, forKey: .baiduTranslateAPIKey)
         try container.encode(backupEmailAddr, forKey: .backupEmailAddr)
     }
-    
+
     init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
-        
+
         ChatGPTAPIURL = try values.decode(String?.self, forKey: .ChatGPTAPIURL)
         ChatGPTAPIKey = try values.decode(String?.self, forKey: .ChatGPTAPIKey)
-        do {
-            baiduTranslateAPPID = try values.decode(String?.self, forKey: .baiduTranslateAPPID)
-        } catch {
-            baiduTranslateAPPID = nil
-        }
-        do {
-            baiduTranslateAPIKey = try values.decode(String?.self, forKey: .baiduTranslateAPIKey)
-        } catch {
-            baiduTranslateAPIKey = nil
-        }
+        do { ChatGPTModel = try values.decode(String?.self, forKey: .ChatGPTModel) } catch { ChatGPTModel = nil }
+        do { ChatGPTImageAPIURL = try values.decode(String?.self, forKey: .ChatGPTImageAPIURL) } catch { ChatGPTImageAPIURL = nil }
+        do { ChatGPTImageAPIKey = try values.decode(String?.self, forKey: .ChatGPTImageAPIKey) } catch { ChatGPTImageAPIKey = nil }
+        do { ChatGPTImageModel = try values.decode(String?.self, forKey: .ChatGPTImageModel) } catch { ChatGPTImageModel = nil }
+        do { baiduTranslateAPPID = try values.decode(String?.self, forKey: .baiduTranslateAPPID) } catch { baiduTranslateAPPID = nil }
+        do { baiduTranslateAPIKey = try values.decode(String?.self, forKey: .baiduTranslateAPIKey) } catch { baiduTranslateAPIKey = nil }
         backupEmailAddr = try values.decode(String?.self, forKey: .backupEmailAddr)
     }
     
@@ -125,9 +140,13 @@ class GlobalSettingsViewController: SettingsViewController {
         globalConfigs = GlobalConfigs(
             ChatGPTAPIURL: (cells[0][0] as! SettingsInputCell).textField.text?.strip(),
             ChatGPTAPIKey: (cells[0][1] as! SettingsInputCell).textField.text?.strip(),
-            baiduTranslateAPPID: (cells[1][0] as! SettingsInputCell).textField.text?.strip(),
-            baiduTranslateAPIKey: (cells[1][1] as! SettingsInputCell).textField.text?.strip(),
-            backupEmailAddr: (cells[2][0] as! SettingsInputCell).textField.text?.strip()
+            ChatGPTModel: (cells[0][2] as! SettingsInputCell).textField.text?.strip(),
+            ChatGPTImageAPIURL: (cells[1][0] as! SettingsInputCell).textField.text?.strip(),
+            ChatGPTImageAPIKey: (cells[1][1] as! SettingsInputCell).textField.text?.strip(),
+            ChatGPTImageModel: (cells[1][2] as! SettingsInputCell).textField.text?.strip(),
+            baiduTranslateAPPID: (cells[2][0] as! SettingsInputCell).textField.text?.strip(),
+            baiduTranslateAPIKey: (cells[2][1] as! SettingsInputCell).textField.text?.strip(),
+            backupEmailAddr: (cells[3][0] as! SettingsInputCell).textField.text?.strip()
         )
     }
     
@@ -138,25 +157,57 @@ class GlobalSettingsViewController: SettingsViewController {
         
         // TODO: - Update localization
         headers = [
-            "Content Generation",
+            "Text Generation",
+            "Image Generation",
             "Machine Translation",
             "Data Backup"
         ]
         cells = [
-            // Content Generation.
+            // Text Generation.
             [
                 {
                     let cell = SettingsInputCell(style: .default, reuseIdentifier: "")
                     cell.imageView?.image = UIImage(systemName: "link")!
-                    cell.textField.placeholder = "ChatGPT API URL"  // TODO: - Update localization
+                    cell.textField.placeholder = "ChatGPT API URL"
                     cell.textField.text = globalConfigs.ChatGPTAPIURL
                     return cell
                 }(),
                 {
                     let cell = SettingsInputCell(style: .default, reuseIdentifier: "")
                     cell.imageView?.image = UIImage(systemName: "key")!
-                    cell.textField.placeholder = "ChatGPT API key"  // TODO: - Update localization
+                    cell.textField.placeholder = "ChatGPT API key"
                     cell.textField.text = globalConfigs.ChatGPTAPIKey
+                    return cell
+                }(),
+                {
+                    let cell = SettingsInputCell(style: .default, reuseIdentifier: "")
+                    cell.imageView?.image = UIImage(systemName: "cpu")!
+                    cell.textField.placeholder = "ChatGPT model"
+                    cell.textField.text = globalConfigs.ChatGPTModel
+                    return cell
+                }(),
+            ],
+            // Image Generation.
+            [
+                {
+                    let cell = SettingsInputCell(style: .default, reuseIdentifier: "")
+                    cell.imageView?.image = UIImage(systemName: "link")!
+                    cell.textField.placeholder = "Image API URL"
+                    cell.textField.text = globalConfigs.ChatGPTImageAPIURL
+                    return cell
+                }(),
+                {
+                    let cell = SettingsInputCell(style: .default, reuseIdentifier: "")
+                    cell.imageView?.image = UIImage(systemName: "key")!
+                    cell.textField.placeholder = "Image API key"
+                    cell.textField.text = globalConfigs.ChatGPTImageAPIKey
+                    return cell
+                }(),
+                {
+                    let cell = SettingsInputCell(style: .default, reuseIdentifier: "")
+                    cell.imageView?.image = UIImage(systemName: "cpu")!
+                    cell.textField.placeholder = "Image model"
+                    cell.textField.text = globalConfigs.ChatGPTImageModel
                     return cell
                 }(),
             ],
@@ -164,14 +215,14 @@ class GlobalSettingsViewController: SettingsViewController {
                 {
                     let cell = SettingsInputCell(style: .default, reuseIdentifier: "")
                     cell.imageView?.image = UIImage(systemName: "app")!
-                    cell.textField.placeholder = "Baidu translate APP ID"  // TODO: - Update localization
+                    cell.textField.placeholder = "Baidu translate APP ID"
                     cell.textField.text = globalConfigs.baiduTranslateAPPID
                     return cell
                 }(),
                 {
                     let cell = SettingsInputCell(style: .default, reuseIdentifier: "")
                     cell.imageView?.image = UIImage(systemName: "key")!
-                    cell.textField.placeholder = "Baidu translate API key"  // TODO: - Update localization
+                    cell.textField.placeholder = "Baidu translate API key"
                     cell.textField.text = globalConfigs.baiduTranslateAPIKey
                     return cell
                 }()
@@ -181,14 +232,14 @@ class GlobalSettingsViewController: SettingsViewController {
                 {
                     let cell = SettingsInputCell(style: .default, reuseIdentifier: "")
                     cell.imageView?.image = UIImage(systemName: "envelope")!
-                    cell.textField.placeholder = "Email address"  // TODO: - Update localization
+                    cell.textField.placeholder = "Email address"
                     cell.textField.text = globalConfigs.backupEmailAddr
                     return cell
                 }(),
                 {
                     let cell = SettingsButtonCell(style: .default, reuseIdentifier: "")
                     cell.imageView?.image = UIImage(systemName: "square.and.arrow.up")!
-                    cell.button.setTitle("Send a copy", for: .normal)  // TODO: - Update localization
+                    cell.button.setTitle("Send a copy", for: .normal)
                     cell.buttonFunc = self.emailAnCopy
                     return cell
                 }()

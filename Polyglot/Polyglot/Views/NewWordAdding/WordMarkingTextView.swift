@@ -49,7 +49,7 @@ class WordMarkingTextView: UITextView, UITextViewDelegate, TextAnimationDelegate
     
     // Content generation.
     
-    var contentCreator: ContentCreator = ContentCreator(.gpt5_4)
+    var contentCreator: ContentCreator = ContentCreator()
     var wordTranslator: MachineTranslator!
     
     enum ContentGenerationType {
