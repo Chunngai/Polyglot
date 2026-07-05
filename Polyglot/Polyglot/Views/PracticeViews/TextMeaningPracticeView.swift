@@ -128,6 +128,55 @@ class TextMeaningPracticeView: BasePracticeView {
         spinner.hidesWhenStopped = true
         return spinner
     }()
+
+    // Chat bubble panel.
+    lazy var contentScrollView: UIScrollView = {
+        let sv = UIScrollView()
+        sv.showsVerticalScrollIndicator = false
+        sv.alwaysBounceVertical = true
+        return sv
+    }()
+    lazy var chatBubblesStack: UIStackView = {
+        let sv = UIStackView()
+        sv.axis = .vertical
+        sv.spacing = 8
+        sv.alignment = .fill
+        sv.isHidden = true
+        return sv
+    }()
+    lazy var chatTypingIndicator: UIActivityIndicatorView = {
+        let ind = UIActivityIndicatorView(style: .medium)
+        ind.hidesWhenStopped = true
+        return ind
+    }()
+    private weak var currentAIBubbleLabel: UILabel?
+    private var currentAIBubbleText: String = ""
+
+    // Chat input bar.
+    lazy var chatInputBar: UIView = {
+        let v = UIView()
+        v.backgroundColor = Colors.lightGrayBackgroundColor
+        v.layer.cornerRadius = Sizes.defaultCornerRadius
+        v.layer.masksToBounds = true
+        return v
+    }()
+    lazy var chatTextField: UITextField = {
+        let tf = UITextField()
+        tf.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        tf.placeholder = "Ask a language question..."
+        tf.returnKeyType = .send
+        tf.delegate = self
+        tf.addTarget(self, action: #selector(chatTextFieldChanged), for: .editingChanged)
+        return tf
+    }()
+    lazy var chatSendButton: UIButton = {
+        let btn = UIButton(type: .system)
+        btn.setImage(UIImage(systemName: "arrow.up.circle.fill"), for: .normal)
+        btn.tintColor = Colors.inactiveSystemButtonColor
+        btn.isEnabled = false
+        btn.addTarget(self, action: #selector(chatSendButtonTapped), for: .touchUpInside)
+        return btn
+    }()
     
     var translatorIcon: UIImage {
         switch machineTranslatorType {
@@ -146,7 +195,7 @@ class TextMeaningPracticeView: BasePracticeView {
         let label = UILabel()
         let attrStr = NSMutableAttributedString()
         attrStr.append(NSAttributedString(string: "■ ", attributes: [
-            .foregroundColor: UIColor.systemPurple,
+            .foregroundColor: UIColor.systemCyan,
             .font: UIFont.systemFont(ofSize: Sizes.smallFontSize)
         ]))
         attrStr.append(NSAttributedString(string: "imp.", attributes: [
@@ -172,20 +221,11 @@ class TextMeaningPracticeView: BasePracticeView {
         return label
     }()
 
-    private lazy var aspectLegendView: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [impAspectLegendLabel, perfAspectLegendLabel, biAspectLegendLabel])
-        stack.axis = .horizontal
-        stack.spacing = 10
-        stack.alignment = .center
-        stack.isHidden = true
-        return stack
-    }()
-
     private lazy var biAspectLegendLabel: UILabel = {
         let label = UILabel()
         let attrStr = NSMutableAttributedString()
         attrStr.append(NSAttributedString(string: "■ ", attributes: [
-            .foregroundColor: UIColor.systemCyan,
+            .foregroundColor: UIColor.systemPurple,
             .font: UIFont.systemFont(ofSize: Sizes.smallFontSize)
         ]))
         attrStr.append(NSAttributedString(string: "bi.", attributes: [
@@ -217,6 +257,15 @@ class TextMeaningPracticeView: BasePracticeView {
         return label
     }
 
+    private lazy var aspectLegendView: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [impAspectLegendLabel, perfAspectLegendLabel, biAspectLegendLabel])
+        stack.axis = .horizontal
+        stack.spacing = 10
+        stack.alignment = .center
+        stack.isHidden = true
+        return stack
+    }()
+
     private lazy var nounCaseLegendView: UIStackView = {
         let stack = UIStackView(arrangedSubviews: [
             genCaseLegendLabel, datCaseLegendLabel, instCaseLegendLabel,
@@ -228,7 +277,16 @@ class TextMeaningPracticeView: BasePracticeView {
         stack.isHidden = true
         return stack
     }()
-    
+
+    private lazy var legendView: UIStackView = {
+        let stack = UIStackView(arrangedSubviews: [nounCaseLegendView, aspectLegendView])
+        stack.axis = .horizontal
+        stack.spacing = 14
+        stack.alignment = .center
+        stack.isHidden = true
+        return stack
+    }()
+
     // MARK: - Init
     
     init(
@@ -276,7 +334,7 @@ class TextMeaningPracticeView: BasePracticeView {
             textView.textContainerInset = UIEdgeInsets(
                 top: textView.textContainerInset.top,
                 left: textView.textContainerInset.left,
-                bottom: Sizes.roundButtonRadius,
+                bottom: textView.textContainerInset.bottom,
                 right: textView.textContainerInset.right
             )
             
@@ -310,7 +368,7 @@ class TextMeaningPracticeView: BasePracticeView {
         textView.delegate = self
         textView.contentGenerationDelegate = self
         textView.tappingDelegate = self
-        
+
         reinforceButton.addTarget(
             self,
             action: #selector(reinforceButtonTapped),
@@ -321,62 +379,96 @@ class TextMeaningPracticeView: BasePracticeView {
             action: #selector(reinforceButtonTapped),
             for: .touchUpInside
         )
+
+        textView.chatDelegate = self
+
+        chatTextField.placeholder = Strings.chatPlaceholder(for: meaningLang)
+
+        let langName = Strings.languageNamesOfAllLanguages[textLang]?[.en] ?? textLang.rawValue
+        var systemPrompt = "You are a helpful language tutor. The user is studying \(langName). The current text is:\n\n\(text!)"
+        if let m = meaning, !m.isEmpty {
+            let meaningLangName = Strings.languageNamesOfAllLanguages[meaningLang]?[.en] ?? meaningLang.rawValue
+            systemPrompt += "\n\nTranslation (\(meaningLangName)): \(m)"
+        }
+        systemPrompt += "\n\nAnswer questions about vocabulary, grammar, or expressions in this text. Be concise."
+        textView.chatSystemPrompt = systemPrompt
+
+        let tap = UITapGestureRecognizer(target: self, action: #selector(backgroundTapped))
+        tap.cancelsTouchesInView = false
+        mainView.addGestureRecognizer(tap)
     }
     
     func updateViews() {
         addSubview(mainView)
-        mainView.addSubview(textView)
-//        mainView.addSubview(listenButton)
-//        mainView.addSubview(speakButton)
+
+        contentScrollView.addSubview(textView)
+        contentScrollView.addSubview(chatBubblesStack)
+        contentScrollView.addSubview(chatTypingIndicator)
+        mainView.addSubview(contentScrollView)
+
         mainView.addSubview(controlsView)
         mainView.addSubview(reinforceButton)
         mainView.addSubview(reinforceTextButton)
         mainView.addSubview(repetitionsLabel)
         mainView.addSubview(contentGenerationSpinner)
-        mainView.addSubview(nounCaseLegendView)
-        mainView.addSubview(aspectLegendView)
-        
+        mainView.addSubview(legendView)
+
+        chatInputBar.addSubview(chatTextField)
+        chatInputBar.addSubview(chatSendButton)
+        mainView.addSubview(chatInputBar)
+
         displayUpper()
     }
-    
+
     func updateLayouts() {
-        mainView.snp.makeConstraints { (make) in
+        mainView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-        
-        textView.snp.makeConstraints { make in
-            make.top.bottom.leading.trailing.equalToSuperview().inset(20)
+        contentScrollView.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview().inset(20)
+            make.bottom.equalTo(legendView.snp.top).offset(-4)
         }
-        
-//        listenButton.snp.makeConstraints { make in
-//            // Consistent with the done/next buttons.
-//            make.leading.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
-//            make.bottom.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
-//            make.height.equalTo(Sizes.roundButtonRadius)
-//        }
-//        speakButton.snp.makeConstraints { make in
-//            make.leading.equalTo(listenButton.snp.trailing).offset(listenButton.intrinsicContentSize.width * 0.5)
-//            make.centerY.equalTo(listenButton.snp.centerY)
-//            make.height.equalTo(Sizes.roundButtonRadius)
-//        }
+        // textView is non-scrolling; its height is driven by content.
+        textView.isScrollEnabled = false
+        textView.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview()
+            make.width.equalTo(contentScrollView)
+        }
+        chatBubblesStack.snp.makeConstraints { make in
+            make.top.equalTo(textView.snp.bottom).offset(16)
+            make.leading.trailing.equalToSuperview()
+            make.width.equalTo(contentScrollView)
+            make.bottom.equalToSuperview().inset(8)
+        }
+        chatTypingIndicator.snp.makeConstraints { make in
+            make.top.equalTo(chatBubblesStack.snp.bottom).offset(4)
+            make.leading.equalToSuperview()
+        }
         controlsView.snp.makeConstraints { make in
             make.width.equalTo(200)
             make.centerX.equalToSuperview()
             make.bottom.equalToSuperview().inset(20)
             make.height.equalTo(60)
         }
-        
+        chatInputBar.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
+            make.bottom.equalTo(controlsView.snp.top).offset(-8)
+            make.height.equalTo(44)
+        }
+        chatTextField.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(12)
+            make.trailing.equalTo(chatSendButton.snp.leading).offset(-8)
+            make.centerY.equalToSuperview()
+        }
+        chatSendButton.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(8)
+            make.centerY.equalToSuperview()
+            make.width.height.equalTo(30)
+        }
         reinforceButton.snp.makeConstraints { make in
-//            make.leading.bottom.equalTo(listenButton)
-//            make.height.equalTo(Sizes.roundButtonRadius)
             make.leading.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
             make.centerY.equalTo(controlsView.snp.centerY)
         }
-//        reinforceTextButton.snp.makeConstraints { make in
-//            make.leading.equalTo(reinforceButton.snp.trailing).offset(5)
-//            make.centerY.equalTo(reinforceButton.snp.centerY)
-//        }
-        
         repetitionsLabel.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.centerY.equalTo(listenButton.snp.centerY)
@@ -385,13 +477,9 @@ class TextMeaningPracticeView: BasePracticeView {
             make.centerX.equalToSuperview()
             make.centerY.equalTo(listenButton.snp.centerY)
         }
-        aspectLegendView.snp.makeConstraints { make in
+        legendView.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
-            make.bottom.equalTo(controlsView.snp.top).offset(-8)
-        }
-        nounCaseLegendView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
-            make.bottom.equalTo(aspectLegendView.snp.top).offset(-4)
+            make.bottom.equalTo(chatInputBar.snp.top).offset(-8)
         }
     }
     
@@ -490,6 +578,21 @@ class TextMeaningPracticeView: BasePracticeView {
         }
 
         textView.attributedText = attributedText
+
+        // Update system prompt to include translation now that it's visible.
+        if let m = lowerString, !m.isEmpty {
+            let langName = Strings.languageNamesOfAllLanguages[textLang]?[.en] ?? textLang.rawValue
+            let meaningLangName = Strings.languageNamesOfAllLanguages[meaningLang]?[.en] ?? meaningLang.rawValue
+            var prompt = "You are a helpful language tutor. The user is studying \(langName). The current text is:\n\n\(text!)"
+            prompt += "\n\nTranslation (\(meaningLangName)): \(m)"
+            prompt += "\n\nAnswer questions about vocabulary, grammar, or expressions in this text. Be concise."
+            textView.chatSystemPrompt = prompt
+        }
+
+        // Shift chat bubbles below the newly added translation text.
+        if !chatBubblesStack.isHidden {
+            DispatchQueue.main.async { self.updateChatBubblesPosition() }
+        }
     }
     
     func submit() -> Any {
@@ -561,16 +664,13 @@ extension TextMeaningPracticeView {
     func markVerbAspects(at annotations: [VerbAspectAnnotation]) {
         guard LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices else { return }
 
-        var hasImp = false
-        var hasPerf = false
-        var hasBi = false
-
+        var hasImp = false, hasPerf = false, hasBi = false
         for annotation in annotations {
             let color: UIColor
             switch annotation.label {
-            case "(imp.)": color = .systemPurple; hasImp = true
+            case "(imp.)": color = .systemCyan;   hasImp = true
             case "(p.)":   color = .systemBlue;   hasPerf = true
-            case "(bi.)":  color = .systemCyan;   hasBi = true
+            case "(bi.)":  color = .systemPurple; hasBi = true
             default: continue
             }
             let range = NSRange(location: annotation.position, length: annotation.length)
@@ -581,27 +681,14 @@ extension TextMeaningPracticeView {
         impAspectLegendLabel.isHidden = !hasImp
         perfAspectLegendLabel.isHidden = !hasPerf
         biAspectLegendLabel.isHidden = !hasBi
-        let legendVisible = hasImp || hasPerf || hasBi
-        aspectLegendView.isHidden = !legendVisible
-
-        // When the legend is visible it sits above controlsView, so increase the
-        // text container's bottom inset to prevent content from scrolling behind it.
-        // Layout: textView.bottom is mainView.bottom-20; controlsView height=60,
-        // bottom inset=20 → controlsView.top at -80; legend is 8pt above that.
-        // Total gap from textView.bottom to legend.top ≈ 60+8+20=88 → use 96 for buffer.
-        textView.textContainerInset = UIEdgeInsets(
-            top: textView.textContainerInset.top,
-            left: textView.textContainerInset.left,
-            bottom: legendVisible ? 96 : Sizes.roundButtonRadius,
-            right: textView.textContainerInset.right
-        )
+        aspectLegendView.isHidden = !(hasImp || hasPerf || hasBi)
+        updateLegendVisibility()
     }
 
     func markNounCases(at annotations: [NounCaseAnnotation]) {
         guard LangCode.currentLanguage.configs.shouldShowNounCasesInPractices else { return }
 
         var hasGen = false, hasDat = false, hasInst = false, hasPrep = false, hasAmbiguous = false
-
         for annotation in annotations {
             let color: UIColor
             switch annotation.label {
@@ -622,24 +709,13 @@ extension TextMeaningPracticeView {
         instCaseLegendLabel.isHidden = !hasInst
         prepCaseLegendLabel.isHidden = !hasPrep
         ambiguousCaseLegendLabel.isHidden = !hasAmbiguous
-        let nounLegendVisible = hasGen || hasDat || hasInst || hasPrep || hasAmbiguous
-        nounCaseLegendView.isHidden = !nounLegendVisible
+        nounCaseLegendView.isHidden = !(hasGen || hasDat || hasInst || hasPrep || hasAmbiguous)
+        updateLegendVisibility()
+    }
 
-        let aspectLegendVisible = !aspectLegendView.isHidden
-        let totalLegendHeight: CGFloat
-        if nounLegendVisible && aspectLegendVisible {
-            totalLegendHeight = 120
-        } else if nounLegendVisible || aspectLegendVisible {
-            totalLegendHeight = 96
-        } else {
-            totalLegendHeight = CGFloat(Sizes.roundButtonRadius)
-        }
-        textView.textContainerInset = UIEdgeInsets(
-            top: textView.textContainerInset.top,
-            left: textView.textContainerInset.left,
-            bottom: totalLegendHeight,
-            right: textView.textContainerInset.right
-        )
+    private func updateLegendVisibility() {
+        let visible = !aspectLegendView.isHidden || !nounCaseLegendView.isHidden
+        legendView.isHidden = !visible
     }
 
     func markAccents(at accentLocs: [Int]) {
@@ -687,6 +763,14 @@ extension TextMeaningPracticeView: UITextViewDelegate {
                 )
                 break
             }
+        }
+
+        // Populate chat input with selected text.
+        if r.length > 0,
+           let selected = (textView.text as NSString?)?.substring(with: r).strip(),
+           !selected.isEmpty {
+            chatTextField.text = "\"\(selected)\""
+            updateChatSendButton()
         }
     }
     
@@ -745,7 +829,14 @@ extension TextMeaningPracticeView: WordMarkingTextViewTappingDelegate {
         
         languageSelectionDelegate.showLanguageSelectionController(currentlySelectedLanguage: self.meaningLang)
     }
-    
+
+    func selectionDidClear() {
+        if chatTextField.text?.hasPrefix("\"") == true {
+            chatTextField.text = ""
+            updateChatSendButton()
+        }
+    }
+
 }
 
 extension TextMeaningPracticeView {
@@ -856,20 +947,179 @@ extension TextMeaningPracticeView {
 
 
 extension TextMeaningPracticeView {
-    
+
     // MARK: - Selectors
-    
+
     @objc
     private func reinforceButtonTapped() {
-        
         shouldReinforce.toggle()
-        
     }
-    
+
+    @objc
+    func chatSendButtonTapped() {
+        guard let msg = chatTextField.text?.strip(), !msg.isEmpty else { return }
+        chatTextField.text = ""
+        chatTextField.resignFirstResponder()
+        updateChatSendButton()
+        textView.sendChatMessage(msg)
+    }
+
+    @objc
+    private func chatTextFieldChanged() {
+        updateChatSendButton()
+    }
+
+    private func updateChatSendButton() {
+        let hasText = !(chatTextField.text?.strip().isEmpty ?? true)
+        chatSendButton.isEnabled = hasText
+        chatSendButton.tintColor = hasText ? Colors.activeSystemButtonColor : Colors.inactiveSystemButtonColor
+    }
+
+    @objc
+    private func backgroundTapped() {
+        chatTextField.resignFirstResponder()
+    }
+
+}
+
+extension TextMeaningPracticeView {
+
+    // MARK: - Chat Bubble Helpers
+
+    private func parseMarkdown(_ text: String, font: UIFont, color: UIColor) -> NSAttributedString {
+        let attrText = NSMutableAttributedString(
+            string: text,
+            attributes: [.font: font, .foregroundColor: color]
+        )
+
+        func apply(trait: UIFontDescriptor.SymbolicTraits, pattern: String, markerLen: Int) {
+            guard let regex = try? NSRegularExpression(pattern: pattern, options: .dotMatchesLineSeparators) else { return }
+            let matches = regex.matches(in: attrText.string, range: NSRange(location: 0, length: attrText.string.utf16.count))
+            var phraseRanges: [NSRange] = []
+            var markerPairs: [(NSRange, NSRange)] = []
+            for m in matches {
+                phraseRanges.append(m.range(at: 2))
+                markerPairs.append((m.range(at: 1), m.range(at: 3)))
+            }
+            for r in phraseRanges {
+                let attrs = attrText.attributes(at: r.location, effectiveRange: nil)
+                if let f = attrs[.font] as? UIFont,
+                   let desc = f.fontDescriptor.withSymbolicTraits(f.fontDescriptor.symbolicTraits.union(trait)) {
+                    attrText.addAttribute(.font, value: UIFont(descriptor: desc, size: f.pointSize), range: r)
+                }
+            }
+            var offset = 0
+            for (left, right) in markerPairs {
+                let l = NSRange(location: left.location + offset, length: left.length)
+                attrText.replaceCharacters(in: l, with: "")
+                let r = NSRange(location: right.location + offset - markerLen, length: right.length)
+                attrText.replaceCharacters(in: r, with: "")
+                offset -= markerLen * 2
+            }
+        }
+
+        apply(trait: .traitBold,   pattern: "(\\*\\*)(.*?)(\\*\\*)", markerLen: 2)
+        apply(trait: .traitItalic, pattern: "(\\*)(.*?)(\\*)",       markerLen: 1)
+        return attrText
+    }
+
+    private func makeBubble(text: String, isUser: Bool) -> (row: UIView, label: UILabel) {
+        let font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        let color: UIColor = isUser ? .white : Colors.normalTextColor
+
+        let label = UILabel()
+        label.attributedText = parseMarkdown(text, font: font, color: color)
+        label.numberOfLines = 0
+
+        let bubble = UIView()
+        bubble.backgroundColor = isUser ? Colors.activeSystemButtonColor : Colors.lightGrayBackgroundColor
+        bubble.layer.cornerRadius = 12
+        bubble.layer.masksToBounds = true
+        bubble.addSubview(label)
+        label.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12))
+        }
+
+        let row = UIView()
+        row.addSubview(bubble)
+        bubble.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview()
+            if isUser {
+                make.trailing.equalToSuperview()
+                make.width.lessThanOrEqualToSuperview().multipliedBy(0.90)
+            } else {
+                make.leading.equalToSuperview()
+                make.width.lessThanOrEqualToSuperview()
+            }
+        }
+        return (row, label)
+    }
+
+    private func updateChatBubblesPosition() {
+        chatBubblesStack.isHidden = chatBubblesStack.arrangedSubviews.isEmpty
+        layoutIfNeeded()
+        let bottom = contentScrollView.contentSize.height - contentScrollView.bounds.height
+        if bottom > 0 {
+            contentScrollView.setContentOffset(CGPoint(x: 0, y: bottom), animated: true)
+        }
+    }
+
+}
+
+extension TextMeaningPracticeView: WordMarkingTextViewChatDelegate {
+
+    func chatDidSendMessage(_ userMessage: String) {
+        let (row, _) = makeBubble(text: userMessage, isUser: true)
+        chatBubblesStack.addArrangedSubview(row)
+        chatTypingIndicator.startAnimating()
+        let (aiRow, aiLabel) = makeBubble(text: "", isUser: false)
+        aiRow.isHidden = true
+        chatBubblesStack.addArrangedSubview(aiRow)
+        currentAIBubbleLabel = aiLabel
+        currentAIBubbleText = ""
+        updateChatBubblesPosition()
+    }
+
+    func chatDidReceiveChunk(_ chunk: String) {
+        chatTypingIndicator.stopAnimating()
+        if let label = currentAIBubbleLabel {
+            currentAIBubbleText += chunk
+            label.attributedText = parseMarkdown(
+                currentAIBubbleText,
+                font: UIFont.systemFont(ofSize: Sizes.smallFontSize),
+                color: Colors.normalTextColor
+            )
+            label.superview?.superview?.isHidden = false
+        }
+        updateChatBubblesPosition()
+    }
+
+    func chatDidFinish() {
+        chatTypingIndicator.stopAnimating()
+        currentAIBubbleLabel = nil
+        currentAIBubbleText = ""
+    }
+
+    func chatDidFail() {
+        chatTypingIndicator.stopAnimating()
+        if let label = currentAIBubbleLabel,
+           let row = label.superview?.superview {
+            chatBubblesStack.removeArrangedSubview(row)
+            row.removeFromSuperview()
+        }
+        currentAIBubbleLabel = nil
+        currentAIBubbleText = ""
+    }
+
 }
 
 protocol TextMeaningPracticeViewDelegate {
-    
     func showLanguageSelectionController(currentlySelectedLanguage: LangCode)
-    
+}
+
+extension TextMeaningPracticeView: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        chatSendButtonTapped()
+        return true
+    }
 }

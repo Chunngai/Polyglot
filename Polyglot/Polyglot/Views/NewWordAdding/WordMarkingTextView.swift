@@ -48,9 +48,16 @@ class WordMarkingTextView: UITextView, UITextViewDelegate, TextAnimationDelegate
     var defaultHighlightingColor: UIColor = Colors.newWordHighlightingColor
     
     // Content generation.
-    
+
+    var textLang: LangCode!
+    var meaningLang: LangCode!
+
     var contentCreator: ContentCreator = ContentCreator()
     var wordTranslator: MachineTranslator!
+
+    // Chat.
+    var chatSystemPrompt: String = ""
+    var chatMessages: [[String: String]] = []
     
     enum ContentGenerationType {
         case memorization
@@ -63,37 +70,36 @@ class WordMarkingTextView: UITextView, UITextViewDelegate, TextAnimationDelegate
 
         var generationType: ContentGenerationType
         var isGenerating: Bool = false
-        
+
         var refreshIconNSRange: NSRange = NSRange()
         var contentNSRange: NSRange = NSRange()
-        
+
         init(word: String, generationType: ContentGenerationType) {
             self.word = word
             self.generationType = generationType
         }
-        
+
     }
     var contentGenerationInfoList: [ContentGenerationInfo?] = []
-        
+
     var isColorAnimating = false
     lazy var colorAnimationOriginalColor: UIColor = defaultTextAttributes[.foregroundColor] as? UIColor ?? Colors.normalTextColor
     lazy var colorAnimationIntermediateColor: UIColor = Colors.inactiveTextColor
-    // For storing the original text length.
     var originalTextLength: Int!
-    
+
     // MARK: - Controllers
-    
+
     var contentGenerationDelegate: WordMarkingTextViewContentGenerationDelegate!
     var urlOpenDelegate: WordMarkingTextViewURLOpenDelegate!
     var tappingDelegate: WordMarkingTextViewTappingDelegate!
+    weak var chatDelegate: WordMarkingTextViewChatDelegate?
     
     private var sharedMenuController = UIMenuController.shared
     
     // MARK: - Views
     
-    private var newWordMenuItem: UIMenuItem!  // https://www.youtube.com/watch?v=s-LW_4ypwZo
+    private var newWordMenuItem: UIMenuItem!
     private var wordMeaningMenuItem: UIMenuItem!
-    private var wordMemorizationMenuItem: UIMenuItem!
     private var wordTranslationMenuItem: UIMenuItem!
     private var grammarExplanationMenuItem: UIMenuItem!
     private var searchMenuItem: UIMenuItem!
@@ -108,7 +114,10 @@ class WordMarkingTextView: UITextView, UITextViewDelegate, TextAnimationDelegate
     
     init(frame: CGRect = .zero, textContainer: NSTextContainer? = nil, textLang: LangCode, meaningLang: LangCode) {
         super.init(frame: frame, textContainer: textContainer)
-        
+
+        self.textLang = textLang
+        self.meaningLang = meaningLang
+
         wordMarkingBottomView = WordMarkingBottomView(
             wordLang: textLang,
             meaningLang: meaningLang
@@ -150,10 +159,6 @@ class WordMarkingTextView: UITextView, UITextViewDelegate, TextAnimationDelegate
             title: Strings.wordMeaningMenuItemString,
             action: #selector(wordMeaningMenuItemTapped)
         )
-        wordMemorizationMenuItem = UIMenuItem(
-            title: Strings.wordMemorizationMenuItemString,
-            action: #selector(wordMemorizationMenuItemTapped)
-        )
         wordTranslationMenuItem = UIMenuItem(
             title: Strings.translationToken,
             action: #selector(wordTranslationMenuItemTapped)
@@ -178,7 +183,6 @@ class WordMarkingTextView: UITextView, UITextViewDelegate, TextAnimationDelegate
             newWordMenuItem,
             wordMeaningMenuItem,
             wordTranslationMenuItem,
-            wordMemorizationMenuItem,
             grammarExplanationMenuItem,
             searchMenuItem,
             reinforceMenuItem,
@@ -267,100 +271,64 @@ extension WordMarkingTextView {
 }
 
 extension WordMarkingTextView {
-    
+
     // MARK: - Content Generation
-    
-    private func generatorAndPrompt(word: String, generationType: ContentGenerationType) -> (
-        generator: (String, String, @escaping (String?) -> Void) -> Void,
-        prompt: String
-    ) {
-        var generator: (String, String, @escaping (String?) -> Void) -> Void
-        var prompt = ""
+
+    // Sends translate/explain actions as chat bubbles via chatDelegate.
+    func sendChatMessageForAction(word: String, generationType: ContentGenerationType) {
+        guard !word.strip().isEmpty else { return }
+
+        let textLangName = Strings.languageNamesOfAllLanguages[textLang]?[.en] ?? textLang.rawValue
+        let meaningLangName = Strings.languageNamesOfAllLanguages[meaningLang]?[.en] ?? meaningLang.rawValue
+
+        let systemPrompt: String
+        let userMessage: String
+
         switch generationType {
-        case .memorization:
-            generator = generateContentWithLLM
-            prompt = Strings.wordMemorizationPrompt
-                .replacingOccurrences(
-                    of: Strings.wordMarkingTextViewContentGenerationLanguageNamePlaceHolder,
-                    with: Strings.languageNamesOfAllLanguages[LangCode.currentLanguage]![.en]!
-                )
-                .replacingOccurrences(
-                    of: Strings.wordMarkingTextViewContentGenerationWordPlaceHolder,
-                    with: word
-                )
-                .replacingOccurrences(
-                    of: "English/English",
-                    with: "English"
-                )
         case .translation:
-            generator = generateWordTranslationContent
+            systemPrompt = """
+You are a language tutor helping a \(meaningLangName) speaker learn \(textLangName). The user will give you a \(textLangName) word or phrase to translate. Use the surrounding context to inform the translation.
+
+Reply in \(meaningLangName) using this exact format:
+**[full translation]**
+- [word1] → [translation1]
+- [word2] → [translation2]
+...
+"""
+            userMessage = "\(Strings.translateActionToken(for: meaningLang)) \"\(word)\""
         case .explanation:
-            generator = generateContentWithLLM
-            prompt = Strings.grammarExplanationPrompt
-                .replacingOccurrences(
-                    of: Strings.wordMarkingTextViewContentGenerationLanguageNamePlaceHolder,
-                    with: Strings.languageNamesOfAllLanguages[LangCode.currentLanguage]![.en]!
-                )
-                .replacingOccurrences(
-                    of: Strings.wordMarkingTextViewContentGenerationWordPlaceHolder,
-                    with: word
-                )
+            systemPrompt = """
+You are a language tutor helping a \(meaningLangName) speaker learn \(textLangName). The user will give you a \(textLangName) word or phrase. Identify the key grammar points in it — for example, fixed expressions, grammatical structures, case usage, verb forms, or idiomatic patterns. For each grammar point, give its name and a brief explanation of how it works. Be concise. Respond in \(meaningLangName).
+"""
+            userMessage = "\(Strings.explainActionToken(for: meaningLang)) \"\(word)\""
+        case .memorization:
+            return
         }
-        
-        return (
-            generator: generator,
-            prompt: prompt
+
+        chatMessages.append(["role": "user", "content": userMessage])
+        chatDelegate?.chatDidSendMessage(userMessage)
+
+        var accumulated = ""
+        contentCreator.streamContent(
+            withSystemPrompt: systemPrompt,
+            conversationMessages: chatMessages,
+            onChunk: { [weak self] chunk in
+                accumulated += chunk
+                self?.chatDelegate?.chatDidReceiveChunk(chunk)
+            },
+            onFinish: { [weak self] in
+                if !accumulated.isEmpty {
+                    self?.chatMessages.append(["role": "assistant", "content": accumulated])
+                }
+                self?.chatDelegate?.chatDidFinish()
+            },
+            onError: { [weak self] in
+                self?.chatDelegate?.chatDidFail()
+            }
         )
     }
-    
-    private func generateContentWithLLM(for word: String, with prompt: String, completion: @escaping (String?) -> Void) {
-        
-        guard !word.strip().isEmpty else {
-            completion(nil)
-            return
-        }
-        
-        contentCreator.createContent(
-            withPrompt: prompt,
-            displayErrorMessageWhenFailed: true
-        ) { content in
-            guard var content = content else {
-                completion(nil)
-                return
-            }
-            content = content.strip()
-                .replacingOccurrences(of: Strings.windowsNewLineSymbol, with: "\n")
-                .replacingOccurrences(of: Strings.macNewLineSymbol, with: "\n")
-                .replaceMultipleBlankLinesWithSingleLine()
-                .replacingOccurrences(of: "\n\n", with: "\n")
-            completion(content)
-            
-//            completion("This is a string with **B1**, *I1***B2**, *I2*, ***B3***, *I3*, **B4**, *I4*, **B5**, *I5*.")
-        }
-    }
-    
-    private func generateWordTranslationContent(for word: String, with prompt: String = "", completion: @escaping (String?) -> Void) {
-        // The param "prompt" is not used in this method. It is for alignment with generateContentWithLLM().
-        
-        guard !word.isEmpty else {
-            completion(nil)
-            return
-        }
-        
-        wordTranslator.translate(
-            query: word,
-            displayErrorMessageWhenFailed: true
-        ) { translations, _ in
-            guard !translations.isEmpty else {
-                completion(nil)
-                return
-            }
-            let concatTranslation = translations.joined(separator: "; ").strip()
-            completion(concatTranslation)
-        }
-    }
-    
-    private func parseBoldAndItalics(for content: String) -> NSAttributedString {
+
+    fileprivate func parseBoldAndItalics(for content: String) -> NSAttributedString {
 
         // https://chatgpt.com/share/eebcc408-a5a9-496f-821e-afbbf0519931
         // https://chatgpt.com/share/67335ac0-e5b8-800d-938a-047efc72b189
@@ -456,333 +424,39 @@ extension WordMarkingTextView {
             parsingPattern: "(\\*)(.*?)(\\*)",
             markerLength: 1  // *
         )
-        
+
         return attrText
     }
-    
-    private func display(_ generatedContent: NSAttributedString, for word: String) -> (
-        refreshIconNSRange: NSRange,
-        generatedContentNSRange: NSRange
-    ) {
-        let attrText = NSMutableAttributedString(attributedString: self.attributedText)
-        
-        attrText.append(NSAttributedString(
-            string: "\n\n",
-            attributes: Self.contentGenerationTextAttributes
-        ))
-        
-        let refreshIconNSRange = NSRange(
-            location: attrText.length,
-            length: 1
-        )
-        attrText.append(NSAttributedString(
-            string: Strings.refreshingSymbol,
-            attributes: Self.contentGenerationRefreshingIconAttributes
-        ))
-        attrText.setTextColor(
-            for: refreshIconNSRange,
-            with: Colors.activeSystemButtonColor
-        )
-        
-        let wordAttrStr = NSMutableAttributedString(
-            string: " \(word):\n",
-            attributes: Self.contentGenerationTextAttributes
-        )
-        wordAttrStr.bold(for: NSRange(
-            location: 1,  // 1: for the space.
-            length: word.count
-        ))
-        attrText.append(wordAttrStr)
-        
-        let generatedContentNSRange = NSRange(
-            location: attrText.length,
-            length: generatedContent.string.count
-        )
-        attrText.append(generatedContent)
-        
-        self.attributedText = attrText
-        
-        return (
-            refreshIconNSRange: refreshIconNSRange,
-            generatedContentNSRange: generatedContentNSRange
+
+    func sendChatMessage(_ userMessage: String) {
+        guard !userMessage.strip().isEmpty else { return }
+
+        chatMessages.append(["role": "user", "content": userMessage])
+        chatDelegate?.chatDidSendMessage(userMessage)
+
+        var accumulatedReply = ""
+        contentCreator.streamContent(
+            withSystemPrompt: chatSystemPrompt,
+            conversationMessages: chatMessages,
+            onChunk: { [weak self] chunk in
+                guard let self = self else { return }
+                accumulatedReply += chunk
+                self.chatDelegate?.chatDidReceiveChunk(chunk)
+            },
+            onFinish: { [weak self] in
+                guard let self = self else { return }
+                if !accumulatedReply.isEmpty {
+                    self.chatMessages.append(["role": "assistant", "content": accumulatedReply])
+                }
+                self.chatDelegate?.chatDidFinish()
+            },
+            onError: { [weak self] in
+                self?.chatDelegate?.chatDidFail()
+            }
         )
     }
-    
-    private func generateContent(word: String, generationType: ContentGenerationType) {
-        
-        // Float down the presenting bottom view, if any.
-        if wordMarkingBottomView.isFloatingUp {
-            wordMarkingBottomView.floatDown()
-            wordMarkingBottomView.clear()
-        }
-        
-        let contentGenerationInfoForThisWord = ContentGenerationInfo(
-            word: word,
-            generationType: generationType
-        )
-        // Here `contentGenerationInfoForThisWord` functions as a placeholder for hiding the "memorization"/"translation" menu item.
-        // It not set here, the corresponding menu item still appears before the generation completes.
-        contentGenerationInfoList.append(contentGenerationInfoForThisWord)
-        let contentGenerationInfoIndexForThisWord = contentGenerationInfoList.count - 1
-        
-        self.contentGenerationDelegate.startedContentGeneration(wordMarkingTextView: self)
-                        
-        // Store original text colors (e.g., black colors for normal texts and red colors for wrong characters in clozes)
-        // for text color restoring after the color animation.
-        var originalRange2Color: [NSRange: UIColor] = [:]
-        self.attributedText.enumerateAttribute(
-            .foregroundColor,
-            in: NSRange(
-                location: 0,
-                length: self.attributedText.length
-            ),
-            options: []
-        ) { value, range, _ in
-            if let color = value as? UIColor {
-                originalRange2Color[range] = color
-            }
-        }
-        
-        if originalTextLength == nil {
-            // When generating content after having generated content for a word,
-            // only animate the original text instead of the whole text that contains
-            // the previously generated content.
-            self.originalTextLength = attributedText.length
-        }
-        let colorAnimationRange = NSRange(
-            location: 0,
-            length: originalTextLength
-        )
-        
-        self.isColorAnimating = true
-        self.startTextColorTransitionAnimation(for: colorAnimationRange)
-        
-        let (generator, prompt) = generatorAndPrompt(
-            word: word,
-            generationType: generationType
-        )
-        generator(
-            word,
-            prompt
-        ) { content in
-            
-            self.isColorAnimating = false
-            
-            DispatchQueue.main.async {
-                self.contentGenerationDelegate.completedContentGeneration(
-                    wordMarkingTextView: self,
-                    content: content
-                )
-                
-                // Recover to the original color.
-                for (range, color) in originalRange2Color {
-                    self.textStorage.setTextColor(
-                        for: range,
-                        with: color
-                    )
-                }
-            }
-            
-            guard let content = content else {
-                // Rollback.
-                // Do not directly remove the info, as changing the arr length may affect the assignments in haveTappedRefreshButtonForGeneratedContent().
-                self.contentGenerationInfoList[contentGenerationInfoIndexForThisWord] = nil
-                return
-            }
-            
-            let parsedAttrContent = self.parseBoldAndItalics(for: content)
-            DispatchQueue.main.async {
-                let (refreshIconNSRange, generatedContentNSRange) = self.display(parsedAttrContent, for: word)
-                self.contentGenerationInfoList[contentGenerationInfoIndexForThisWord]?.refreshIconNSRange = refreshIconNSRange
-                self.contentGenerationInfoList[contentGenerationInfoIndexForThisWord]?.contentNSRange = generatedContentNSRange
-                
-//                self.scrollRangeToVisible(refreshIconNSRange)
-            }
-        }
-    }
-    
-    private func haveTappedRefreshButtonForGeneratedContent(tappedTextRange: UITextRange) -> Bool {
-        
-        let tappedRange = nsRange(from: tappedTextRange)
-        
-        // Do nothing if a "\n" is tapped.
-        let tappedRangeWithLengthOne = NSRange(
-            location: tappedRange.location,
-            length: 1
-        )
-        guard let textRangeOfTappedRangeWithLengthOne = textRange(from: tappedRangeWithLengthOne),
-              text(in: textRangeOfTappedRangeWithLengthOne) != "\n" else {
-            return false
-        }
 
-        var generatedContentInfoIndex: Int? = nil
-        for offset in [-2, -1, 0, 1, 2] {
-            let location = tappedRange.location + offset
-            if location < 0 {
-                continue
-            }
-            if location >= self.attributedText.length {
-                continue
-            }
-            
-            let r = NSRange(
-                location: location,
-                length: 1
-            )
-            for i in 0..<self.contentGenerationInfoList.count {
-                if self.contentGenerationInfoList[i]?.refreshIconNSRange == r {
-                    generatedContentInfoIndex = i
-                    break
-                }
-            }
-        }
-        guard let generatedContentInfoIndex = generatedContentInfoIndex else {
-            return false
-        }
 
-        // Do nothing if content for the word is being generated.
-        guard !self.contentGenerationInfoList[generatedContentInfoIndex]!.isGenerating else {
-            return false
-        }
-        // Disable regeneration.
-        self.contentGenerationInfoList[generatedContentInfoIndex]!.isGenerating = true
-        
-        // Make the refresh button gray.
-        textStorage.addAttributes(
-            [NSAttributedString.Key.foregroundColor : Colors.inactiveSystemButtonColor],
-            range: self.contentGenerationInfoList[generatedContentInfoIndex]!.refreshIconNSRange
-        )
-        
-        // Regenerate the content.
-        contentGenerationDelegate.startedContentGeneration(wordMarkingTextView: self)
-        
-        self.startTextColorTransitionAnimation(for: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange)
-        self.isColorAnimating = true
-
-        let (generator, prompt) = generatorAndPrompt(
-            word: self.contentGenerationInfoList[generatedContentInfoIndex]!.word,
-            generationType: self.contentGenerationInfoList[generatedContentInfoIndex]!.generationType
-        )
-        generator(
-            self.contentGenerationInfoList[generatedContentInfoIndex]!.word,
-            prompt
-        ) { content in
-            
-            self.isColorAnimating = false
-
-            DispatchQueue.main.async {
-                self.contentGenerationDelegate.completedContentGeneration(
-                    wordMarkingTextView: self,
-                    content: content
-                )
-            }
-            
-            // Enable regeneration.
-            self.contentGenerationInfoList[generatedContentInfoIndex]!.isGenerating = false
-            
-            DispatchQueue.main.async {
-                
-                // Make the refresh button black.
-                self.textStorage.addAttributes(
-                    [NSAttributedString.Key.foregroundColor : Colors.activeSystemButtonColor],
-                    range: self.contentGenerationInfoList[generatedContentInfoIndex]!.refreshIconNSRange
-                )
-
-                let oldContent = self.text(in: self.textRange(from: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange)!)!
-                guard
-                    let content = content,
-                    content != oldContent
-                else {
-                    // Recover to the original color for the original content range.
-                    self.textStorage.setTextColor(
-                        for: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange,
-                        with: self.colorAnimationOriginalColor
-                    )
-                    return
-                }
-                
-                let parsedAttrContent = self.parseBoldAndItalics(for: content)
-                
-                // Update the content for the word.
-                // DO NOT REPLACE DIRECTLY WITH THE ATTRIBUTED parsedAttrContent (NSAttributedString).
-                // REPLACE WITH parsedAttrContent.string (String).
-                // For the former case, the following will lead to content size changing (and thus text clipping).
-                // (1) Generate memorization content for a phrase
-                // (2) Translate a phrase
-                // (3) Re-translate the phrase
-                
-                // Replace String with String.
-                let attrText = NSMutableAttributedString(attributedString: self.attributedText)
-                attrText.replaceCharacters(
-                    in: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange,  // Old content range.
-                    with: parsedAttrContent.string
-                )
-                self.attributedText = attrText
-                
-                // Update the content range of the current word.
-                self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange = NSRange(
-                    location: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange.location,
-                    length: parsedAttrContent.string.count
-                )
-                
-                // Update content attrs.
-                self.textStorage.addAttributes(
-                    Self.contentGenerationTextAttributes,
-                    range: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange
-                )
-                parsedAttrContent.enumerateAttributes(in: NSRange(
-                    location: 0,
-                    length: parsedAttrContent.length
-                )) { attrs, r, _ in
-                    guard let font = attrs[.font] as? UIFont else {
-                        return
-                    }
-                    
-                    let fontTraits = font.fontDescriptor.symbolicTraits
-                    if fontTraits.contains(.traitBold) || fontTraits.contains(.traitItalic) {
-                        self.textStorage.addAttributes(
-                            [NSAttributedString.Key.font : font],
-                            range: NSRange(
-                                location: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange.location + r.location,
-                                length: r.length
-                            )
-                        )
-                    }
-                }
-                
-                // Recover to the original color for the NEW content range.
-                self.textStorage.setTextColor(
-                    for: self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange,
-                    with: self.colorAnimationOriginalColor
-                )
-                
-                // Length diff before&after the regeneration
-                // for updating ranges of words after the current word.
-                let contentLengthDiff = parsedAttrContent.string.count - oldContent.count
-                // Update the ranges of other words, if needed.
-                for i in 0..<self.contentGenerationInfoList.count {
-                    guard self.contentGenerationInfoList[i] != nil else {
-                        continue
-                    }
-                    if self.contentGenerationInfoList[i]!.contentNSRange.location <= self.contentGenerationInfoList[generatedContentInfoIndex]!.contentNSRange.location {
-                        continue
-                    }
-                    self.contentGenerationInfoList[i]!.refreshIconNSRange = NSRange(
-                        location: self.contentGenerationInfoList[i]!.refreshIconNSRange.location + contentLengthDiff,
-                        length: self.contentGenerationInfoList[i]!.refreshIconNSRange.length
-                    )
-                    self.contentGenerationInfoList[i]!.contentNSRange = NSRange(
-                        location: self.contentGenerationInfoList[i]!.contentNSRange.location + contentLengthDiff,
-                        length: self.contentGenerationInfoList[i]!.contentNSRange.length
-                    )
-                }
-            }
-        }
-        
-        return true
-        
-    }
-    
 }
 
 extension WordMarkingTextView {
@@ -818,14 +492,10 @@ extension WordMarkingTextView {
         wordMarkingBottomView.meaningTextField.resignFirstResponder()
         // Cancel the selection if any.
         resignFirstResponder()
+        tappingDelegate.selectionDidClear()
         
         // When a new word is being added, do nothing.
         if isAddingNewWord {
-            return
-        }
-        
-        // When a refresh button is tapped, regenerate the content.
-        if haveTappedRefreshButtonForGeneratedContent(tappedTextRange: tappedTextRange) {
             return
         }
         
@@ -967,45 +637,15 @@ extension WordMarkingTextView {
     }
     
     @objc
-    private func wordMemorizationMenuItemTapped() {
-        
-        guard let word = selectedWord else {
-            return
-        }
-        
-        generateContent(
-            word: word,
-            generationType: .memorization
-        )
-        
-    }
-    
-    @objc
     private func wordTranslationMenuItemTapped() {
-        
-        guard let word = selectedWord else {
-            return
-        }
-        
-        generateContent(
-            word: word,
-            generationType: .translation
-        )
-        
+        guard let word = selectedWord else { return }
+        sendChatMessageForAction(word: word, generationType: .translation)
     }
-    
+
     @objc
     private func grammarExplanationMenuItemTapped() {
-        
-        guard let word = selectedWord else {
-            return
-        }
-        
-        generateContent(
-            word: word,
-            generationType: .explanation
-        )
-        
+        guard let word = selectedWord else { return }
+        sendChatMessageForAction(word: word, generationType: .explanation)
     }
     
     @objc
@@ -1087,14 +727,6 @@ extension WordMarkingTextView {
             return false
         }
         
-        // Check if a refresh icon is tapped.
-        let refreshIconNSRanges = contentGenerationInfoList.compactMap { c in
-            c?.refreshIconNSRange
-        }
-        if refreshIconNSRanges.contains(selectedRange) {
-            return false
-        }
-        
         if !isAddingNewWord && action == #selector(newWordMenuItemTapped) {
             if let word = selectedWord {
                 return !wordsInfo.map { wordInfo in
@@ -1106,35 +738,11 @@ extension WordMarkingTextView {
         if isAddingNewWord && action == #selector(wordMeaningMenuItemTapped) {
             return true
         }
-        if action == #selector(wordMemorizationMenuItemTapped) {
-            if let word = selectedWord {
-                let wordsToMemorize = contentGenerationInfoList.compactMap { c in
-                    c?.generationType == .memorization
-                    ? c?.word
-                    : nil
-                }
-                return !wordsToMemorize.contains(word)
-            }
-        }
         if action == #selector(wordTranslationMenuItemTapped) {
-            if let word = selectedWord {
-                let translatedWords = contentGenerationInfoList.compactMap { c in
-                    c?.generationType == .translation
-                    ? c?.word
-                    : nil
-                }
-                return !translatedWords.contains(word)
-            }
+            return selectedWord != nil
         }
         if action == #selector(grammarExplanationMenuItemTapped) {
-            if let word = selectedWord {
-                let wordsToExplain = contentGenerationInfoList.compactMap { c in
-                    c?.generationType == .explanation
-                    ? c?.word
-                    : nil
-                }
-                return !wordsToExplain.contains(word)
-            }
+            return selectedWord != nil
         }
         if action == #selector(searchMenuItemTapped) {
             return true
@@ -1230,6 +838,13 @@ extension WordMarkingTextView {
     
 }
 
+protocol WordMarkingTextViewChatDelegate: AnyObject {
+    func chatDidSendMessage(_ userMessage: String)
+    func chatDidReceiveChunk(_ chunk: String)
+    func chatDidFinish()
+    func chatDidFail()
+}
+
 protocol WordMarkingTextViewContentGenerationDelegate {
     
     func startedContentGeneration(wordMarkingTextView: WordMarkingTextView)
@@ -1243,7 +858,6 @@ protocol WordMarkingTextViewURLOpenDelegate {
 }
 
 protocol WordMarkingTextViewTappingDelegate {
-    
     func tapped(at tappedTextRange: UITextRange)
-    
+    func selectionDidClear()
 }

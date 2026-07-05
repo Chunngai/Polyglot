@@ -35,6 +35,49 @@ struct ContentCreator {
         createContent(withMessages: messages, displayErrorMessageWhenFailed: displayErrorMessageWhenFailed, completion: completion)
     }
 
+    func createContent(withSystemPrompt systemPrompt: String, conversationMessages: [[String: String]], displayErrorMessageWhenFailed: Bool = false, completion: @escaping (String?) -> Void) {
+        var messages: [[String: String]] = [["role": "system", "content": systemPrompt]]
+        messages.append(contentsOf: conversationMessages)
+        createContent(withMessages: messages, displayErrorMessageWhenFailed: displayErrorMessageWhenFailed, completion: completion)
+    }
+
+    func streamContent(
+        withSystemPrompt systemPrompt: String,
+        conversationMessages: [[String: String]],
+        onChunk: @escaping (String) -> Void,
+        onFinish: @escaping () -> Void,
+        onError: @escaping () -> Void
+    ) {
+        var messages: [[String: String]] = [["role": "system", "content": systemPrompt]]
+        messages.append(contentsOf: conversationMessages)
+
+        guard let baseURLString = apiURL,
+              let baseURL = URL(string: baseURLString),
+              let apiKey = apiKey
+        else {
+            onError()
+            return
+        }
+        let url = baseURL.appendingPathComponent("v1/chat/completions")
+
+        var request = URLRequest(url: url, timeoutInterval: requestTimeLimit)
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        request.httpMethod = "POST"
+        guard let body = try? JSONSerialization.data(withJSONObject: [
+            "model": model ?? "",
+            "messages": messages,
+            "stream": true
+        ]) else { onError(); return }
+        request.httpBody = body
+
+        let delegate = SSESessionDelegate(onChunk: onChunk, onFinish: onFinish, onError: onError)
+        let session = URLSession(configuration: .default, delegate: delegate, delegateQueue: nil)
+        session.dataTask(with: request).resume()
+        // Retain the session until streaming completes.
+        delegate.session = session
+    }
+
     func createContent(withPrompt prompt: String, displayErrorMessageWhenFailed: Bool = false, completion: @escaping (String?) -> Void) {
         createContent(withMessages: [["role": "user", "content": prompt]], displayErrorMessageWhenFailed: displayErrorMessageWhenFailed, completion: completion)
     }
@@ -280,7 +323,58 @@ extension ContentCreator {
             withPrompt: prompt,
             completion: completion
         )
-        
+
     }
-    
+
+}
+
+private class SSESessionDelegate: NSObject, URLSessionDataDelegate {
+
+    var session: URLSession?
+    private var buffer = ""
+    private let onChunk: (String) -> Void
+    private let onFinish: () -> Void
+    private let onError: () -> Void
+
+    init(onChunk: @escaping (String) -> Void, onFinish: @escaping () -> Void, onError: @escaping () -> Void) {
+        self.onChunk = onChunk
+        self.onFinish = onFinish
+        self.onError = onError
+    }
+
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        guard let text = String(data: data, encoding: .utf8) else { return }
+        buffer += text
+
+        // SSE lines are separated by "\n\n"; each line starts with "data: "
+        while let range = buffer.range(of: "\n\n") {
+            let line = String(buffer[buffer.startIndex..<range.lowerBound])
+            buffer.removeSubrange(buffer.startIndex..<range.upperBound)
+
+            guard line.hasPrefix("data: ") else { continue }
+            let json = String(line.dropFirst(6))
+            if json == "[DONE]" { continue }
+
+            guard let jsonData = json.data(using: .utf8),
+                  let obj = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
+                  let choices = obj["choices"] as? [[String: Any]],
+                  let delta = choices.first?["delta"] as? [String: Any],
+                  let content = delta["content"] as? String,
+                  !content.isEmpty
+            else { continue }
+
+            DispatchQueue.main.async { self.onChunk(content) }
+        }
+    }
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        DispatchQueue.main.async {
+            if error != nil {
+                self.onError()
+            } else {
+                self.onFinish()
+            }
+        }
+        self.session = nil
+    }
 }

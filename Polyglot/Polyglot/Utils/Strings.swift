@@ -573,9 +573,48 @@ extension Strings {
     
     static let wordMarkingTextViewContentGenerationLanguageNamePlaceHolder: String = "[lang_name]"
     static let wordMarkingTextViewContentGenerationWordPlaceHolder: String = "[word]"
-    
+
     static let wordMemorizationPrompt: String = "Help me memorise the spelling of the \(Self.wordMarkingTextViewContentGenerationLanguageNamePlaceHolder) word \"\(Self.wordMarkingTextViewContentGenerationWordPlaceHolder)\" with: (1) \(Self.wordMarkingTextViewContentGenerationLanguageNamePlaceHolder)/English words with similar spelling or pronunciation, (2) related \(Self.wordMarkingTextViewContentGenerationLanguageNamePlaceHolder)/English words, or (3) mnemonics."
     static let grammarExplanationPrompt: String = "Explain the grammar of the \(Self.wordMarkingTextViewContentGenerationLanguageNamePlaceHolder) phrase \"\(Self.wordMarkingTextViewContentGenerationWordPlaceHolder)\" in English."
+
+    private static let _translateActionTokens: [LangCode: String] = [
+        LangCode.zh: "翻译",
+        LangCode.en: "Translate",
+        LangCode.ja: "翻訳",
+        LangCode.es: "Traducir",
+        LangCode.ru: "Перевести",
+        LangCode.ko: "번역",
+        LangCode.de: "Übersetzen",
+    ]
+    static func translateActionToken(for lang: LangCode) -> String {
+        return _translateActionTokens[lang] ?? "Translate"
+    }
+
+    private static let _explainActionTokens: [LangCode: String] = [
+        LangCode.zh: "解释",
+        LangCode.en: "Explain",
+        LangCode.ja: "説明",
+        LangCode.es: "Explicar",
+        LangCode.ru: "Объяснить",
+        LangCode.ko: "설명",
+        LangCode.de: "Erklären",
+    ]
+    static func explainActionToken(for lang: LangCode) -> String {
+        return _explainActionTokens[lang] ?? "Explain"
+    }
+
+    private static let _chatPlaceholderTokens: [LangCode: String] = [
+        LangCode.zh: "提问…",
+        LangCode.en: "Ask a question…",
+        LangCode.ja: "質問する…",
+        LangCode.es: "Hacer una pregunta…",
+        LangCode.ru: "Задать вопрос…",
+        LangCode.ko: "질문하기…",
+        LangCode.de: "Frage stellen…",
+    ]
+    static func chatPlaceholder(for lang: LangCode) -> String {
+        return _chatPlaceholderTokens[lang] ?? "Ask a question…"
+    }
     
     private static let _searchMenuItemStrings: [LangCode : String] = [
         LangCode.en : "Search",
