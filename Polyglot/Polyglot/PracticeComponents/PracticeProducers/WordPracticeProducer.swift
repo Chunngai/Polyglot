@@ -141,6 +141,8 @@ extension WordPracticeProducer {
     func makeAndCachePractices(for words: [String], skipDuplicates: Bool = true) {
 
         let nRepetitions = self.lang.configs.wordPracticeRepetition
+        let enabledTypes = self.lang.configs.phraseReviewEnabledPracticeTypes
+        let practiceWordSet = Set(words)
         for word in words {
 
             if skipDuplicates && wordPracticeCounter.keys.contains(Self.normalizedKey(from: word)) {
@@ -150,7 +152,11 @@ extension WordPracticeProducer {
             wordPracticeCounter[key] = 0
             
             var practicesForWord: [WordPractice] = []
-            
+
+            let candidateWords = self.words.filter {
+                $0.text != word && practiceWordSet.contains($0.text)
+            }
+
             machineTranslator.translate(query: word) { translations, _ in
                 
                 guard !translations.isEmpty else {
@@ -159,94 +165,110 @@ extension WordPracticeProducer {
                 let meaning = translations.joined(separator: "; ")
                 
                 for _ in 0..<nRepetitions {
-                    
-                    if let practice = self.makeMeaningSelectionPractice(
-                        word: word,
-                        query: word,
-                        key: meaning,
-                        direction: .textToMeaning
-                    ) {
+
+                    if enabledTypes.contains(.meaningSelection) {
+                        if let practice = self.makeMeaningSelectionPractice(
+                            word: word,
+                            query: word,
+                            key: meaning,
+                            direction: .textToMeaning,
+                            preferredWords: candidateWords
+                        ) {
+                            self.practiceList.append(practice)
+                            self.wordPracticeCounter[key]! += 1
+                            practicesForWord.append(practice)
+                        }
+
+                        if let practice = self.makeMeaningSelectionPractice(
+                            word: word,
+                            query: meaning,
+                            key: word,
+                            direction: .meaningToText,
+                            preferredWords: candidateWords
+                        ) {
+                            self.practiceList.append(practice)
+                            self.wordPracticeCounter[key]! += 1
+                            practicesForWord.append(practice)
+                        }
+                    }
+
+                    if enabledTypes.contains(.meaningFilling) {
+                        let practice = self.makeMeaningFillingPractice(
+                            word: word,
+                            query: meaning,
+                            key: word,
+                            direction: .meaningToText
+                        )
                         self.practiceList.append(practice)
                         self.wordPracticeCounter[key]! += 1
                         practicesForWord.append(practice)
                     }
-                    
-                    if let practice = self.makeMeaningSelectionPractice(
-                        word: word,
-                        query: meaning,
-                        key: word,
-                        direction: .meaningToText
-                    ) {
-                        self.practiceList.append(practice)
-                        self.wordPracticeCounter[key]! += 1
-                        practicesForWord.append(practice)
-                    }
-                    
-                    let practice = self.makeMeaningFillingPractice(
-                        word: word,
-                        query: meaning,
-                        key: word,
-                        direction: .meaningToText
-                    )
-                    self.practiceList.append(practice)
-                    self.wordPracticeCounter[key]! += 1
-                    practicesForWord.append(practice)
                 }
                 self.cache()
                 self.sendWordPracticeCounterUpdateNotification()
                 
             }
             
-            for _ in 0..<nRepetitions {
-                
-                if let practice = makeContextSelectionPractice(
-                    word: word,
-                    query: word
-                ) {
-                    self.practiceList.append(practice)
-                    self.wordPracticeCounter[key]! += 1
-                    practicesForWord.append(practice)
+            if enabledTypes.contains(.contextSelection) {
+                for _ in 0..<nRepetitions {
+                    if let practice = makeContextSelectionPractice(
+                        word: word,
+                        query: word,
+                        preferredWords: candidateWords
+                    ) {
+                        self.practiceList.append(practice)
+                        self.wordPracticeCounter[key]! += 1
+                        practicesForWord.append(practice)
+                    }
                 }
             }
             self.cache()
             self.sendWordPracticeCounterUpdateNotification()
             
-            for _ in 0..<nRepetitions {
-                makeReorderingPractice(
-                    word: word,
-                    query: word,
-                    completion: { practice in
-                        if let practice = practice {
+            if enabledTypes.contains(.reordering) {
+                for _ in 0..<nRepetitions {
+                    makeReorderingPractice(
+                        word: word,
+                        query: word,
+                        completion: { practice in
+                            if let practice = practice {
+                                self.practiceList.append(practice)
+                                self.wordPracticeCounter[key]! += 1
+                                practicesForWord.append(practice)
+
+                                self.cache()
+                                self.sendWordPracticeCounterUpdateNotification()
+                            }
+                        }
+                    )
+                }
+            }
+
+            let needsImage = enabledTypes.contains(.imageSelection) || enabledTypes.contains(.imageFilling)
+            if needsImage {
+                imageCreator.generateImage(for: word) { imageUrl in
+                    guard let imageUrl = imageUrl else { return }
+
+                    for _ in 0..<nRepetitions {
+
+                        if enabledTypes.contains(.imageSelection) {
+                            if let practice = self.makeImageSelectionPractice(word: word, imageUrl: imageUrl, preferredWords: candidateWords) {
+                                self.practiceList.append(practice)
+                                self.wordPracticeCounter[key]! += 1
+                                practicesForWord.append(practice)
+                            }
+                        }
+
+                        if enabledTypes.contains(.imageFilling) {
+                            let practice = self.makeImageFillingPractice(word: word, imageUrl: imageUrl)
                             self.practiceList.append(practice)
                             self.wordPracticeCounter[key]! += 1
                             practicesForWord.append(practice)
-                            
-                            self.cache()
-                            self.sendWordPracticeCounterUpdateNotification()
                         }
+
+                        self.cache()
+                        self.sendWordPracticeCounterUpdateNotification()
                     }
-                )
-                
-            }
-
-            imageCreator.generateImage(for: word) { imageUrl in
-                guard let imageUrl = imageUrl else { return }
-
-                for _ in 0..<nRepetitions {
-
-                    if let practice = self.makeImageSelectionPractice(word: word, imageUrl: imageUrl) {
-                        self.practiceList.append(practice)
-                        self.wordPracticeCounter[key]! += 1
-                        practicesForWord.append(practice)
-                    }
-
-                    let practice = self.makeImageFillingPractice(word: word, imageUrl: imageUrl)
-                    self.practiceList.append(practice)
-                    self.wordPracticeCounter[key]! += 1
-                    practicesForWord.append(practice)
-
-                    self.cache()
-                    self.sendWordPracticeCounterUpdateNotification()
                 }
             }
 
@@ -267,13 +289,15 @@ extension WordPracticeProducer {
                 }
                                        
                 for _ in 0..<nRepetitions {
-                    if let practice = self.makeAccentSelectionPractice(
-                        word: fixedText ?? text,
-                        query: fixedText ?? text,
-                        tokens: tokens
-                    ) {
-                        self.practiceList.append(practice)
-                        self.wordPracticeCounter[key]! += 1
+                    if enabledTypes.contains(.accentSelection) {
+                        if let practice = self.makeAccentSelectionPractice(
+                            word: fixedText ?? text,
+                            query: fixedText ?? text,
+                            tokens: tokens
+                        ) {
+                            self.practiceList.append(practice)
+                            self.wordPracticeCounter[key]! += 1
+                        }
                     }
                 }
 
@@ -341,42 +365,50 @@ extension WordPracticeProducer {
         )
     }
     
-    private func choices(for wordToPractice: String, textForChoice: (Word) -> String) -> [String]? {
-        
+    private func choices(for wordToPractice: String, textForChoice: (Word) -> String, preferredWords: [Word] = []) -> [String]? {
+
         guard self.words.count >= Self.defaultChoiceNumber else {
             return nil
         }
-        
+
         var choices: [String] = [wordToPractice]
-        // Randomly choose words.
-        while true {
-            let randomWord = self.words.randomElement()!
-            let choice = textForChoice(randomWord)
+
+        var shuffledPreferred = preferredWords.shuffled()
+        while choices.count < Self.defaultChoiceNumber && !shuffledPreferred.isEmpty {
+            let choice = textForChoice(shuffledPreferred.removeFirst())
             if !choices.contains(choice) {
                 choices.append(choice)
             }
-            
-            if choices.count == Self.defaultChoiceNumber {
-                break
-            }
         }
+
+        var loopCount = 0
+        while choices.count < Self.defaultChoiceNumber {
+            let choice = textForChoice(self.words.randomElement()!)
+            if !choices.contains(choice) || loopCount >= Self.maxChoiceLoopCount {
+                choices.append(choice)
+            }
+            loopCount += 1
+        }
+
         choices.shuffle()
         return choices
-        
+
     }
     
     private func makeMeaningSelectionPractice(
         word: String,
         query: String,
         key: String,
-        direction: WordPractice.PracticeDirection
+        direction: WordPractice.PracticeDirection,
+        preferredWords: [Word] = []
     ) -> WordPractice? {
-        
+
         guard let choices = choices(
             for: key,
             textForChoice: {
                 direction == .textToMeaning ? $0.meaning : $0.text
-            }
+            },
+            preferredWords: preferredWords
         ) else {
             return nil
         }
@@ -413,19 +445,21 @@ extension WordPracticeProducer {
     
     private func makeContextSelectionPractice(
         word: String,
-        query: String
+        query: String,
+        preferredWords: [Word] = []
     ) -> WordPractice? {
-        
+
         let candidates = articles.paraCandidates(for: query)
         guard candidates.count != 0,
-              let candidate = candidates.randomElement() 
+              let candidate = candidates.randomElement()
         else {
             return nil
         }
-        
+
         guard let choices = choices(
             for: query,
-            textForChoice: { $0.text }
+            textForChoice: { $0.text },
+            preferredWords: preferredWords
         ) else {
             return nil
         }
@@ -705,8 +739,8 @@ extension WordPracticeProducer {
                 
     }
 
-    private func makeImageSelectionPractice(word: String, imageUrl: String) -> WordPractice? {
-        guard let choices = choices(for: word, textForChoice: { $0.text }) else {
+    private func makeImageSelectionPractice(word: String, imageUrl: String, preferredWords: [Word] = []) -> WordPractice? {
+        guard let choices = choices(for: word, textForChoice: { $0.text }, preferredWords: preferredWords) else {
             return nil
         }
         return WordPractice(
@@ -773,8 +807,9 @@ extension WordPracticeProducer {
 extension WordPracticeProducer {
     
     // MARK: - Constants
-    
+
     private static let defaultChoiceNumber: Int = 3
+    private static let maxChoiceLoopCount: Int = 30
 
     // MARK: - Class methods
 

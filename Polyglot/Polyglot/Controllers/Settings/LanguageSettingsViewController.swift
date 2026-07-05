@@ -9,7 +9,7 @@
 import UIKit
 
 class LanguageSettingsViewController: SettingsViewController {
-    
+
     var selectedTranslationLang = LangCode.currentLanguage.configs.languageForTranslation
     var nounCaseIsOn = LangCode.currentLanguage.configs.shouldShowNounCasesInPractices
     var nounCaseExcludedWords = LangCode.currentLanguage.configs.nounCasesExcludedWords
@@ -32,7 +32,7 @@ class LanguageSettingsViewController: SettingsViewController {
                 ss.append(practiceType.text)
             }
         }
-        
+
         var text = ss.joined(separator: ", ")
         if text.strip().isEmpty {
             text = "Inactive"
@@ -41,6 +41,19 @@ class LanguageSettingsViewController: SettingsViewController {
     }
     var hasDuolingoArticles: Bool = false
     var isRussianLanguage: Bool = LangCode.currentLanguage == .ru
+
+    var phraseReviewEnabledPracticeTypes = LangCode.currentLanguage.configs.phraseReviewEnabledPracticeTypes
+
+    var phraseReviewPracticeDuration = LangCode.currentLanguage.configs.phraseReviewPracticeDuration
+    var listeningPracticeDuration = LangCode.currentLanguage.configs.listeningPracticeDuration
+    var videoShadowingPracticeDuration = LangCode.currentLanguage.configs.videoShadowingPracticeDuration
+    var speakingPracticeDuration = LangCode.currentLanguage.configs.speakingPracticeDuration
+    var readingPracticeDuration = LangCode.currentLanguage.configs.readingPracticeDuration
+    var podcastPracticeDuration = LangCode.currentLanguage.configs.podcastPracticeDuration
+
+    var wordPracticeRepetition = LangCode.currentLanguage.configs.wordPracticeRepetition
+    var listeningPracticeRepetition = LangCode.currentLanguage.configs.listeningPracticeRepetition
+    var speakingPracticeRepetition = LangCode.currentLanguage.configs.speakingPracticeRepetition
 
     override func saveSettings() {
         let base = hasDuolingoArticles ? 1 : 0
@@ -51,28 +64,29 @@ class LanguageSettingsViewController: SettingsViewController {
             voiceRate: (cells[1][0] as! SettingsSlidingCell).slider.value,
             slowVoiceRate: (cells[1][1] as! SettingsSlidingCell).slider.value,
 
-            phraseReviewPracticeDuration: Int((cells[2][0] as! SettingsSlidingCell).slider.value),
-            listeningPracticeDuration: Int((cells[2][1] as! SettingsSlidingCell).slider.value),
-            videoShadowingPracticeDuration: Int((cells[2][2] as! SettingsSlidingCell).slider.value),
-            speakingPracticeDuration: Int((cells[2][3] as! SettingsSlidingCell).slider.value),
-            readingPracticeDuration: Int((cells[2][4] as! SettingsSlidingCell).slider.value),
-            podcastPracticeDuration: Int((cells[2][5] as! SettingsSlidingCell).slider.value),
+            phraseReviewPracticeDuration: phraseReviewPracticeDuration,
+            listeningPracticeDuration: listeningPracticeDuration,
+            videoShadowingPracticeDuration: videoShadowingPracticeDuration,
+            speakingPracticeDuration: speakingPracticeDuration,
+            readingPracticeDuration: readingPracticeDuration,
+            podcastPracticeDuration: podcastPracticeDuration,
 
-            wordPracticeRepetition: Int((cells[3][0] as! SettingsSlidingCell).slider.value),
-            listeningPracticeRepetition: Int((cells[3][1] as! SettingsSlidingCell).slider.value),
-            speakingPracticeRepetition: Int((cells[3][2] as! SettingsSlidingCell).slider.value),
+            wordPracticeRepetition: wordPracticeRepetition,
+            listeningPracticeRepetition: listeningPracticeRepetition,
+            speakingPracticeRepetition: speakingPracticeRepetition,
 
             isDuolingoOnlyForShadowing: practiceType2isDuolingoOnly[.shadowing]!,
             isDuolingoOnlyForSpeaking: practiceType2isDuolingoOnly[.speaking]!,
             isDuolingoOnlyForReading: practiceType2isDuolingoOnly[.reading]!,
             isDuolingoOnlyForPodcast: practiceType2isDuolingoOnly[.podcast]!,
+            phraseReviewEnabledPracticeTypes: phraseReviewEnabledPracticeTypes,
 
-            canGenerateTextsWithLLMsForPractices: (cells[4 + base][0] as! SettingsSwitchingCell).switchView.isOn,
+            canGenerateTextsWithLLMsForPractices: (cells[3 + base][0] as! SettingsSwitchingCell).switchView.isOn,
 
-            shouldRemindToAddNewArticles: (cells[5 + base][0] as! SettingsSwitchingCell).switchView.isOn,
+            shouldRemindToAddNewArticles: LangCode.currentLanguage.configs.shouldRemindToAddNewArticles,
 
             shouldShowVerbAspectsInPractices: isRussianLanguage
-                ? (cells[6 + base][0] as! SettingsSwitchingCell).switchView.isOn
+                ? (cells[4 + base][0] as! SettingsSwitchingCell).switchView.isOn
                 : LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices,
 
             shouldShowNounCasesInPractices: isRussianLanguage
@@ -85,21 +99,19 @@ class LanguageSettingsViewController: SettingsViewController {
 
         )
     }
-    
+
     // MARK: - Init
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         // TODO: - Update localization
         headers = [
             "Language for Translating \(LangCode.currentLanguage.rawValue) Texts",
             "Voice Rate for Synthesizing \(LangCode.currentLanguage.rawValue) Texts",
-            "Practice Durations",
-            "Practice Repetitions",
+            "Practice Configs",
             "Duolingo Only",
             "Content Generation",
-            "Reminders",
             "Grammar",
         ]
         cells = [
@@ -110,7 +122,7 @@ class LanguageSettingsViewController: SettingsViewController {
                         style: .value1,
                         reuseIdentifier: ""
                     )
-                    
+
                     cell.selectionStyle = .none
                     cell.imageView?.image = Icons.googleTranslateIcon.scaledToListIconSize()
                     cell.textLabel?.text = "Translate \(LangCode.currentLanguage.rawValue) →"  // TODO: - Update localization
@@ -122,7 +134,7 @@ class LanguageSettingsViewController: SettingsViewController {
                     cell.detailTextLabel?.textColor = Colors.weakTextColor
                     cell.detailTextLabel?.textAlignment = .right
                     cell.accessoryType = .disclosureIndicator
-                    
+
                     return cell
                 }()
             ],
@@ -155,126 +167,36 @@ class LanguageSettingsViewController: SettingsViewController {
                     return cell
                 }()
             ],
-            // Practice durations.
+            // Practice configs.
             [
                 {
-                    let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
-                    cell.imageView?.image = Images.wordPracticeImage
-                    cell.step = 5
-                    cell.slider.minimumValue = 5
-                    cell.slider.maximumValue = 30
-                    cell.slider.value = Float(LangCode.currentLanguage.configs.phraseReviewPracticeDuration)
-                    cell.formatingFunc = { (sliderVal: Float) -> String in
-                        return "\(String(Int(sliderVal))) mins"  // TODO: - Update localization
-                    }
-                    cell.label.text = cell.formatingFunc(cell.slider.value)
+                    let cell = UITableViewCell(style: .value1, reuseIdentifier: "")
+                    cell.selectionStyle = .none
+                    cell.imageView?.image = UIImage(systemName: "clock")
+                    cell.textLabel?.text = "Practice Durations"  // TODO: - Update localization
+                    cell.textLabel?.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
+                    cell.textLabel?.textColor = Colors.normalTextColor
+                    cell.accessoryType = .disclosureIndicator
                     return cell
                 }(),
                 {
-                    let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
-                    cell.imageView?.image = Images.listeningPracticeImage
-                    cell.step = 5
-                    cell.slider.minimumValue = 5
-                    cell.slider.maximumValue = 30
-                    cell.slider.value = Float(LangCode.currentLanguage.configs.listeningPracticeDuration)
-                    cell.formatingFunc = { (sliderVal: Float) -> String in
-                        return "\(String(Int(sliderVal))) mins"  // TODO: - Update localization
-                    }
-                    cell.label.text = cell.formatingFunc(cell.slider.value)
+                    let cell = UITableViewCell(style: .value1, reuseIdentifier: "")
+                    cell.selectionStyle = .none
+                    cell.imageView?.image = UIImage(systemName: "repeat")
+                    cell.textLabel?.text = "Practice Repetitions"  // TODO: - Update localization
+                    cell.textLabel?.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
+                    cell.textLabel?.textColor = Colors.normalTextColor
+                    cell.accessoryType = .disclosureIndicator
                     return cell
                 }(),
                 {
-                    let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
-                    cell.imageView?.image = Images.videoShadowingPracticeImage
-                    cell.step = 5
-                    cell.slider.minimumValue = 5
-                    cell.slider.maximumValue = 30
-                    cell.slider.value = Float(LangCode.currentLanguage.configs.videoShadowingPracticeDuration)
-                    cell.formatingFunc = { (sliderVal: Float) -> String in
-                        return "\(String(Int(sliderVal))) mins"  // TODO: - Update localization
-                    }
-                    cell.label.text = cell.formatingFunc(cell.slider.value)
-                    return cell
-                }(),
-                {
-                    let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
-                    cell.imageView?.image = Images.translationPracticeImage
-                    cell.step = 5
-                    cell.slider.minimumValue = 5
-                    cell.slider.maximumValue = 30
-                    cell.slider.value = Float(LangCode.currentLanguage.configs.speakingPracticeDuration)
-                    cell.formatingFunc = { (sliderVal: Float) -> String in
-                        return "\(String(Int(sliderVal))) mins"  // TODO: - Update localization
-                    }
-                    cell.label.text = cell.formatingFunc(cell.slider.value)
-                    return cell
-                }(),
-                {
-                    let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
-                    cell.imageView?.image = Images.readingPracticeImage
-                    cell.step = 5
-                    cell.slider.minimumValue = 5
-                    cell.slider.maximumValue = 30
-                    cell.slider.value = Float(LangCode.currentLanguage.configs.readingPracticeDuration)
-                    cell.formatingFunc = { (sliderVal: Float) -> String in
-                        return "\(String(Int(sliderVal))) mins"  // TODO: - Update localization
-                    }
-                    cell.label.text = cell.formatingFunc(cell.slider.value)
-                    return cell
-                }(),
-                {
-                    let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
-                    cell.imageView?.image = Images.podcastPracticeImage
-                    cell.step = 5
-                    cell.slider.minimumValue = 5
-                    cell.slider.maximumValue = 30
-                    cell.slider.value = Float(LangCode.currentLanguage.configs.podcastPracticeDuration)
-                    cell.formatingFunc = { (sliderVal: Float) -> String in
-                        return "\(String(Int(sliderVal))) mins"  // TODO: - Update localization
-                    }
-                    cell.label.text = cell.formatingFunc(cell.slider.value)
-                    return cell
-                }()
-            ],
-            // Practice repetitions.
-            [
-                {
-                    let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
-                    cell.imageView?.image = Images.wordPracticeImage
-                    cell.step = 1
-                    cell.slider.minimumValue = 0
-                    cell.slider.maximumValue = 5
-                    cell.slider.value = Float(LangCode.currentLanguage.configs.wordPracticeRepetition)
-                    cell.formatingFunc = { (sliderVal: Float) -> String in
-                        return "\(String(Int(sliderVal))) times"  // TODO: - Update localization
-                    }
-                    cell.label.text = cell.formatingFunc(cell.slider.value)
-                    return cell
-                }(),
-                {
-                    let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
-                    cell.imageView?.image = Images.listeningPracticeImage
-                    cell.step = 1
-                    cell.slider.minimumValue = 0
-                    cell.slider.maximumValue = 5
-                    cell.slider.value = Float(LangCode.currentLanguage.configs.listeningPracticeRepetition)
-                    cell.formatingFunc = { (sliderVal: Float) -> String in
-                        return "\(String(Int(sliderVal))) times"  // TODO: - Update localization
-                    }
-                    cell.label.text = cell.formatingFunc(cell.slider.value)
-                    return cell
-                }(),
-                {
-                    let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
-                    cell.imageView?.image = Images.translationPracticeImage
-                    cell.step = 1
-                    cell.slider.minimumValue = 0
-                    cell.slider.maximumValue = 5
-                    cell.slider.value = Float(LangCode.currentLanguage.configs.speakingPracticeRepetition)
-                    cell.formatingFunc = { (sliderVal: Float) -> String in
-                        return "\(String(Int(sliderVal))) times"  // TODO: - Update localization
-                    }
-                    cell.label.text = cell.formatingFunc(cell.slider.value)
+                    let cell = UITableViewCell(style: .value1, reuseIdentifier: "")
+                    cell.selectionStyle = .none
+                    cell.imageView?.image = UIImage(systemName: "checklist")
+                    cell.textLabel?.text = "Practice Types"  // TODO: - Update localization
+                    cell.textLabel?.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
+                    cell.textLabel?.textColor = Colors.normalTextColor
+                    cell.accessoryType = .disclosureIndicator
                     return cell
                 }()
             ],
@@ -285,7 +207,7 @@ class LanguageSettingsViewController: SettingsViewController {
                         style: .value1,
                         reuseIdentifier: ""
                     )
-                    
+
                     cell.selectionStyle = .none
                     cell.imageView?.image = Icons.duolingoIcon.scaledToListIconSize()
                     cell.textLabel?.text = textForDuolingoOnlyCell
@@ -293,7 +215,7 @@ class LanguageSettingsViewController: SettingsViewController {
                     cell.textLabel?.textColor = Colors.normalTextColor
                     cell.textLabel?.textAlignment = .left
                     cell.accessoryType = .disclosureIndicator
-                    
+
                     return cell
                 }()
             ],
@@ -304,16 +226,6 @@ class LanguageSettingsViewController: SettingsViewController {
                     cell.imageView?.image = Icons.chatgptIcon.scaledToListIconSize()
                     cell.switchView.isOn = LangCode.currentLanguage.configs.canGenerateTextsWithLLMsForPractices
                     cell.label.text = "Allow LLM Text Genetation"  // TODO: - Update localization
-                    return cell
-                }()
-            ],
-            // Reminders.
-            [
-                {
-                    let cell = SettingsSwitchingCell(style: .default, reuseIdentifier: "")
-                    cell.imageView?.image = Images.articlesImage
-                    cell.switchView.isOn = LangCode.currentLanguage.configs.shouldRemindToAddNewArticles
-                    cell.label.text = "Remind to add new articles"  // TODO: - Update localization
                     return cell
                 }()
             ],
@@ -344,8 +256,8 @@ class LanguageSettingsViewController: SettingsViewController {
         ]
 
         if !hasDuolingoArticles {
-            headers.remove(at: 4)
-            cells.remove(at: 4)
+            headers.remove(at: 3)
+            cells.remove(at: 3)
         }
         if !isRussianLanguage {
             headers.removeLast()
@@ -353,19 +265,19 @@ class LanguageSettingsViewController: SettingsViewController {
         }
 
     }
-    
+
     override func updateViews() {
         super.updateViews()
-        
+
         navigationItem.title = Strings.configurations
     }
-    
+
 }
 
 extension LanguageSettingsViewController {
-    
+
     // MARK: - UITableView Delegate
-    
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if indexPath.section == 0 && indexPath.row == 0 {
             let vc = LanguageSelectionViewController()
@@ -373,7 +285,19 @@ extension LanguageSettingsViewController {
             vc.langs = LangCode.currentLanguage.languagesForTranslation
             vc.selectedLang = selectedTranslationLang
             navigationController?.pushViewController(vc, animated: true)
-        } else if indexPath.section == 4 && indexPath.row == 0 {
+        } else if indexPath.section == 2 && indexPath.row == 0 {
+            let vc = PracticeDurationsSettingsViewController()
+            vc.delegate = self
+            navigationController?.pushViewController(vc, animated: true)
+        } else if indexPath.section == 2 && indexPath.row == 1 {
+            let vc = PracticeRepetitionsSettingsViewController()
+            vc.delegate = self
+            navigationController?.pushViewController(vc, animated: true)
+        } else if indexPath.section == 2 && indexPath.row == 2 {
+            let vc = PhraseReviewPracticeTypeSettingsViewController()
+            vc.delegate = self
+            navigationController?.pushViewController(vc, animated: true)
+        } else if hasDuolingoArticles && indexPath.section == 3 && indexPath.row == 0 {
             let vc = DuolingoOnlySelectionViewController()
             vc.delegate = self
             vc.practiceType2isDuolingoOnly = self.practiceType2isDuolingoOnly
@@ -384,23 +308,23 @@ extension LanguageSettingsViewController {
             navigationController?.pushViewController(vc, animated: true)
         }
     }
-    
+
 }
 
 extension LanguageSettingsViewController: LanguageSelectionViewControllerDelegate {
-    
+
     func updateLanguage(as language: LangCode) {
         selectedTranslationLang = language
         cells[0][0].detailTextLabel?.text = language.rawValue
     }
-    
+
 }
 
 extension LanguageSettingsViewController: DuolingoOnlySelectionViewControllerDelegate {
 
     func updateselectionMapping(with selectionMapping: [DuolingoOnlySelectionViewController.PracticeType: Bool]) {
         self.practiceType2isDuolingoOnly = selectionMapping
-        cells[4][0].textLabel?.text = textForDuolingoOnlyCell
+        cells[3][0].textLabel?.text = textForDuolingoOnlyCell
     }
 
 }
@@ -411,7 +335,45 @@ extension LanguageSettingsViewController: NounCaseSettingsViewControllerDelegate
         nounCaseIsOn = isOn
         nounCaseExcludedWords = excludedWords
         let base = hasDuolingoArticles ? 1 : 0
-        cells[6 + base][1].detailTextLabel?.text = isOn ? "On" : "Off"
+        cells[4 + base][1].detailTextLabel?.text = isOn ? "On" : "Off"
+    }
+
+}
+
+extension LanguageSettingsViewController: PracticeDurationsSettingsViewControllerDelegate {
+
+    func practiceDurationsDidUpdate(
+        phraseReview: Int,
+        listening: Int,
+        videoShadowing: Int,
+        speaking: Int,
+        reading: Int,
+        podcast: Int
+    ) {
+        phraseReviewPracticeDuration = phraseReview
+        listeningPracticeDuration = listening
+        videoShadowingPracticeDuration = videoShadowing
+        speakingPracticeDuration = speaking
+        readingPracticeDuration = reading
+        podcastPracticeDuration = podcast
+    }
+
+}
+
+extension LanguageSettingsViewController: PracticeRepetitionsSettingsViewControllerDelegate {
+
+    func practiceRepetitionsDidUpdate(word: Int, listening: Int, speaking: Int) {
+        wordPracticeRepetition = word
+        listeningPracticeRepetition = listening
+        speakingPracticeRepetition = speaking
+    }
+
+}
+
+extension LanguageSettingsViewController: PhraseReviewPracticeTypeSettingsViewControllerDelegate {
+
+    func phraseReviewPracticeTypesDidUpdate(_ enabledTypes: Set<WordPractice.PracticeType>) {
+        phraseReviewEnabledPracticeTypes = enabledTypes
     }
 
 }

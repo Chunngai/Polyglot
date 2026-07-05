@@ -407,6 +407,8 @@ struct LangConfigs: Codable {
     var listeningPracticeRepetition: Int
     var speakingPracticeRepetition: Int
 
+    var phraseReviewEnabledPracticeTypes: Set<WordPractice.PracticeType>
+
     var isDuolingoOnlyForShadowing: Bool
     var isDuolingoOnlyForSpeaking: Bool
     var isDuolingoOnlyForReading: Bool
@@ -437,6 +439,7 @@ struct LangConfigs: Codable {
         isDuolingoOnlyForSpeaking: Bool,
         isDuolingoOnlyForReading: Bool,
         isDuolingoOnlyForPodcast: Bool,
+        phraseReviewEnabledPracticeTypes: Set<WordPractice.PracticeType> = Set(WordPractice.PracticeType.allCases),
         canGenerateTextsWithLLMsForPractices: Bool,
         shouldRemindToAddNewArticles: Bool,
         shouldShowVerbAspectsInPractices: Bool = false,
@@ -459,6 +462,7 @@ struct LangConfigs: Codable {
         self.isDuolingoOnlyForSpeaking = isDuolingoOnlyForSpeaking
         self.isDuolingoOnlyForReading = isDuolingoOnlyForReading
         self.isDuolingoOnlyForPodcast = isDuolingoOnlyForPodcast
+        self.phraseReviewEnabledPracticeTypes = phraseReviewEnabledPracticeTypes
         self.canGenerateTextsWithLLMsForPractices = canGenerateTextsWithLLMsForPractices
         self.shouldRemindToAddNewArticles = shouldRemindToAddNewArticles
         self.shouldShowVerbAspectsInPractices = shouldShowVerbAspectsInPractices
@@ -489,6 +493,7 @@ struct LangConfigs: Codable {
         case isDuolingoOnlyForSpeaking
         case isDuolingoOnlyForReading
         case isDuolingoOnlyForPodcast
+        case phraseReviewEnabledPracticeTypes
         
         case canGenerateTextsWithLLMsForPractices
 
@@ -519,6 +524,7 @@ struct LangConfigs: Codable {
         try container.encode(isDuolingoOnlyForSpeaking, forKey: .isDuolingoOnlyForSpeaking)
         try container.encode(isDuolingoOnlyForReading, forKey: .isDuolingoOnlyForReading)
         try container.encode(isDuolingoOnlyForPodcast, forKey: .isDuolingoOnlyForPodcast)
+        try container.encode(phraseReviewEnabledPracticeTypes, forKey: .phraseReviewEnabledPracticeTypes)
         try container.encode(canGenerateTextsWithLLMsForPractices, forKey: .canGenerateTextsWithLLMsForPractices)
         try container.encode(shouldRemindToAddNewArticles, forKey: .shouldRemindToAddNewArticles)
         try container.encode(shouldShowVerbAspectsInPractices, forKey: .shouldShowVerbAspectsInPractices)
@@ -601,6 +607,11 @@ struct LangConfigs: Codable {
             isDuolingoOnlyForPodcast = try values.decode(Bool.self, forKey: .isDuolingoOnlyForPodcast)
         } catch {
             isDuolingoOnlyForPodcast = Self.defaultConfigs.isDuolingoOnlyForPodcast
+        }
+        do {
+            phraseReviewEnabledPracticeTypes = try values.decode(Set<WordPractice.PracticeType>.self, forKey: .phraseReviewEnabledPracticeTypes)
+        } catch {
+            phraseReviewEnabledPracticeTypes = Self.defaultConfigs.phraseReviewEnabledPracticeTypes
         }
         canGenerateTextsWithLLMsForPractices = try values.decode(Bool.self, forKey: .canGenerateTextsWithLLMsForPractices)
         do {
