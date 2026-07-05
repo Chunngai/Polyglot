@@ -978,6 +978,8 @@ extension TextMeaningPracticeView {
     @objc
     private func backgroundTapped() {
         chatTextField.resignFirstResponder()
+        textView.resignFirstResponder()
+        selectionDidClear()
     }
 
 }
