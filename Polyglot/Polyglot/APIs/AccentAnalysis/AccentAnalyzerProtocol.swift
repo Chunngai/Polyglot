@@ -142,8 +142,28 @@ func calculateVerbAspectAnnotations(for text: String, with tokens: [Token]) -> [
     return annotations
 }
 
-private let prepGoverningPreps: Set<String> = ["в", "во", "на", "о", "об", "обо", "при"]
-private let datGoverningPreps: Set<String>  = ["к", "ко", "благодаря", "вопреки", "согласно", "навстречу"]
+// Maps prepositions to the case they govern.
+// в/на govern both acc and prep, but an ambiguous token after в/на is almost
+// certainly not in acc (acc forms are usually unambiguous), so we map to prep.
+private let prepToCase: [String: String] = [
+    // Genitive
+    "без": "gen", "до": "gen", "из": "gen", "от": "gen", "у": "gen",
+    "для": "gen", "после": "gen", "вместо": "gen", "кроме": "gen",
+    "около": "gen", "вдоль": "gen", "возле": "gen", "против": "gen",
+    "среди": "gen", "мимо": "gen", "вокруг": "gen", "ради": "gen",
+    "вне": "gen", "внутри": "gen", "из-за": "gen", "из-под": "gen",
+    // Dative
+    "к": "dat", "ко": "dat", "благодаря": "dat", "вопреки": "dat",
+    "согласно": "dat", "навстречу": "dat", "наперекор": "dat",
+    // Accusative
+    "через": "acc", "про": "acc", "сквозь": "acc",
+    // Instrumental
+    "над": "inst", "перед": "inst", "между": "inst",
+    // Prepositional
+    "в": "prep", "на": "prep",
+    "о": "prep", "об": "prep", "обо": "prep", "при": "prep",
+    "во": "prep",
+]
 
 func calculateNounCaseAnnotations(for text: String, with tokens: [Token]) -> [NounCaseAnnotation] {
     var annotations: [NounCaseAnnotation] = []
@@ -154,14 +174,10 @@ func calculateNounCaseAnnotations(for text: String, with tokens: [Token]) -> [No
             if curIndexInText >= text.count { return annotations }
         }
         if var nounCase = token.nounCase {
-            if nounCase == "dat_or_prep" {
+            if nounCase == "ambiguous" {
                 let prevText = i > 0 ? tokens[i - 1].text.lowercased() : ""
-                if prepGoverningPreps.contains(prevText) {
-                    nounCase = "prep"
-                } else if datGoverningPreps.contains(prevText) {
-                    nounCase = "dat"
-                } else {
-                    nounCase = "ambiguous"
+                if let resolved = prepToCase[prevText] {
+                    nounCase = resolved
                 }
             }
             annotations.append(NounCaseAnnotation(

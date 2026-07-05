@@ -418,6 +418,7 @@ struct LangConfigs: Codable {
 
     var shouldShowVerbAspectsInPractices: Bool
     var shouldShowNounCasesInPractices: Bool
+    var nounCasesExcludedWords: String
 
     init(
         languageForTranslation: LangCode,
@@ -439,7 +440,8 @@ struct LangConfigs: Codable {
         canGenerateTextsWithLLMsForPractices: Bool,
         shouldRemindToAddNewArticles: Bool,
         shouldShowVerbAspectsInPractices: Bool = false,
-        shouldShowNounCasesInPractices: Bool = false
+        shouldShowNounCasesInPractices: Bool = false,
+        nounCasesExcludedWords: String = ""
     ) {
         self.languageForTranslation = languageForTranslation
         self.voiceRate = voiceRate
@@ -461,6 +463,7 @@ struct LangConfigs: Codable {
         self.shouldRemindToAddNewArticles = shouldRemindToAddNewArticles
         self.shouldShowVerbAspectsInPractices = shouldShowVerbAspectsInPractices
         self.shouldShowNounCasesInPractices = shouldShowNounCasesInPractices
+        self.nounCasesExcludedWords = nounCasesExcludedWords
     }
     
     enum CodingKeys: String, CodingKey {
@@ -493,6 +496,7 @@ struct LangConfigs: Codable {
 
         case shouldShowVerbAspectsInPractices
         case shouldShowNounCasesInPractices
+        case nounCasesExcludedWords
 
     }
     
@@ -519,6 +523,7 @@ struct LangConfigs: Codable {
         try container.encode(shouldRemindToAddNewArticles, forKey: .shouldRemindToAddNewArticles)
         try container.encode(shouldShowVerbAspectsInPractices, forKey: .shouldShowVerbAspectsInPractices)
         try container.encode(shouldShowNounCasesInPractices, forKey: .shouldShowNounCasesInPractices)
+        try container.encode(nounCasesExcludedWords, forKey: .nounCasesExcludedWords)
 
     }
     
@@ -612,6 +617,11 @@ struct LangConfigs: Codable {
             shouldShowNounCasesInPractices = try values.decode(Bool.self, forKey: .shouldShowNounCasesInPractices)
         } catch {
             shouldShowNounCasesInPractices = Self.defaultConfigs.shouldShowNounCasesInPractices
+        }
+        do {
+            nounCasesExcludedWords = try values.decode(String.self, forKey: .nounCasesExcludedWords)
+        } catch {
+            nounCasesExcludedWords = Self.defaultConfigs.nounCasesExcludedWords
         }
 
     }

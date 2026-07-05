@@ -688,10 +688,22 @@ extension TextMeaningPracticeView {
     func markNounCases(at annotations: [NounCaseAnnotation]) {
         guard LangCode.currentLanguage.configs.shouldShowNounCasesInPractices else { return }
 
+        let excludedWords: Set<String> = Set(
+            LangCode.currentLanguage.configs.nounCasesExcludedWords
+                .components(separatedBy: "\n")
+                .map { $0.components(separatedBy: "#").first ?? "" }
+                .map { $0.trimmingCharacters(in: .whitespaces).lowercased() }
+                .filter { !$0.isEmpty }
+        )
+
         var hasGen = false, hasDat = false, hasInst = false, hasPrep = false, hasAmbiguous = false
         for annotation in annotations {
+            let tokenText = (textView.text as NSString).substring(with: NSRange(location: annotation.position, length: annotation.length)).lowercased()
+            if excludedWords.contains(tokenText) { continue }
+
             let color: UIColor
             switch annotation.label {
+            case "nom", "acc", "nom_acc": continue
             case "gen":       color = .systemMint;   hasGen = true
             case "dat":       color = .systemOrange; hasDat = true
             case "inst":      color = UIColor(red: 1.0, green: 0.6, blue: 0.8, alpha: 1.0); hasInst = true

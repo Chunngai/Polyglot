@@ -11,6 +11,8 @@ import UIKit
 class LanguageSettingsViewController: SettingsViewController {
     
     var selectedTranslationLang = LangCode.currentLanguage.configs.languageForTranslation
+    var nounCaseIsOn = LangCode.currentLanguage.configs.shouldShowNounCasesInPractices
+    var nounCaseExcludedWords = LangCode.currentLanguage.configs.nounCasesExcludedWords
 
     var practiceType2isDuolingoOnly: [DuolingoOnlySelectionViewController.PracticeType: Bool] = [
         .shadowing: LangCode.currentLanguage.configs.isDuolingoOnlyForShadowing,
@@ -74,8 +76,12 @@ class LanguageSettingsViewController: SettingsViewController {
                 : LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices,
 
             shouldShowNounCasesInPractices: isRussianLanguage
-                ? (cells[6 + base][1] as! SettingsSwitchingCell).switchView.isOn
-                : LangCode.currentLanguage.configs.shouldShowNounCasesInPractices
+                ? nounCaseIsOn
+                : LangCode.currentLanguage.configs.shouldShowNounCasesInPractices,
+
+            nounCasesExcludedWords: isRussianLanguage
+                ? nounCaseExcludedWords
+                : LangCode.currentLanguage.configs.nounCasesExcludedWords
 
         )
     }
@@ -321,10 +327,16 @@ class LanguageSettingsViewController: SettingsViewController {
                     return cell
                 }(),
                 {
-                    let cell = SettingsSwitchingCell(style: .default, reuseIdentifier: "")
+                    let cell = UITableViewCell(style: .value1, reuseIdentifier: "")
+                    cell.selectionStyle = .none
                     cell.imageView?.image = UIImage(systemName: "n.square")
-                    cell.switchView.isOn = LangCode.currentLanguage.configs.shouldShowNounCasesInPractices
-                    cell.label.text = "Show Noun Cases"
+                    cell.textLabel?.text = "Show Noun Cases"
+                    cell.textLabel?.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
+                    cell.textLabel?.textColor = Colors.normalTextColor
+                    cell.detailTextLabel?.text = LangCode.currentLanguage.configs.shouldShowNounCasesInPractices ? "On" : "Off"
+                    cell.detailTextLabel?.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
+                    cell.detailTextLabel?.textColor = Colors.weakTextColor
+                    cell.accessoryType = .disclosureIndicator
                     return cell
                 }()
             ]
@@ -360,18 +372,16 @@ extension LanguageSettingsViewController {
             vc.delegate = self
             vc.langs = LangCode.currentLanguage.languagesForTranslation
             vc.selectedLang = selectedTranslationLang
-            navigationController?.pushViewController(
-                vc,
-                animated: true
-            )
+            navigationController?.pushViewController(vc, animated: true)
         } else if indexPath.section == 4 && indexPath.row == 0 {
             let vc = DuolingoOnlySelectionViewController()
             vc.delegate = self
             vc.practiceType2isDuolingoOnly = self.practiceType2isDuolingoOnly
-            navigationController?.pushViewController(
-                vc,
-                animated: true
-            )
+            navigationController?.pushViewController(vc, animated: true)
+        } else if isRussianLanguage && indexPath.section == cells.count - 1 && indexPath.row == 1 {
+            let vc = NounCaseSettingsViewController(isOn: nounCaseIsOn, excludedWords: nounCaseExcludedWords)
+            vc.delegate = self
+            navigationController?.pushViewController(vc, animated: true)
         }
     }
     
@@ -392,5 +402,16 @@ extension LanguageSettingsViewController: DuolingoOnlySelectionViewControllerDel
         self.practiceType2isDuolingoOnly = selectionMapping
         cells[4][0].textLabel?.text = textForDuolingoOnlyCell
     }
-    
+
+}
+
+extension LanguageSettingsViewController: NounCaseSettingsViewControllerDelegate {
+
+    func nounCaseSettingsDidUpdate(isOn: Bool, excludedWords: String) {
+        nounCaseIsOn = isOn
+        nounCaseExcludedWords = excludedWords
+        let base = hasDuolingoArticles ? 1 : 0
+        cells[6 + base][1].detailTextLabel?.text = isOn ? "On" : "Off"
+    }
+
 }
