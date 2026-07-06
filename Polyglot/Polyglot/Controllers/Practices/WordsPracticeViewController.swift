@@ -170,6 +170,16 @@ class WordsPracticeViewController: PracticeViewController {
                     practiceView.delegate = self
                     return practiceView
                 }()
+            case .phraseConstruction:
+                return {
+                    let practiceView = ReorderingPracticeView()
+                    practiceView.updateValues(
+                        words: currentPractice.reorderingWordList!,
+                        translation: currentPractice.word
+                    )
+                    practiceView.delegate = self
+                    return practiceView
+                }()
             case .imageSelection:
                 return {
                     let practiceView = ImageSelectionPracticeView()

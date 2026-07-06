@@ -153,7 +153,7 @@ class WordPractice: BasePractice, Codable {
 extension WordPractice {
     
     enum PracticeType: UInt, Codable, CaseIterable {
-        
+
         case meaningSelection
         case meaningFilling
         case contextSelection
@@ -161,7 +161,8 @@ extension WordPractice {
         case reordering
         case imageSelection
         case imageFilling
-        
+        case phraseConstruction
+
     }
 
     enum PracticeDirection: UInt, Codable {

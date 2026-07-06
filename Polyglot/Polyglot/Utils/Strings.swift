@@ -828,6 +828,18 @@ extension Strings {
         return Strings._reorderingPracticePrompts[LangCode.currentLanguage]!
     }
 
+    private static let _phraseConstructionPracticePrompts: [LangCode : String] = [
+        LangCode.en : "Construct the word.",
+        LangCode.ja : "単語を組み立ててください。",
+        LangCode.es : "Construye la palabra.",
+        LangCode.ru : "Составьте слово.",
+        LangCode.ko : "단어를 조합하십시오.",
+        LangCode.de : "Bauen Sie das Wort zusammen.",
+    ]
+    static var phraseConstructionPracticePrompt: String {
+        return Strings._phraseConstructionPracticePrompts[LangCode.currentLanguage]!
+    }
+
     private static let _imageSelectionPracticePrompts: [LangCode : String] = [
         LangCode.en : "Select the word shown in the image.",
         LangCode.ja : "画像に示された単語を選んでください。",

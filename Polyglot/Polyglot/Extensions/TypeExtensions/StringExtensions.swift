@@ -394,5 +394,15 @@ extension String {
     var md5: String {
         self._md5.map { String(format: "%02hhx", $0) }.joined()
     }
-    
+
+}
+
+extension String {
+
+    // MARK: - Syllabification for phrase construction practice
+
+    func syllabified(for lang: LangCode) -> [String] {
+        syllabifyPhrase(self, lang: lang)
+    }
+
 }

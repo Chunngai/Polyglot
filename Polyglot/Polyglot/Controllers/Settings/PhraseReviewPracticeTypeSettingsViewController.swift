@@ -21,6 +21,7 @@ class PhraseReviewPracticeTypeSettingsViewController: SettingsViewController {
         .meaningFilling,
         .contextSelection,
         .reordering,
+        .phraseConstruction,
         .imageSelection,
         .imageFilling,
         .accentSelection
@@ -31,6 +32,7 @@ class PhraseReviewPracticeTypeSettingsViewController: SettingsViewController {
         .meaningFilling:   UIImage(systemName: "pencil"),
         .contextSelection: UIImage(systemName: "text.bubble"),
         .reordering:       UIImage(systemName: "arrow.left.arrow.right"),
+        .phraseConstruction: UIImage(systemName: "puzzlepiece"),
         .imageSelection:   UIImage(systemName: "photo"),
         .imageFilling:     UIImage(systemName: "photo.badge.plus"),
         .accentSelection:  UIImage(systemName: "textformat.abc")
@@ -41,6 +43,7 @@ class PhraseReviewPracticeTypeSettingsViewController: SettingsViewController {
         .meaningFilling:   "Meaning Filling",
         .contextSelection: "Context Selection",
         .reordering:       "Reordering",
+        .phraseConstruction: "Phrase Construction",
         .imageSelection:   "Image Selection",
         .imageFilling:     "Image Filling",
         .accentSelection:  "Accent Selection"

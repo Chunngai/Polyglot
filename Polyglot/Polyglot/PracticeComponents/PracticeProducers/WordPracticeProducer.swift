@@ -272,6 +272,18 @@ extension WordPracticeProducer {
                 }
             }
 
+            if enabledTypes.contains(.phraseConstruction) {
+                for _ in 0..<nRepetitions {
+                    if let practice = makePhraseConstructionPractice(word: word) {
+                        self.practiceList.append(practice)
+                        self.wordPracticeCounter[key]! += 1
+                        practicesForWord.append(practice)
+                    }
+                }
+                self.cache()
+                self.sendWordPracticeCounterUpdateNotification()
+            }
+
             // Add accents to all practices for the word,
             // and add accent practices.
             analyzeAccents(for: word) { tokens, fixedText, text in
@@ -354,6 +366,8 @@ extension WordPracticeProducer {
             return Strings.imageSelectionPracticePrompt
         case .imageFilling:
             return Strings.imageFillingPracticePrompt
+        case .phraseConstruction:
+            return Strings.phraseConstructionPracticePrompt
         }
         
     }
@@ -764,6 +778,20 @@ extension WordPracticeProducer {
             prompt: prompt(for: .imageFilling, withWord: word),
             imageUrl: imageUrl,
             direction: .meaningToText
+        )
+    }
+
+    private func makePhraseConstructionPractice(word: String) -> WordPractice? {
+        let chunks = word.syllabified(for: self.lang)
+        guard chunks.count >= 2 else { return nil }
+        return WordPractice(
+            practiceType: .phraseConstruction,
+            word: word,
+            query: word,
+            key: chunks.joined(separator: Strings.wordSeparator),
+            prompt: prompt(for: .phraseConstruction, withWord: word),
+            reorderingWordList: chunks,
+            direction: .text
         )
     }
 
