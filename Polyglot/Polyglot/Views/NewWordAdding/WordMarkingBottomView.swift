@@ -28,6 +28,8 @@ class WordMarkingBottomView: UIView {
     
     var offset: CGFloat!
     var isFloatingUp: Bool = false
+    private var panStartY: CGFloat = 0
+    private var restingY: CGFloat = 0
 
     private var translator: MachineTranslator!
     private var translations: [String] = []
@@ -131,15 +133,16 @@ class WordMarkingBottomView: UIView {
     
     private func updateSetups() {
         isAddingNewWord = true
-        
+
         doneButton.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
         deleteButton.addTarget(self, action: #selector(deleteButtonTapped), for: .touchUpInside)
-        
+
         translateButton.addTarget(self, action: #selector(translateButtonTapped), for: .touchUpInside)
-        
+
         meaningTextField.delegate = self
-        
-        // TODO: Swipe to float down. If a new word is being added, prohibit the swiping and highlight the text field.
+
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+        addGestureRecognizer(panGesture)
     }
     
     private func updateViews() {
@@ -200,6 +203,7 @@ extension WordMarkingBottomView {
     // MARK: - Floating Functions.
     
     func floatUp(by offset: CGFloat) {
+        let targetY = frame.minY - offset
         UIView.animate(
             withDuration: WordMarkingBottomView.floatingDuration,
             delay: WordMarkingBottomView.floatingDelay,
@@ -207,20 +211,21 @@ extension WordMarkingBottomView {
             animations: {
                 self.frame = CGRect(
                     x: self.frame.minX,
-                    y: self.frame.minY - offset,
+                    y: targetY,
                     width: self.frame.width,
                     height: self.frame.height
                 )
                 self.layoutIfNeeded()
         })
-        
+
+        restingY = targetY
         isFloatingUp = true
     }
-    
+
     func floatUp() {
         self.floatUp(by: offset)
     }
-    
+
     func floatDown(by offset: CGFloat) {
         UIView.animate(
             withDuration: WordMarkingBottomView.floatingDuration,
@@ -229,16 +234,16 @@ extension WordMarkingBottomView {
             animations: {
                 self.frame = CGRect(
                     x: self.frame.minX,
-                    y: self.frame.minY + offset,
+                    y: self.restingY + self.offset,
                     width: self.frame.width,
                     height: self.frame.height
                 )
                 self.layoutIfNeeded()
         })
-        
+
         isFloatingUp = false
     }
-    
+
     func floatDown() {
         self.floatDown(by: offset)
     }
@@ -259,6 +264,45 @@ extension WordMarkingBottomView {
     
     // MARK: - Selectors
     
+    @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
+        switch gesture.state {
+        case .began:
+            panStartY = frame.minY
+        case .changed:
+            let dy = gesture.translation(in: superview).y
+            if dy > 0 {
+                frame.origin.y = panStartY + dy
+            }
+        case .ended, .cancelled:
+            let dy = gesture.translation(in: superview).y
+            let velocity = gesture.velocity(in: superview).y
+            if isAddingNewWord == true && meaning.trimmingCharacters(in: .whitespaces).isEmpty {
+                // Snap back and shake the text field as a hint.
+                UIView.animate(withDuration: 0.25, delay: 0, options: [.curveEaseOut]) {
+                    self.frame.origin.y = self.panStartY
+                }
+                shakeMeaningTextField()
+            } else if dy > frame.height * 0.4 || velocity > 800 {
+                floatDown()
+                clear()
+            } else {
+                UIView.animate(withDuration: 0.25, delay: 0, options: [.curveEaseOut]) {
+                    self.frame.origin.y = self.panStartY
+                }
+            }
+        default:
+            break
+        }
+    }
+
+    private func shakeMeaningTextField() {
+        let animation = CAKeyframeAnimation(keyPath: "transform.translation.x")
+        animation.timingFunction = CAMediaTimingFunction(name: .linear)
+        animation.duration = 0.4
+        animation.values = [-10, 10, -8, 8, -5, 5, 0]
+        meaningTextField.layer.add(animation, forKey: "shake")
+    }
+
     @objc private func doneButtonTapped() {
         
         meaningTextField.endEditing(true)  // Dismiss the keyboard.
