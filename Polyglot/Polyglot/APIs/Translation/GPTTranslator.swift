@@ -90,7 +90,11 @@ Translate the given text from \(self.enNameOfSrcLang!) to \(self.enNameOfTrgLang
                 completion([])
                 return
             }
-            completion([translation.strip()])
+            var result = translation.strip()
+            if let range = result.range(of: "<output>", options: .caseInsensitive) {
+                result = String(result[range.upperBound...]).strip()
+            }
+            completion([result])
         }
 
     }

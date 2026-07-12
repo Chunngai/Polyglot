@@ -142,9 +142,6 @@ func calculateVerbAspectAnnotations(for text: String, with tokens: [Token]) -> [
     return annotations
 }
 
-// Maps prepositions to the case they govern.
-// в/на govern both acc and prep, but an ambiguous token after в/на is almost
-// certainly not in acc (acc forms are usually unambiguous), so we map to prep.
 private let prepToCase: [String: String] = [
     // Genitive
     "без": "gen", "до": "gen", "из": "gen", "от": "gen", "у": "gen",
@@ -159,34 +156,78 @@ private let prepToCase: [String: String] = [
     "через": "acc", "про": "acc", "сквозь": "acc",
     // Instrumental
     "над": "inst", "перед": "inst", "между": "inst",
-    // Prepositional
+    // Prepositional — в/на map to prep here; acc resolution is handled separately
     "в": "prep", "на": "prep",
     "о": "prep", "об": "prep", "обо": "prep", "при": "prep",
     "во": "prep",
 ]
 
+private let quantityWords: Set<String> = [
+    "нет", "много", "мало", "немного", "немало", "несколько",
+    "сколько", "столько", "чуть", "чуть-чуть",
+]
+
 func calculateNounCaseAnnotations(for text: String, with tokens: [Token]) -> [NounCaseAnnotation] {
-    var annotations: [NounCaseAnnotation] = []
+    // Pre-compute each token's start position in text.
+    var tokenStarts: [Int] = Array(repeating: -1, count: tokens.count)
     var curIndexInText = 0
     for (i, token) in tokens.enumerated() {
-        while !text.lowercased().substring(from: curIndexInText).starts(with: token.text.lowercased()) {
+        while curIndexInText < text.count &&
+              !text.lowercased().substring(from: curIndexInText).starts(with: token.text.lowercased()) {
             curIndexInText += 1
-            if curIndexInText >= text.count { return annotations }
         }
-        if var nounCase = token.nounCase {
-            if nounCase == "ambiguous" {
-                let prevText = i > 0 ? tokens[i - 1].text.lowercased() : ""
-                if let resolved = prepToCase[prevText] {
-                    nounCase = resolved
-                }
-            }
-            annotations.append(NounCaseAnnotation(
-                position: curIndexInText,
-                length: token.text.count,
-                label: nounCase
-            ))
+        if curIndexInText < text.count {
+            tokenStarts[i] = curIndexInText
         }
         curIndexInText += token.text.count
     }
-    return annotations
+
+    var annotations: [NounCaseAnnotation] = []
+
+    for (i, token) in tokens.enumerated() {
+        guard tokenStarts[i] >= 0, var nounCase = token.nounCase else { continue }
+
+        let prevText = i > 0 ? tokens[i - 1].text.lowercased() : ""
+
+        if nounCase.hasPrefix("ambiguous_") {
+            let ambiguousCases = Set(nounCase.dropFirst("ambiguous_".count).components(separatedBy: "_"))
+
+            // Try gen: нет/quantity word before, or prev token ends with ого/его, or prev token is also a noun.
+            let prevEndsWithOgo = prevText.hasSuffix("ого") || prevText.hasSuffix("его")
+            let prevIsNoun = i > 0 && tokens[i - 1].nounCase != nil
+            let prevIsQuantity = quantityWords.contains(prevText)
+            if ambiguousCases.contains("gen") && (prevIsQuantity || prevEndsWithOgo || prevIsNoun) {
+                nounCase = "gen"
+            } else if let resolved = prepToCase[prevText], ambiguousCases.contains(resolved) {
+                nounCase = resolved
+            }
+            // else: keep "ambiguous_*" label — rendered as gray in the view
+
+        } else if nounCase == "acc" && (prevText == "в" || prevText == "на") {
+            // в/на + acc: mark preposition italic as well.
+            if i > 0 && tokenStarts[i - 1] >= 0 {
+                annotations.append(NounCaseAnnotation(
+                    position: tokenStarts[i - 1],
+                    length: tokens[i - 1].text.count,
+                    label: "prep_motion",
+                    isItalic: true
+                ))
+            }
+            annotations.append(NounCaseAnnotation(
+                position: tokenStarts[i],
+                length: token.text.count,
+                label: "acc",
+                isItalic: true
+            ))
+            continue
+        }
+
+        annotations.append(NounCaseAnnotation(
+            position: tokenStarts[i],
+            length: token.text.count,
+            label: nounCase
+        ))
+    }
+
+    return annotations.sorted { $0.position < $1.position }
 }

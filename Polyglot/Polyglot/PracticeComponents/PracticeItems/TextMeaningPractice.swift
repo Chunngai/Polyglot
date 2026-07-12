@@ -17,7 +17,8 @@ struct VerbAspectAnnotation: Codable {
 struct NounCaseAnnotation: Codable {
     var position: Int
     var length: Int
-    var label: String  // "gen", "dat", "inst", "prep", "ambiguous"
+    var label: String  // "gen", "dat", "inst", "prep", "ambiguous_*", "acc"
+    var isItalic: Bool = false
 }
 
 struct CodableRange: Codable {

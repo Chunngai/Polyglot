@@ -701,19 +701,39 @@ extension TextMeaningPracticeView {
             let tokenText = (textView.text as NSString).substring(with: NSRange(location: annotation.position, length: annotation.length)).lowercased()
             if excludedWords.contains(tokenText) { continue }
 
-            let color: UIColor
-            switch annotation.label {
-            case "nom", "acc", "nom_acc": continue
-            case "gen":       color = .systemMint;   hasGen = true
-            case "dat":       color = .systemOrange; hasDat = true
-            case "inst":      color = UIColor(red: 1.0, green: 0.6, blue: 0.8, alpha: 1.0); hasInst = true
-            case "prep":      color = .brown;        hasPrep = true
-            case "ambiguous": color = .systemGray;   hasAmbiguous = true
-            default: continue
-            }
             let range = NSRange(location: annotation.position, length: annotation.length)
             guard range.location + range.length <= textView.textStorage.length else { continue }
-            textView.textStorage.addAttributes([.foregroundColor: color], range: range)
+
+            var attrs: [NSAttributedString.Key: Any] = [:]
+
+            if annotation.isItalic {
+                let fontSize = (textView.font?.pointSize ?? Sizes.smallFontSize)
+                attrs[.font] = UIFont.italicSystemFont(ofSize: fontSize)
+            }
+
+            if annotation.label != "prep_motion" {
+                let color: UIColor
+                switch annotation.label {
+                case "nom", "acc", "nom_acc":
+                    if !annotation.isItalic { continue }
+                    // acc + italic: only apply italic, no color change
+                    textView.textStorage.addAttributes(attrs, range: range)
+                    continue
+                case "gen":       color = .systemMint;   hasGen = true
+                case "dat":       color = .systemOrange; hasDat = true
+                case "inst":      color = UIColor(red: 1.0, green: 0.6, blue: 0.8, alpha: 1.0); hasInst = true
+                case "prep":      color = .brown;        hasPrep = true
+                default:
+                    if annotation.label.hasPrefix("ambiguous_") {
+                        color = .systemGray; hasAmbiguous = true
+                    } else {
+                        continue
+                    }
+                }
+                attrs[.foregroundColor] = color
+            }
+
+            textView.textStorage.addAttributes(attrs, range: range)
         }
 
         genCaseLegendLabel.isHidden = !hasGen
