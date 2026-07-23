@@ -41,6 +41,7 @@ class WordPracticeProducer: BasePracticeProducer {
                 self.wordPracticeCounter[key]! -= 1
                 if self.wordPracticeCounter[key]! <= 0 {
                     self.wordPracticeCounter.removeValue(forKey: key)
+                    self.advanceEbbinghausSchedule(forKey: key, consumedPeriodIndex: wordPractice.periodIndex ?? 0)
                 }
             }
         }
@@ -138,11 +139,28 @@ extension WordPracticeProducer {
         ))
     }
     
+    private func advanceEbbinghausSchedule(forKey key: String, consumedPeriodIndex: Int) {
+        var schedule = EbbinghausSchedule.load(for: self.lang)
+        let newPeriod = consumedPeriodIndex + 1
+        if newPeriod >= EbbinghausSchedule.practiceGroups.count {
+            schedule.removeValue(forKey: key)
+        } else {
+            var entry = EbbinghausSchedule.entry(forKey: key, in: schedule)
+            entry.periodIndex = newPeriod
+            entry.nextReviewDate = EbbinghausSchedule.nextReviewDate(afterPeriod: consumedPeriodIndex)
+            schedule[key] = entry
+        }
+        EbbinghausSchedule.save(&schedule, for: self.lang)
+    }
+
     func makeAndCachePractices(for words: [String], skipDuplicates: Bool = true) {
 
         let nRepetitions = self.lang.configs.wordPracticeRepetition
         let enabledTypes = self.lang.configs.phraseReviewEnabledPracticeTypes
         let practiceWordSet = Set(words)
+
+        var schedule = EbbinghausSchedule.load(for: self.lang)
+
         for word in words {
 
             if skipDuplicates && wordPracticeCounter.keys.contains(Self.normalizedKey(from: word)) {
@@ -150,178 +168,152 @@ extension WordPracticeProducer {
             }
             let key = Self.normalizedKey(from: word)
             wordPracticeCounter[key] = 0
-            
+
+            // Ensure a schedule entry exists for this word.
+            if schedule[key] == nil {
+                schedule[key] = WordReviewEntry(wordKey: key, periodIndex: 0, nextReviewDate: .distantPast)
+                EbbinghausSchedule.save(&schedule, for: self.lang)
+            }
+            let periodIndex = schedule[key]!.periodIndex
+            let typesToUse = EbbinghausSchedule.effectivePracticeTypes(
+                for: periodIndex,
+                enabledTypes: enabledTypes
+            )
+
             var practicesForWord: [WordPractice] = []
 
             let candidateWords = self.words.filter {
                 $0.text != word && practiceWordSet.contains($0.text)
             }
 
-            machineTranslator.translate(query: word) { translations, _ in
-                
-                guard !translations.isEmpty else {
-                    return
-                }
-                let meaning = translations.joined(separator: "; ")
-                
-                for _ in 0..<nRepetitions {
-
-                    if enabledTypes.contains(.meaningSelection) {
-                        if let practice = self.makeMeaningSelectionPractice(
-                            word: word,
-                            query: word,
-                            key: meaning,
-                            direction: .textToMeaning,
-                            preferredWords: candidateWords
-                        ) {
-                            self.practiceList.append(practice)
-                            self.wordPracticeCounter[key]! += 1
-                            practicesForWord.append(practice)
-                        }
-
-                        if let practice = self.makeMeaningSelectionPractice(
-                            word: word,
-                            query: meaning,
-                            key: word,
-                            direction: .meaningToText,
-                            preferredWords: candidateWords
-                        ) {
-                            self.practiceList.append(practice)
-                            self.wordPracticeCounter[key]! += 1
-                            practicesForWord.append(practice)
-                        }
-                    }
-
-                    if enabledTypes.contains(.meaningFilling) {
-                        let practice = self.makeMeaningFillingPractice(
-                            word: word,
-                            query: meaning,
-                            key: word,
-                            direction: .meaningToText
-                        )
-                        self.practiceList.append(practice)
-                        self.wordPracticeCounter[key]! += 1
-                        practicesForWord.append(practice)
-                    }
-                }
-                self.cache()
-                self.sendWordPracticeCounterUpdateNotification()
-                
+            func stamp(_ p: WordPractice) -> WordPractice {
+                p.periodIndex = periodIndex
+                return p
             }
-            
-            if enabledTypes.contains(.contextSelection) {
+
+            if typesToUse.contains(.meaningSelection) || typesToUse.contains(.meaningFilling) {
+                machineTranslator.translate(query: word) { translations, _ in
+                    guard !translations.isEmpty else { return }
+                    let meaning = translations.joined(separator: "; ")
+
+                    for _ in 0..<nRepetitions {
+                        if typesToUse.contains(.meaningSelection) {
+                            if let p = self.makeMeaningSelectionPractice(
+                                word: word, query: word, key: meaning,
+                                direction: .textToMeaning, preferredWords: candidateWords
+                            ) {
+                                self.practiceList.append(stamp(p))
+                                self.wordPracticeCounter[key]! += 1
+                                practicesForWord.append(p)
+                            }
+                            if let p = self.makeMeaningSelectionPractice(
+                                word: word, query: meaning, key: word,
+                                direction: .meaningToText, preferredWords: candidateWords
+                            ) {
+                                self.practiceList.append(stamp(p))
+                                self.wordPracticeCounter[key]! += 1
+                                practicesForWord.append(p)
+                            }
+                        }
+                        if typesToUse.contains(.meaningFilling) {
+                            let p = self.makeMeaningFillingPractice(
+                                word: word, query: meaning, key: word, direction: .meaningToText
+                            )
+                            self.practiceList.append(stamp(p))
+                            self.wordPracticeCounter[key]! += 1
+                            practicesForWord.append(p)
+                        }
+                    }
+                    self.cache()
+                    self.sendWordPracticeCounterUpdateNotification()
+                }
+            }
+
+            if typesToUse.contains(.contextSelection) {
                 for _ in 0..<nRepetitions {
-                    if let practice = makeContextSelectionPractice(
-                        word: word,
-                        query: word,
-                        preferredWords: candidateWords
-                    ) {
-                        self.practiceList.append(practice)
-                        self.wordPracticeCounter[key]! += 1
-                        practicesForWord.append(practice)
+                    if let p = makeContextSelectionPractice(word: word, query: word, preferredWords: candidateWords) {
+                        practiceList.append(stamp(p))
+                        wordPracticeCounter[key]! += 1
+                        practicesForWord.append(p)
                     }
                 }
             }
             self.cache()
             self.sendWordPracticeCounterUpdateNotification()
-            
-            if enabledTypes.contains(.reordering) {
-                for _ in 0..<nRepetitions {
-                    makeReorderingPractice(
-                        word: word,
-                        query: word,
-                        completion: { practice in
-                            if let practice = practice {
-                                self.practiceList.append(practice)
-                                self.wordPracticeCounter[key]! += 1
-                                practicesForWord.append(practice)
 
-                                self.cache()
-                                self.sendWordPracticeCounterUpdateNotification()
-                            }
+            if typesToUse.contains(.reordering) {
+                for _ in 0..<nRepetitions {
+                    makeReorderingPractice(word: word, query: word) { practice in
+                        if let p = practice {
+                            self.practiceList.append(stamp(p))
+                            self.wordPracticeCounter[key]! += 1
+                            practicesForWord.append(p)
+                            self.cache()
+                            self.sendWordPracticeCounterUpdateNotification()
                         }
-                    )
+                    }
                 }
             }
 
-            let needsImage = enabledTypes.contains(.imageSelection) || enabledTypes.contains(.imageFilling)
+            let needsImage = typesToUse.contains(.imageSelection) || typesToUse.contains(.imageFilling)
             if needsImage {
                 imageCreator.generateImage(for: word) { imageUrl in
                     guard let imageUrl = imageUrl else { return }
-
                     for _ in 0..<nRepetitions {
-
-                        if enabledTypes.contains(.imageSelection) {
-                            if let practice = self.makeImageSelectionPractice(word: word, imageUrl: imageUrl, preferredWords: candidateWords) {
-                                self.practiceList.append(practice)
+                        if typesToUse.contains(.imageSelection) {
+                            if let p = self.makeImageSelectionPractice(word: word, imageUrl: imageUrl, preferredWords: candidateWords) {
+                                self.practiceList.append(stamp(p))
                                 self.wordPracticeCounter[key]! += 1
-                                practicesForWord.append(practice)
+                                practicesForWord.append(p)
                             }
                         }
-
-                        if enabledTypes.contains(.imageFilling) {
-                            let practice = self.makeImageFillingPractice(word: word, imageUrl: imageUrl)
-                            self.practiceList.append(practice)
+                        if typesToUse.contains(.imageFilling) {
+                            let p = self.makeImageFillingPractice(word: word, imageUrl: imageUrl)
+                            self.practiceList.append(stamp(p))
                             self.wordPracticeCounter[key]! += 1
-                            practicesForWord.append(practice)
+                            practicesForWord.append(p)
                         }
-
                         self.cache()
                         self.sendWordPracticeCounterUpdateNotification()
                     }
                 }
             }
 
-            if enabledTypes.contains(.phraseConstruction) {
+            if typesToUse.contains(.phraseConstruction) {
                 for _ in 0..<nRepetitions {
-                    if let practice = makePhraseConstructionPractice(word: word) {
-                        self.practiceList.append(practice)
-                        self.wordPracticeCounter[key]! += 1
-                        practicesForWord.append(practice)
+                    if let p = makePhraseConstructionPractice(word: word) {
+                        practiceList.append(stamp(p))
+                        wordPracticeCounter[key]! += 1
+                        practicesForWord.append(p)
                     }
                 }
                 self.cache()
                 self.sendWordPracticeCounterUpdateNotification()
             }
 
-            // Add accents to all practices for the word,
-            // and add accent practices.
             analyzeAccents(for: word) { tokens, fixedText, text in
-                                       
-                guard !tokens.isEmpty else {
-                    return
-                }
-
+                guard !tokens.isEmpty else { return }
                 let accentedWord = tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)
                 for practice in practicesForWord {
-                    self.addAccents(
-                        to: practice,
-                        with: accentedWord
-                    )
+                    self.addAccents(to: practice, with: accentedWord)
                 }
-                                       
                 for _ in 0..<nRepetitions {
-                    if enabledTypes.contains(.accentSelection) {
-                        if let practice = self.makeAccentSelectionPractice(
-                            word: fixedText ?? text,
-                            query: fixedText ?? text,
-                            tokens: tokens
+                    if typesToUse.contains(.accentSelection) {
+                        if let p = self.makeAccentSelectionPractice(
+                            word: fixedText ?? text, query: fixedText ?? text, tokens: tokens
                         ) {
-                            self.practiceList.append(practice)
+                            p.periodIndex = periodIndex
+                            self.practiceList.append(p)
                             self.wordPracticeCounter[key]! += 1
                         }
                     }
                 }
-
                 self.cache()
                 self.sendWordPracticeCounterUpdateNotification()
-                                       
             }
-                        
         }
-
     }
-    
+
 }
 
 extension WordPracticeProducer {

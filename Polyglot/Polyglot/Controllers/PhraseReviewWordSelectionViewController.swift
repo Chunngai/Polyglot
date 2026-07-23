@@ -15,12 +15,20 @@ private class SubtitleCell: UITableViewCell {
     required init?(coder: NSCoder) { fatalError() }
 }
 
+private struct WordSelectionEntry {
+    let key: String
+    let meaning: String
+    let periodIndex: Int
+    let nextReviewDate: Date
+    var isAvailable: Bool { nextReviewDate <= Date() }
+}
+
 class PhraseReviewWordSelectionViewController: UITableViewController {
 
     var practiceDuration: Int = 0
     weak var practiceDelegate: HomeViewController?
 
-    private var entries: [(key: String, meaning: String)] = []
+    private var sections: [(periodIndex: Int, entries: [WordSelectionEntry])] = []
     private var selectedKeys: Set<String> = []
 
     private static let defaultSelectionCount = 6
@@ -33,9 +41,8 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
         title = Strings.phraseReview
         tableView.register(SubtitleCell.self, forCellReuseIdentifier: "cell")
 
-        entries = WordPracticeProducer.uniqueWordEntries(for: LangCode.currentLanguage)
-        let defaultSelected = entries.prefix(Self.defaultSelectionCount).map { $0.key }
-        selectedKeys = Set(defaultSelected)
+        loadEntries()
+        generatePracticesForAvailableWords()
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             title: Strings.cancel,
@@ -50,6 +57,86 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
             action: #selector(startTapped)
         )
         updateStartButton()
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(onPracticeCounterUpdated),
+            name: .wordPracticeCounterUpdated,
+            object: nil
+        )
+    }
+
+    private func loadEntries() {
+        let lang = LangCode.currentLanguage
+        var schedule = EbbinghausSchedule.load(for: lang)
+
+        // Collect all known word keys: from schedule + from cached practices.
+        let cachedEntries = WordPracticeProducer.uniqueWordEntries(for: lang)
+
+        var allKeys = Set(schedule.keys)
+        for e in cachedEntries { allKeys.insert(e.key) }
+
+        // Build selection entries.
+        var allEntries: [WordSelectionEntry] = []
+        for key in allKeys {
+            let schedEntry = EbbinghausSchedule.entry(forKey: key, in: schedule)
+            // Skip completed words (no longer in schedule after all periods done).
+            if EbbinghausSchedule.isCompleted(schedEntry) { continue }
+            // Ensure schedule is persisted for words discovered via cached practices.
+            if schedule[key] == nil {
+                schedule[key] = schedEntry
+            }
+            let meaning = cachedEntries.first(where: { $0.key == key })?.meaning ?? ""
+            allEntries.append(WordSelectionEntry(
+                key: key,
+                meaning: meaning,
+                periodIndex: schedEntry.periodIndex,
+                nextReviewDate: schedEntry.nextReviewDate
+            ))
+        }
+        EbbinghausSchedule.save(&schedule, for: lang)
+
+        // Group by periodIndex, sort sections ascending, entries alphabetically.
+        let grouped = Dictionary(grouping: allEntries, by: { $0.periodIndex })
+        sections = grouped.keys.sorted().map { period in
+            let sorted = grouped[period]!.sorted { $0.key < $1.key }
+            return (periodIndex: period, entries: sorted)
+        }
+
+        // Default-select first N available words.
+        var selected = 0
+        for section in sections {
+            for entry in section.entries where entry.isAvailable {
+                if selected < Self.defaultSelectionCount {
+                    selectedKeys.insert(entry.key)
+                    selected += 1
+                }
+            }
+        }
+    }
+
+    private func generatePracticesForAvailableWords() {
+        let lang = LangCode.currentLanguage
+        let counter = WordPracticeProducer.countWordPractices(for: lang)
+        let availableWithoutPractices = sections
+            .flatMap { $0.entries }
+            .filter { $0.isAvailable && !counter.keys.contains($0.key) }
+            .map { $0.key }
+
+        guard !availableWithoutPractices.isEmpty else { return }
+
+        // We need a producer with the full word list to generate practices.
+        let words = Word.load(for: lang)
+        let articles = Article.load(for: lang)
+        let producer = WordPracticeProducer(words: words, articles: articles)
+        producer.makeAndCachePractices(for: availableWithoutPractices, skipDuplicates: false)
+    }
+
+    @objc private func onPracticeCounterUpdated() {
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+            self.updateStartButton()
+        }
     }
 
     private func updateStartButton() {
@@ -58,13 +145,23 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
 
     // MARK: - Table view data source
 
+    override func numberOfSections(in tableView: UITableView) -> Int {
+        return sections.count
+    }
+
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        let period = sections[section].periodIndex
+        return Strings.periodHeader.replacingOccurrences(of: "#", with: String(period + 1))
+    }
+
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return entries.count
+        return sections[section].entries.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        let entry = entries[indexPath.row]
+        let entry = sections[indexPath.section].entries[indexPath.row]
+
         let attrText = NSMutableAttributedString(
             string: "\(indexPath.row + 1). ",
             attributes: [.foregroundColor: Colors.weakTextColor]
@@ -72,9 +169,22 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
         attrText.append(NSAttributedString(string: entry.key))
         cell.textLabel?.attributedText = attrText
         cell.selectionStyle = .none
-        cell.detailTextLabel?.text = entry.meaning
-        cell.detailTextLabel?.textColor = Colors.weakTextColor
-        cell.accessoryType = selectedKeys.contains(entry.key) ? .checkmark : .none
+
+        if entry.isAvailable {
+            cell.textLabel?.alpha = 1.0
+            cell.isUserInteractionEnabled = true
+            cell.accessoryType = selectedKeys.contains(entry.key) ? .checkmark : .none
+            cell.detailTextLabel?.text = entry.meaning
+            cell.detailTextLabel?.textColor = Colors.weakTextColor
+        } else {
+            cell.textLabel?.alpha = 0.4
+            cell.isUserInteractionEnabled = false
+            cell.accessoryType = .none
+            let dateStr = entry.nextReviewDate.repr(of: Date.defaultDateFormat)
+            cell.detailTextLabel?.text = Strings.nextAvailableDate.replacingOccurrences(of: "#", with: dateStr)
+            cell.detailTextLabel?.textColor = Colors.inactiveTextColor
+        }
+
         return cell
     }
 
@@ -82,7 +192,7 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let key = entries[indexPath.row].key
+        let key = sections[indexPath.section].entries[indexPath.row].key
         if selectedKeys.contains(key) {
             selectedKeys.remove(key)
         } else {
@@ -93,7 +203,8 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        let entry = entries[indexPath.row]
+        let entry = sections[indexPath.section].entries[indexPath.row]
+        guard entry.isAvailable else { return nil }
         let deleteAction = UIContextualAction(style: .destructive, title: Strings.delete) { [weak self] _, _, completion in
             guard let self = self else { completion(false); return }
             let alert = UIAlertController(
@@ -104,15 +215,31 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
             alert.addAction(UIAlertAction(title: Strings.cancel, style: .cancel) { _ in completion(false) })
             alert.addAction(UIAlertAction(title: Strings.delete, style: .destructive) { _ in
                 WordPracticeProducer.deleteWordPractices(forKey: entry.key, lang: LangCode.currentLanguage)
+                var schedule = EbbinghausSchedule.load(for: LangCode.currentLanguage)
+                schedule.removeValue(forKey: entry.key)
+                EbbinghausSchedule.save(&schedule, for: LangCode.currentLanguage)
                 self.selectedKeys.remove(entry.key)
-                self.entries.remove(at: indexPath.row)
-                tableView.performBatchUpdates({
-                    tableView.deleteRows(at: [indexPath], with: .automatic)
-                }, completion: { _ in
-                    let remaining = (0..<self.entries.count).map { IndexPath(row: $0, section: 0) }
-                    tableView.reloadRows(at: remaining, with: .none)
+                var sectionEntries = self.sections[indexPath.section].entries
+                sectionEntries.remove(at: indexPath.row)
+                if sectionEntries.isEmpty {
+                    self.sections.remove(at: indexPath.section)
+                    tableView.deleteSections(IndexSet(integer: indexPath.section), with: .automatic)
                     self.updateStartButton()
-                })
+                } else {
+                    self.sections[indexPath.section] = (
+                        periodIndex: self.sections[indexPath.section].periodIndex,
+                        entries: sectionEntries
+                    )
+                    tableView.performBatchUpdates({
+                        tableView.deleteRows(at: [indexPath], with: .automatic)
+                    }, completion: { _ in
+                        let remaining = (0..<sectionEntries.count).map {
+                            IndexPath(row: $0, section: indexPath.section)
+                        }
+                        tableView.reloadRows(at: remaining, with: .none)
+                        self.updateStartButton()
+                    })
+                }
                 completion(true)
             })
             self.present(alert, animated: true)

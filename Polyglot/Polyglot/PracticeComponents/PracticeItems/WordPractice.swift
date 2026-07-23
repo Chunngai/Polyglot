@@ -29,6 +29,7 @@ class WordPractice: BasePractice, Codable {
     // 1: meaning -> text.
     // 2: text.
     var direction: PracticeDirection
+    var periodIndex: Int?
     // correct/incorrect/partiallyCorrect
     var correctness: Correctness!
     
@@ -46,6 +47,7 @@ class WordPractice: BasePractice, Codable {
         articleId: String? = nil,
         paragraphId: String? = nil,
         direction: PracticeDirection,
+        periodIndex: Int? = nil,
         correctness: Correctness? = nil
     ) {
                 
@@ -62,6 +64,7 @@ class WordPractice: BasePractice, Codable {
         self.articleId = articleId
         self.paragraphId = paragraphId
         self.direction = direction
+        self.periodIndex = periodIndex
         self.correctness = correctness
         
     }
@@ -83,6 +86,7 @@ class WordPractice: BasePractice, Codable {
         case articleId
         case paragraphId
         case direction
+        case periodIndex
         case correctness
         
     }
@@ -105,6 +109,7 @@ class WordPractice: BasePractice, Codable {
         try container.encode(articleId, forKey: .articleId)
         try container.encode(paragraphId, forKey: .paragraphId)
         try container.encode(direction, forKey: .direction)
+        try container.encodeIfPresent(periodIndex, forKey: .periodIndex)
         try container.encode(correctness, forKey: .correctness)
     }
     
@@ -125,6 +130,7 @@ class WordPractice: BasePractice, Codable {
         articleId = try values.decode(String?.self, forKey: .articleId)
         paragraphId = try values.decode(String?.self, forKey: .paragraphId)
         direction = try values.decode(PracticeDirection.self, forKey: .direction)
+        periodIndex = try values.decodeIfPresent(Int.self, forKey: .periodIndex)
         correctness = try values.decode(Correctness?.self, forKey: .correctness)
         
     }
@@ -144,6 +150,7 @@ class WordPractice: BasePractice, Codable {
             articleId: another.articleId,
             paragraphId: another.paragraphId,
             direction: another.direction,
+            periodIndex: another.periodIndex,
             correctness: another.correctness
         )
     }

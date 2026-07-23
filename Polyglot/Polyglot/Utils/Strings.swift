@@ -315,7 +315,31 @@ extension Strings {
     static var practices: String {
         return Strings._practices[LangCode.currentLanguage]!
     }
-    
+
+    static let _nextAvailableDate: [LangCode: String] = [
+        LangCode.en: "Next Available: #",
+        LangCode.ja: "次の練習：#",
+        LangCode.es: "Próxima Disponible: #",
+        LangCode.ru: "Следующая: #",
+        LangCode.ko: "다음 가능일: #",
+        LangCode.de: "Nächste Verfügbar: #",
+    ]
+    static var nextAvailableDate: String {
+        return Strings._nextAvailableDate[LangCode.currentLanguage]!
+    }
+
+    static let _periodHeader: [LangCode: String] = [
+        LangCode.en: "Round #",
+        LangCode.ja: "第 # ラウンド",
+        LangCode.es: "Ronda #",
+        LangCode.ru: "Раунд #",
+        LangCode.ko: "# 회차",
+        LangCode.de: "Runde #",
+    ]
+    static var periodHeader: String {
+        return Strings._periodHeader[LangCode.currentLanguage]!
+    }
+
 }
 
 extension Strings {

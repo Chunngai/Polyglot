@@ -107,8 +107,9 @@ class HomeViewController: UIViewController {
     }
 
     var wordPracticeCounter: [String: Int] = WordPracticeProducer.countWordPractices(for: LangCode.currentLanguage)
+    var ebbinghausSchedule: [String: WordReviewEntry] = EbbinghausSchedule.load(for: LangCode.currentLanguage)
     var isWordPracticeEnabled: Bool {
-        return !wordPracticeCounter.isEmpty
+        return ebbinghausSchedule.values.contains { EbbinghausSchedule.isAvailable($0) }
     }
     
     // MARK: - Collection view.
@@ -140,27 +141,11 @@ class HomeViewController: UIViewController {
             image: Images.wordPracticeImage,
             text: Strings.phraseReview,
             secondaryText: {
-
-                let nWordsToReview = wordPracticeCounter.count
-                if nWordsToReview == 0 {
-//                    return Strings.noPhraseToReview
-                    return nil
-                }
-                                
-                var nWordPractices = 0
-                for count in wordPracticeCounter.values {
-                    nWordPractices += count
-                }
-                
-                var s = Strings.nPhrasesToReview.replacingOccurrences(
-                    of: "#",
-                    with: String(nWordsToReview)
-                )
-                if nWordsToReview != 0 {
-                    s += " (\(nWordPractices) \(Strings.practices))"
-                }
-                
-                return s
+                let total = ebbinghausSchedule.count
+                if total == 0 { return nil }
+                let available = ebbinghausSchedule.values.filter { EbbinghausSchedule.isAvailable($0) }.count
+                let s = Strings.nPhrasesToReview.replacingOccurrences(of: "#", with: String(available))
+                return "\(s) / \(total)"
             }()
         )
     ]}
@@ -383,6 +368,7 @@ class HomeViewController: UIViewController {
 
             if let wordCountPractice = notification.userInfo?["wordPracticeCounter"] as? [String: Int] {
                 self.wordPracticeCounter = wordCountPractice
+                self.ebbinghausSchedule = EbbinghausSchedule.load(for: LangCode.currentLanguage)
                 self.applySnapShots()
             }
            
@@ -696,6 +682,7 @@ extension HomeViewController: LanguageSelectionViewControllerDelegate {
         self.articleMetaData = Article.loadMetaData(for: LangCode.currentLanguage)
         self.practiceMetaData = BasePracticeProducer.loadMetaData(for: LangCode.currentLanguage)
         self.wordPracticeCounter = WordPracticeProducer.countWordPractices(for: LangCode.currentLanguage)
+        self.ebbinghausSchedule = EbbinghausSchedule.load(for: LangCode.currentLanguage)
         
         self.topView.imageView.image = Images.langImage.scale(to: self.topViewImageScale)
         self.topView.languageLabel.text = homeScreenTitle
