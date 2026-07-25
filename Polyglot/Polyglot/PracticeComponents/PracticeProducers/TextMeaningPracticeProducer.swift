@@ -353,6 +353,7 @@ extension TextMeaningPracticeProducer {
                     }
                     if needsNounCase {
                         practice.nounCaseAnnotations = calculateNounCaseAnnotations(for: practice.text, with: tokens)
+                        practice.shortAdjectiveAnnotations = calculateShortAdjectiveAnnotations(for: practice.text, with: tokens)
                     }
                     break
                 }

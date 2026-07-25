@@ -233,7 +233,8 @@ class ListeningPracticeViewController: TextMeaningPracticeViewController, Listen
                 currentRepetition: currentPractice.currentRepetition,
                 textAccentLocs: currentPractice.textAccentLocs,
                 verbAspectAnnotations: currentPractice.verbAspectAnnotations,
-                nounCaseAnnotations: currentPractice.nounCaseAnnotations
+                nounCaseAnnotations: currentPractice.nounCaseAnnotations,
+                shortAdjectiveAnnotations: currentPractice.shortAdjectiveAnnotations
             )
             practiceView.delegate = self
             

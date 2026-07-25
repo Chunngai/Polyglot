@@ -27,7 +27,8 @@ class PodcastPracticeView: TextMeaningPracticeView {
         currentRepetition: Int = 1,
         textAccentLocs: [Int],
         verbAspectAnnotations: [VerbAspectAnnotation] = [],
-        nounCaseAnnotations: [NounCaseAnnotation] = []
+        nounCaseAnnotations: [NounCaseAnnotation] = [],
+        shortAdjectiveAnnotations: [ShortAdjectiveAnnotation] = []
     ) {
         super.init(
             frame: frame,
@@ -45,9 +46,10 @@ class PodcastPracticeView: TextMeaningPracticeView {
             textAccentLocs: textAccentLocs,
             verbAspectAnnotations: verbAspectAnnotations,
             nounCaseAnnotations: nounCaseAnnotations,
+            shortAdjectiveAnnotations: shortAdjectiveAnnotations,
             repetitionIncrement: 1
         )
-        
+
         upperString = text
         lowerString = meaning
         if textSource == .chatGpt {
@@ -56,35 +58,36 @@ class PodcastPracticeView: TextMeaningPracticeView {
         if isTextMachineTranslated {
             lowerIcon = translatorIcon
         }
-        
+
         updateSetups()
         updateViews()
         updateLayouts()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func updateSetups() {
         super.updateSetups()
-        
+
         textView.isUserInteractionEnabled = false
     }
-    
+
     override func updateViews() {
         super.updateViews()
-        displayLower()        
+        displayLower()
     }
-    
+
     // MARK: - Methods from the Super Class
-    
+
     override func displayUpper() {
         super.displayUpper()
 
         markAccents(at: textAccentLocs)
         markVerbAspects(at: verbAspectAnnotations)
         markNounCases(at: nounCaseAnnotations)
+        markShortAdjectives(at: shortAdjectiveAnnotations)
     }
 
     override func displayLower() {

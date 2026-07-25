@@ -27,7 +27,8 @@ class ReadingPracticeView: TextMeaningPracticeView {
         currentRepetition: Int,
         textAccentLocs: [Int],
         verbAspectAnnotations: [VerbAspectAnnotation] = [],
-        nounCaseAnnotations: [NounCaseAnnotation] = []
+        nounCaseAnnotations: [NounCaseAnnotation] = [],
+        shortAdjectiveAnnotations: [ShortAdjectiveAnnotation] = []
     ) {
         super.init(
             frame: frame,
@@ -45,9 +46,10 @@ class ReadingPracticeView: TextMeaningPracticeView {
             textAccentLocs: textAccentLocs,
             verbAspectAnnotations: verbAspectAnnotations,
             nounCaseAnnotations: nounCaseAnnotations,
+            shortAdjectiveAnnotations: shortAdjectiveAnnotations,
             repetitionIncrement: 1
         )
-        
+
         upperString = text
         lowerString = meaning
         if textSource == .chatGpt {
@@ -56,45 +58,46 @@ class ReadingPracticeView: TextMeaningPracticeView {
         if isTextMachineTranslated {
             lowerIcon = translatorIcon
         }
-        
+
         updateSetups()
         updateViews()
         updateLayouts()
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func updateViews() {
         super.updateViews()
-        
+
         self.repetitionsLabel.isHidden = true
     }
-    
+
     // MARK: - Methods from the Super Class
-    
+
     override func submit() -> Any {
         return []
     }
-    
+
     override func updateViewsAfterSubmission() {
-        
+
         super.updateViewsAfterSubmission()
-        
+
         highlightExistingPhrases(
             existingPhraseRanges: existingPhraseRanges,
             existingPhraseMeanings: existingPhraseMeanings
         )
         highlightExistingReinforcementWords()
     }
-    
+
     override func displayUpper() {
         super.displayUpper()
 
         markAccents(at: textAccentLocs)
         markVerbAspects(at: verbAspectAnnotations)
         markNounCases(at: nounCaseAnnotations)
+        markShortAdjectives(at: shortAdjectiveAnnotations)
     }
 
     override func displayLower() {

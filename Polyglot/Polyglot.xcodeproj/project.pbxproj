@@ -31,6 +31,8 @@
 		C696B9512B6DEDA600B00A02 /* ContentCardsExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C696B9502B6DEDA600B00A02 /* ContentCardsExtensions.swift */; };
 		C697E07D2FE7442100723260 /* ArticleSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C697E07A2FE7442100723260 /* ArticleSelectionViewController.swift */; };
 		C69A14B53004018900632DEE /* russian_noun_cases.json in Resources */ = {isa = PBXBuildFile; fileRef = C69A14B43004018900632DEE /* russian_noun_cases.json */; };
+		6F61E3C203314824D7AE26AD /* russian_short_adjectives.json in Resources */ = {isa = PBXBuildFile; fileRef = 1FAEB746A82B59F0EAD85A39 /* russian_short_adjectives.json */; };
+		A8F6FF59C4277A71C3FD1C40 /* russian_pronoun_cases.json in Resources */ = {isa = PBXBuildFile; fileRef = 19519995CB6B1260624AAF56 /* russian_pronoun_cases.json */; };
 		C69B190A2C18A91800E41C86 /* SettingsSlidingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B19092C18A91800E41C86 /* SettingsSlidingCell.swift */; };
 		C69B190E2C18B76600E41C86 /* SettingsSwitchingCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69B190D2C18B76600E41C86 /* SettingsSwitchingCell.swift */; };
 		C69CB0E22D3D551000C43FE7 /* PodcastPracticeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69CB0E12D3D551000C43FE7 /* PodcastPracticeViewController.swift */; };
@@ -248,6 +250,8 @@
 		C696B9502B6DEDA600B00A02 /* ContentCardsExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentCardsExtensions.swift; sourceTree = "<group>"; };
 		C697E07A2FE7442100723260 /* ArticleSelectionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArticleSelectionViewController.swift; sourceTree = "<group>"; };
 		C69A14B43004018900632DEE /* russian_noun_cases.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = russian_noun_cases.json; path = ../../../russian_noun_cases.json; sourceTree = "<group>"; };
+		1FAEB746A82B59F0EAD85A39 /* russian_short_adjectives.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = russian_short_adjectives.json; path = ../../../russian_short_adjectives.json; sourceTree = "<group>"; };
+		19519995CB6B1260624AAF56 /* russian_pronoun_cases.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = russian_pronoun_cases.json; path = ../../../russian_pronoun_cases.json; sourceTree = "<group>"; };
 		C69B19092C18A91800E41C86 /* SettingsSlidingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSlidingCell.swift; sourceTree = "<group>"; };
 		C69B190D2C18B76600E41C86 /* SettingsSwitchingCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsSwitchingCell.swift; sourceTree = "<group>"; };
 		C69CB0E12D3D551000C43FE7 /* PodcastPracticeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PodcastPracticeViewController.swift; sourceTree = "<group>"; };
@@ -690,6 +694,8 @@
 				C6E8D3D12C8E3A31009E42F5 /* formatted_je2jo.json */,
 				C6AA11102E000000000AA001 /* russian_verb_aspects.json */,
 				C69A14B43004018900632DEE /* russian_noun_cases.json */,
+				1FAEB746A82B59F0EAD85A39 /* russian_short_adjectives.json */,
+				19519995CB6B1260624AAF56 /* russian_pronoun_cases.json */,
 				C6BA7AA82C7F52F800C6FFD3 /* RussianAccentEntity+CoreDataClass.swift */,
 				C630C6CA2C8E26B50049ED6A /* RussianAccentEntity+CoreDataProperties.swift */,
 				C6E8D3D72C8E3B8A009E42F5 /* Je2JoEntity+CoreDataClass.swift */,
@@ -1017,6 +1023,8 @@
 				C6E8D3CC2C8E3788009E42F5 /* russian_word_forms.json in Resources */,
 				C69A14B53004018900632DEE /* russian_noun_cases.json in Resources */,
 				C6AA11112E000000000AA001 /* russian_verb_aspects.json in Resources */,
+				6F61E3C203314824D7AE26AD /* russian_short_adjectives.json in Resources */,
+				A8F6FF59C4277A71C3FD1C40 /* russian_pronoun_cases.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

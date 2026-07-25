@@ -127,6 +127,7 @@ func calculateVerbAspectAnnotations(for text: String, with tokens: [Token]) -> [
             case "imperfective": label = "(imp.)"
             case "perfective":   label = "(p.)"
             case "both":         label = "(bi.)"
+            case "ambiguous":    label = "(?)"
             default:             label = nil
             }
             if let label = label {
@@ -142,30 +143,57 @@ func calculateVerbAspectAnnotations(for text: String, with tokens: [Token]) -> [
     return annotations
 }
 
-private let prepToCase: [String: String] = [
+private let prepToCase: [String: Set<String>] = [
     // Genitive
-    "без": "gen", "до": "gen", "из": "gen", "от": "gen", "у": "gen",
-    "для": "gen", "после": "gen", "вместо": "gen", "кроме": "gen",
-    "около": "gen", "вдоль": "gen", "возле": "gen", "против": "gen",
-    "среди": "gen", "мимо": "gen", "вокруг": "gen", "ради": "gen",
-    "вне": "gen", "внутри": "gen", "из-за": "gen", "из-под": "gen",
+    "без": ["gen"], "до": ["gen"], "из": ["gen"], "от": ["gen"], "у": ["gen"],
+    "для": ["gen"], "после": ["gen"], "вместо": ["gen"], "кроме": ["gen"],
+    "около": ["gen"], "вдоль": ["gen"], "возле": ["gen"], "против": ["gen"],
+    "среди": ["gen"], "мимо": ["gen"], "вокруг": ["gen"], "ради": ["gen"],
+    "вне": ["gen"], "внутри": ["gen"], "из-за": ["gen"], "из-под": ["gen"],
     // Dative
-    "к": "dat", "ко": "dat", "благодаря": "dat", "вопреки": "dat",
-    "согласно": "dat", "навстречу": "dat", "наперекор": "dat",
+    "к": ["dat"], "ко": ["dat"], "благодаря": ["dat"], "вопреки": ["dat"],
+    "согласно": ["dat"], "навстречу": ["dat"], "наперекор": ["dat"],
     // Accusative
-    "через": "acc", "про": "acc", "сквозь": "acc",
-    // Instrumental
-    "над": "inst", "перед": "inst", "между": "inst",
+    "через": ["acc"], "про": ["acc"], "сквозь": ["acc"],
+    // Instrumental / ambiguous with genitive or accusative depending on meaning
+    "над": ["inst"], "перед": ["inst"],
+    "между": ["gen", "inst"],
+    "с": ["gen", "inst"],
+    "за": ["acc", "inst"],
+    "под": ["acc", "inst"],
     // Prepositional — в/на map to prep here; acc resolution is handled separately
-    "в": "prep", "на": "prep",
-    "о": "prep", "об": "prep", "обо": "prep", "при": "prep",
-    "во": "prep",
+    "в": ["prep"], "на": ["prep"],
+    "о": ["prep"], "об": ["prep"], "обо": ["prep"], "при": ["prep"],
+    "во": ["prep"],
 ]
 
 private let quantityWords: Set<String> = [
     "нет", "много", "мало", "немного", "немало", "несколько",
     "сколько", "столько", "чуть", "чуть-чуть",
 ]
+
+private let adjectiveSuffixes: [String] = [
+    "ого", "его", "ому", "ему", "ыми", "ими",
+    "ый", "ий", "ой", "ая", "яя", "ое", "ее", "ые", "ие",
+    "ым", "им", "ом", "ей", "ую", "юю",
+]
+
+func looksLikeAdjective(_ text: String) -> Bool {
+    return adjectiveSuffixes.contains { text.hasSuffix($0) }
+}
+
+// Scans backwards from index i-1, skipping tokens that look like adjectives
+// (up to maxSkip of them), and returns the first non-adjective token's lowercased
+// text -- typically the preposition governing the noun at index i.
+private func findPrecedingNonAdjective(_ i: Int, in tokens: [Token], maxSkip: Int = 3) -> String {
+    var j = i - 1
+    var skipped = 0
+    while j >= 0 && skipped < maxSkip && looksLikeAdjective(tokens[j].text.lowercased()) {
+        j -= 1
+        skipped += 1
+    }
+    return j >= 0 ? tokens[j].text.lowercased() : ""
+}
 
 func calculateNounCaseAnnotations(for text: String, with tokens: [Token]) -> [NounCaseAnnotation] {
     // Pre-compute each token's start position in text.
@@ -192,19 +220,25 @@ func calculateNounCaseAnnotations(for text: String, with tokens: [Token]) -> [No
         if nounCase.hasPrefix("ambiguous_") {
             let ambiguousCases = Set(nounCase.dropFirst("ambiguous_".count).components(separatedBy: "_"))
 
-            // Try gen: нет/quantity word before, or prev token ends with ого/его, or prev token is also a noun.
+            // Rule A: try gen via нет/quantity word before, prev token ends with ого/его, or prev token is also a noun.
             let prevEndsWithOgo = prevText.hasSuffix("ого") || prevText.hasSuffix("его")
             let prevIsNoun = i > 0 && tokens[i - 1].nounCase != nil
             let prevIsQuantity = quantityWords.contains(prevText)
             if ambiguousCases.contains("gen") && (prevIsQuantity || prevEndsWithOgo || prevIsNoun) {
                 nounCase = "gen"
-            } else if let resolved = prepToCase[prevText], ambiguousCases.contains(resolved) {
-                nounCase = resolved
+            } else if let prepCases = prepToCase[findPrecedingNonAdjective(i, in: tokens)] {
+                // Rule B: a preposition with several candidate cases (e.g. "с" -> {gen, inst})
+                // combined with the noun's own candidate cases may still narrow to one case.
+                let resolvedCases = prepCases.intersection(ambiguousCases)
+                if resolvedCases.count == 1 {
+                    nounCase = resolvedCases.first!
+                }
             }
             // else: keep "ambiguous_*" label — rendered as gray in the view
+        }
 
-        } else if nounCase == "acc" && (prevText == "в" || prevText == "на") {
-            // в/на + acc: mark preposition italic as well.
+        // в/на + acc (including resolved nom_acc/ambiguous_* -> acc): mark preposition italic as well.
+        if (nounCase == "acc" || nounCase == "nom_acc") && (prevText == "в" || prevText == "на") {
             if i > 0 && tokenStarts[i - 1] >= 0 {
                 annotations.append(NounCaseAnnotation(
                     position: tokenStarts[i - 1],
@@ -230,4 +264,23 @@ func calculateNounCaseAnnotations(for text: String, with tokens: [Token]) -> [No
     }
 
     return annotations.sorted { $0.position < $1.position }
+}
+
+func calculateShortAdjectiveAnnotations(for text: String, with tokens: [Token]) -> [ShortAdjectiveAnnotation] {
+    var annotations: [ShortAdjectiveAnnotation] = []
+    var curIndexInText = 0
+    for token in tokens {
+        while !text.lowercased().substring(from: curIndexInText).starts(with: token.text.lowercased()) {
+            curIndexInText += 1
+            if curIndexInText >= text.count { return annotations }
+        }
+        if token.isShortAdjective == true {
+            annotations.append(ShortAdjectiveAnnotation(
+                position: curIndexInText,
+                length: token.text.count
+            ))
+        }
+        curIndexInText += token.text.count
+    }
+    return annotations
 }

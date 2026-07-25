@@ -24,6 +24,7 @@ class TextMeaningPracticeView: BasePracticeView {
     var textAccentLocs: [Int]!
     var verbAspectAnnotations: [VerbAspectAnnotation]!
     var nounCaseAnnotations: [NounCaseAnnotation]!
+    var shortAdjectiveAnnotations: [ShortAdjectiveAnnotation]!
 
     var repetitionIncrement: Int!
     
@@ -236,6 +237,21 @@ class TextMeaningPracticeView: BasePracticeView {
         return label
     }()
 
+    private lazy var ambiguousAspectLegendLabel: UILabel = {
+        let label = UILabel()
+        let attrStr = NSMutableAttributedString()
+        attrStr.append(NSAttributedString(string: "■ ", attributes: [
+            .foregroundColor: UIColor.systemGray,
+            .font: UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        ]))
+        attrStr.append(NSAttributedString(string: "?", attributes: [
+            .foregroundColor: UIColor.secondaryLabel,
+            .font: UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        ]))
+        label.attributedText = attrStr
+        return label
+    }()
+
     private lazy var genCaseLegendLabel: UILabel = makeCaseLegendLabel(color: .systemMint, text: "gen.")
     private lazy var datCaseLegendLabel: UILabel = makeCaseLegendLabel(color: .systemOrange, text: "dat.")
     private lazy var instCaseLegendLabel: UILabel = makeCaseLegendLabel(color: UIColor(red: 1.0, green: 0.6, blue: 0.8, alpha: 1.0), text: "inst.")
@@ -258,7 +274,7 @@ class TextMeaningPracticeView: BasePracticeView {
     }
 
     private lazy var aspectLegendView: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [impAspectLegendLabel, perfAspectLegendLabel, biAspectLegendLabel])
+        let stack = UIStackView(arrangedSubviews: [impAspectLegendLabel, perfAspectLegendLabel, biAspectLegendLabel, ambiguousAspectLegendLabel])
         stack.axis = .horizontal
         stack.spacing = 10
         stack.alignment = .center
@@ -280,8 +296,8 @@ class TextMeaningPracticeView: BasePracticeView {
 
     private lazy var legendView: UIStackView = {
         let stack = UIStackView(arrangedSubviews: [nounCaseLegendView, aspectLegendView])
-        stack.axis = .horizontal
-        stack.spacing = 14
+        stack.axis = .vertical
+        stack.spacing = 4
         stack.alignment = .center
         stack.isHidden = true
         return stack
@@ -305,6 +321,7 @@ class TextMeaningPracticeView: BasePracticeView {
         textAccentLocs: [Int],
         verbAspectAnnotations: [VerbAspectAnnotation] = [],
         nounCaseAnnotations: [NounCaseAnnotation] = [],
+        shortAdjectiveAnnotations: [ShortAdjectiveAnnotation] = [],
         repetitionIncrement: Int
     ) {
         super.init(frame: frame)
@@ -323,6 +340,7 @@ class TextMeaningPracticeView: BasePracticeView {
         self.textAccentLocs = textAccentLocs
         self.verbAspectAnnotations = verbAspectAnnotations
         self.nounCaseAnnotations = nounCaseAnnotations
+        self.shortAdjectiveAnnotations = shortAdjectiveAnnotations
         self.repetitionIncrement = repetitionIncrement
         
         textView = {
@@ -664,13 +682,14 @@ extension TextMeaningPracticeView {
     func markVerbAspects(at annotations: [VerbAspectAnnotation]) {
         guard LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices else { return }
 
-        var hasImp = false, hasPerf = false, hasBi = false
+        var hasImp = false, hasPerf = false, hasBi = false, hasAmbiguous = false
         for annotation in annotations {
             let color: UIColor
             switch annotation.label {
             case "(imp.)": color = .systemCyan;   hasImp = true
             case "(p.)":   color = .systemBlue;   hasPerf = true
             case "(bi.)":  color = .systemPurple; hasBi = true
+            case "(?)":    color = .systemGray;   hasAmbiguous = true
             default: continue
             }
             let range = NSRange(location: annotation.position, length: annotation.length)
@@ -681,7 +700,8 @@ extension TextMeaningPracticeView {
         impAspectLegendLabel.isHidden = !hasImp
         perfAspectLegendLabel.isHidden = !hasPerf
         biAspectLegendLabel.isHidden = !hasBi
-        aspectLegendView.isHidden = !(hasImp || hasPerf || hasBi)
+        ambiguousAspectLegendLabel.isHidden = !hasAmbiguous
+        aspectLegendView.isHidden = !(hasImp || hasPerf || hasBi || hasAmbiguous)
         updateLegendVisibility()
     }
 
@@ -743,6 +763,17 @@ extension TextMeaningPracticeView {
         ambiguousCaseLegendLabel.isHidden = !hasAmbiguous
         nounCaseLegendView.isHidden = !(hasGen || hasDat || hasInst || hasPrep || hasAmbiguous)
         updateLegendVisibility()
+    }
+
+    func markShortAdjectives(at annotations: [ShortAdjectiveAnnotation]) {
+        guard LangCode.currentLanguage.configs.shouldShowNounCasesInPractices else { return }
+
+        let fontSize = (textView.font?.pointSize ?? Sizes.smallFontSize)
+        for annotation in annotations {
+            let range = NSRange(location: annotation.position, length: annotation.length)
+            guard range.location + range.length <= textView.textStorage.length else { continue }
+            textView.textStorage.addAttributes([.font: UIFont.italicSystemFont(ofSize: fontSize)], range: range)
+        }
     }
 
     private func updateLegendVisibility() {

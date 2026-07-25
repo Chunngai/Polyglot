@@ -182,6 +182,7 @@ class ReadingPracticeProducer: TextMeaningPracticeProducer {
                             }
                             if needsNounCase {
                                 first.nounCaseAnnotations = calculateNounCaseAnnotations(for: first.text, with: tokens)
+                                first.shortAdjectiveAnnotations = calculateShortAdjectiveAnnotations(for: first.text, with: tokens)
                             }
                         }
                         accentSemaphore.signal()

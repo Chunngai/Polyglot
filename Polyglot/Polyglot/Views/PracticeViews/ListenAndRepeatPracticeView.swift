@@ -86,7 +86,8 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
         currentRepetition: Int,
         textAccentLocs: [Int],
         verbAspectAnnotations: [VerbAspectAnnotation] = [],
-        nounCaseAnnotations: [NounCaseAnnotation] = []
+        nounCaseAnnotations: [NounCaseAnnotation] = [],
+        shortAdjectiveAnnotations: [ShortAdjectiveAnnotation] = []
     ) {
 
         var text = text
@@ -110,6 +111,7 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
             textAccentLocs: textAccentLocs,
             verbAspectAnnotations: verbAspectAnnotations,
             nounCaseAnnotations: nounCaseAnnotations,
+            shortAdjectiveAnnotations: shortAdjectiveAnnotations,
             repetitionIncrement: LangCode.currentLanguage.configs.listeningPracticeRepetition
         )
         
@@ -207,11 +209,15 @@ class ListenAndRepeatPracticeView: TextMeaningPracticeView {
             for i in 0..<nounCaseAnnotations.count {
                 nounCaseAnnotations[i].position += 2
             }
+            for i in 0..<shortAdjectiveAnnotations.count {
+                shortAdjectiveAnnotations[i].position += 2
+            }
         }
 
         markAccents(at: textAccentLocs)
         markVerbAspects(at: verbAspectAnnotations)
         markNounCases(at: nounCaseAnnotations)
+        markShortAdjectives(at: shortAdjectiveAnnotations)
 
     }
 

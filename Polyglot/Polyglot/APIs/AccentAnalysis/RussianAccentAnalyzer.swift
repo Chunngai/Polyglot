@@ -65,6 +65,26 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
         return dict
     }()
 
+    // MARK: - Pronoun cases
+
+    private var pronounCases: [String: String] = {
+        guard let url = Bundle.main.url(forResource: "russian_pronoun_cases", withExtension: "json"),
+              let data = try? Data(contentsOf: url),
+              let dict = try? JSONDecoder().decode([String: String].self, from: data)
+        else { return [:] }
+        return dict
+    }()
+
+    // MARK: - Short-form adjectives
+
+    private var shortAdjectives: [String: Bool] = {
+        guard let url = Bundle.main.url(forResource: "russian_short_adjectives", withExtension: "json"),
+              let data = try? Data(contentsOf: url),
+              let dict = try? JSONDecoder().decode([String: Bool].self, from: data)
+        else { return [:] }
+        return dict
+    }()
+
     // MARK: - AccentAnalyzerProtocol
 
     // Singleton object.
@@ -135,15 +155,30 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
                     accentLoc = Int(entry.accentPos - 1)
                 }
             }
-            let aspect = verbAspects[baseForm ?? query]
-            let nounCase = nounCases[query]
+            // base_form may hold multiple "|"-joined candidates (see
+            // addRussianAccentEntitiesToCoreDataModel). Look up the aspect for
+            // each candidate: if all candidates that have an aspect agree, use
+            // it; if they disagree, the aspect is genuinely ambiguous.
+            let baseCandidates = baseForm?.components(separatedBy: "|") ?? [query]
+            let candidateAspects = Set(baseCandidates.compactMap { verbAspects[$0] })
+            let aspect: String?
+            if candidateAspects.count == 1 {
+                aspect = candidateAspects.first
+            } else if candidateAspects.count > 1 {
+                aspect = "ambiguous"
+            } else {
+                aspect = nil
+            }
+            let nounCase = nounCases[query] ?? pronounCases[query]
+            let isShortAdjective = shortAdjectives[query]
             tokens.append(Token(
                 text: query,
                 baseForm: baseForm,
                 pronunciation: query,
                 accentLoc: accentLoc,
                 aspect: aspect,
-                nounCase: nounCase
+                nounCase: nounCase,
+                isShortAdjective: isShortAdjective
             ))
         }
         return tokens
@@ -263,15 +298,19 @@ extension RussianAccentAnalyzer {
                     d.accent_pos
                 })
                 if accentPosSet.count == 1 {  // One bare form -> multiple accent pos + base form. But the accent pos's are the same.
-                    
+
                     entity.bare_form = bare_form
                     if let accent_pos = accentPosSet.first {
                         entity.accent_pos = Int16(accent_pos)
                     } else {
                         entity.accent_pos = -1
                     }
-                    entity.base_form = nil
-                    
+                    // Keep all distinct candidate base forms (joined by "|") instead of
+                    // discarding them, so that verb aspect lookup can still succeed when
+                    // the candidates agree (or be marked ambiguous when they don't).
+                    let candidateBases = Set(d.map { $0.base == "=" ? bare_form : $0.base })
+                    entity.base_form = candidateBases.sorted().joined(separator: "|")
+
                 } else {
                     // Do nothing.
                 }

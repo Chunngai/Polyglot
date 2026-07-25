@@ -21,6 +21,11 @@ struct NounCaseAnnotation: Codable {
     var isItalic: Bool = false
 }
 
+struct ShortAdjectiveAnnotation: Codable {
+    var position: Int  // Start index of the short-form adjective token in practice.text.
+    var length: Int    // Character count of the token.
+}
+
 struct CodableRange: Codable {
     var location: Int
     var length: Int
@@ -52,6 +57,7 @@ class TextMeaningPractice: BasePractice, Codable {
     var textAccentLocs: [Int]
     var verbAspectAnnotations: [VerbAspectAnnotation]
     var nounCaseAnnotations: [NounCaseAnnotation]
+    var shortAdjectiveAnnotations: [ShortAdjectiveAnnotation]
 
     init(
         text: String,
@@ -67,7 +73,8 @@ class TextMeaningPractice: BasePractice, Codable {
         currentRepetition: Int,
         textAccentLocs: [Int],
         verbAspectAnnotations: [VerbAspectAnnotation] = [],
-        nounCaseAnnotations: [NounCaseAnnotation] = []
+        nounCaseAnnotations: [NounCaseAnnotation] = [],
+        shortAdjectiveAnnotations: [ShortAdjectiveAnnotation] = []
     ) {
         self.text = text
         self.meaning = meaning
@@ -83,6 +90,7 @@ class TextMeaningPractice: BasePractice, Codable {
         self.textAccentLocs = textAccentLocs
         self.verbAspectAnnotations = verbAspectAnnotations
         self.nounCaseAnnotations = nounCaseAnnotations
+        self.shortAdjectiveAnnotations = shortAdjectiveAnnotations
     }
 
     convenience init(from another: TextMeaningPractice) {
@@ -100,7 +108,8 @@ class TextMeaningPractice: BasePractice, Codable {
             currentRepetition: another.currentRepetition,
             textAccentLocs: another.textAccentLocs,
             verbAspectAnnotations: another.verbAspectAnnotations,
-            nounCaseAnnotations: another.nounCaseAnnotations
+            nounCaseAnnotations: another.nounCaseAnnotations,
+            shortAdjectiveAnnotations: another.shortAdjectiveAnnotations
         )
     }
 
@@ -120,6 +129,7 @@ class TextMeaningPractice: BasePractice, Codable {
         case textAccentLocs
         case verbAspectAnnotations
         case nounCaseAnnotations
+        case shortAdjectiveAnnotations
     }
 
     func encode(to encoder: Encoder) throws {
@@ -139,6 +149,7 @@ class TextMeaningPractice: BasePractice, Codable {
         try container.encode(textAccentLocs, forKey: .textAccentLocs)
         try container.encode(verbAspectAnnotations, forKey: .verbAspectAnnotations)
         try container.encode(nounCaseAnnotations, forKey: .nounCaseAnnotations)
+        try container.encode(shortAdjectiveAnnotations, forKey: .shortAdjectiveAnnotations)
     }
     
     required init(from decoder: Decoder) throws {
@@ -174,6 +185,11 @@ class TextMeaningPractice: BasePractice, Codable {
         } catch {
             nounCaseAnnotations = []
         }
+        do {
+            shortAdjectiveAnnotations = try container.decode([ShortAdjectiveAnnotation].self, forKey: .shortAdjectiveAnnotations)
+        } catch {
+            shortAdjectiveAnnotations = []
+        }
     }
-    
+
 }

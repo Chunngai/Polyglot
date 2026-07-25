@@ -27,7 +27,8 @@ class TranslationPracticeView: TextMeaningPracticeView {
         currentRepetition: Int,
         textAccentLocs: [Int],
         verbAspectAnnotations: [VerbAspectAnnotation] = [],
-        nounCaseAnnotations: [NounCaseAnnotation] = []
+        nounCaseAnnotations: [NounCaseAnnotation] = [],
+        shortAdjectiveAnnotations: [ShortAdjectiveAnnotation] = []
     ) {
         super.init(
             frame: frame,
@@ -45,6 +46,7 @@ class TranslationPracticeView: TextMeaningPracticeView {
             textAccentLocs: textAccentLocs,
             verbAspectAnnotations: verbAspectAnnotations,
             nounCaseAnnotations: nounCaseAnnotations,
+            shortAdjectiveAnnotations: shortAdjectiveAnnotations,
             repetitionIncrement: LangCode.currentLanguage.configs.speakingPracticeRepetition
         )
         
@@ -88,11 +90,15 @@ class TranslationPracticeView: TextMeaningPracticeView {
         for i in 0..<nounCaseAnnotations.count {
             nounCaseAnnotations[i].position += upperAttrStr.length
         }
+        for i in 0..<shortAdjectiveAnnotations.count {
+            shortAdjectiveAnnotations[i].position += upperAttrStr.length
+        }
 
         markAccents(at: textAccentLocs)
         markVerbAspects(at: verbAspectAnnotations)
         markNounCases(at: nounCaseAnnotations)
-        
+        markShortAdjectives(at: shortAdjectiveAnnotations)
+
     }
     
     override func submit() -> Any {
