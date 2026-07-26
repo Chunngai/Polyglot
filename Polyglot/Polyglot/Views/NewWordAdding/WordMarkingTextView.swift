@@ -102,6 +102,7 @@ class WordMarkingTextView: UITextView, UITextViewDelegate, TextAnimationDelegate
     private var wordMeaningMenuItem: UIMenuItem!
     private var wordTranslationMenuItem: UIMenuItem!
     private var grammarExplanationMenuItem: UIMenuItem!
+    private var verbPartnerMenuItem: UIMenuItem!
     private var searchMenuItem: UIMenuItem!
     private var reinforceMenuItem: UIMenuItem!
     private var cancelReinforcementMenuItem: UIMenuItem!
@@ -167,6 +168,10 @@ class WordMarkingTextView: UITextView, UITextViewDelegate, TextAnimationDelegate
             title: Strings.grammarExplanationMenuItemString,
             action: #selector(grammarExplanationMenuItemTapped)
         )
+        verbPartnerMenuItem = UIMenuItem(
+            title: Strings.verbPartnerMenuItemString,
+            action: #selector(verbPartnerMenuItemTapped)
+        )
         searchMenuItem = UIMenuItem(
             title: Strings.searchMenuItemString,
             action: #selector(searchMenuItemTapped)
@@ -184,6 +189,7 @@ class WordMarkingTextView: UITextView, UITextViewDelegate, TextAnimationDelegate
             wordMeaningMenuItem,
             wordTranslationMenuItem,
             grammarExplanationMenuItem,
+            verbPartnerMenuItem,
             searchMenuItem,
             reinforceMenuItem,
         ]
@@ -326,6 +332,24 @@ You are a language tutor helping a \(meaningLangName) speaker learn \(textLangNa
                 self?.chatDelegate?.chatDidFail()
             }
         )
+    }
+
+    // Looks up the selected Russian verb's aspectual partner(s) locally and shows the
+    // result as a chat bubble, bypassing the LLM entirely.
+    func sendVerbPartnerLookup(word: String) {
+        guard !word.strip().isEmpty else { return }
+        guard let analyzer = RussianAccentAnalyzer.shared as? RussianAccentAnalyzer else { return }
+
+        let userMessage = "\(Strings.verbPartnerActionToken(for: textLang)) \"\(word)\""
+        chatDelegate?.chatDidSendMessage(userMessage)
+
+        let partners = analyzer.verbPartners(for: word)
+        let responseText = partners.isEmpty
+            ? Strings.noVerbPartnerFoundToken(for: meaningLang)
+            : partners.joined(separator: ", ")
+
+        chatDelegate?.chatDidReceiveChunk(responseText)
+        chatDelegate?.chatDidFinish()
     }
 
     fileprivate func parseBoldAndItalics(for content: String) -> NSAttributedString {
@@ -647,6 +671,12 @@ extension WordMarkingTextView {
         guard let word = selectedWord else { return }
         sendChatMessageForAction(word: word, generationType: .explanation)
     }
+
+    @objc
+    private func verbPartnerMenuItemTapped() {
+        guard let word = selectedWord else { return }
+        sendVerbPartnerLookup(word: word)
+    }
     
     @objc
     private func searchMenuItemTapped() {
@@ -743,6 +773,14 @@ extension WordMarkingTextView {
         }
         if action == #selector(grammarExplanationMenuItemTapped) {
             return selectedWord != nil
+        }
+        if action == #selector(verbPartnerMenuItemTapped) {
+            guard
+                textLang == .ru,
+                let word = selectedWord,
+                let analyzer = RussianAccentAnalyzer.shared as? RussianAccentAnalyzer
+            else { return false }
+            return !analyzer.verbPartners(for: word).isEmpty
         }
         if action == #selector(searchMenuItemTapped) {
             return true

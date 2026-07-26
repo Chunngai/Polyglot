@@ -852,7 +852,8 @@ extension TextMeaningPracticeView: WordMarkingTextViewContentGenerationDelegate 
         repetitionsLabel.isHidden = true
         contentGenerationSpinner.isHidden = false
         contentGenerationSpinner.startAnimating()
-        
+        mainView.bringSubviewToFront(contentGenerationSpinner)
+
     }
     
     @objc

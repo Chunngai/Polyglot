@@ -13,6 +13,8 @@ class WordsPracticeViewController: PracticeViewController {
 
     var selectedWordKeys: Set<String>? = nil
 
+    private let grammarAnnotationLegendView: GrammarAnnotationLegendView = GrammarAnnotationLegendView()
+
     private lazy var practiceProducer: WordPracticeProducer = {
         let producer = WordPracticeProducer(words: words, articles: articles)
         if let keys = selectedWordKeys {
@@ -107,7 +109,7 @@ class WordsPracticeViewController: PracticeViewController {
     
     override func updateSetups() {
         super.updateSetups()
-        
+
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(keyboardWillShow),
@@ -120,7 +122,22 @@ class WordsPracticeViewController: PracticeViewController {
             name: UIResponder.keyboardWillHideNotification,
             object: nil
         )
-        
+
+    }
+
+    override func updateViews() {
+        super.updateViews()
+
+        mainView.addSubview(grammarAnnotationLegendView)
+    }
+
+    override func updateLayouts() {
+        super.updateLayouts()
+
+        grammarAnnotationLegendView.snp.remakeConstraints { (make) in
+            make.top.equalTo(promptLabel.snp.bottom).offset(8)
+            make.centerX.equalToSuperview()
+        }
     }
     
     override func updatePracticeView() {
@@ -213,6 +230,7 @@ class WordsPracticeViewController: PracticeViewController {
 //            attributes: Attributes.practiceWordAttributes,
 //            for: currentPractice.query
 //        )
+        grammarAnnotationLegendView.reset()
         if let rangeOfPracticeWord = currentPractice.prompt.range(
             of: currentPractice.query,
             options: .backwards
@@ -225,6 +243,22 @@ class WordsPracticeViewController: PracticeViewController {
                 Attributes.practiceWordAttributes,
                 range: nsRangeOfPracticeWord
             )
+
+            // Annotations are positioned relative to currentPractice.query;
+            // offset them to their location within the full prompt string.
+            let wordOffset = nsRangeOfPracticeWord.location
+            if !currentPractice.verbAspectAnnotations.isEmpty {
+                let offsetAnnotations = currentPractice.verbAspectAnnotations.map {
+                    VerbAspectAnnotation(position: $0.position + wordOffset, length: $0.length, label: $0.label)
+                }
+                grammarAnnotationLegendView.markVerbAspects(in: promptAttributes, at: offsetAnnotations)
+            }
+            if !currentPractice.nounCaseAnnotations.isEmpty {
+                let offsetAnnotations = currentPractice.nounCaseAnnotations.map {
+                    NounCaseAnnotation(position: $0.position + wordOffset, length: $0.length, label: $0.label, isItalic: $0.isItalic)
+                }
+                grammarAnnotationLegendView.markNounCases(in: promptAttributes, at: offsetAnnotations)
+            }
         }
         promptLabel.attributedText = promptAttributes
         
@@ -257,7 +291,7 @@ class WordsPracticeViewController: PracticeViewController {
         // Add to the main view and update layouts.
         mainView.addSubview(practiceView)
         practiceView.snp.makeConstraints { (make) in
-            make.top.equalTo(promptLabel.snp.bottom).offset(20)
+            make.top.equalTo(grammarAnnotationLegendView.snp.bottom).offset(20)
             make.centerX.equalToSuperview()
             make.width.equalToSuperview().multipliedBy(PracticeViewController.practiceViewWidthRatio)
             make.bottom.equalTo(nextButton.snp.top).offset(-20)

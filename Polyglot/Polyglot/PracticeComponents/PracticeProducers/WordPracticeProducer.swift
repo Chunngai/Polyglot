@@ -157,7 +157,6 @@ extension WordPracticeProducer {
 
         let nRepetitions = self.lang.configs.wordPracticeRepetition
         let enabledTypes = self.lang.configs.phraseReviewEnabledPracticeTypes
-        let practiceWordSet = Set(words)
 
         var schedule = EbbinghausSchedule.load(for: self.lang)
 
@@ -182,8 +181,11 @@ extension WordPracticeProducer {
 
             var practicesForWord: [WordPractice] = []
 
+            let now = Date()
             let candidateWords = self.words.filter {
-                $0.text != word && practiceWordSet.contains($0.text)
+                guard $0.text != word else { return false }
+                guard let entry = schedule[Self.normalizedKey(from: $0.text)] else { return false }
+                return entry.nextReviewDate <= now
             }
 
             func stamp(_ p: WordPractice) -> WordPractice {
@@ -293,9 +295,34 @@ extension WordPracticeProducer {
 
             analyzeAccents(for: word) { tokens, fixedText, text in
                 guard !tokens.isEmpty else { return }
+
                 let accentedWord = tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)
                 for practice in practicesForWord {
                     self.addAccents(to: practice, with: accentedWord)
+                }
+
+                // Only annotate practices whose prompt actually displays the reviewed
+                // word's text (i.e., text -> meaning direction). For meaning -> text
+                // practices the word is the hidden answer, so annotating it would leak it.
+                // Positions are calculated against practice.query, which may already
+                // contain inline accent marks inserted by addAccents() above --
+                // calculateVerbAspectAnnotations/calculateNounCaseAnnotations locate each
+                // token by scanning, so inserted marks are skipped over correctly.
+                let needsAspect = LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices
+                let needsNounCase = LangCode.currentLanguage.configs.shouldShowNounCasesInPractices
+                if needsAspect || needsNounCase {
+                    for practice in practicesForWord {
+                        guard
+                            practice.direction == .textToMeaning,
+                            practice.practiceType == .meaningSelection || practice.practiceType == .meaningFilling
+                        else { continue }
+                        if needsAspect {
+                            practice.verbAspectAnnotations = calculateVerbAspectAnnotations(for: practice.query, with: tokens)
+                        }
+                        if needsNounCase {
+                            practice.nounCaseAnnotations = calculateNounCaseAnnotations(for: practice.query, with: tokens)
+                        }
+                    }
                 }
                 for _ in 0..<nRepetitions {
                     if typesToUse.contains(.accentSelection) {

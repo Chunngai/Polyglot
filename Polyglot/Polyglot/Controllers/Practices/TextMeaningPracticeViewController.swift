@@ -328,10 +328,18 @@ extension TextMeaningPracticeViewController {
 }
 
 extension TextMeaningPracticeViewController {
-    
+
     override func timingBarTimeUp(timingBar: TimingBar) {
         super.timingBarTimeUp(timingBar: timingBar)
+
+        // If LLM-generated content (chat bubbles) is present, don't auto-dismiss.
+        // The user must tap next; nextButtonTapped() overrides already check
+        // shouldFinishPracticing (set by super above) and call stopPracticing() there.
+        if let practiceView = practiceView as? TextMeaningPracticeView,
+           !practiceView.chatBubblesStack.arrangedSubviews.isEmpty {
+            return
+        }
         self.stopPracticing()
     }
-    
+
 }

@@ -594,7 +594,19 @@ extension Strings {
     static var grammarExplanationMenuItemString: String {
         return Strings._grammarExplanationMenuItemStrings[LangCode.currentLanguage]!
     }
-    
+
+    private static let _verbPartnerMenuItemStrings: [LangCode : String] = [
+        LangCode.en : "Aspectual Partner",
+        LangCode.ja : "アスペクトの対",
+        LangCode.es : "Pareja Aspectual",
+        LangCode.ru : "Видовая Пара",
+        LangCode.ko : "상 짝",
+        LangCode.de : "Aspektpartner",
+    ]
+    static var verbPartnerMenuItemString: String {
+        return Strings._verbPartnerMenuItemStrings[LangCode.currentLanguage]!
+    }
+
     static let wordMarkingTextViewContentGenerationLanguageNamePlaceHolder: String = "[lang_name]"
     static let wordMarkingTextViewContentGenerationWordPlaceHolder: String = "[word]"
 
@@ -625,6 +637,32 @@ extension Strings {
     ]
     static func explainActionToken(for lang: LangCode) -> String {
         return _explainActionTokens[lang] ?? "Explain"
+    }
+
+    private static let _verbPartnerActionTokens: [LangCode: String] = [
+        LangCode.zh: "体的搭档动词",
+        LangCode.en: "Aspectual partner of",
+        LangCode.ja: "アスペクトの対",
+        LangCode.es: "Pareja aspectual de",
+        LangCode.ru: "Видовая пара для",
+        LangCode.ko: "상 짝",
+        LangCode.de: "Aspektpartner von",
+    ]
+    static func verbPartnerActionToken(for lang: LangCode) -> String {
+        return _verbPartnerActionTokens[lang] ?? "Aspectual partner of"
+    }
+
+    private static let _noVerbPartnerFoundTokens: [LangCode: String] = [
+        LangCode.zh: "未找到搭档动词。",
+        LangCode.en: "No aspectual partner found.",
+        LangCode.ja: "アスペクトの対が見つかりませんでした。",
+        LangCode.es: "No se encontró pareja aspectual.",
+        LangCode.ru: "Видовая пара не найдена.",
+        LangCode.ko: "상 짝을 찾을 수 없습니다.",
+        LangCode.de: "Kein Aspektpartner gefunden.",
+    ]
+    static func noVerbPartnerFoundToken(for lang: LangCode) -> String {
+        return _noVerbPartnerFoundTokens[lang] ?? "No aspectual partner found."
     }
 
     private static let _chatPlaceholderTokens: [LangCode: String] = [

@@ -32,9 +32,11 @@ class WordPractice: BasePractice, Codable {
     var periodIndex: Int?
     // correct/incorrect/partiallyCorrect
     var correctness: Correctness!
-    
+    var verbAspectAnnotations: [VerbAspectAnnotation]
+    var nounCaseAnnotations: [NounCaseAnnotation]
+
     init(
-        practiceType: WordPractice.PracticeType, 
+        practiceType: WordPractice.PracticeType,
         word: String,
         query: String,
         key: String,
@@ -48,9 +50,11 @@ class WordPractice: BasePractice, Codable {
         paragraphId: String? = nil,
         direction: PracticeDirection,
         periodIndex: Int? = nil,
-        correctness: Correctness? = nil
+        correctness: Correctness? = nil,
+        verbAspectAnnotations: [VerbAspectAnnotation] = [],
+        nounCaseAnnotations: [NounCaseAnnotation] = []
     ) {
-                
+
         self.practiceType = practiceType
         self.word = word
         self.query = query
@@ -66,7 +70,9 @@ class WordPractice: BasePractice, Codable {
         self.direction = direction
         self.periodIndex = periodIndex
         self.correctness = correctness
-        
+        self.verbAspectAnnotations = verbAspectAnnotations
+        self.nounCaseAnnotations = nounCaseAnnotations
+
     }
     
     enum CodingKeys: String, CodingKey {
@@ -88,7 +94,9 @@ class WordPractice: BasePractice, Codable {
         case direction
         case periodIndex
         case correctness
-        
+        case verbAspectAnnotations
+        case nounCaseAnnotations
+
     }
     
     func encode(to encoder: Encoder) throws {
@@ -111,6 +119,8 @@ class WordPractice: BasePractice, Codable {
         try container.encode(direction, forKey: .direction)
         try container.encodeIfPresent(periodIndex, forKey: .periodIndex)
         try container.encode(correctness, forKey: .correctness)
+        try container.encode(verbAspectAnnotations, forKey: .verbAspectAnnotations)
+        try container.encode(nounCaseAnnotations, forKey: .nounCaseAnnotations)
     }
     
     required init(from decoder: Decoder) throws {
@@ -132,7 +142,17 @@ class WordPractice: BasePractice, Codable {
         direction = try values.decode(PracticeDirection.self, forKey: .direction)
         periodIndex = try values.decodeIfPresent(Int.self, forKey: .periodIndex)
         correctness = try values.decode(Correctness?.self, forKey: .correctness)
-        
+        do {
+            verbAspectAnnotations = try values.decode([VerbAspectAnnotation].self, forKey: .verbAspectAnnotations)
+        } catch {
+            verbAspectAnnotations = []
+        }
+        do {
+            nounCaseAnnotations = try values.decode([NounCaseAnnotation].self, forKey: .nounCaseAnnotations)
+        } catch {
+            nounCaseAnnotations = []
+        }
+
     }
     
     convenience init(from another: WordPractice) {
@@ -151,7 +171,9 @@ class WordPractice: BasePractice, Codable {
             paragraphId: another.paragraphId,
             direction: another.direction,
             periodIndex: another.periodIndex,
-            correctness: another.correctness
+            correctness: another.correctness,
+            verbAspectAnnotations: another.verbAspectAnnotations,
+            nounCaseAnnotations: another.nounCaseAnnotations
         )
     }
     

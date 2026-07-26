@@ -55,6 +55,20 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
         return dict
     }()
 
+    // MARK: - Verb aspectual partners
+
+    private var verbPartners: [String: [String]] = {
+        guard let url = Bundle.main.url(forResource: "russian_verb_partners", withExtension: "json"),
+              let data = try? Data(contentsOf: url),
+              let dict = try? JSONDecoder().decode([String: [String]].self, from: data)
+        else { return [:] }
+        return dict
+    }()
+
+    func verbPartners(for word: String) -> [String] {
+        return verbPartners[word.strip().lowercased()] ?? []
+    }
+
     // MARK: - Noun cases
 
     private var nounCases: [String: String] = {
