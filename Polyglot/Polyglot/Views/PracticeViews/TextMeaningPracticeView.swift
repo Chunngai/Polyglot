@@ -192,116 +192,7 @@ class TextMeaningPracticeView: BasePracticeView {
     var lowerIcon: UIImage?
     lazy var iconFont: UIFont = textView.defaultTextAttributes[.font] as! UIFont
 
-    private lazy var impAspectLegendLabel: UILabel = {
-        let label = UILabel()
-        let attrStr = NSMutableAttributedString()
-        attrStr.append(NSAttributedString(string: "■ ", attributes: [
-            .foregroundColor: UIColor.systemCyan,
-            .font: UIFont.systemFont(ofSize: Sizes.smallFontSize)
-        ]))
-        attrStr.append(NSAttributedString(string: "imp.", attributes: [
-            .foregroundColor: UIColor.secondaryLabel,
-            .font: UIFont.systemFont(ofSize: Sizes.smallFontSize)
-        ]))
-        label.attributedText = attrStr
-        return label
-    }()
-
-    private lazy var perfAspectLegendLabel: UILabel = {
-        let label = UILabel()
-        let attrStr = NSMutableAttributedString()
-        attrStr.append(NSAttributedString(string: "■ ", attributes: [
-            .foregroundColor: UIColor.systemBlue,
-            .font: UIFont.systemFont(ofSize: Sizes.smallFontSize)
-        ]))
-        attrStr.append(NSAttributedString(string: "p.", attributes: [
-            .foregroundColor: UIColor.secondaryLabel,
-            .font: UIFont.systemFont(ofSize: Sizes.smallFontSize)
-        ]))
-        label.attributedText = attrStr
-        return label
-    }()
-
-    private lazy var biAspectLegendLabel: UILabel = {
-        let label = UILabel()
-        let attrStr = NSMutableAttributedString()
-        attrStr.append(NSAttributedString(string: "■ ", attributes: [
-            .foregroundColor: UIColor.systemPurple,
-            .font: UIFont.systemFont(ofSize: Sizes.smallFontSize)
-        ]))
-        attrStr.append(NSAttributedString(string: "bi.", attributes: [
-            .foregroundColor: UIColor.secondaryLabel,
-            .font: UIFont.systemFont(ofSize: Sizes.smallFontSize)
-        ]))
-        label.attributedText = attrStr
-        return label
-    }()
-
-    private lazy var ambiguousAspectLegendLabel: UILabel = {
-        let label = UILabel()
-        let attrStr = NSMutableAttributedString()
-        attrStr.append(NSAttributedString(string: "■ ", attributes: [
-            .foregroundColor: UIColor.systemGray,
-            .font: UIFont.systemFont(ofSize: Sizes.smallFontSize)
-        ]))
-        attrStr.append(NSAttributedString(string: "?", attributes: [
-            .foregroundColor: UIColor.secondaryLabel,
-            .font: UIFont.systemFont(ofSize: Sizes.smallFontSize)
-        ]))
-        label.attributedText = attrStr
-        return label
-    }()
-
-    private lazy var genCaseLegendLabel: UILabel = makeCaseLegendLabel(color: .systemMint, text: "gen.")
-    private lazy var datCaseLegendLabel: UILabel = makeCaseLegendLabel(color: .systemOrange, text: "dat.")
-    private lazy var instCaseLegendLabel: UILabel = makeCaseLegendLabel(color: UIColor(red: 1.0, green: 0.6, blue: 0.8, alpha: 1.0), text: "inst.")
-    private lazy var prepCaseLegendLabel: UILabel = makeCaseLegendLabel(color: .brown, text: "prep.")
-    private lazy var ambiguousCaseLegendLabel: UILabel = makeCaseLegendLabel(color: .systemGray, text: "?")
-
-    private func makeCaseLegendLabel(color: UIColor, text: String) -> UILabel {
-        let label = UILabel()
-        let attrStr = NSMutableAttributedString()
-        attrStr.append(NSAttributedString(string: "■ ", attributes: [
-            .foregroundColor: color,
-            .font: UIFont.systemFont(ofSize: Sizes.smallFontSize)
-        ]))
-        attrStr.append(NSAttributedString(string: text, attributes: [
-            .foregroundColor: UIColor.secondaryLabel,
-            .font: UIFont.systemFont(ofSize: Sizes.smallFontSize)
-        ]))
-        label.attributedText = attrStr
-        return label
-    }
-
-    private lazy var aspectLegendView: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [impAspectLegendLabel, perfAspectLegendLabel, biAspectLegendLabel, ambiguousAspectLegendLabel])
-        stack.axis = .horizontal
-        stack.spacing = 10
-        stack.alignment = .center
-        stack.isHidden = true
-        return stack
-    }()
-
-    private lazy var nounCaseLegendView: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [
-            genCaseLegendLabel, datCaseLegendLabel, instCaseLegendLabel,
-            prepCaseLegendLabel, ambiguousCaseLegendLabel
-        ])
-        stack.axis = .horizontal
-        stack.spacing = 10
-        stack.alignment = .center
-        stack.isHidden = true
-        return stack
-    }()
-
-    private lazy var legendView: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [nounCaseLegendView, aspectLegendView])
-        stack.axis = .vertical
-        stack.spacing = 4
-        stack.alignment = .center
-        stack.isHidden = true
-        return stack
-    }()
+    private lazy var legendView: GrammarAnnotationLegendView = GrammarAnnotationLegendView()
 
     // MARK: - Init
     
@@ -680,89 +571,11 @@ extension TextMeaningPracticeView {
     }
     
     func markVerbAspects(at annotations: [VerbAspectAnnotation]) {
-        guard LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices else { return }
-
-        var hasImp = false, hasPerf = false, hasBi = false, hasAmbiguous = false
-        for annotation in annotations {
-            let color: UIColor
-            switch annotation.label {
-            case "(imp.)": color = .systemCyan;   hasImp = true
-            case "(p.)":   color = .systemBlue;   hasPerf = true
-            case "(bi.)":  color = .systemPurple; hasBi = true
-            case "(?)":    color = .systemGray;   hasAmbiguous = true
-            default: continue
-            }
-            let range = NSRange(location: annotation.position, length: annotation.length)
-            guard range.location + range.length <= textView.textStorage.length else { continue }
-            textView.textStorage.addAttributes([.foregroundColor: color], range: range)
-        }
-
-        impAspectLegendLabel.isHidden = !hasImp
-        perfAspectLegendLabel.isHidden = !hasPerf
-        biAspectLegendLabel.isHidden = !hasBi
-        ambiguousAspectLegendLabel.isHidden = !hasAmbiguous
-        aspectLegendView.isHidden = !(hasImp || hasPerf || hasBi || hasAmbiguous)
-        updateLegendVisibility()
+        legendView.markVerbAspects(in: textView.textStorage, at: annotations)
     }
 
     func markNounCases(at annotations: [NounCaseAnnotation]) {
-        guard LangCode.currentLanguage.configs.shouldShowNounCasesInPractices else { return }
-
-        let excludedWords: Set<String> = Set(
-            LangCode.currentLanguage.configs.nounCasesExcludedWords
-                .components(separatedBy: "\n")
-                .map { $0.components(separatedBy: "#").first ?? "" }
-                .map { $0.trimmingCharacters(in: .whitespaces).lowercased() }
-                .filter { !$0.isEmpty }
-        )
-
-        var hasGen = false, hasDat = false, hasInst = false, hasPrep = false, hasAmbiguous = false
-        for annotation in annotations {
-            let tokenText = (textView.text as NSString).substring(with: NSRange(location: annotation.position, length: annotation.length)).lowercased()
-            if excludedWords.contains(tokenText) { continue }
-
-            let range = NSRange(location: annotation.position, length: annotation.length)
-            guard range.location + range.length <= textView.textStorage.length else { continue }
-
-            var attrs: [NSAttributedString.Key: Any] = [:]
-
-            if annotation.isItalic {
-                let fontSize = (textView.font?.pointSize ?? Sizes.smallFontSize)
-                attrs[.font] = UIFont.italicSystemFont(ofSize: fontSize)
-            }
-
-            if annotation.label != "prep_motion" {
-                let color: UIColor
-                switch annotation.label {
-                case "nom", "acc", "nom_acc":
-                    if !annotation.isItalic { continue }
-                    // acc + italic: only apply italic, no color change
-                    textView.textStorage.addAttributes(attrs, range: range)
-                    continue
-                case "gen":       color = .systemMint;   hasGen = true
-                case "dat":       color = .systemOrange; hasDat = true
-                case "inst":      color = UIColor(red: 1.0, green: 0.6, blue: 0.8, alpha: 1.0); hasInst = true
-                case "prep":      color = .brown;        hasPrep = true
-                default:
-                    if annotation.label.hasPrefix("ambiguous_") {
-                        color = .systemGray; hasAmbiguous = true
-                    } else {
-                        continue
-                    }
-                }
-                attrs[.foregroundColor] = color
-            }
-
-            textView.textStorage.addAttributes(attrs, range: range)
-        }
-
-        genCaseLegendLabel.isHidden = !hasGen
-        datCaseLegendLabel.isHidden = !hasDat
-        instCaseLegendLabel.isHidden = !hasInst
-        prepCaseLegendLabel.isHidden = !hasPrep
-        ambiguousCaseLegendLabel.isHidden = !hasAmbiguous
-        nounCaseLegendView.isHidden = !(hasGen || hasDat || hasInst || hasPrep || hasAmbiguous)
-        updateLegendVisibility()
+        legendView.markNounCases(in: textView.textStorage, at: annotations)
     }
 
     func markShortAdjectives(at annotations: [ShortAdjectiveAnnotation]) {
@@ -772,13 +585,11 @@ extension TextMeaningPracticeView {
         for annotation in annotations {
             let range = NSRange(location: annotation.position, length: annotation.length)
             guard range.location + range.length <= textView.textStorage.length else { continue }
-            textView.textStorage.addAttributes([.font: UIFont.italicSystemFont(ofSize: fontSize)], range: range)
+            // Merge the italic trait into whatever font is already set on the range
+            // (rather than overwriting it), so a bold stress mark applied earlier by
+            // markAccents(at:) doesn't get wiped out.
+            textView.textStorage.addSymbolicTrait(.traitItalic, for: range, fontSize: fontSize)
         }
-    }
-
-    private func updateLegendVisibility() {
-        let visible = !aspectLegendView.isHidden || !nounCaseLegendView.isHidden
-        legendView.isHidden = !visible
     }
 
     func markAccents(at accentLocs: [Int]) {

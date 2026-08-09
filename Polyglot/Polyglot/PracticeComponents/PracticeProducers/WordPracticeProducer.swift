@@ -312,15 +312,44 @@ extension WordPracticeProducer {
                 let needsNounCase = LangCode.currentLanguage.configs.shouldShowNounCasesInPractices
                 if needsAspect || needsNounCase {
                     for practice in practicesForWord {
-                        guard
-                            practice.direction == .textToMeaning,
-                            practice.practiceType == .meaningSelection || practice.practiceType == .meaningFilling
-                        else { continue }
                         if needsAspect {
                             practice.verbAspectAnnotations = calculateVerbAspectAnnotations(for: practice.query, with: tokens)
                         }
                         if needsNounCase {
                             practice.nounCaseAnnotations = calculateNounCaseAnnotations(for: practice.query, with: tokens)
+                        }
+
+                        // Annotate Russian choices (meaningToText direction or contextSelection).
+                        if let choices = practice.choices,
+                           practice.direction == .meaningToText || practice.practiceType == .contextSelection {
+                            practice.choiceVerbAspectAnnotations = Array(repeating: [], count: choices.count)
+                            practice.choiceNounCaseAnnotations = Array(repeating: [], count: choices.count)
+                            for (i, choice) in choices.enumerated() {
+                                analyzeAccents(for: choice) { choiceTokens, _, _ in
+                                    guard !choiceTokens.isEmpty else { return }
+                                    if needsAspect {
+                                        practice.choiceVerbAspectAnnotations[i] = calculateVerbAspectAnnotations(for: choice, with: choiceTokens)
+                                    }
+                                    if needsNounCase {
+                                        practice.choiceNounCaseAnnotations[i] = calculateNounCaseAnnotations(for: choice, with: choiceTokens)
+                                    }
+                                    self.cache()
+                                }
+                            }
+                        }
+
+                        // Annotate Russian context sentence.
+                        if let context = practice.context, practice.practiceType == .contextSelection {
+                            analyzeAccents(for: context) { contextTokens, _, _ in
+                                guard !contextTokens.isEmpty else { return }
+                                if needsAspect {
+                                    practice.contextVerbAspectAnnotations = calculateVerbAspectAnnotations(for: context, with: contextTokens)
+                                }
+                                if needsNounCase {
+                                    practice.contextNounCaseAnnotations = calculateNounCaseAnnotations(for: context, with: contextTokens)
+                                }
+                                self.cache()
+                            }
                         }
                     }
                 }

@@ -9,7 +9,7 @@
 import UIKit
 
 class ThreeButtonSelectionStack: UIStackView {
-    
+
     var isSelectionEnabled: Bool = true {
         didSet {
             if isSelectionEnabled {
@@ -19,7 +19,7 @@ class ThreeButtonSelectionStack: UIStackView {
             }
         }
     }
-    
+
     private var selectedButtonIndex: Int!
     var selectedButton: UIButton? {
         guard let selectedButtonIndex = selectedButtonIndex else {
@@ -27,6 +27,9 @@ class ThreeButtonSelectionStack: UIStackView {
         }
         return buttons[selectedButtonIndex]
     }
+
+    private var storedVerbAspectAnnotations: [[VerbAspectAnnotation]] = []
+    private var storedNounCaseAnnotations: [[NounCaseAnnotation]] = []
         
     // MARK: - Controllers
     
@@ -117,16 +120,22 @@ extension ThreeButtonSelectionStack {
 
 extension ThreeButtonSelectionStack {
     
-    func set(texts: [String]) {
-        
+    func set(texts: [String], verbAspectAnnotations: [[VerbAspectAnnotation]] = [], nounCaseAnnotations: [[NounCaseAnnotation]] = []) {
+        storedVerbAspectAnnotations = verbAspectAnnotations
+        storedNounCaseAnnotations = nounCaseAnnotations
+
         for i in 0..<buttons.count {
-            buttons[i].setAttributedTitle(
-                NSAttributedString(
-                    string: texts[i],
-                    attributes: Attributes.inactiveSelectionButtonTextAttributes
-                ),
-                for: .normal
+            let attrStr = NSMutableAttributedString(
+                string: texts[i],
+                attributes: Attributes.inactiveSelectionButtonTextAttributes
             )
+            if !verbAspectAnnotations.isEmpty && i < verbAspectAnnotations.count {
+                GrammarAnnotationHelper.applyVerbAspects(verbAspectAnnotations[i], to: attrStr)
+            }
+            if !nounCaseAnnotations.isEmpty && i < nounCaseAnnotations.count {
+                GrammarAnnotationHelper.applyNounCases(nounCaseAnnotations[i], to: attrStr)
+            }
+            buttons[i].setAttributedTitle(attrStr, for: .normal)
         }
     }
 }
@@ -145,10 +154,14 @@ extension ThreeButtonSelectionStack {
     private func changeStyle(for buttonIndices: [Int], textAttributes: [NSAttributedString.Key : Any], backgroundColor: UIColor) {
         for buttonIndex in buttonIndices {
             let button = buttons[buttonIndex]
-            button.setAttributedTitle(
-                NSAttributedString(string: button.currentAttributedTitle!.string, attributes: textAttributes),
-                for: .normal
-            )
+            let attrStr = NSMutableAttributedString(string: button.currentAttributedTitle!.string, attributes: textAttributes)
+            if buttonIndex < storedVerbAspectAnnotations.count {
+                GrammarAnnotationHelper.applyVerbAspects(storedVerbAspectAnnotations[buttonIndex], to: attrStr)
+            }
+            if buttonIndex < storedNounCaseAnnotations.count {
+                GrammarAnnotationHelper.applyNounCases(storedNounCaseAnnotations[buttonIndex], to: attrStr)
+            }
+            button.setAttributedTitle(attrStr, for: .normal)
             button.backgroundColor = backgroundColor
         }
     }

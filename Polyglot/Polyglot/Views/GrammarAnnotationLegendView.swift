@@ -50,7 +50,7 @@ class GrammarAnnotationLegendView: UIStackView {
 
         axis = .vertical
         spacing = 4
-        alignment = .center
+        alignment = .leading
         isHidden = true
 
         addArrangedSubview(nounCaseLegendView)
@@ -131,18 +131,20 @@ class GrammarAnnotationLegendView: UIStackView {
             let tokenText = text.substring(with: range).lowercased()
             if excludedWords.contains(tokenText) { continue }
 
-            var attrs: [NSAttributedString.Key: Any] = [:]
-
             if annotation.isItalic {
-                attrs[.font] = UIFont.italicSystemFont(ofSize: Sizes.smallFontSize)
+                // Merge the italic trait into whatever font is already set on the
+                // range (rather than overwriting it), so a bold stress mark applied
+                // earlier by markAccents(at:) doesn't get wiped out.
+                attrStr.addSymbolicTrait(.traitItalic, for: range, fontSize: Sizes.smallFontSize)
             }
+
+            var attrs: [NSAttributedString.Key: Any] = [:]
 
             if annotation.label != "prep_motion" {
                 let color: UIColor
                 switch annotation.label {
                 case "nom", "acc", "nom_acc":
-                    if !annotation.isItalic { continue }
-                    attrStr.addAttributes(attrs, range: range)
+                    // No color for these; italic (if any) was already applied above.
                     continue
                 case "gen":       color = .systemMint;   hasGen = true
                 case "dat":       color = .systemOrange; hasDat = true
@@ -174,5 +176,60 @@ class GrammarAnnotationLegendView: UIStackView {
         aspectLegendView.isHidden = true
         nounCaseLegendView.isHidden = true
         isHidden = true
+    }
+}
+
+// Static helpers for applying grammar annotation colors to an attributed string
+// without needing a legend view (e.g., for button titles).
+enum GrammarAnnotationHelper {
+
+    static func applyVerbAspects(_ annotations: [VerbAspectAnnotation], to attrStr: NSMutableAttributedString) {
+        guard LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices else { return }
+        for annotation in annotations {
+            let color: UIColor
+            switch annotation.label {
+            case "(imp.)": color = .systemCyan
+            case "(p.)":   color = .systemBlue
+            case "(bi.)":  color = .systemPurple
+            case "(?)":    color = .systemGray
+            default: continue
+            }
+            let range = NSRange(location: annotation.position, length: annotation.length)
+            guard range.location + range.length <= attrStr.length else { continue }
+            attrStr.addAttributes([.foregroundColor: color], range: range)
+        }
+    }
+
+    static func applyNounCases(_ annotations: [NounCaseAnnotation], to attrStr: NSMutableAttributedString) {
+        guard LangCode.currentLanguage.configs.shouldShowNounCasesInPractices else { return }
+        let excludedWords: Set<String> = Set(
+            LangCode.currentLanguage.configs.nounCasesExcludedWords
+                .components(separatedBy: "\n")
+                .map { $0.components(separatedBy: "#").first ?? "" }
+                .map { $0.trimmingCharacters(in: .whitespaces).lowercased() }
+                .filter { !$0.isEmpty }
+        )
+        let text = attrStr.string as NSString
+        for annotation in annotations {
+            let range = NSRange(location: annotation.position, length: annotation.length)
+            guard range.location + range.length <= attrStr.length else { continue }
+            let tokenText = text.substring(with: range).lowercased()
+            if excludedWords.contains(tokenText) { continue }
+            if annotation.isItalic {
+                attrStr.addSymbolicTrait(.traitItalic, for: range, fontSize: Sizes.smallFontSize)
+            }
+            let color: UIColor
+            switch annotation.label {
+            case "nom", "acc", "nom_acc": continue
+            case "gen":  color = .systemMint
+            case "dat":  color = .systemOrange
+            case "inst": color = UIColor(red: 1.0, green: 0.6, blue: 0.8, alpha: 1.0)
+            case "prep": color = .brown
+            case "prep_motion": continue
+            default:
+                if annotation.label.hasPrefix("ambiguous_") { color = .systemGray } else { continue }
+            }
+            attrStr.addAttributes([.foregroundColor: color], range: range)
+        }
     }
 }

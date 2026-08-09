@@ -150,7 +150,11 @@ class WordsPracticeViewController: PracticeViewController {
             case .meaningSelection:
                 return {
                     let practiceView = SelectionPracticeView()
-                    practiceView.updateValues(selectionTexts: currentPractice.choices!)
+                    practiceView.updateValues(
+                        selectionTexts: currentPractice.choices!,
+                        verbAspectAnnotations: currentPractice.choiceVerbAspectAnnotations,
+                        nounCaseAnnotations: currentPractice.choiceNounCaseAnnotations
+                    )
                     practiceView.delegate = self
                     return practiceView
                 }()
@@ -165,7 +169,11 @@ class WordsPracticeViewController: PracticeViewController {
                     let practiceView = SelectionPracticeView()
                     practiceView.updateValues(
                         selectionTexts: currentPractice.choices!,
-                        textViewText: currentPractice.context!
+                        textViewText: currentPractice.context!,
+                        verbAspectAnnotations: currentPractice.choiceVerbAspectAnnotations,
+                        nounCaseAnnotations: currentPractice.choiceNounCaseAnnotations,
+                        contextVerbAspectAnnotations: currentPractice.contextVerbAspectAnnotations,
+                        contextNounCaseAnnotations: currentPractice.contextNounCaseAnnotations
                     )
                     practiceView.delegate = self
                     return practiceView
@@ -202,7 +210,9 @@ class WordsPracticeViewController: PracticeViewController {
                     let practiceView = ImageSelectionPracticeView()
                     practiceView.updateValues(
                         selectionTexts: currentPractice.choices!,
-                        imageUrl: currentPractice.imageUrl!
+                        imageUrl: currentPractice.imageUrl!,
+                        verbAspectAnnotations: currentPractice.choiceVerbAspectAnnotations,
+                        nounCaseAnnotations: currentPractice.choiceNounCaseAnnotations
                     )
                     practiceView.delegate = self
                     return practiceView

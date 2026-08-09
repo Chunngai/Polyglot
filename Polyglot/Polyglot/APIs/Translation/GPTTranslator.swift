@@ -94,6 +94,9 @@ Translate the given text from \(self.enNameOfSrcLang!) to \(self.enNameOfTrgLang
             if let range = result.range(of: "<output>", options: .caseInsensitive) {
                 result = String(result[range.upperBound...]).strip()
             }
+            if let range = result.range(of: "</output>", options: .caseInsensitive) {
+                result = String(result[..<range.lowerBound]).strip()
+            }
             completion([result])
         }
 

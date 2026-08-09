@@ -66,7 +66,43 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
     }()
 
     func verbPartners(for word: String) -> [String] {
-        return verbPartners[word.strip().lowercased()] ?? []
+        let query = word.strip().lowercased()
+        // The partner dict is keyed by infinitive, just like verbAspects. Try a
+        // direct hit first (covers the case where the selected word already is
+        // the infinitive), then fall back to resolving the Core Data base form
+        // so inflected/conjugated forms (e.g. "займёт", "относясь") resolve to
+        // their infinitive ("занять", "относиться") before lookup.
+        if let direct = verbPartners[query] {
+            return direct
+        }
+        var partners: [String] = []
+        for baseForm in baseForms(for: query) {
+            for partner in verbPartners[baseForm] ?? [] where !partners.contains(partner) {
+                partners.append(partner)
+            }
+        }
+        return partners
+    }
+
+    // Resolves the Core Data base_form(s) for a bare/inflected word. base_form
+    // may hold multiple "|"-joined candidates when ambiguous (see
+    // addRussianAccentEntitiesToCoreDataModel); all candidates are returned so
+    // callers can look up each one.
+    private func baseForms(for query: String) -> [String] {
+        let context = persistentContainer.viewContext
+        let request = RussianAccentEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "bare_form == %@", query)
+        let results: [RussianAccentEntity]
+        do {
+            results = try context.fetch(request)
+        } catch {
+            print(error.localizedDescription)
+            results = []
+        }
+        guard let baseForm = results.first?.base_form else {
+            return []
+        }
+        return baseForm.components(separatedBy: "|")
     }
 
     // MARK: - Noun cases

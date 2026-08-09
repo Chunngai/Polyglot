@@ -34,6 +34,10 @@ class WordPractice: BasePractice, Codable {
     var correctness: Correctness!
     var verbAspectAnnotations: [VerbAspectAnnotation]
     var nounCaseAnnotations: [NounCaseAnnotation]
+    var choiceVerbAspectAnnotations: [[VerbAspectAnnotation]]
+    var choiceNounCaseAnnotations: [[NounCaseAnnotation]]
+    var contextVerbAspectAnnotations: [VerbAspectAnnotation]
+    var contextNounCaseAnnotations: [NounCaseAnnotation]
 
     init(
         practiceType: WordPractice.PracticeType,
@@ -52,7 +56,11 @@ class WordPractice: BasePractice, Codable {
         periodIndex: Int? = nil,
         correctness: Correctness? = nil,
         verbAspectAnnotations: [VerbAspectAnnotation] = [],
-        nounCaseAnnotations: [NounCaseAnnotation] = []
+        nounCaseAnnotations: [NounCaseAnnotation] = [],
+        choiceVerbAspectAnnotations: [[VerbAspectAnnotation]] = [],
+        choiceNounCaseAnnotations: [[NounCaseAnnotation]] = [],
+        contextVerbAspectAnnotations: [VerbAspectAnnotation] = [],
+        contextNounCaseAnnotations: [NounCaseAnnotation] = []
     ) {
 
         self.practiceType = practiceType
@@ -72,6 +80,10 @@ class WordPractice: BasePractice, Codable {
         self.correctness = correctness
         self.verbAspectAnnotations = verbAspectAnnotations
         self.nounCaseAnnotations = nounCaseAnnotations
+        self.choiceVerbAspectAnnotations = choiceVerbAspectAnnotations
+        self.choiceNounCaseAnnotations = choiceNounCaseAnnotations
+        self.contextVerbAspectAnnotations = contextVerbAspectAnnotations
+        self.contextNounCaseAnnotations = contextNounCaseAnnotations
 
     }
     
@@ -96,6 +108,10 @@ class WordPractice: BasePractice, Codable {
         case correctness
         case verbAspectAnnotations
         case nounCaseAnnotations
+        case choiceVerbAspectAnnotations
+        case choiceNounCaseAnnotations
+        case contextVerbAspectAnnotations
+        case contextNounCaseAnnotations
 
     }
     
@@ -121,6 +137,10 @@ class WordPractice: BasePractice, Codable {
         try container.encode(correctness, forKey: .correctness)
         try container.encode(verbAspectAnnotations, forKey: .verbAspectAnnotations)
         try container.encode(nounCaseAnnotations, forKey: .nounCaseAnnotations)
+        try container.encode(choiceVerbAspectAnnotations, forKey: .choiceVerbAspectAnnotations)
+        try container.encode(choiceNounCaseAnnotations, forKey: .choiceNounCaseAnnotations)
+        try container.encode(contextVerbAspectAnnotations, forKey: .contextVerbAspectAnnotations)
+        try container.encode(contextNounCaseAnnotations, forKey: .contextNounCaseAnnotations)
     }
     
     required init(from decoder: Decoder) throws {
@@ -152,6 +172,26 @@ class WordPractice: BasePractice, Codable {
         } catch {
             nounCaseAnnotations = []
         }
+        do {
+            choiceVerbAspectAnnotations = try values.decode([[VerbAspectAnnotation]].self, forKey: .choiceVerbAspectAnnotations)
+        } catch {
+            choiceVerbAspectAnnotations = []
+        }
+        do {
+            choiceNounCaseAnnotations = try values.decode([[NounCaseAnnotation]].self, forKey: .choiceNounCaseAnnotations)
+        } catch {
+            choiceNounCaseAnnotations = []
+        }
+        do {
+            contextVerbAspectAnnotations = try values.decode([VerbAspectAnnotation].self, forKey: .contextVerbAspectAnnotations)
+        } catch {
+            contextVerbAspectAnnotations = []
+        }
+        do {
+            contextNounCaseAnnotations = try values.decode([NounCaseAnnotation].self, forKey: .contextNounCaseAnnotations)
+        } catch {
+            contextNounCaseAnnotations = []
+        }
 
     }
     
@@ -173,7 +213,11 @@ class WordPractice: BasePractice, Codable {
             periodIndex: another.periodIndex,
             correctness: another.correctness,
             verbAspectAnnotations: another.verbAspectAnnotations,
-            nounCaseAnnotations: another.nounCaseAnnotations
+            nounCaseAnnotations: another.nounCaseAnnotations,
+            choiceVerbAspectAnnotations: another.choiceVerbAspectAnnotations,
+            choiceNounCaseAnnotations: another.choiceNounCaseAnnotations,
+            contextVerbAspectAnnotations: another.contextVerbAspectAnnotations,
+            contextNounCaseAnnotations: another.contextNounCaseAnnotations
         )
     }
     

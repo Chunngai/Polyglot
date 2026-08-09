@@ -233,7 +233,7 @@ extension NSMutableAttributedString {
         )[.font] as? UIFont else {
             return
         }
-        
+
         add(
             attributes: [
                 .font: UIFont.systemFont(
@@ -244,5 +244,31 @@ extension NSMutableAttributedString {
             for: range
         )
     }
-    
+
+    // Adds a symbolic trait (e.g. italic) to every character in `range` while
+    // preserving any symbolic traits already present on the existing font
+    // (e.g. bold, applied by markAccents for a stress mark). Overwriting the
+    // `.font` attribute wholesale with a freshly constructed font would wipe
+    // out those pre-existing traits, so this enumerates the current font(s)
+    // in the range and merges the new trait into each one individually.
+    func addSymbolicTrait(_ trait: UIFontDescriptor.SymbolicTraits, for range: NSRange, fontSize: CGFloat) {
+        guard range.location >= 0, range.location + range.length <= length else {
+            return
+        }
+
+        enumerateAttribute(.font, in: range, options: []) { existingFont, subRange, _ in
+            let existingUIFont = existingFont as? UIFont
+            let baseDescriptor = existingUIFont?.fontDescriptor
+                ?? UIFont.systemFont(ofSize: fontSize).fontDescriptor
+            let pointSize = existingUIFont?.pointSize ?? fontSize
+            let mergedTraits = baseDescriptor.symbolicTraits.union(trait)
+            let mergedDescriptor = baseDescriptor.withSymbolicTraits(mergedTraits) ?? baseDescriptor
+            addAttribute(
+                .font,
+                value: UIFont(descriptor: mergedDescriptor, size: pointSize),
+                range: subRange
+            )
+        }
+    }
+
 }
