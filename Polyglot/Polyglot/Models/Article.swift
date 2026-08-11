@@ -15,11 +15,12 @@ struct Paragraph: Codable {
     
     var text: String
     var meaning: String?
-    
+    var segmentedMeanings: [Int: String]?
+
     // For Youtube video captions.
     var startMs: Double?
     var durationMs: Double?
-    
+
     init(text: String, meaning: String? = nil, startMs: Double? = nil, durationMs: Double? = nil) {
         
         self.id = UUID().uuidString

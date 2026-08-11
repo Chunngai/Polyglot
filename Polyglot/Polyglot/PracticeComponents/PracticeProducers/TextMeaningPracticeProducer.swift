@@ -379,14 +379,54 @@ extension TextMeaningPracticeProducer {
         }
 
         // Translate serially: only send next request after current one completes.
+        var articles = Article.load(for: LangCode.currentLanguage)
         let needsTranslation = practices.filter { $0.meaning.isEmpty }
+
+        for practice in needsTranslation {
+            guard case let .article(articleId, paragraphId, sentenceId) = practice.textSource,
+                  let paragraphId = paragraphId,
+                  let articleIndex = articles.firstIndex(where: { $0.id == articleId }),
+                  let paragraphIndex = articles[articleIndex].paras.firstIndex(where: { $0.id == paragraphId })
+            else { continue }
+
+            let paragraph = articles[articleIndex].paras[paragraphIndex]
+            if let sentenceId = sentenceId {
+                if let cached = paragraph.segmentedMeanings?[sentenceId] {
+                    practice.meaning = cached
+                }
+            } else {
+                if let cached = paragraph.meaning {
+                    practice.meaning = cached
+                }
+            }
+        }
+
+        let stillNeedsTranslation = needsTranslation.filter { $0.meaning.isEmpty }
         func translateNext(_ index: Int) {
-            guard index < needsTranslation.count else { return }
-            let practice = needsTranslation[index]
+            guard index < stillNeedsTranslation.count else {
+                Article.save(&articles, for: LangCode.currentLanguage)
+                return
+            }
+            let practice = stillNeedsTranslation[index]
             self.maybeTranslate(text: practice.text) { translation, isMachineTranslated, translatorType, _ in
                 practice.meaning = translation
                 practice.isTextMachineTranslated = isMachineTranslated
                 practice.machineTranslatorType = translatorType
+
+                if case let .article(articleId, paragraphId, sentenceId) = practice.textSource,
+                   let paragraphId = paragraphId,
+                   let articleIndex = articles.firstIndex(where: { $0.id == articleId }),
+                   let paragraphIndex = articles[articleIndex].paras.firstIndex(where: { $0.id == paragraphId }) {
+                    if let sentenceId = sentenceId {
+                        if articles[articleIndex].paras[paragraphIndex].segmentedMeanings == nil {
+                            articles[articleIndex].paras[paragraphIndex].segmentedMeanings = [:]
+                        }
+                        articles[articleIndex].paras[paragraphIndex].segmentedMeanings![sentenceId] = translation
+                    } else {
+                        articles[articleIndex].paras[paragraphIndex].meaning = translation
+                    }
+                }
+
                 translateNext(index + 1)
             }
         }

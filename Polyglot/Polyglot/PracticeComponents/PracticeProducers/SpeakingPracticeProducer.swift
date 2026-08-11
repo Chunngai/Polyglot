@@ -16,6 +16,7 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
     private var isBackgroundMakeInProgress = false
     var isArticleComplete: Bool = false
     private var cancelledDuringLoading = false
+    private var lastSavedParagraphIndex: Int = 0
 
     // MARK: - Init
 
@@ -340,14 +341,15 @@ extension SpeakingPracticeProducer {
            case let .article(_, paragraphId, _) = practice.textSource,
            let paragraphId = paragraphId,
            let idx = article.paras.firstIndex(where: { $0.id == paragraphId }) {
-            paraIndex = idx
+            paraIndex = max(idx, lastSavedParagraphIndex)
             cancelledDuringLoading = false  // Stable state: reset so future make() calls write normally.
         } else if practiceList.isEmpty {
             cancelledDuringLoading = true  // Prevent make() from overwriting this position.
-            paraIndex = pendingStartParaIndex
+            paraIndex = max(pendingStartParaIndex, lastSavedParagraphIndex)
         } else {
-            paraIndex = currentSelectedParaIndex
+            paraIndex = max(currentSelectedParaIndex, lastSavedParagraphIndex)
         }
+        lastSavedParagraphIndex = paraIndex
         var metaData = SpeakingPracticeProducer.loadParagraphMetaData(for: LangCode.currentLanguage)
         metaData[SpeakingPracticeProducer.paragraphMetaKey(for: article.id)] = String(paraIndex)
         SpeakingPracticeProducer.saveParagraphMetaData(&metaData, for: LangCode.currentLanguage)

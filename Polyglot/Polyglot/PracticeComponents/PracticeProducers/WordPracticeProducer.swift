@@ -320,8 +320,6 @@ extension WordPracticeProducer {
                             practice.nounCaseAnnotations = calculateNounCaseAnnotations(for: practice.query, with: tokens)
                             practice.shortAdjectiveAnnotations = calculateShortAdjectiveAnnotations(for: practice.query, with: tokens)
                         }
-                        practice.isGrammarAnnotationCompleted = true
-
                         // Annotate Russian choices (meaningToText direction or contextSelection).
                         if let choices = practice.choices,
                            practice.direction == .meaningToText || practice.practiceType == .contextSelection {
@@ -355,6 +353,9 @@ extension WordPracticeProducer {
                             }
                         }
                     }
+                }
+                for practice in practicesForWord {
+                    practice.isGrammarAnnotationCompleted = true
                 }
                 for _ in 0..<nRepetitions {
                     if typesToUse.contains(.accentSelection) {

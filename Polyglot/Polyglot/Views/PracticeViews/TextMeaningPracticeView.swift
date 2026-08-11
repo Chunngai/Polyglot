@@ -498,10 +498,6 @@ class TextMeaningPracticeView: BasePracticeView {
             textView.chatSystemPrompt = prompt
         }
 
-        // Shift chat bubbles below the newly added translation text.
-        if !chatBubblesStack.isHidden {
-            DispatchQueue.main.async { self.updateChatBubblesPosition() }
-        }
     }
     
     func submit() -> Any {
@@ -631,17 +627,17 @@ extension TextMeaningPracticeView: UITextViewDelegate {
             if unselectableRange.intersection(r) != nil {
                 let newLocation = unselectableRange.location + unselectableRange.length
                 let newLength = abs(r.length - newLocation)
-                textView.selectedRange = NSRange(
-                    location: newLocation,
-                    length: newLength
-                )
+                if newLength > 0 {
+                    textView.selectedRange = NSRange(location: newLocation, length: newLength)
+                }
                 break
             }
         }
 
         // Populate chat input with selected text.
-        if r.length > 0,
-           let selected = (textView.text as NSString?)?.substring(with: r).strip(),
+        let finalRange = textView.selectedRange
+        if finalRange.length > 0,
+           let selected = (textView.attributedText.string as NSString).substring(with: finalRange) as String?,
            !selected.isEmpty {
             chatTextField.text = "\"\(selected)\""
             updateChatSendButton()
@@ -854,7 +850,7 @@ extension TextMeaningPracticeView {
     private func backgroundTapped() {
         chatTextField.resignFirstResponder()
         textView.resignFirstResponder()
-        selectionDidClear()
+        textView.selectedRange = NSRange(location: 0, length: 0)
     }
 
 }

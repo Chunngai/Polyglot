@@ -19,7 +19,7 @@ struct ContentCreator {
         apiURL: String? = globalConfigs.ChatGPTAPIURL,
         apiKey: String? = globalConfigs.ChatGPTAPIKey,
         model: String? = globalConfigs.ChatGPTModel,
-        requestTimeLimit: TimeInterval = Constants.requestTimeLimit
+        requestTimeLimit: TimeInterval = Constants.llmRequestTimeLimit
     ) {
         self.apiURL = apiURL
         self.apiKey = apiKey

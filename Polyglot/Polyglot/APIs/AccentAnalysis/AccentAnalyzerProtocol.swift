@@ -22,22 +22,22 @@ protocol AccentAnalyzerProtocol {
     
 }
 
+private let word2langQueue = DispatchQueue(label: "com.polyglot.word2lang")
 var word2langForAccentAnalysis: [String: LangCode] = [:]
 func analyzeAccents(for text: String, completion: @escaping (
     [Token],  // tokens.
     String?,  // Fixed text.
     String  // Analysis query.
 ) -> Void) {
-    
-    word2langForAccentAnalysis[text] = LangCode.currentLanguage
+
+    word2langQueue.sync {
+        word2langForAccentAnalysis[text] = LangCode.currentLanguage
+    }
     LangCode.currentLanguage.accentAnalyzer?.analyze(for: text) { tokens, fixedText in
-        guard LangCode.currentLanguage == word2langForAccentAnalysis[text] else {
+        let lang = word2langQueue.sync { word2langForAccentAnalysis[text] }
+        guard LangCode.currentLanguage == lang else {
             return
         }
-        // TODO: -  The following commented code leads to crash.
-//        if word2langForAccentAnalysis.keys.contains(text) {
-//            word2langForAccentAnalysis.removeValue(forKey: text)
-//        }
         completion(
             tokens,
             fixedText,

@@ -18,49 +18,64 @@ class ReadingEditTableCellTextView: AutoResizingTextViewWithPrompt, TextAnimatio
 }
 
 class ReadingEditTableCell: UITableViewCell {
-        
+
     // MARK: - Controllers
-    
+
     var delegate: ReadingEditViewController! {
         didSet {
             textView.tableViewForHeightAdjustment = delegate.tableView
         }
     }
-    
+
     // MARK: - Views
-    
+
     var textView: ReadingEditTableCellTextView = {
         let textView = ReadingEditTableCellTextView()
         return textView
     }()
-    
+
+    var sourceURLButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitleColor(Colors.activeSystemButtonColor, for: .normal)
+        button.titleLabel?.lineBreakMode = .byTruncatingTail
+        button.contentHorizontalAlignment = .left
+        button.isHidden = true
+        return button
+    }()
+
     // MARK: - Init
-    
+
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }
-    
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-                
+
         updateSetups()
         updateViews()
         updateLayouts()
     }
-    
+
     private func updateSetups() {
-        
+
     }
-    
+
     private func updateViews() {
         selectionStyle = .none
-        
+
 //        addSubview(textView)  // Wrong. Results in not being able to edit the cell.
         contentView.addSubview(textView)
+        contentView.addSubview(sourceURLButton)
     }
-    
+
     private func updateLayouts() {
         textView.snp.makeConstraints { (make) in
+            make.leading.trailing.equalToSuperview().inset(20)
+            make.top.bottom.equalToSuperview()
+        }
+
+        sourceURLButton.snp.makeConstraints { (make) in
             make.leading.trailing.equalToSuperview().inset(20)
             make.top.bottom.equalToSuperview()
         }
