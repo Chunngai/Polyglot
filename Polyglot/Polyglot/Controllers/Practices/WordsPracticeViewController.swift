@@ -39,8 +39,12 @@ class WordsPracticeViewController: PracticeViewController {
         }
         producer.practiceList.sort { a, b in
             guard let wa = a as? WordPractice, let wb = b as? WordPractice else { return false }
-            let scoreA = (wa.isAccentAnnotationCompleted ? 1 : 0) + (wa.isGrammarAnnotationCompleted ? 1 : 0)
-            let scoreB = (wb.isAccentAnnotationCompleted ? 1 : 0) + (wb.isGrammarAnnotationCompleted ? 1 : 0)
+            let accentA = wa.isAccentAnnotationCompleted || wa.query.contains(Token.accentSymbol)
+            let accentB = wb.isAccentAnnotationCompleted || wb.query.contains(Token.accentSymbol)
+            let grammarA = wa.isGrammarAnnotationCompleted || !wa.verbAspectAnnotations.isEmpty || !wa.nounCaseAnnotations.isEmpty || !wa.shortAdjectiveAnnotations.isEmpty
+            let grammarB = wb.isGrammarAnnotationCompleted || !wb.verbAspectAnnotations.isEmpty || !wb.nounCaseAnnotations.isEmpty || !wb.shortAdjectiveAnnotations.isEmpty
+            let scoreA = (accentA ? 1 : 0) + (grammarA ? 1 : 0)
+            let scoreB = (accentB ? 1 : 0) + (grammarB ? 1 : 0)
             return scoreA > scoreB
         }
         initialPracticeCount = producer.practiceList.count

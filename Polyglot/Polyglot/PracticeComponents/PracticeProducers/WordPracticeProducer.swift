@@ -296,19 +296,6 @@ extension WordPracticeProducer {
             analyzeAccents(for: word) { tokens, fixedText, text in
                 guard !tokens.isEmpty else { return }
 
-                let accentedWord = tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)
-                for practice in practicesForWord {
-                    self.addAccents(to: practice, with: accentedWord)
-                    practice.isAccentAnnotationCompleted = true
-                }
-
-                // Only annotate practices whose prompt actually displays the reviewed
-                // word's text (i.e., text -> meaning direction). For meaning -> text
-                // practices the word is the hidden answer, so annotating it would leak it.
-                // Positions are calculated against practice.query, which may already
-                // contain inline accent marks inserted by addAccents() above --
-                // calculateVerbAspectAnnotations/calculateNounCaseAnnotations locate each
-                // token by scanning, so inserted marks are skipped over correctly.
                 let needsAspect = LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices
                 let needsNounCase = LangCode.currentLanguage.configs.shouldShowNounCasesInPractices
                 if needsAspect || needsNounCase {
@@ -357,6 +344,13 @@ extension WordPracticeProducer {
                 for practice in practicesForWord {
                     practice.isGrammarAnnotationCompleted = true
                 }
+
+                let accentedWord = tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)
+                for practice in practicesForWord {
+                    self.addAccents(to: practice, with: accentedWord)
+                    practice.isAccentAnnotationCompleted = true
+                }
+
                 for _ in 0..<nRepetitions {
                     if typesToUse.contains(.accentSelection) {
                         if let p = self.makeAccentSelectionPractice(
