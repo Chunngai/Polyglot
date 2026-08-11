@@ -22,14 +22,6 @@ class TranslationPracticeViewController: TextMeaningPracticeViewController {
         return producer
     }()
 
-    private lazy var progressLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
-        label.textColor = .secondaryLabel
-        label.isHidden = true
-        return label
-    }()
-
     private lazy var loadingIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .medium)
         indicator.hidesWhenStopped = true
@@ -42,16 +34,11 @@ class TranslationPracticeViewController: TextMeaningPracticeViewController {
         super.updateViews()
         promptLabel.numberOfLines = 1
         promptLabel.adjustsFontSizeToFitWidth = true
-        mainView.addSubview(progressLabel)
         mainView.addSubview(loadingIndicator)
     }
 
     override func updateLayouts() {
         super.updateLayouts()
-        progressLabel.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.centerY.equalTo(doneButton)
-        }
         loadingIndicator.snp.makeConstraints { make in
             make.center.equalToSuperview()
         }

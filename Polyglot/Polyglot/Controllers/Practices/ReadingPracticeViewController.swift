@@ -21,7 +21,7 @@ class ReadingPracticeViewController: TextMeaningPracticeViewController {
         return producer
     }()
 
-    private lazy var progressLabel: UILabel = {
+    private lazy var paragraphProgressLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
         label.textColor = .secondaryLabel
@@ -41,13 +41,13 @@ class ReadingPracticeViewController: TextMeaningPracticeViewController {
         super.updateViews()
         promptLabel.numberOfLines = 1
         promptLabel.adjustsFontSizeToFitWidth = true
-        mainView.addSubview(progressLabel)
+        mainView.addSubview(paragraphProgressLabel)
         mainView.addSubview(loadingIndicator)
     }
 
     override func updateLayouts() {
         super.updateLayouts()
-        progressLabel.snp.makeConstraints { make in
+        paragraphProgressLabel.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.centerY.equalTo(doneButton)
         }
@@ -70,13 +70,13 @@ class ReadingPracticeViewController: TextMeaningPracticeViewController {
                     self.loadingIndicator.stopAnimating()
                     self.doneButton.isHidden = false
                     superUpdate()
-                    self.mainView.bringSubviewToFront(self.progressLabel)
+                    self.mainView.bringSubviewToFront(self.paragraphProgressLabel)
                 }
             }
             return
         }
         super.updatePracticeView()
-        mainView.bringSubviewToFront(progressLabel)
+        mainView.bringSubviewToFront(paragraphProgressLabel)
     }
 
     override func makePracticeView() -> TextMeaningPracticeView {
@@ -112,11 +112,11 @@ class ReadingPracticeViewController: TextMeaningPracticeViewController {
               let paragraphId = paragraphId,
               let paraIndex = article.paras.firstIndex(where: { $0.id == paragraphId })
         else {
-            progressLabel.isHidden = true
+            paragraphProgressLabel.isHidden = true
             return
         }
-        progressLabel.text = "\(paraIndex + 1) / \(article.paras.count)"
-        progressLabel.isHidden = false
+        paragraphProgressLabel.text = "\(paraIndex + 1) / \(article.paras.count)"
+        paragraphProgressLabel.isHidden = false
     }
     
 }

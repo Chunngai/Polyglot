@@ -384,7 +384,7 @@ class TextMeaningPracticeView: BasePracticeView {
         }
         contentGenerationSpinner.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.centerY.equalTo(listenButton.snp.centerY)
+            make.centerY.equalTo(legendView.snp.top).offset(-40)
         }
         legendView.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
