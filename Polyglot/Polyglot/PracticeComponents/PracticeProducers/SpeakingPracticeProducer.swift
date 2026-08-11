@@ -293,6 +293,26 @@ extension SpeakingPracticeProducer {
             sentenceId: sentenceIndex
         )
 
+        let cachedMeaning: String?
+        if let sentenceIndex = sentenceIndex {
+            cachedMeaning = para.segmentedMeanings?[sentenceIndex] ?? para.meaning
+        } else {
+            cachedMeaning = para.meaning
+        }
+
+        if let cached = cachedMeaning, !cached.isEmpty {
+            guard LangCode.isText(sentence, in: LangCode.currentLanguage) else { return }
+            guard let practice = self.makePractice(
+                text: sentence,
+                meaning: cached,
+                textSource: textSource,
+                isTextMachineTranslated: false,
+                machineTranslatorType: .none
+            ) else { return }
+            callBack(practice)
+            return
+        }
+
         maybeTranslate(text: sentence, meaning: para.meaning) { meaning, isTranslated, translatorType, _ in
             guard LangCode.isText(sentence, in: LangCode.currentLanguage) else { return }
             guard let practice = self.makePractice(

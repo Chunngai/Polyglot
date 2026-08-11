@@ -8,7 +8,6 @@
 
 import UIKit
 import IQKeyboardManagerSwift
-import SafariServices
 
 class ReadingEditViewController: UIViewController {
     
@@ -209,15 +208,11 @@ extension ReadingEditViewController {
     // MARK: - Utils
     
     private func cell(for identifier: Int) -> ReadingEditTableCell {
-
+        
         let cell = ReadingEditTableCell()
         cell.delegate = self
         cell.textView.delegate_ = self
         cell.textView.tag = identifier
-
-        if identifier == Self.sourceIdentifier {
-            cell.sourceURLButton.addTarget(self, action: #selector(sourceURLTapped), for: .touchUpInside)
-        }
         
         let prompt = getPrompt(for: identifier)  // Dynamically loading instead of using constants, coz `lang` will change.
         let text = getText(for: identifier)
@@ -456,14 +451,6 @@ extension ReadingEditViewController {
         navigationController?.dismiss(animated: true, completion: nil)
     }
     
-    @objc private func sourceURLTapped() {
-        guard let urlString = cells[Self.sourceIdentifier].textView.text,
-              !urlString.isEmpty,
-              let url = URL(string: urlString) else { return }
-        let vc = SFSafariViewController(url: url)
-        present(vc, animated: true, completion: nil)
-    }
-
     private func splitBodyText() {
         self.cells[ReadingEditViewController.bodyIdentifier].textView.text = self.content["body"]?
             .replacingOccurrences(
@@ -593,38 +580,23 @@ extension ReadingEditViewController {
 }
 
 extension ReadingEditViewController: AutoResizingTextViewWithPromptDelegate {
-
+    
     // MARK: - AutoResizingTextViewWithPromptDelegate
-
-    func textViewDidBeginEditing(_ textView: UITextView) {
-
-        if textView.tag == Self.sourceIdentifier {
-            cells[Self.sourceIdentifier].sourceURLButton.isHidden = true
-        }
-
-    }
-
+    
     func textViewDidEndEditing(_ textView: UITextView) {
-
+        
         if textView.tag == Self.sourceIdentifier {
-
+            
             self.maybeGenerateBodyText()
-
-            let urlString = cells[Self.sourceIdentifier].textView.text ?? ""
-            if !urlString.isEmpty, URL(string: urlString) != nil {
-                let button = cells[Self.sourceIdentifier].sourceURLButton
-                button.setTitle(urlString, for: .normal)
-                button.isHidden = false
-            }
-
+            
         } else if textView.tag == Self.bodyIdentifier {
-
+            
             self.splitBodyText()
-
+            
         }
-
+        
     }
-
+    
 }
 
 extension ReadingEditViewController {
