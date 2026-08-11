@@ -8,10 +8,56 @@
 
 import UIKit
 
-private class SubtitleCell: UITableViewCell {
+private class WordSelectionCell: UITableViewCell {
+
+    let wordLabel = UILabel()
+    let dateLabel = UILabel()
+    let meaningLabel = UILabel()
+    let typesLabel = UILabel()
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: .subtitle, reuseIdentifier: reuseIdentifier)
+        super.init(style: .default, reuseIdentifier: reuseIdentifier)
+
+        wordLabel.font = UIFont.systemFont(ofSize: 17)
+        wordLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        dateLabel.font = UIFont.systemFont(ofSize: 14)
+        dateLabel.textAlignment = .right
+        dateLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        meaningLabel.font = UIFont.systemFont(ofSize: 14)
+        meaningLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        typesLabel.font = UIFont.systemFont(ofSize: 14)
+        typesLabel.textAlignment = .right
+        typesLabel.translatesAutoresizingMaskIntoConstraints = false
+
+        contentView.addSubview(wordLabel)
+        contentView.addSubview(dateLabel)
+        contentView.addSubview(meaningLabel)
+        contentView.addSubview(typesLabel)
+
+        NSLayoutConstraint.activate([
+            wordLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
+            wordLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            wordLabel.trailingAnchor.constraint(equalTo: dateLabel.leadingAnchor, constant: -8),
+
+            dateLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
+            dateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            dateLabel.widthAnchor.constraint(lessThanOrEqualTo: contentView.widthAnchor, multiplier: 0.45),
+
+            meaningLabel.topAnchor.constraint(equalTo: wordLabel.bottomAnchor, constant: 2),
+            meaningLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            meaningLabel.trailingAnchor.constraint(equalTo: typesLabel.leadingAnchor, constant: -8),
+            meaningLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
+
+            typesLabel.topAnchor.constraint(equalTo: dateLabel.bottomAnchor, constant: 2),
+            typesLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            typesLabel.widthAnchor.constraint(lessThanOrEqualTo: contentView.widthAnchor, multiplier: 0.45),
+            typesLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
+        ])
     }
+
     required init?(coder: NSCoder) { fatalError() }
 }
 
@@ -39,7 +85,7 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
         super.viewDidLoad()
 
         title = Strings.phraseReview
-        tableView.register(SubtitleCell.self, forCellReuseIdentifier: "cell")
+        tableView.register(WordSelectionCell.self, forCellReuseIdentifier: "cell")
 
         loadEntries()
         DispatchQueue.global(qos: .userInitiated).async {
@@ -175,7 +221,7 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! WordSelectionCell
         let entry = sections[indexPath.section].entries[indexPath.row]
 
         let attrText = NSMutableAttributedString(
@@ -183,23 +229,36 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
             attributes: [.foregroundColor: Colors.weakTextColor]
         )
         attrText.append(NSAttributedString(string: entry.key))
-        cell.textLabel?.attributedText = attrText
+        cell.wordLabel.attributedText = attrText
         cell.selectionStyle = .none
 
+        let cachedPractices = WordPracticeProducer.loadCachedPractices(for: LangCode.currentLanguage)
+        let generatedTypes = cachedPractices
+            .filter { WordPracticeProducer.normalizedKey(from: $0.word) == entry.key }
+            .map { $0.practiceType }
+        let uniqueTypes = Array(NSOrderedSet(array: generatedTypes)) as! [WordPractice.PracticeType]
+        let typesText = uniqueTypes.map { practiceTypeLabel($0) }.joined(separator: ", ")
+
         if entry.isAvailable {
-            cell.textLabel?.alpha = 1.0
+            cell.wordLabel.alpha = 1.0
             cell.isUserInteractionEnabled = true
             cell.accessoryType = selectedKeys.contains(entry.key) ? .checkmark : .none
-            let enabledTypes = LangCode.currentLanguage.configs.phraseReviewEnabledPracticeTypes
-            let nextType = EbbinghausSchedule.effectivePracticeTypes(for: entry.periodIndex, enabledTypes: enabledTypes).first
-            cell.detailTextLabel?.text = nextType.map { practiceTypeLabel($0) }
-            cell.detailTextLabel?.textColor = Colors.weakTextColor
+            cell.dateLabel.text = ""
+            cell.dateLabel.textColor = Colors.weakTextColor
+            cell.meaningLabel.text = entry.meaning
+            cell.meaningLabel.textColor = Colors.weakTextColor
+            cell.typesLabel.text = typesText
+            cell.typesLabel.textColor = Colors.weakTextColor
         } else {
-            cell.textLabel?.alpha = 0.4
+            cell.wordLabel.alpha = 0.4
             cell.isUserInteractionEnabled = false
             cell.accessoryType = .none
-            cell.detailTextLabel?.text = entry.nextReviewDate.repr(of: Date.defaultDateFormat)
-            cell.detailTextLabel?.textColor = Colors.inactiveTextColor
+            cell.dateLabel.text = entry.nextReviewDate.repr(of: Date.defaultDateFormat)
+            cell.dateLabel.textColor = Colors.inactiveTextColor
+            cell.meaningLabel.text = entry.meaning
+            cell.meaningLabel.textColor = Colors.inactiveTextColor
+            cell.typesLabel.text = typesText
+            cell.typesLabel.textColor = Colors.inactiveTextColor
         }
 
         return cell
