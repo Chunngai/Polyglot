@@ -29,7 +29,6 @@ private class WordSelectionCell: UITableViewCell {
         meaningLabel.translatesAutoresizingMaskIntoConstraints = false
 
         typesLabel.font = UIFont.systemFont(ofSize: 14)
-        typesLabel.textAlignment = .right
         typesLabel.translatesAutoresizingMaskIntoConstraints = false
 
         contentView.addSubview(wordLabel)
@@ -48,12 +47,11 @@ private class WordSelectionCell: UITableViewCell {
 
             meaningLabel.topAnchor.constraint(equalTo: wordLabel.bottomAnchor, constant: 2),
             meaningLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            meaningLabel.trailingAnchor.constraint(equalTo: typesLabel.leadingAnchor, constant: -8),
-            meaningLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
+            meaningLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
 
-            typesLabel.topAnchor.constraint(equalTo: dateLabel.bottomAnchor, constant: 2),
+            typesLabel.topAnchor.constraint(equalTo: meaningLabel.bottomAnchor, constant: 2),
+            typesLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             typesLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            typesLabel.widthAnchor.constraint(lessThanOrEqualTo: contentView.widthAnchor, multiplier: 0.45),
             typesLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
         ])
     }
@@ -194,14 +192,14 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
 
     private func practiceTypeLabel(_ type: WordPractice.PracticeType) -> String {
         switch type {
-        case .meaningSelection:   return "Meaning Selection"
-        case .meaningFilling:     return "Meaning Filling"
-        case .contextSelection:   return "Context Selection"
-        case .reordering:         return "Reordering"
-        case .phraseConstruction: return "Phrase Construction"
-        case .imageSelection:     return "Image Selection"
-        case .imageFilling:       return "Image Filling"
-        case .accentSelection:    return "Accent Selection"
+        case .meaningSelection:   return "选义"
+        case .meaningFilling:     return "填义"
+        case .contextSelection:   return "选境"
+        case .reordering:         return "排序"
+        case .phraseConstruction: return "造句"
+        case .imageSelection:     return "图选"
+        case .imageFilling:       return "图填"
+        case .accentSelection:    return "重音"
         }
     }
 

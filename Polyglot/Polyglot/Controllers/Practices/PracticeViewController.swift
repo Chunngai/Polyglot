@@ -208,7 +208,7 @@ class PracticeViewController: UIViewController {
 
         progressLabel.snp.makeConstraints { (make) in
             make.leading.equalTo(promptLabel.snp.leading)
-            make.bottom.equalTo(doneButton.snp.bottom)
+            make.bottom.equalTo(doneButton.snp.bottom).offset(-8)
         }
         
         doneButton.snp.makeConstraints { (make) in
