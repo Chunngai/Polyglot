@@ -9,38 +9,43 @@
 import Foundation
 
 struct Paragraph: Codable {
-    
+
     var id: String
     var cDate: Date
-    
+
     var text: String
     var meaning: String?
-    var segmentedMeanings: [Int: String]?
+    // Keys are sentence indices serialised as Strings (e.g. "0", "1", …).
+    // Using String keys avoids the Swift ≤5.6 / ≥5.7 [Int:String] encoding
+    // incompatibility where old builds wrote a flat JSON array while newer
+    // builds write a JSON object, which caused the -[__NSTaggedDate count]
+    // crash when the decoder called `count` on the wrong backing storage type.
+    var segmentedMeanings: [String: String]?
 
     // For Youtube video captions.
     var startMs: Double?
     var durationMs: Double?
 
     init(text: String, meaning: String? = nil, startMs: Double? = nil, durationMs: Double? = nil) {
-        
+
         self.id = UUID().uuidString
         self.cDate = Date()
-        
+
         self.text = text
         self.meaning = meaning
-        
+
         self.startMs = startMs
         self.durationMs = durationMs
-        
+
     }
-    
+
     static let textMeaningSeparator = "\n"
-    
+
     init(from paraString: String) {
-        
+
         let text: String!
         let meaning: String!
-        
+
         let splits: [String] = paraString.strip().split(with: Paragraph.textMeaningSeparator)
         text = splits[0]
         if splits.count == 2 {
@@ -48,10 +53,60 @@ struct Paragraph: Codable {
         } else {
             meaning = nil
         }
-        
+
         self.init(text: text, meaning: meaning)
     }
-    
+
+    // MARK: - Codable
+
+    private enum CodingKeys: String, CodingKey {
+        case id, cDate, text, meaning, segmentedMeanings, startMs, durationMs
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(cDate, forKey: .cDate)
+        try container.encode(text, forKey: .text)
+        try container.encodeIfPresent(meaning, forKey: .meaning)
+        try container.encodeIfPresent(segmentedMeanings, forKey: .segmentedMeanings)
+        try container.encodeIfPresent(startMs, forKey: .startMs)
+        try container.encodeIfPresent(durationMs, forKey: .durationMs)
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = (try? container.decode(String.self, forKey: .id)) ?? UUID().uuidString
+        cDate = try container.decode(Date.self, forKey: .cDate)
+        text = try container.decode(String.self, forKey: .text)
+        meaning = try? container.decodeIfPresent(String.self, forKey: .meaning)
+        // Decode segmentedMeanings with a fallback: old data may have used
+        // [Int: String] encoded as a flat JSON array (Swift ≤5.6) or as a
+        // JSON object with Int keys (Swift ≥5.7).  Both formats are handled
+        // gracefully — any decode failure simply resets the field to nil so
+        // the affected paragraph's sentence meanings are re-fetched on next use.
+        do {
+            segmentedMeanings = try container.decodeIfPresent([String: String].self, forKey: .segmentedMeanings)
+        } catch {
+            // Legacy [Int: String] encoded as a flat array: try to recover it.
+            if var unkeyedContainer = try? container.superDecoder(forKey: .segmentedMeanings)
+                                                      .unkeyedContainer() {
+                var recovered: [String: String] = [:]
+                while !unkeyedContainer.isAtEnd {
+                    guard let key = try? unkeyedContainer.decode(Int.self),
+                          let value = try? unkeyedContainer.decode(String.self)
+                    else { break }
+                    recovered[String(key)] = value
+                }
+                segmentedMeanings = recovered.isEmpty ? nil : recovered
+            } else {
+                segmentedMeanings = nil
+            }
+        }
+        startMs = try? container.decodeIfPresent(Double.self, forKey: .startMs)
+        durationMs = try? container.decodeIfPresent(Double.self, forKey: .durationMs)
+    }
+
 }
 
 struct Article {

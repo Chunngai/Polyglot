@@ -295,7 +295,7 @@ extension SpeakingPracticeProducer {
 
         let cachedMeaning: String?
         if let sentenceIndex = sentenceIndex {
-            cachedMeaning = para.segmentedMeanings?[sentenceIndex] ?? para.meaning
+            cachedMeaning = para.segmentedMeanings?[String(sentenceIndex)] ?? para.meaning
         } else {
             cachedMeaning = para.meaning
         }

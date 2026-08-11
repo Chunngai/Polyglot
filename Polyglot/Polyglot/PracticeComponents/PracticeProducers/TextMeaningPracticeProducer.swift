@@ -391,7 +391,7 @@ extension TextMeaningPracticeProducer {
 
             let paragraph = articles[articleIndex].paras[paragraphIndex]
             if let sentenceId = sentenceId {
-                if let cached = paragraph.segmentedMeanings?[sentenceId] {
+                if let cached = paragraph.segmentedMeanings?[String(sentenceId)] {
                     practice.meaning = cached
                 }
             } else {
@@ -421,7 +421,7 @@ extension TextMeaningPracticeProducer {
                         if articles[articleIndex].paras[paragraphIndex].segmentedMeanings == nil {
                             articles[articleIndex].paras[paragraphIndex].segmentedMeanings = [:]
                         }
-                        articles[articleIndex].paras[paragraphIndex].segmentedMeanings![sentenceId] = translation
+                        articles[articleIndex].paras[paragraphIndex].segmentedMeanings![String(sentenceId)] = translation
                     } else {
                         articles[articleIndex].paras[paragraphIndex].meaning = translation
                     }
