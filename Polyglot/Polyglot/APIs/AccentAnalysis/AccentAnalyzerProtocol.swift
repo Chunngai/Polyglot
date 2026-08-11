@@ -131,11 +131,31 @@ func calculateVerbAspectAnnotations(for text: String, with tokens: [Token]) -> [
             default:             label = nil
             }
             if let label = label {
-                annotations.append(VerbAspectAnnotation(
-                    position: curIndexInText,
-                    length: token.text.count,
-                    label: label
-                ))
+                if let verbLen = token.participleVerbLength {
+                    // Participle: colour only the verb-root portion with the aspect colour.
+                    // The adjectival suffix is handled by calculateNounCaseAnnotations.
+                    annotations.append(VerbAspectAnnotation(
+                        position: curIndexInText,
+                        length: verbLen,
+                        label: label
+                    ))
+                    // Also colour the reflexive suffix (ся/сь = 2 scalars) if present.
+                    if token.hasReflexiveSuffix == true {
+                        let totalLen = token.text.unicodeScalars.count
+                        let adjSuffixLen = totalLen - verbLen - 2  // 2 = ся/сь
+                        annotations.append(VerbAspectAnnotation(
+                            position: curIndexInText + verbLen + adjSuffixLen,
+                            length: 2,
+                            label: label
+                        ))
+                    }
+                } else {
+                    annotations.append(VerbAspectAnnotation(
+                        position: curIndexInText,
+                        length: token.text.count,
+                        label: label
+                    ))
+                }
             }
         }
         curIndexInText += token.text.count
@@ -151,7 +171,7 @@ private let prepToCase: [String: Set<String>] = [
     "среди": ["gen"], "мимо": ["gen"], "вокруг": ["gen"], "ради": ["gen"],
     "вне": ["gen"], "внутри": ["gen"], "из-за": ["gen"], "из-под": ["gen"],
     // Dative
-    "к": ["dat"], "ко": ["dat"], "благодаря": ["dat"], "вопреки": ["dat"],
+    "к": ["dat"], "ко": ["dat"], "по": ["dat"], "благодаря": ["dat"], "вопреки": ["dat"],
     "согласно": ["dat"], "навстречу": ["dat"], "наперекор": ["dat"],
     // Accusative
     "через": ["acc"], "про": ["acc"], "сквозь": ["acc"],
@@ -182,17 +202,55 @@ func looksLikeAdjective(_ text: String) -> Bool {
     return adjectiveSuffixes.contains { text.hasSuffix($0) }
 }
 
-// Scans backwards from index i-1, skipping tokens that look like adjectives
-// (up to maxSkip of them), and returns the first non-adjective token's lowercased
+// Scans backwards from index i-1, skipping tokens that look like adjectives,
+// coordinating conjunctions (и/или/но/да), and already-disambiguated nouns
+// (up to maxSkip of them), and returns the first non-skippable token's lowercased
 // text -- typically the preposition governing the noun at index i.
-private func findPrecedingNonAdjective(_ i: Int, in tokens: [Token], maxSkip: Int = 3) -> String {
+// Returns "" if the budget is exhausted before finding a non-skippable token.
+private let conjunctions: Set<String> = ["и", "или", "но", "да"]
+private func findPrecedingNonAdjective(_ i: Int, in tokens: [Token], maxSkip: Int = 5) -> String {
     var j = i - 1
     var skipped = 0
-    while j >= 0 && skipped < maxSkip && looksLikeAdjective(tokens[j].text.lowercased()) {
-        j -= 1
-        skipped += 1
+    while j >= 0 && skipped < maxSkip {
+        let t = tokens[j].text.lowercased()
+        if looksLikeAdjective(t) || conjunctions.contains(t) || tokens[j].nounCase != nil {
+            j -= 1
+            skipped += 1
+        } else {
+            break
+        }
     }
-    return j >= 0 ? tokens[j].text.lowercased() : ""
+    guard j >= 0 else { return "" }
+    let t = tokens[j].text.lowercased()
+    if looksLikeAdjective(t) || conjunctions.contains(t) || tokens[j].nounCase != nil {
+        return ""
+    }
+    return t
+}
+
+// Year/period words that form temporal prepositional phrases with "в/во <number> <yearWord>".
+// E.g. "В 1980-е годы", "в 2000 году", "в XIX веке".
+private let yearWords: Set<String> = ["год", "годы", "лет", "года", "году", "веке", "век"]
+
+// Returns true for tokens that start with an Arabic or Roman numeral
+// (e.g. "1980-е", "2000", "XIX").
+private func isNumericOrOrdinal(_ text: String) -> Bool {
+    guard let first = text.unicodeScalars.first else { return false }
+    return CharacterSet.decimalDigits.contains(first) ||
+           "IVXLCDM".unicodeScalars.contains(first)
+}
+
+// Scans backwards from index i-1, skipping numeric/ordinal tokens, and returns the
+// index of a preceding "в" or "во" preposition if found; otherwise nil.
+private func findPrepBeforeYear(_ i: Int, in tokens: [Token]) -> Int? {
+    var k = i - 1
+    while k >= 0 && isNumericOrOrdinal(tokens[k].text) {
+        k -= 1
+    }
+    if k >= 0 && (tokens[k].text.lowercased() == "в" || tokens[k].text.lowercased() == "во") {
+        return k
+    }
+    return nil
 }
 
 func calculateNounCaseAnnotations(for text: String, with tokens: [Token]) -> [NounCaseAnnotation] {
@@ -213,6 +271,23 @@ func calculateNounCaseAnnotations(for text: String, with tokens: [Token]) -> [No
     var annotations: [NounCaseAnnotation] = []
 
     for (i, token) in tokens.enumerated() {
+        // Participle adjectival-suffix segment: colour it with whatever case-colour
+        // the surrounding noun context implies.  We use a synthetic "adj" label that
+        // maps to a dedicated colour in the view.  Since participles have no nounCase
+        // of their own, we emit this annotation before the guard below skips them.
+        if tokenStarts[i] >= 0, let verbLen = token.participleVerbLength {
+            let totalLen = token.text.unicodeScalars.count
+            let reflexiveLen = (token.hasReflexiveSuffix == true) ? 2 : 0
+            let adjSuffixLen = totalLen - verbLen - reflexiveLen
+            if adjSuffixLen > 0 {
+                annotations.append(NounCaseAnnotation(
+                    position: tokenStarts[i] + verbLen,
+                    length: adjSuffixLen,
+                    label: "participle_adj"
+                ))
+            }
+        }
+
         guard tokenStarts[i] >= 0, var nounCase = token.nounCase else { continue }
 
         let prevText = i > 0 ? tokens[i - 1].text.lowercased() : ""
@@ -235,6 +310,26 @@ func calculateNounCaseAnnotations(for text: String, with tokens: [Token]) -> [No
                 }
             }
             // else: keep "ambiguous_*" label — rendered as gray in the view
+        }
+
+        // в/во + <number> + year word (e.g. "В 1980-е годы", "в 2000 году"):
+        // mark both the preposition and the year word as italic.
+        if yearWords.contains(token.text.lowercased()),
+           let prepIdx = findPrepBeforeYear(i, in: tokens),
+           tokenStarts[prepIdx] >= 0 {
+            annotations.append(NounCaseAnnotation(
+                position: tokenStarts[prepIdx],
+                length: tokens[prepIdx].text.count,
+                label: "prep_motion",
+                isItalic: true
+            ))
+            annotations.append(NounCaseAnnotation(
+                position: tokenStarts[i],
+                length: token.text.count,
+                label: nounCase,
+                isItalic: true
+            ))
+            continue
         }
 
         // в/на + acc (including resolved nom_acc/ambiguous_* -> acc): mark preposition italic as well.

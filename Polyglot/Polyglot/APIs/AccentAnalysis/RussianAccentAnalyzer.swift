@@ -45,6 +45,40 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
     //     return persistentContainer.viewContext
     // }
     
+    // MARK: - Participle detection
+
+    // Suffixes are listed longest-first so greedy matching avoids partial hits.
+    // Reflexive forms (ending in ся/сь) must appear before their plain counterparts.
+    private static let participleAdjectivalSuffixes: [String] = [
+        // Reflexive present-active
+        "ющийся", "ющаяся", "ющегося", "ющемуся", "ющимся", "ющейся", "ющихся", "ющимися",
+        // Reflexive past-active (vowel stem)
+        "вшийся", "вшаяся", "вшегося", "вшемуся", "вшимся", "вшейся", "вшихся", "вшимися",
+        // Reflexive past-active (consonant stem)
+        "шийся", "шаяся", "шегося", "шемуся", "шимся", "шейся", "шихся", "шимися",
+        // Present-active (no reflexive)
+        "ющий", "ющая", "ющего", "ющему", "ющим", "ющей", "ющих", "ющими", "ющее", "ющие",
+        // Past-active (no reflexive, vowel stem)
+        "вший", "вшая", "вшего", "вшему", "вшим", "вшей", "вших", "вшими",
+        // Past-active (no reflexive, consonant stem)
+        "ший", "шая", "шего", "шему", "шим", "шей", "ших", "шими",
+    ]
+
+    /// Returns (verbRootLength, hasReflexiveSuffix) when `word` is a participle,
+    /// or nil otherwise. Lengths are measured in Unicode scalar count to match
+    /// NSAttributedString character offsets for Cyrillic text.
+    private static func detectParticiple(_ word: String) -> (verbRootLength: Int, hasReflexiveSuffix: Bool)? {
+        let lower = word.lowercased()
+        for suffix in participleAdjectivalSuffixes {
+            if lower.hasSuffix(suffix) {
+                let hasReflexive = suffix.hasSuffix("ся") || suffix.hasSuffix("сь")
+                let verbRoot = String(lower.dropLast(suffix.count))
+                return (verbRoot.unicodeScalars.count, hasReflexive)
+            }
+        }
+        return nil
+    }
+
     // MARK: - Verb aspects
 
     private var verbAspects: [String: String] = {
@@ -221,6 +255,15 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
             }
             let nounCase = nounCases[query] ?? pronounCases[query]
             let isShortAdjective = shortAdjectives[query]
+            // Detect participle segmentation: only when the token carries an aspect
+            // (i.e. it was looked up as a verb form) and the surface form matches a
+            // known participle suffix pattern.
+            var participleVerbLength: Int? = nil
+            var hasReflexiveSuffix: Bool? = nil
+            if aspect != nil, let info = Self.detectParticiple(query) {
+                participleVerbLength = info.verbRootLength
+                hasReflexiveSuffix = info.hasReflexiveSuffix
+            }
             tokens.append(Token(
                 text: query,
                 baseForm: baseForm,
@@ -228,7 +271,9 @@ class RussianAccentAnalyzer: AccentAnalyzerProtocol {
                 accentLoc: accentLoc,
                 aspect: aspect,
                 nounCase: nounCase,
-                isShortAdjective: isShortAdjective
+                isShortAdjective: isShortAdjective,
+                participleVerbLength: participleVerbLength,
+                hasReflexiveSuffix: hasReflexiveSuffix
             ))
         }
         return tokens

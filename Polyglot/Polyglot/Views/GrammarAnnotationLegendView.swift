@@ -140,6 +140,13 @@ class GrammarAnnotationLegendView: UIStackView {
 
             var attrs: [NSAttributedString.Key: Any] = [:]
 
+            if annotation.label == "participle_adj" {
+                // Adjectival suffix of a participle: use italic, no extra colour
+                // (the verb-root and reflexive ся are already coloured by markVerbAspects).
+                attrStr.addSymbolicTrait(.traitItalic, for: range, fontSize: Sizes.smallFontSize)
+                continue
+            }
+
             if annotation.label != "prep_motion" {
                 let color: UIColor
                 switch annotation.label {
@@ -217,6 +224,11 @@ enum GrammarAnnotationHelper {
             if excludedWords.contains(tokenText) { continue }
             if annotation.isItalic {
                 attrStr.addSymbolicTrait(.traitItalic, for: range, fontSize: Sizes.smallFontSize)
+            }
+            if annotation.label == "participle_adj" {
+                // Adjectival suffix of a participle: italic only, no extra colour.
+                attrStr.addSymbolicTrait(.traitItalic, for: range, fontSize: Sizes.smallFontSize)
+                continue
             }
             let color: UIColor
             switch annotation.label {

@@ -60,8 +60,13 @@ struct Token: Codable {
     var aspect: String?  // "imperfective", "perfective", "both", or "ambiguous" — only set for Russian verbs.
     var nounCase: String?  // "gen", "dat", "inst", "prep", "dat_or_prep", "ambiguous" — only set for Russian nouns and pronouns.
     var isShortAdjective: Bool?  // Only set for Russian short-form adjectives.
+    // Participle (причастие) segmentation — set when the token is a participle so that
+    // the verb root and the reflexive suffix (ся/сь) can be coloured with the aspect
+    // colour while the adjectival suffix is coloured with the case colour.
+    var participleVerbLength: Int? = nil   // Unicode-scalar length of the verb root portion.
+    var hasReflexiveSuffix: Bool? = nil    // Whether the participle ends with ся/сь.
 
-    init(text: String, baseForm: String?, pronunciation: String, accentLoc: Int?, aspect: String? = nil, nounCase: String? = nil, isShortAdjective: Bool? = nil) {
+    init(text: String, baseForm: String?, pronunciation: String, accentLoc: Int?, aspect: String? = nil, nounCase: String? = nil, isShortAdjective: Bool? = nil, participleVerbLength: Int? = nil, hasReflexiveSuffix: Bool? = nil) {
 
         self.text = text.lowercased().strip()
         if let baseForm = baseForm {
@@ -74,6 +79,8 @@ struct Token: Codable {
         self.aspect = aspect
         self.nounCase = nounCase
         self.isShortAdjective = isShortAdjective
+        self.participleVerbLength = participleVerbLength
+        self.hasReflexiveSuffix = hasReflexiveSuffix
 
     }
     
