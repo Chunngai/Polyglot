@@ -192,14 +192,14 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
 
     private func practiceTypeLabel(_ type: WordPractice.PracticeType) -> String {
         switch type {
-        case .meaningSelection:   return "选义"
-        case .meaningFilling:     return "填义"
-        case .contextSelection:   return "选境"
-        case .reordering:         return "排序"
-        case .phraseConstruction: return "造句"
-        case .imageSelection:     return "图选"
-        case .imageFilling:       return "图填"
-        case .accentSelection:    return "重音"
+        case .meaningSelection:   return "MeanSel"
+        case .meaningFilling:     return "MeanFill"
+        case .contextSelection:   return "CtxSel"
+        case .reordering:         return "Reorder"
+        case .phraseConstruction: return "Phrase"
+        case .imageSelection:     return "ImgSel"
+        case .imageFilling:       return "ImgFill"
+        case .accentSelection:    return "Accent"
         }
     }
 
