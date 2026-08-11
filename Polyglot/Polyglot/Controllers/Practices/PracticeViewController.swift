@@ -64,6 +64,14 @@ class PracticeViewController: UIViewController {
         label.attributedText = NSAttributedString(string: " ", attributes: Attributes.practicePromptAttributes)
         return label
     }()
+
+    var progressLabel: UILabel = {
+        let label = UILabel()
+        label.textAlignment = .right
+        label.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        label.textColor = Colors.weakTextColor
+        return label
+    }()
     
     var practiceView: BasePracticeView!
     
@@ -179,6 +187,7 @@ class PracticeViewController: UIViewController {
         view.addSubview(maskView)
         
         mainView.addSubview(promptLabel)
+        mainView.addSubview(progressLabel)
         mainView.addSubview(doneButton)
         mainView.addSubview(nextButton)
     }
@@ -195,6 +204,11 @@ class PracticeViewController: UIViewController {
             make.top.equalToSuperview()
             make.width.equalToSuperview().multipliedBy(PracticeViewController.practiceViewWidthRatio)
             make.centerX.equalToSuperview()
+        }
+
+        progressLabel.snp.makeConstraints { (make) in
+            make.trailing.equalToSuperview().inset(20)
+            make.centerY.equalTo(promptLabel)
         }
         
         doneButton.snp.makeConstraints { (make) in

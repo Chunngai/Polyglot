@@ -164,8 +164,8 @@ class SelectionPracticeView: WordPracticeView {
     
     override func submit() -> String {
         selectionStack.isSelectionEnabled = false
-        
-        return selectionStack.selectedButton!.titleLabel!.text!
+
+        return selectionStack.selectedText ?? selectionStack.selectedButton!.titleLabel!.text!
     }
     
     override func updateViewsAfterSubmission(for correctness: WordPractice.Correctness, key: String, tokenizer: NLTokenizer) {
@@ -173,10 +173,10 @@ class SelectionPracticeView: WordPracticeView {
             selectionStack.selectedButton!.backgroundColor = Colors.correctColor
         } else {
             selectionStack.selectedButton!.backgroundColor = Colors.incorrectColor
-            
+
             // Also highlight the correct answer.
-            for button in selectionStack.buttons {
-                if button.titleLabel!.text == key {
+            for (i, button) in selectionStack.buttons.enumerated() {
+                if (selectionStack.text(at: i) ?? button.titleLabel!.text) == key {
                     button.backgroundColor = Colors.correctColor
                     break
                 }

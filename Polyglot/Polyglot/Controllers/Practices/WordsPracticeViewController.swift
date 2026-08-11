@@ -13,6 +13,8 @@ class WordsPracticeViewController: PracticeViewController {
 
     var selectedWordKeys: Set<String>? = nil
 
+    private var initialPracticeCount: Int = 0
+
     private let grammarAnnotationLegendView: GrammarAnnotationLegendView = GrammarAnnotationLegendView()
 
     private lazy var practiceProducer: WordPracticeProducer = {
@@ -35,6 +37,13 @@ class WordsPracticeViewController: PracticeViewController {
             producer.practiceList.shuffle()
             producer.excludedPractices = excluded
         }
+        producer.practiceList.sort { a, b in
+            guard let wa = a as? WordPractice, let wb = b as? WordPractice else { return false }
+            let scoreA = (wa.isAccentAnnotationCompleted ? 1 : 0) + (wa.isGrammarAnnotationCompleted ? 1 : 0)
+            let scoreB = (wb.isAccentAnnotationCompleted ? 1 : 0) + (wb.isGrammarAnnotationCompleted ? 1 : 0)
+            return scoreA > scoreB
+        }
+        initialPracticeCount = producer.practiceList.count
         return producer
     }()
        
@@ -129,6 +138,7 @@ class WordsPracticeViewController: PracticeViewController {
         super.updateViews()
 
         mainView.addSubview(grammarAnnotationLegendView)
+        grammarAnnotationLegendView.isHidden = true
     }
 
     override func updateLayouts() {
@@ -269,8 +279,16 @@ class WordsPracticeViewController: PracticeViewController {
                 }
                 grammarAnnotationLegendView.markNounCases(in: promptAttributes, at: offsetAnnotations)
             }
+            if !currentPractice.shortAdjectiveAnnotations.isEmpty {
+                let offsetAnnotations = currentPractice.shortAdjectiveAnnotations.map {
+                    ShortAdjectiveAnnotation(position: $0.position + wordOffset, length: $0.length)
+                }
+                grammarAnnotationLegendView.markShortAdjectives(in: promptAttributes, at: offsetAnnotations)
+            }
         }
         promptLabel.attributedText = promptAttributes
+        let completed = initialPracticeCount - practiceProducer.practiceList.count
+        progressLabel.text = "\(completed)/\(initialPracticeCount)"
         
         // Remove the old practice view.
         if practiceView != nil {

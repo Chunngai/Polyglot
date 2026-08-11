@@ -28,6 +28,16 @@ class ThreeButtonSelectionStack: UIStackView {
         return buttons[selectedButtonIndex]
     }
 
+    private var storedTexts: [String] = []
+    var selectedText: String? {
+        guard let selectedButtonIndex = selectedButtonIndex,
+              selectedButtonIndex < storedTexts.count else { return nil }
+        return storedTexts[selectedButtonIndex]
+    }
+    func text(at index: Int) -> String? {
+        guard index < storedTexts.count else { return nil }
+        return storedTexts[index]
+    }
     private var storedVerbAspectAnnotations: [[VerbAspectAnnotation]] = []
     private var storedNounCaseAnnotations: [[NounCaseAnnotation]] = []
         
@@ -119,8 +129,29 @@ extension ThreeButtonSelectionStack {
 }
 
 extension ThreeButtonSelectionStack {
-    
+
+    private static func applyAccentBold(to attrStr: NSMutableAttributedString) {
+        let accentSymbol = String(Token.accentSymbol)
+        while true {
+            let fullRange = NSRange(location: 0, length: attrStr.length)
+            let symbolLoc = (attrStr.string as NSString).range(of: accentSymbol, options: [], range: fullRange).location
+            guard symbolLoc != NSNotFound else { break }
+            attrStr.deleteCharacters(in: NSRange(location: symbolLoc, length: 1))
+            if symbolLoc > 0 {
+                let charLoc = symbolLoc - 1
+                let existingFont = attrStr.attribute(.font, at: charLoc, effectiveRange: nil) as? UIFont
+                let fontSize = existingFont?.pointSize ?? Sizes.smallFontSize
+                attrStr.addAttribute(
+                    .font,
+                    value: UIFont.systemFont(ofSize: fontSize, weight: .bold),
+                    range: NSRange(location: charLoc, length: 1)
+                )
+            }
+        }
+    }
+
     func set(texts: [String], verbAspectAnnotations: [[VerbAspectAnnotation]] = [], nounCaseAnnotations: [[NounCaseAnnotation]] = []) {
+        storedTexts = texts
         storedVerbAspectAnnotations = verbAspectAnnotations
         storedNounCaseAnnotations = nounCaseAnnotations
 
@@ -135,6 +166,7 @@ extension ThreeButtonSelectionStack {
             if !nounCaseAnnotations.isEmpty && i < nounCaseAnnotations.count {
                 GrammarAnnotationHelper.applyNounCases(nounCaseAnnotations[i], to: attrStr)
             }
+            ThreeButtonSelectionStack.applyAccentBold(to: attrStr)
             buttons[i].setAttributedTitle(attrStr, for: .normal)
         }
     }
@@ -154,13 +186,17 @@ extension ThreeButtonSelectionStack {
     private func changeStyle(for buttonIndices: [Int], textAttributes: [NSAttributedString.Key : Any], backgroundColor: UIColor) {
         for buttonIndex in buttonIndices {
             let button = buttons[buttonIndex]
-            let attrStr = NSMutableAttributedString(string: button.currentAttributedTitle!.string, attributes: textAttributes)
+            let rawText = buttonIndex < storedTexts.count
+                ? storedTexts[buttonIndex]
+                : button.currentAttributedTitle!.string
+            let attrStr = NSMutableAttributedString(string: rawText, attributes: textAttributes)
             if buttonIndex < storedVerbAspectAnnotations.count {
                 GrammarAnnotationHelper.applyVerbAspects(storedVerbAspectAnnotations[buttonIndex], to: attrStr)
             }
             if buttonIndex < storedNounCaseAnnotations.count {
                 GrammarAnnotationHelper.applyNounCases(storedNounCaseAnnotations[buttonIndex], to: attrStr)
             }
+            ThreeButtonSelectionStack.applyAccentBold(to: attrStr)
             button.setAttributedTitle(attrStr, for: .normal)
             button.backgroundColor = backgroundColor
         }

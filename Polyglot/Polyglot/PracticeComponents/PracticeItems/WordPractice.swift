@@ -34,10 +34,13 @@ class WordPractice: BasePractice, Codable {
     var correctness: Correctness!
     var verbAspectAnnotations: [VerbAspectAnnotation]
     var nounCaseAnnotations: [NounCaseAnnotation]
+    var shortAdjectiveAnnotations: [ShortAdjectiveAnnotation]
     var choiceVerbAspectAnnotations: [[VerbAspectAnnotation]]
     var choiceNounCaseAnnotations: [[NounCaseAnnotation]]
     var contextVerbAspectAnnotations: [VerbAspectAnnotation]
     var contextNounCaseAnnotations: [NounCaseAnnotation]
+    var isAccentAnnotationCompleted: Bool = false
+    var isGrammarAnnotationCompleted: Bool = false
 
     init(
         practiceType: WordPractice.PracticeType,
@@ -57,6 +60,7 @@ class WordPractice: BasePractice, Codable {
         correctness: Correctness? = nil,
         verbAspectAnnotations: [VerbAspectAnnotation] = [],
         nounCaseAnnotations: [NounCaseAnnotation] = [],
+        shortAdjectiveAnnotations: [ShortAdjectiveAnnotation] = [],
         choiceVerbAspectAnnotations: [[VerbAspectAnnotation]] = [],
         choiceNounCaseAnnotations: [[NounCaseAnnotation]] = [],
         contextVerbAspectAnnotations: [VerbAspectAnnotation] = [],
@@ -80,6 +84,7 @@ class WordPractice: BasePractice, Codable {
         self.correctness = correctness
         self.verbAspectAnnotations = verbAspectAnnotations
         self.nounCaseAnnotations = nounCaseAnnotations
+        self.shortAdjectiveAnnotations = shortAdjectiveAnnotations
         self.choiceVerbAspectAnnotations = choiceVerbAspectAnnotations
         self.choiceNounCaseAnnotations = choiceNounCaseAnnotations
         self.contextVerbAspectAnnotations = contextVerbAspectAnnotations
@@ -108,10 +113,13 @@ class WordPractice: BasePractice, Codable {
         case correctness
         case verbAspectAnnotations
         case nounCaseAnnotations
+        case shortAdjectiveAnnotations
         case choiceVerbAspectAnnotations
         case choiceNounCaseAnnotations
         case contextVerbAspectAnnotations
         case contextNounCaseAnnotations
+        case isAccentAnnotationCompleted
+        case isGrammarAnnotationCompleted
 
     }
     
@@ -137,10 +145,13 @@ class WordPractice: BasePractice, Codable {
         try container.encode(correctness, forKey: .correctness)
         try container.encode(verbAspectAnnotations, forKey: .verbAspectAnnotations)
         try container.encode(nounCaseAnnotations, forKey: .nounCaseAnnotations)
+        try container.encode(shortAdjectiveAnnotations, forKey: .shortAdjectiveAnnotations)
         try container.encode(choiceVerbAspectAnnotations, forKey: .choiceVerbAspectAnnotations)
         try container.encode(choiceNounCaseAnnotations, forKey: .choiceNounCaseAnnotations)
         try container.encode(contextVerbAspectAnnotations, forKey: .contextVerbAspectAnnotations)
         try container.encode(contextNounCaseAnnotations, forKey: .contextNounCaseAnnotations)
+        try container.encode(isAccentAnnotationCompleted, forKey: .isAccentAnnotationCompleted)
+        try container.encode(isGrammarAnnotationCompleted, forKey: .isGrammarAnnotationCompleted)
     }
     
     required init(from decoder: Decoder) throws {
@@ -173,6 +184,11 @@ class WordPractice: BasePractice, Codable {
             nounCaseAnnotations = []
         }
         do {
+            shortAdjectiveAnnotations = try values.decode([ShortAdjectiveAnnotation].self, forKey: .shortAdjectiveAnnotations)
+        } catch {
+            shortAdjectiveAnnotations = []
+        }
+        do {
             choiceVerbAspectAnnotations = try values.decode([[VerbAspectAnnotation]].self, forKey: .choiceVerbAspectAnnotations)
         } catch {
             choiceVerbAspectAnnotations = []
@@ -192,6 +208,8 @@ class WordPractice: BasePractice, Codable {
         } catch {
             contextNounCaseAnnotations = []
         }
+        isAccentAnnotationCompleted = (try? values.decode(Bool.self, forKey: .isAccentAnnotationCompleted)) ?? false
+        isGrammarAnnotationCompleted = (try? values.decode(Bool.self, forKey: .isGrammarAnnotationCompleted)) ?? false
 
     }
     
@@ -214,6 +232,7 @@ class WordPractice: BasePractice, Codable {
             correctness: another.correctness,
             verbAspectAnnotations: another.verbAspectAnnotations,
             nounCaseAnnotations: another.nounCaseAnnotations,
+            shortAdjectiveAnnotations: another.shortAdjectiveAnnotations,
             choiceVerbAspectAnnotations: another.choiceVerbAspectAnnotations,
             choiceNounCaseAnnotations: another.choiceNounCaseAnnotations,
             contextVerbAspectAnnotations: another.contextVerbAspectAnnotations,

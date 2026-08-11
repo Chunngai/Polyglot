@@ -408,9 +408,10 @@ extension HomeViewController {
     // MARK: - Selectors
     
     @objc private func appMovedToForeground() {
-        DispatchQueue.global(qos: .userInitiated).async {
-            self.displayContentCards()
-        }
+        self.wordPracticeCounter = WordPracticeProducer.countWordPractices(for: LangCode.currentLanguage)
+        self.ebbinghausSchedule = EbbinghausSchedule.load(for: LangCode.currentLanguage)
+        DispatchQueue.main.async { self.applySnapShots() }
+        DispatchQueue.global(qos: .userInitiated).async { self.displayContentCards() }
     }
     
 }

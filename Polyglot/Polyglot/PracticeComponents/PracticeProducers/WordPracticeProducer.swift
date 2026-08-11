@@ -299,6 +299,7 @@ extension WordPracticeProducer {
                 let accentedWord = tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)
                 for practice in practicesForWord {
                     self.addAccents(to: practice, with: accentedWord)
+                    practice.isAccentAnnotationCompleted = true
                 }
 
                 // Only annotate practices whose prompt actually displays the reviewed
@@ -317,7 +318,9 @@ extension WordPracticeProducer {
                         }
                         if needsNounCase {
                             practice.nounCaseAnnotations = calculateNounCaseAnnotations(for: practice.query, with: tokens)
+                            practice.shortAdjectiveAnnotations = calculateShortAdjectiveAnnotations(for: practice.query, with: tokens)
                         }
+                        practice.isGrammarAnnotationCompleted = true
 
                         // Annotate Russian choices (meaningToText direction or contextSelection).
                         if let choices = practice.choices,
@@ -831,7 +834,7 @@ extension WordPracticeProducer {
 
     private func makePhraseConstructionPractice(word: String) -> WordPractice? {
         let chunks = word.syllabified(for: self.lang)
-        guard chunks.count >= 2 else { return nil }
+        guard !chunks.isEmpty else { return nil }
         return WordPractice(
             practiceType: .phraseConstruction,
             word: word,
@@ -915,6 +918,7 @@ extension WordPracticeProducer {
         let practices = Self.loadCachedPractices(for: lang)
         var seen = Set<String>()
         var meaningByKey: [String: String] = [:]
+        var fallbackMeaningByKey: [String: String] = [:]
         var entries: [(key: String, meaning: String)] = []
         for p in practices {
             let wordKey = normalizedKey(from: p.word)
@@ -928,11 +932,16 @@ extension WordPracticeProducer {
                 case (.meaningSelection, .meaningToText), (.meaningFilling, .meaningToText):
                     meaningByKey[wordKey] = p.query
                 default:
-                    break
+                    if fallbackMeaningByKey[wordKey] == nil {
+                        let candidate = p.key.isEmpty ? p.query : p.key
+                        if !candidate.isEmpty && candidate != wordKey {
+                            fallbackMeaningByKey[wordKey] = candidate
+                        }
+                    }
                 }
             }
         }
-        return entries.map { (key: $0.key, meaning: meaningByKey[$0.key] ?? "") }
+        return entries.map { (key: $0.key, meaning: meaningByKey[$0.key] ?? fallbackMeaningByKey[$0.key] ?? "") }
     }
     
     static func countWordPractices(from practiceList: [BasePractice]) -> [String: Int] {

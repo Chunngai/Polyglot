@@ -75,7 +75,7 @@ func syllabifyPhrase(_ phrase: String, lang: LangCode) -> [String] {
     case .ko: return _splitKorean(phrase)
     default:
         return phrase
-            .components(separatedBy: CharacterSet(charactersIn: " -"))
+            .components(separatedBy: CharacterSet(charactersIn: " -,"))
             .filter { !$0.isEmpty }
             .flatMap { _syllabifyAlpha($0, lang: lang) }
     }

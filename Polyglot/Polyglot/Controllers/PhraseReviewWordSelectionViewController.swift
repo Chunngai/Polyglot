@@ -42,7 +42,10 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
         tableView.register(SubtitleCell.self, forCellReuseIdentifier: "cell")
 
         loadEntries()
-        generatePracticesForAvailableWords()
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.generatePracticesForAvailableWords()
+            DispatchQueue.main.async { self.tableView.reloadData() }
+        }
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             title: Strings.cancel,
@@ -143,6 +146,19 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
         navigationItem.rightBarButtonItem?.isEnabled = !selectedKeys.isEmpty
     }
 
+    private func practiceTypeLabel(_ type: WordPractice.PracticeType) -> String {
+        switch type {
+        case .meaningSelection:   return "Meaning Selection"
+        case .meaningFilling:     return "Meaning Filling"
+        case .contextSelection:   return "Context Selection"
+        case .reordering:         return "Reordering"
+        case .phraseConstruction: return "Phrase Construction"
+        case .imageSelection:     return "Image Selection"
+        case .imageFilling:       return "Image Filling"
+        case .accentSelection:    return "Accent Selection"
+        }
+    }
+
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
@@ -174,14 +190,15 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
             cell.textLabel?.alpha = 1.0
             cell.isUserInteractionEnabled = true
             cell.accessoryType = selectedKeys.contains(entry.key) ? .checkmark : .none
-            cell.detailTextLabel?.text = entry.meaning
+            let enabledTypes = LangCode.currentLanguage.configs.phraseReviewEnabledPracticeTypes
+            let nextType = EbbinghausSchedule.effectivePracticeTypes(for: entry.periodIndex, enabledTypes: enabledTypes).first
+            cell.detailTextLabel?.text = nextType.map { practiceTypeLabel($0) }
             cell.detailTextLabel?.textColor = Colors.weakTextColor
         } else {
             cell.textLabel?.alpha = 0.4
             cell.isUserInteractionEnabled = false
             cell.accessoryType = .none
-            let dateStr = entry.nextReviewDate.repr(of: Date.defaultDateFormat)
-            cell.detailTextLabel?.text = Strings.nextAvailableDate.replacingOccurrences(of: "#", with: dateStr)
+            cell.detailTextLabel?.text = entry.nextReviewDate.repr(of: Date.defaultDateFormat)
             cell.detailTextLabel?.textColor = Colors.inactiveTextColor
         }
 

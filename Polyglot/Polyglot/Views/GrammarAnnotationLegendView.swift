@@ -179,6 +179,15 @@ class GrammarAnnotationLegendView: UIStackView {
         updateVisibility()
     }
 
+    func markShortAdjectives(in attrStr: NSMutableAttributedString, at annotations: [ShortAdjectiveAnnotation]) {
+        guard LangCode.currentLanguage.configs.shouldShowNounCasesInPractices else { return }
+        for annotation in annotations {
+            let range = NSRange(location: annotation.position, length: annotation.length)
+            guard range.location + range.length <= attrStr.length else { continue }
+            attrStr.addSymbolicTrait(.traitItalic, for: range, fontSize: Sizes.smallFontSize)
+        }
+    }
+
     func reset() {
         aspectLegendView.isHidden = true
         nounCaseLegendView.isHidden = true
