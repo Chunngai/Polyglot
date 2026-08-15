@@ -28,10 +28,13 @@ private class WordSelectionCell: UITableViewCell {
         countsLabel.translatesAutoresizingMaskIntoConstraints = false
 
         meaningLabel.font = UIFont.systemFont(ofSize: 14)
+        meaningLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         meaningLabel.translatesAutoresizingMaskIntoConstraints = false
 
         dateLabel.font = UIFont.systemFont(ofSize: 14)
         dateLabel.textAlignment = .right
+        dateLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        dateLabel.setContentHuggingPriority(.required, for: .horizontal)
         dateLabel.translatesAutoresizingMaskIntoConstraints = false
 
         contentView.addSubview(wordLabel)
@@ -52,9 +55,8 @@ private class WordSelectionCell: UITableViewCell {
             meaningLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             meaningLabel.trailingAnchor.constraint(equalTo: dateLabel.leadingAnchor, constant: -8),
 
-            dateLabel.topAnchor.constraint(equalTo: wordLabel.bottomAnchor, constant: 2),  // Issue 3: same row as meaningLabel
+            dateLabel.topAnchor.constraint(equalTo: wordLabel.bottomAnchor, constant: 2),
             dateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            dateLabel.widthAnchor.constraint(lessThanOrEqualTo: contentView.widthAnchor, multiplier: 0.45),
 
             meaningLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
         ])
