@@ -156,7 +156,7 @@ private struct WordSelectionEntry {
     var annotatingItems: [String] = []  // non-empty while background annotation is running
 
     var isAvailable: Bool { nextReviewDate <= Date() }
-    var isReadyToPractice: Bool { isAvailable && isAnnotationReady }
+    var isReadyToPractice: Bool { isAvailable && isAnnotationReady && !meaning.isEmpty }
 }
 
 // MARK: - View Controller
