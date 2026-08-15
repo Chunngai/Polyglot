@@ -373,17 +373,116 @@ extension WordPracticeProducer {
         }
     }
 
+    /// Re-annotate existing cached practices for a word that are missing accent or grammar annotations.
+    /// Posts `wordAnnotationStatusChanged` notifications as annotation progresses.
+    func annotateExistingPractices(for key: String, completion: (() -> Void)? = nil) {
+        let lang = self.lang
+        let needsAccent = lang == .ja || lang == .ru
+        let needsAspect = lang.configs.shouldShowVerbAspectsInPractices
+        let needsNounCase = lang.configs.shouldShowNounCasesInPractices
+        guard needsAccent || needsAspect || needsNounCase else { completion?(); return }
+
+        var allPractices = Self.loadCachedPractices(for: lang)
+        let schedule = EbbinghausSchedule.load(for: lang)
+        let periodIndex = EbbinghausSchedule.entry(forKey: key, in: schedule).periodIndex
+
+        let targets = allPractices.filter {
+            Self.normalizedKey(from: $0.word) == key
+                && ($0.periodIndex ?? 0) == periodIndex
+                && (!$0.isAccentAnnotationCompleted || !$0.isGrammarAnnotationCompleted)
+        }
+        guard !targets.isEmpty else { completion?(); return }
+
+        let word = targets.first!.word
+
+        var annotatingItems: [String] = []
+        if needsAccent { annotatingItems.append(Strings.annotatingAccent) }
+        if needsAspect || needsNounCase { annotatingItems.append(Strings.annotatingGrammar) }
+
+        NotificationCenter.default.post(
+            name: .wordAnnotationStatusChanged,
+            object: nil,
+            userInfo: ["key": key, "annotatingItems": annotatingItems]
+        )
+
+        analyzeAccents(for: word) { tokens, _, _ in
+            guard !tokens.isEmpty else {
+                NotificationCenter.default.post(
+                    name: .wordAnnotationStatusChanged,
+                    object: nil,
+                    userInfo: ["key": key, "annotatingItems": [String]()]
+                )
+                completion?()
+                return
+            }
+
+            for practice in targets {
+                if !practice.isGrammarAnnotationCompleted {
+                    if needsAspect {
+                        practice.verbAspectAnnotations = calculateVerbAspectAnnotations(for: practice.query, with: tokens)
+                    }
+                    if needsNounCase {
+                        practice.nounCaseAnnotations = calculateNounCaseAnnotations(for: practice.query, with: tokens)
+                        practice.shortAdjectiveAnnotations = calculateShortAdjectiveAnnotations(for: practice.query, with: tokens)
+                    }
+                    if let choices = practice.choices,
+                       practice.direction == .meaningToText || practice.practiceType == .contextSelection {
+                        practice.choiceVerbAspectAnnotations = Array(repeating: [], count: choices.count)
+                        practice.choiceNounCaseAnnotations = Array(repeating: [], count: choices.count)
+                        for (i, choice) in choices.enumerated() {
+                            analyzeAccents(for: choice) { choiceTokens, _, _ in
+                                guard !choiceTokens.isEmpty else { return }
+                                if needsAspect {
+                                    practice.choiceVerbAspectAnnotations[i] = calculateVerbAspectAnnotations(for: choice, with: choiceTokens)
+                                }
+                                if needsNounCase {
+                                    practice.choiceNounCaseAnnotations[i] = calculateNounCaseAnnotations(for: choice, with: choiceTokens)
+                                }
+                            }
+                        }
+                    }
+                    if let context = practice.context, practice.practiceType == .contextSelection {
+                        analyzeAccents(for: context) { contextTokens, _, _ in
+                            guard !contextTokens.isEmpty else { return }
+                            if needsAspect {
+                                practice.contextVerbAspectAnnotations = calculateVerbAspectAnnotations(for: context, with: contextTokens)
+                            }
+                            if needsNounCase {
+                                practice.contextNounCaseAnnotations = calculateNounCaseAnnotations(for: context, with: contextTokens)
+                            }
+                        }
+                    }
+                    practice.isGrammarAnnotationCompleted = true
+                }
+                if !practice.isAccentAnnotationCompleted {
+                    let accentedWord = tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)
+                    self.addAccents(to: practice, with: accentedWord)
+                    practice.isAccentAnnotationCompleted = true
+                }
+            }
+
+            WordPracticeProducer.save(&allPractices, for: lang)
+
+            NotificationCenter.default.post(
+                name: .wordAnnotationStatusChanged,
+                object: nil,
+                userInfo: ["key": key, "annotatingItems": [String]()]
+            )
+            completion?()
+        }
+    }
+
 }
 
 extension WordPracticeProducer {
-    
+
     func submit(answer: String) {
-        
+
         guard let currentPractice = currentPractice as? WordPractice else {
             return
         }
         currentPractice.checkCorrectness(answer: answer)
-        
+
         if currentPractice.correctness != .correct {
             // Re-add the practice for reinforcement.
             DispatchQueue.global(qos: .userInitiated).async {
@@ -987,4 +1086,5 @@ extension WordPracticeProducer {
 
 extension Notification.Name {
     static let wordPracticeCounterUpdated = Notification.Name("wordPracticeCounterUpdated")
+    static let wordAnnotationStatusChanged = Notification.Name("wordAnnotationStatusChanged")
 }

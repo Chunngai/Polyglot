@@ -151,6 +151,7 @@ private struct WordSelectionEntry {
     let annotationCompleted: [Bool]  // per-type bold display flag
     let isAnnotationReady: Bool      // true when all existing practices are annotated
     let practiceTypes: [WordPractice.PracticeType]
+    var annotatingItems: [String] = []  // non-empty while background annotation is running
 
     var isAvailable: Bool { nextReviewDate <= Date() }
     var isReadyToPractice: Bool { isAvailable && isAnnotationReady }
@@ -165,6 +166,8 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
 
     private var sections: [(periodIndex: Int, entries: [WordSelectionEntry])] = []
     private var selectedKeys: Set<String> = []
+    // Keys where user tapped to see meaning instead of annotation status.
+    private var meaningDisplayKeys: Set<String> = []
 
     private var defaultSelectionCount: Int { LangCode.currentLanguage.configs.phraseReviewDefaultSelectionCount }
     private static let headerReuseId = "phraseReviewHeader"
@@ -196,6 +199,12 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
             self,
             selector: #selector(onPracticeCounterUpdated),
             name: .wordPracticeCounterUpdated,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(onAnnotationStatusChanged(_:)),
+            name: .wordAnnotationStatusChanged,
             object: nil
         )
 
@@ -351,7 +360,7 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
         }
     }
 
-    // MARK: - Background Refresh (1(1) + 1(2))
+    // MARK: - Background Refresh
 
     private func backgroundRefresh() {
         let lang = LangCode.currentLanguage
@@ -359,62 +368,76 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
         let articles = Article.load(for: lang)
         let enabledTypes = lang.configs.phraseReviewEnabledPracticeTypes
         let schedule = EbbinghausSchedule.load(for: lang)
-        let cachedPractices = WordPracticeProducer.loadCachedPractices(for: lang)
-        let reinforcementStore = ReinforcementWords.load(for: lang)
-
-        // (1) Supplement missing current-round practices.
-        let producer = WordPracticeProducer(words: words, articles: articles)
         let repetitions = lang.configs.wordPracticeRepetition
-        let sortedSchedule = schedule.sorted { a, b in
-            let aAvailable = EbbinghausSchedule.isAvailable(a.value)
-            let bAvailable = EbbinghausSchedule.isAvailable(b.value)
-            if aAvailable != bAvailable { return aAvailable }
-            return a.key < b.key
-        }
-        for (key, schedEntry) in sortedSchedule {
-            guard !EbbinghausSchedule.isCompleted(schedEntry) else { continue }
+
+        let producer = WordPracticeProducer(words: words, articles: articles)
+        let translator = MachineTranslator(srcLang: lang, trgLang: lang.configs.languageForTranslation)
+
+        // Sort all active, available keys by periodIndex ascending (lowest first).
+        let sortedKeys = schedule
+            .filter { !EbbinghausSchedule.isCompleted($0.value) && EbbinghausSchedule.isAvailable($0.value) }
+            .sorted { $0.value.periodIndex < $1.value.periodIndex }
+            .map { $0.key }
+
+        for key in sortedKeys {
+            let schedEntry = EbbinghausSchedule.entry(forKey: key, in: schedule)
             let periodIndex = schedEntry.periodIndex
             let typesForPeriod = EbbinghausSchedule.effectivePracticeTypes(
                 for: periodIndex,
                 enabledTypes: enabledTypes
             )
+
+            // (1) Supplement missing practices for this word.
+            let cachedPractices = WordPracticeProducer.loadCachedPractices(for: lang)
             let wordPractices = cachedPractices.filter {
                 WordPracticeProducer.normalizedKey(from: $0.word) == key
                     && ($0.periodIndex ?? 0) == periodIndex
             }
             let needsGeneration = typesForPeriod.contains { type in
-                let count = wordPractices.filter { $0.practiceType == type }.count
-                return count < repetitions
+                wordPractices.filter { $0.practiceType == type }.count < repetitions
             }
             if needsGeneration {
                 producer.makeAndCachePractices(for: [key], skipDuplicates: true)
             }
-        }
 
-        // (2) Supplement missing meanings from reinforcement store.
-        let translator = MachineTranslator(srcLang: lang, trgLang: lang.configs.languageForTranslation)
-        let dispatchGroup = DispatchGroup()
-        let sortedReinforcement = reinforcementStore
-            .filter { $0.value.meaning.isEmpty }
-            .sorted { a, b in
-                let aEntry = EbbinghausSchedule.entry(forKey: a.key, in: schedule)
-                let bEntry = EbbinghausSchedule.entry(forKey: b.key, in: schedule)
-                let aAvailable = EbbinghausSchedule.isAvailable(aEntry)
-                let bAvailable = EbbinghausSchedule.isAvailable(bEntry)
-                if aAvailable != bAvailable { return aAvailable }
-                return a.key < b.key
+            // (2) Supplement missing annotations for this word.
+            let practicesAfterGen = WordPracticeProducer.loadCachedPractices(for: lang).filter {
+                WordPracticeProducer.normalizedKey(from: $0.word) == key
+                    && ($0.periodIndex ?? 0) == periodIndex
             }
-        for (key, entry) in sortedReinforcement {
-            dispatchGroup.enter()
-            let wordToTranslate = entry.word
-            translator.translate(query: wordToTranslate) { translations, _ in
-                if let meaning = translations.first, !meaning.isEmpty {
-                    ReinforcementWords.updateMeaning(meaning, forWord: key, for: lang)
+            let needsAnnotation = practicesAfterGen.contains {
+                !$0.isAccentAnnotationCompleted || !$0.isGrammarAnnotationCompleted
+            }
+            if needsAnnotation {
+                let semaphore = DispatchSemaphore(value: 0)
+                producer.annotateExistingPractices(for: key) { semaphore.signal() }
+                semaphore.wait()
+            }
+
+            // (3) Supplement missing meaning for this word.
+            let reinforcementStore = ReinforcementWords.load(for: lang)
+            if let entry = reinforcementStore[key], entry.meaning.isEmpty {
+                NotificationCenter.default.post(
+                    name: .wordAnnotationStatusChanged,
+                    object: nil,
+                    userInfo: ["key": key, "annotatingItems": [Strings.annotatingMeaning]]
+                )
+                let dispatchGroup = DispatchGroup()
+                dispatchGroup.enter()
+                translator.translate(query: entry.word) { translations, _ in
+                    if let meaning = translations.first, !meaning.isEmpty {
+                        ReinforcementWords.updateMeaning(meaning, forWord: key, for: lang)
+                    }
+                    NotificationCenter.default.post(
+                        name: .wordAnnotationStatusChanged,
+                        object: nil,
+                        userInfo: ["key": key, "annotatingItems": [String]()]
+                    )
+                    dispatchGroup.leave()
                 }
-                dispatchGroup.leave()
+                dispatchGroup.wait()
             }
         }
-        dispatchGroup.wait()
     }
 
     // MARK: - Helpers
@@ -449,6 +472,26 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
             DispatchQueue.main.async {
                 self.tableView.reloadData()
                 self.updateStartButton()
+            }
+        }
+    }
+
+    @objc private func onAnnotationStatusChanged(_ notification: Notification) {
+        guard let key = notification.userInfo?["key"] as? String,
+              let items = notification.userInfo?["annotatingItems"] as? [String] else { return }
+
+        DispatchQueue.main.async {
+            for s in 0..<self.sections.count {
+                for r in 0..<self.sections[s].entries.count {
+                    if self.sections[s].entries[r].key == key {
+                        self.sections[s].entries[r].annotatingItems = items
+                        // Clear toggle override when annotation finishes.
+                        if items.isEmpty { self.meaningDisplayKeys.remove(key) }
+                        let indexPath = IndexPath(row: r, section: s)
+                        self.tableView.reloadRows(at: [indexPath], with: .none)
+                        return
+                    }
+                }
             }
         }
     }
@@ -516,12 +559,19 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
         }
 
         cell.wordLabel.textColor = wordColor
-        cell.isUserInteractionEnabled = isReady
+        cell.isUserInteractionEnabled = isReady || !entry.annotatingItems.isEmpty
         cell.backgroundColor = (isReady && selectedKeys.contains(entry.key)) ? Colors.lightBlue : .clear
 
         cell.setCountsText(entry.practiceCounts, annotated: entry.annotationCompleted, color: secondaryColor)
 
-        cell.meaningLabel.text = entry.meaning.isEmpty ? " " : entry.meaning
+        // meaningLabel: show annotation status by default while annotating,
+        // show meaning if user tapped the cell to toggle, or if not annotating.
+        let isAnnotating = !entry.annotatingItems.isEmpty
+        if isAnnotating && !meaningDisplayKeys.contains(entry.key) {
+            cell.meaningLabel.text = entry.annotatingItems.joined(separator: "; ")
+        } else {
+            cell.meaningLabel.text = entry.meaning.isEmpty ? " " : entry.meaning
+        }
         cell.meaningLabel.textColor = secondaryColor
 
         if isAvailable {
@@ -539,6 +589,18 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let entry = sections[indexPath.section].entries[indexPath.row]
+
+        // If annotating: tap toggles between status text and meaning.
+        if !entry.annotatingItems.isEmpty {
+            if meaningDisplayKeys.contains(entry.key) {
+                meaningDisplayKeys.remove(entry.key)
+            } else {
+                meaningDisplayKeys.insert(entry.key)
+            }
+            tableView.reloadRows(at: [indexPath], with: .none)
+            return
+        }
+
         guard entry.isReadyToPractice else { return }
         let key = entry.key
         if selectedKeys.contains(key) {

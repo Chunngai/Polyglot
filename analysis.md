@@ -902,11 +902,31 @@ closure #5 in WordPracticeProducer.makeAndCachePractices(for:skipDuplicates:)
 1. Phrase review
 （1）选择列表，没 meaning 的单词不允许选择练习。只有（1）到达练习时间（2）重音标注完成（3）语法标注完成（4）有meaning 全部满足，才可以选择练习
 （2）Home view vc 显示满足练习条件的单词数（注意除了时间还有上述其他条件。现在显示的数量和可选择的单词的数量不一致）
+原因：ebbinghausSchedule 包含 isCompleted 的条目（已完成所有复习轮次），isAvailable 只检查日期不排除已完成，Home 计数将这些也算进去
+修复：先过滤掉 isCompleted 的条目，total 和 available 都只统计活跃条目
+实现：✅ 已修复（HomeViewController.swift phraseReviewItems）
 （3）List 标题右侧显示选择的单词数，如 (6) 这样子。选择/取消选择需要动态更新
+原因：title 固定为 Strings.phraseReview，选择状态变化时不更新
+修复：updateStartButton() 同时更新 title，0 个选中时显示原标题，有选中时追加 (N)
+实现：✅ 已修复（PhraseReviewWordSelectionViewController.swift updateStartButton）
+
 （4）补标注：每次点开列表只标注 10 个轮数最少的，已到达练习时间的单词
+原因：每次打开列表时对所有单词补标注，无优先级，效率低
+修复：backgroundRefresh() 按 periodIndex 升序遍历 active+available 单词，逐词串行检查并补充：（1）缺练习 → makeAndCachePractices；（2）缺标注 → annotateExistingPractices（用 DispatchSemaphore 等待完成后再处理下一个词）；（3）缺 meaning → translator 翻译。annotateExistingPractices 新增 completion 参数，在 analyzeAccents 回调末尾调用 completion?()
+实现：✅ 已修复（WordPracticeProducer.swift annotateExistingPractices；PhraseReviewWordSelectionViewController.swift backgroundRefresh）
+
 （5）正在补标注/meaning的单词，需要有字体颜色变化（呼吸效果，浅灰深灰切换）。此外，补标注/meaning时，meaning 字段显示正在补标注的内容，类似：正在标注重音;语法;含义（可同时显示多个标注内容）。点击标注中的单词的cell时，meaning 字段内容在标注说明和meaning（如已有）间切换。默认显示标注说明
+原因：补标注/meaning 期间 cell 无状态反馈，用户无法知道后台进度
+修复：WordSelectionEntry 添加 annotatingItems: [String] 字段；annotateExistingPractices/meaning 翻译前后分别 post wordAnnotationStatusChanged 通知（annotatingItems 非空=进行中，空=完成）；VC 监听通知更新 entry 并 reloadRows；cellForRowAt 当 annotatingItems 非空且未切换时显示状态文本（如"Annotating accents; grammar"）；didSelectRowAt tap 时切换 meaningDisplayKeys；不使用呼吸动画
+实现：✅ 已修复（PhraseReviewWordSelectionViewController.swift；Strings.swift annotatingAccent/annotatingGrammar/annotatingMeaning）
 （6）目前显示标注完成（数字加粗）的练习，有些还是没重音，比如说 prompt 或者 context 没重音。
+原因：isAccentAnnotationCompleted 标记"已尝试标注"而非"标注实际生效"；addAccents 使用 replacingOccurrences 精确子串匹配，当 query/context 里词形与原词不一致（变格、变位）时替换静默失败，但 flag 仍置 true
+修复：（暂不修复，待评估）
+
 （7）Reordering 的练习，需要练习的单词会有表示重音的单引号（但应该用加粗标注）
+原因：addAccents 将 practice.key 替换为带 ' 的 accentedWord 后，reorderingWordList 从 practice.key.split 生成，split 出的每个词保留了 accentSymbol
+修复：split 后 map 去掉每个词里的 Token.accentSymbol
+实现：✅ 已修复（WordPracticeProducer.swift addAccents）
 （8）目前发现选择单词练习完之后，这些单词会有一个副本出现在第一轮，而且在重音处被切分，变成两个部份，如 за пуске。而实际的单词在下一轮的列表能看见。也就是说练习完的单词在列表出现了两次，一个是正常的已经进入下一轮的单词，一个是异常副本
 原因：addAccents 修改了 practice.word 为带重音+空格的形式（如 "за' пуске"），normalizedKey 后变成 "за пуске"，写入 schedule 成为新 key，loadEntries 从 cachedEntries 和 schedule 合并 allKeys 导致副本显示
 修复：addAccents 不再修改 practice.word；loadEntries 只用 schedule.keys 作为 allKeys；开头清除 schedule 里含空格的旧 key
@@ -926,6 +946,12 @@ closure #5 in WordPracticeProducer.makeAndCachePractices(for:skipDuplicates:)
 （12）进度条右侧，目前是空白，改成：显示进度标签（即将目前的进度标签放到右上角）
 原因：删除 toggleButton 后进度条右侧空白，progressLabel 目前显示在 promptLabel 旁边
 修复：将 progressLabel 移到导航栏右侧，作为 navigationItem.rightBarButtonItem 的自定义 view
+实现：✅ 已修复（WordsPracticeViewController.swift updateViews）
+
+（13）选择词语练习点 Start 闪退
+原因：updateViews() 中 phrase review 分支调用 progressLabel.removeFromSuperview()，之后 super.updateLayouts() 仍对其激活 SnapKit 约束，两个 anchor 没有共同祖先触发 NSGenericException
+修复：PracticeViewController.updateLayouts() 中对 progressLabel 设约束前加 superview != nil 保护，phrase review 模式下跳过该约束
+实现：✅ 已修复（PracticeViewController.swift updateLayouts）
 
 2. Text meaning practice view
 （1）Spinner 被挡住，我感觉是你 layout constraint 设置有问题。你试试 spinner.top = 生成完毕后将显示的对话泡泡.top, spinner.leading = 生成完毕后将显示的对话泡泡.leading
@@ -939,25 +965,3 @@ closure #5 in WordPracticeProducer.makeAndCachePractices(for:skipDuplicates:)
 （3）点击对话泡泡下面的复制按钮，不需要全选文本。但是，需要有反馈看出来已复制
 原因：复制动作调用 selectAll 会高亮文本，且无复制成功的视觉反馈
 修复：移除 selectAll，复制后将图标切换为 checkmark 持续 1.5s 再还原
-
-3. Phrase review（续）
-（3）List 标题右侧显示选择的单词数，如 (6) 这样子。选择/取消选择需要动态更新
-原因：title 固定为 Strings.phraseReview，选择状态变化时不更新
-修复：updateStartButton() 同时更新 title，0 个选中时显示原标题，有选中时追加 (N)
-
-（6）目前显示标注完成（数字加粗）的练习，有些还是没重音，比如 prompt 或 context 没重音
-原因：isAccentAnnotationCompleted 标记"已尝试标注"而非"标注实际生效"；addAccents 使用 replacingOccurrences 精确子串匹配，当 query/context 里词形与原词不一致（变格、变位）时替换静默失败，但 flag 仍置 true
-修复：（暂不修复，待评估）
-
-（7）Reordering 练习的单词包含重音单引号
-原因：addAccents 将 practice.key 替换为带 ' 的 accentedWord 后，reorderingWordList 从 practice.key.split 生成，split 出的每个词保留了 accentSymbol
-修复：split 后 map 去掉每个词里的 Token.accentSymbol
-
-4. 崩溃与计数修复
-（1）选择词语练习点 Start 闪退
-原因：updateViews() 中 phrase review 分支调用 progressLabel.removeFromSuperview()，之后 super.updateLayouts() 仍对其激活 SnapKit 约束，两个 anchor 没有共同祖先触发 NSGenericException
-修复：PracticeViewController.updateLayouts() 中对 progressLabel 设约束前加 superview != nil 保护，phrase review 模式下跳过该约束
-
-（2）Home view phrase review 数量显示虚高
-原因：ebbinghausSchedule 包含 isCompleted 的条目（已完成所有复习轮次），isAvailable 只检查日期不排除已完成，Home 计数将这些也算进去
-修复：先过滤掉 isCompleted 的条目，total 和 available 都只统计活跃条目
