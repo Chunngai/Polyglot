@@ -901,6 +901,9 @@ closure #5 in WordPracticeProducer.makeAndCachePractices(for:skipDuplicates:)
 
 1. Phrase review
 （1）选择列表，没 meaning 的单词不允许选择练习。只有（1）到达练习时间（2）重音标注完成（3）语法标注完成（4）有meaning 全部满足，才可以选择练习
+原因：isReadyToPractice 只检查 isAvailable 和 isAnnotationReady，未检查 meaning 是否存在
+修复：isReadyToPractice 增加 !meaning.isEmpty 条件
+实现：✅ 已修复（PhraseReviewWordSelectionViewController.swift isReadyToPractice）
 （2）Home view vc 显示满足练习条件的单词数（注意除了时间还有上述其他条件。现在显示的数量和可选择的单词的数量不一致）
 原因：ebbinghausSchedule 包含 isCompleted 的条目（已完成所有复习轮次），isAvailable 只检查日期不排除已完成，Home 计数将这些也算进去
 修复：先过滤掉 isCompleted 的条目，total 和 available 都只统计活跃条目
