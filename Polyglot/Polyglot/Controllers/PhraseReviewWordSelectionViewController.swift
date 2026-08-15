@@ -477,23 +477,23 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
     }
 
     @objc private func onAnnotationStatusChanged(_ notification: Notification) {
-        guard let key = notification.userInfo?["key"] as? String,
-              let items = notification.userInfo?["annotatingItems"] as? [String] else { return }
-
-        DispatchQueue.main.async {
-            for s in 0..<self.sections.count {
-                for r in 0..<self.sections[s].entries.count {
-                    if self.sections[s].entries[r].key == key {
-                        self.sections[s].entries[r].annotatingItems = items
-                        // Clear toggle override when annotation finishes.
-                        if items.isEmpty { self.meaningDisplayKeys.remove(key) }
-                        let indexPath = IndexPath(row: r, section: s)
-                        self.tableView.reloadRows(at: [indexPath], with: .none)
-                        return
-                    }
-                }
-            }
-        }
+//        guard let key = notification.userInfo?["key"] as? String,
+//              let items = notification.userInfo?["annotatingItems"] as? [String] else { return }
+//
+//        DispatchQueue.main.async {
+//            for s in 0..<self.sections.count {
+//                for r in 0..<self.sections[s].entries.count {
+//                    if self.sections[s].entries[r].key == key {
+//                        self.sections[s].entries[r].annotatingItems = items
+//                        // Clear toggle override when annotation finishes.
+//                        if items.isEmpty { self.meaningDisplayKeys.remove(key) }
+//                        let indexPath = IndexPath(row: r, section: s)
+//                        self.tableView.reloadRows(at: [indexPath], with: .none)
+//                        return
+//                    }
+//                }
+//            }
+//        }
     }
 
     private func updateStartButton() {
@@ -559,19 +559,12 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
         }
 
         cell.wordLabel.textColor = wordColor
-        cell.isUserInteractionEnabled = isReady || !entry.annotatingItems.isEmpty
+        cell.isUserInteractionEnabled = isReady
         cell.backgroundColor = (isReady && selectedKeys.contains(entry.key)) ? Colors.lightBlue : .clear
 
         cell.setCountsText(entry.practiceCounts, annotated: entry.annotationCompleted, color: secondaryColor)
 
-        // meaningLabel: show annotation status by default while annotating,
-        // show meaning if user tapped the cell to toggle, or if not annotating.
-        let isAnnotating = !entry.annotatingItems.isEmpty
-        if isAnnotating && !meaningDisplayKeys.contains(entry.key) {
-            cell.meaningLabel.text = entry.annotatingItems.joined(separator: "; ")
-        } else {
-            cell.meaningLabel.text = entry.meaning.isEmpty ? " " : entry.meaning
-        }
+        cell.meaningLabel.text = entry.meaning.isEmpty ? " " : entry.meaning
         cell.meaningLabel.textColor = secondaryColor
 
         if isAvailable {
@@ -589,17 +582,6 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let entry = sections[indexPath.section].entries[indexPath.row]
-
-        // If annotating: tap toggles between status text and meaning.
-        if !entry.annotatingItems.isEmpty {
-            if meaningDisplayKeys.contains(entry.key) {
-                meaningDisplayKeys.remove(entry.key)
-            } else {
-                meaningDisplayKeys.insert(entry.key)
-            }
-            tableView.reloadRows(at: [indexPath], with: .none)
-            return
-        }
 
         guard entry.isReadyToPractice else { return }
         let key = entry.key
