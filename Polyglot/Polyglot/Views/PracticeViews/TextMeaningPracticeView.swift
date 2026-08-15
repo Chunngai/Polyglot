@@ -123,12 +123,6 @@ class TextMeaningPracticeView: BasePracticeView {
         label.textAlignment = .center
         return label
     }()
-    
-    var contentGenerationSpinner: UIActivityIndicatorView = {
-        let spinner = UIActivityIndicatorView(style: .medium)
-        spinner.hidesWhenStopped = true
-        return spinner
-    }()
 
     // Chat bubble panel.
     lazy var contentScrollView: UIScrollView = {
@@ -145,13 +139,9 @@ class TextMeaningPracticeView: BasePracticeView {
         sv.isHidden = true
         return sv
     }()
-    lazy var chatTypingIndicator: UIActivityIndicatorView = {
-        let ind = UIActivityIndicatorView(style: .medium)
-        ind.hidesWhenStopped = true
-        return ind
-    }()
-    private weak var currentAIBubbleLabel: UILabel?
+    private weak var currentAIBubbleLabel: UITextView?
     private var currentAIBubbleText: String = ""
+    private var lastSentMessage: String = ""
 
     // Chat input bar.
     lazy var chatInputBar: UIView = {
@@ -177,6 +167,11 @@ class TextMeaningPracticeView: BasePracticeView {
         btn.isEnabled = false
         btn.addTarget(self, action: #selector(chatSendButtonTapped), for: .touchUpInside)
         return btn
+    }()
+    var contentGenerationSpinner: UIActivityIndicatorView = {
+        let spinner = UIActivityIndicatorView(style: .medium)
+        spinner.hidesWhenStopped = true
+        return spinner
     }()
     
     var translatorIcon: UIImage {
@@ -233,7 +228,18 @@ class TextMeaningPracticeView: BasePracticeView {
         self.nounCaseAnnotations = nounCaseAnnotations
         self.shortAdjectiveAnnotations = shortAdjectiveAnnotations
         self.repetitionIncrement = repetitionIncrement
-        
+
+        // 2(1): Provide default icon/string values so subclasses that do not
+        // override them still display the translator icon correctly.
+        upperString = text
+        lowerString = meaning
+        if textSource == .chatGpt {
+            upperIcon = Icons.chatgptIcon
+        }
+        if isTextMachineTranslated {
+            lowerIcon = translatorIcon
+        }
+
         textView = {
             let textView = WordMarkingTextView(
                 textLang: textLang,
@@ -312,18 +318,17 @@ class TextMeaningPracticeView: BasePracticeView {
 
         contentScrollView.addSubview(textView)
         contentScrollView.addSubview(chatBubblesStack)
-        contentScrollView.addSubview(chatTypingIndicator)
         mainView.addSubview(contentScrollView)
 
         mainView.addSubview(controlsView)
         mainView.addSubview(reinforceButton)
         mainView.addSubview(reinforceTextButton)
         mainView.addSubview(repetitionsLabel)
-        mainView.addSubview(contentGenerationSpinner)
         mainView.addSubview(legendView)
 
         chatInputBar.addSubview(chatTextField)
         chatInputBar.addSubview(chatSendButton)
+        chatInputBar.addSubview(contentGenerationSpinner)
         mainView.addSubview(chatInputBar)
 
         displayUpper()
@@ -349,10 +354,6 @@ class TextMeaningPracticeView: BasePracticeView {
             make.width.equalTo(contentScrollView)
             make.bottom.equalToSuperview().inset(8)
         }
-        chatTypingIndicator.snp.makeConstraints { make in
-            make.top.equalTo(chatBubblesStack.snp.bottom).offset(4)
-            make.leading.equalToSuperview()
-        }
         controlsView.snp.makeConstraints { make in
             make.width.equalTo(200)
             make.centerX.equalToSuperview()
@@ -374,17 +375,21 @@ class TextMeaningPracticeView: BasePracticeView {
             make.centerY.equalToSuperview()
             make.width.height.equalTo(30)
         }
+        contentGenerationSpinner.snp.remakeConstraints { make in
+            make.trailing.equalToSuperview().inset(8)
+            make.centerY.equalToSuperview()
+        }
         reinforceButton.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
-            make.centerY.equalTo(controlsView.snp.centerY)
+            make.bottom.equalTo(controlsView.snp.centerY).offset(-2)
+        }
+        reinforceTextButton.snp.makeConstraints { make in
+            make.leading.equalTo(reinforceButton)
+            make.top.equalTo(controlsView.snp.centerY).offset(2)
         }
         repetitionsLabel.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.centerY.equalTo(listenButton.snp.centerY)
-        }
-        contentGenerationSpinner.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.centerY.equalTo(legendView.snp.top).offset(-40)
         }
         legendView.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
@@ -655,21 +660,18 @@ extension TextMeaningPracticeView: WordMarkingTextViewContentGenerationDelegate 
     
     @objc
     func startedContentGeneration(wordMarkingTextView: WordMarkingTextView) {
-        
         repetitionsLabel.isHidden = true
+        chatSendButton.isHidden = true
         contentGenerationSpinner.isHidden = false
         contentGenerationSpinner.startAnimating()
-        mainView.bringSubviewToFront(contentGenerationSpinner)
-
     }
-    
+
     @objc
     func completedContentGeneration(wordMarkingTextView: WordMarkingTextView, content: String?) {
-        
         repetitionsLabel.isHidden = false
+        chatSendButton.isHidden = false
         contentGenerationSpinner.isHidden = true
         contentGenerationSpinner.stopAnimating()
-        
     }
     
 }
@@ -702,10 +704,7 @@ extension TextMeaningPracticeView: WordMarkingTextViewTappingDelegate {
     }
 
     func selectionDidClear() {
-        if chatTextField.text?.hasPrefix("\"") == true {
-            chatTextField.text = ""
-            updateChatSendButton()
-        }
+        // 2(2): Do not clear chatTextField when selection is dismissed.
     }
 
 }
@@ -827,6 +826,18 @@ extension TextMeaningPracticeView {
     }
 
     @objc
+    private func retryLastMessage() {
+        // 2(6): Remove the error row and resend the last message.
+        guard !lastSentMessage.isEmpty else { return }
+        if let errorRow = chatBubblesStack.arrangedSubviews.last {
+            chatBubblesStack.removeArrangedSubview(errorRow)
+            errorRow.removeFromSuperview()
+        }
+        let msg = lastSentMessage
+        textView.sendChatMessage(msg)
+    }
+
+    @objc
     func chatSendButtonTapped() {
         guard let msg = chatTextField.text?.strip(), !msg.isEmpty else { return }
         chatTextField.text = ""
@@ -896,27 +907,49 @@ extension TextMeaningPracticeView {
         return attrText
     }
 
-    private func makeBubble(text: String, isUser: Bool) -> (row: UIView, label: UILabel) {
+    // 2(7): Returns a row containing a bubble (UITextView for selection/copy support)
+    // and a copy button below the bubble.
+    private func makeBubble(text: String, isUser: Bool) -> (row: UIView, label: UITextView) {
         let font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
-        let color: UIColor = isUser ? .white : Colors.normalTextColor
+        let color: UIColor = isUser ? Colors.normalTextColor : Colors.normalTextColor
 
-        let label = UILabel()
-        label.attributedText = parseMarkdown(text, font: font, color: color)
-        label.numberOfLines = 0
+        // Use UITextView so the user can select and copy any part of the text.
+        let textView = UITextView()
+        textView.attributedText = parseMarkdown(text, font: font, color: color)
+        textView.backgroundColor = .clear
+        textView.isEditable = false
+        textView.isScrollEnabled = false
+        textView.textContainerInset = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
+        textView.textContainer.lineFragmentPadding = 0
 
         let bubble = UIView()
-        bubble.backgroundColor = isUser ? Colors.activeSystemButtonColor : Colors.lightGrayBackgroundColor
+        bubble.backgroundColor = isUser ? Colors.lightBlue : Colors.lightGrayBackgroundColor
         bubble.layer.cornerRadius = 12
         bubble.layer.masksToBounds = true
-        bubble.addSubview(label)
-        label.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12))
+        bubble.addSubview(textView)
+        textView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
+
+        // Copy button below the bubble.
+        let copyButton = UIButton(type: .system)
+        let copySymbol = UIImage.SymbolConfiguration(pointSize: 11, weight: .regular)
+        copyButton.setImage(UIImage(systemName: "doc.on.doc", withConfiguration: copySymbol), for: .normal)
+        copyButton.tintColor = Colors.inactiveSystemButtonColor
+        copyButton.addAction(UIAction { [weak copyButton, weak textView] _ in
+            UIPasteboard.general.string = textView?.text
+            let checkSymbol = UIImage.SymbolConfiguration(pointSize: 11, weight: .regular)
+            copyButton?.setImage(UIImage(systemName: "checkmark", withConfiguration: checkSymbol), for: .normal)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                copyButton?.setImage(UIImage(systemName: "doc.on.doc", withConfiguration: copySymbol), for: .normal)
+            }
+        }, for: .touchUpInside)
 
         let row = UIView()
         row.addSubview(bubble)
+        row.addSubview(copyButton)
         bubble.snp.makeConstraints { make in
-            make.top.bottom.equalToSuperview()
+            make.top.equalToSuperview()
             if isUser {
                 make.trailing.equalToSuperview()
                 make.width.lessThanOrEqualToSuperview().multipliedBy(0.90)
@@ -925,7 +958,17 @@ extension TextMeaningPracticeView {
                 make.width.lessThanOrEqualToSuperview()
             }
         }
-        return (row, label)
+        copyButton.snp.makeConstraints { make in
+            make.top.equalTo(bubble.snp.bottom).offset(4)
+            make.width.height.equalTo(20)
+            make.bottom.equalToSuperview()
+            if isUser {
+                make.trailing.equalTo(bubble.snp.trailing)
+            } else {
+                make.leading.equalTo(bubble.snp.leading)
+            }
+        }
+        return (row, textView)
     }
 
     private func updateChatBubblesPosition() {
@@ -942,9 +985,15 @@ extension TextMeaningPracticeView {
 extension TextMeaningPracticeView: WordMarkingTextViewChatDelegate {
 
     func chatDidSendMessage(_ userMessage: String) {
+        lastSentMessage = userMessage
+        chatTextField.text = ""
+        chatSendButton.isEnabled = false
         let (row, _) = makeBubble(text: userMessage, isUser: true)
         chatBubblesStack.addArrangedSubview(row)
-        chatTypingIndicator.startAnimating()
+        chatSendButton.isHidden = true
+        contentGenerationSpinner.isHidden = false
+        contentGenerationSpinner.startAnimating()
+        chatTextField.isEnabled = false
         let (aiRow, aiLabel) = makeBubble(text: "", isUser: false)
         aiRow.isHidden = true
         chatBubblesStack.addArrangedSubview(aiRow)
@@ -954,7 +1003,10 @@ extension TextMeaningPracticeView: WordMarkingTextViewChatDelegate {
     }
 
     func chatDidReceiveChunk(_ chunk: String) {
-        chatTypingIndicator.stopAnimating()
+        chatSendButton.isHidden = false
+        contentGenerationSpinner.isHidden = true
+        contentGenerationSpinner.stopAnimating()
+        chatTextField.isEnabled = true
         if let label = currentAIBubbleLabel {
             currentAIBubbleText += chunk
             label.attributedText = parseMarkdown(
@@ -968,13 +1020,20 @@ extension TextMeaningPracticeView: WordMarkingTextViewChatDelegate {
     }
 
     func chatDidFinish() {
-        chatTypingIndicator.stopAnimating()
+        chatSendButton.isHidden = false
+        contentGenerationSpinner.isHidden = true
+        contentGenerationSpinner.stopAnimating()
+        chatTextField.isEnabled = true
         currentAIBubbleLabel = nil
         currentAIBubbleText = ""
     }
 
     func chatDidFail() {
-        chatTypingIndicator.stopAnimating()
+        chatSendButton.isHidden = false
+        contentGenerationSpinner.isHidden = true
+        contentGenerationSpinner.stopAnimating()
+        chatTextField.isEnabled = true
+        // 2(6): Remove the empty AI bubble and show a red error bubble with a retry button.
         if let label = currentAIBubbleLabel,
            let row = label.superview?.superview {
             chatBubblesStack.removeArrangedSubview(row)
@@ -982,6 +1041,44 @@ extension TextMeaningPracticeView: WordMarkingTextViewChatDelegate {
         }
         currentAIBubbleLabel = nil
         currentAIBubbleText = ""
+
+        // Error bubble.
+        let errorRow = UIView()
+        let errorBubble = UIView()
+        errorBubble.backgroundColor = UIColor.systemRed.withAlphaComponent(0.15)
+        errorBubble.layer.cornerRadius = 12
+        errorBubble.layer.masksToBounds = true
+        let errorLabel = UILabel()
+        errorLabel.text = Strings.chatErrorMessage
+        errorLabel.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
+        errorLabel.textColor = UIColor.systemRed
+        errorLabel.numberOfLines = 0
+        errorBubble.addSubview(errorLabel)
+        errorLabel.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12))
+        }
+        errorRow.addSubview(errorBubble)
+        errorBubble.snp.makeConstraints { make in
+            make.top.equalToSuperview()
+            make.leading.equalToSuperview()
+            make.width.lessThanOrEqualToSuperview()
+        }
+
+        // Retry button.
+        let retryButton = UIButton(type: .system)
+        let retrySymbol = UIImage.SymbolConfiguration(pointSize: 11, weight: .regular)
+        retryButton.setImage(UIImage(systemName: "arrow.clockwise", withConfiguration: retrySymbol), for: .normal)
+        retryButton.tintColor = UIColor.systemRed
+        retryButton.addTarget(self, action: #selector(retryLastMessage), for: .touchUpInside)
+        errorRow.addSubview(retryButton)
+        retryButton.snp.makeConstraints { make in
+            make.top.equalTo(errorBubble.snp.bottom).offset(4)
+            make.leading.equalToSuperview()
+            make.bottom.equalToSuperview()
+        }
+
+        chatBubblesStack.addArrangedSubview(errorRow)
+        updateChatBubblesPosition()
     }
 
 }

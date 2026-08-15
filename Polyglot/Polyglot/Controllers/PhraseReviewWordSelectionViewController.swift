@@ -8,12 +8,14 @@
 
 import UIKit
 
+// MARK: - Cell
+
 private class WordSelectionCell: UITableViewCell {
 
     let wordLabel = UILabel()
-    let dateLabel = UILabel()
+    let countsLabel = UILabel()
     let meaningLabel = UILabel()
-    let typesLabel = UILabel()
+    let dateLabel = UILabel()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: .default, reuseIdentifier: reuseIdentifier)
@@ -21,51 +23,140 @@ private class WordSelectionCell: UITableViewCell {
         wordLabel.font = UIFont.systemFont(ofSize: 17)
         wordLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        dateLabel.font = UIFont.systemFont(ofSize: 14)
-        dateLabel.textAlignment = .right
-        dateLabel.translatesAutoresizingMaskIntoConstraints = false
+        countsLabel.font = UIFont.systemFont(ofSize: 14)
+        countsLabel.textAlignment = .right
+        countsLabel.translatesAutoresizingMaskIntoConstraints = false
 
         meaningLabel.font = UIFont.systemFont(ofSize: 14)
         meaningLabel.translatesAutoresizingMaskIntoConstraints = false
 
-        typesLabel.font = UIFont.systemFont(ofSize: 14)
-        typesLabel.translatesAutoresizingMaskIntoConstraints = false
+        dateLabel.font = UIFont.systemFont(ofSize: 14)
+        dateLabel.textAlignment = .right
+        dateLabel.translatesAutoresizingMaskIntoConstraints = false
 
         contentView.addSubview(wordLabel)
-        contentView.addSubview(dateLabel)
+        contentView.addSubview(countsLabel)
         contentView.addSubview(meaningLabel)
-        contentView.addSubview(typesLabel)
+        contentView.addSubview(dateLabel)
 
         NSLayoutConstraint.activate([
             wordLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
             wordLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            wordLabel.trailingAnchor.constraint(equalTo: dateLabel.leadingAnchor, constant: -8),
+            wordLabel.trailingAnchor.constraint(equalTo: countsLabel.leadingAnchor, constant: -8),
 
-            dateLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
-            dateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            dateLabel.widthAnchor.constraint(lessThanOrEqualTo: contentView.widthAnchor, multiplier: 0.45),
+            countsLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
+            countsLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            countsLabel.widthAnchor.constraint(lessThanOrEqualTo: contentView.widthAnchor, multiplier: 0.35),
 
             meaningLabel.topAnchor.constraint(equalTo: wordLabel.bottomAnchor, constant: 2),
             meaningLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            meaningLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            meaningLabel.trailingAnchor.constraint(equalTo: dateLabel.leadingAnchor, constant: -8),
 
-            typesLabel.topAnchor.constraint(equalTo: meaningLabel.bottomAnchor, constant: 2),
-            typesLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            typesLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            typesLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
+            dateLabel.topAnchor.constraint(equalTo: wordLabel.bottomAnchor, constant: 2),  // Issue 3: same row as meaningLabel
+            dateLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            dateLabel.widthAnchor.constraint(lessThanOrEqualTo: contentView.widthAnchor, multiplier: 0.45),
+
+            meaningLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -8),
         ])
     }
 
     required init?(coder: NSCoder) { fatalError() }
+
+    /// Display a counts string like "211" with per-character bold where annotated.
+    /// Pass an empty array to hide the label entirely (counts not yet loaded).
+    func setCountsText(_ digits: [Int], annotated: [Bool], color: UIColor) {
+        guard !digits.isEmpty else {
+            countsLabel.isHidden = true
+            countsLabel.attributedText = nil
+            return
+        }
+        countsLabel.isHidden = false
+        let attr = NSMutableAttributedString()
+        for (count, isAnnotated) in zip(digits, annotated) {
+            let font: UIFont = isAnnotated
+                ? UIFont.systemFont(ofSize: 14, weight: .bold)
+                : UIFont.systemFont(ofSize: 14, weight: .regular)
+            attr.append(NSAttributedString(
+                string: "\(count)",
+                attributes: [.font: font, .foregroundColor: color]
+            ))
+        }
+        countsLabel.attributedText = attr
+    }
 }
+
+// MARK: - Section Header with Practice-Type Icons
+
+private class PhraseReviewSectionHeaderView: UITableViewHeaderFooterView {
+
+    private let titleLabel = UILabel()
+    private var iconStack: UIStackView?
+
+    override init(reuseIdentifier: String?) {
+        super.init(reuseIdentifier: reuseIdentifier)
+        titleLabel.font = UIFont.systemFont(ofSize: 15, weight: .semibold)
+        titleLabel.textColor = .secondaryLabel
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(titleLabel)
+        NSLayoutConstraint.activate([
+            titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+        ])
+    }
+
+    required init?(coder: NSCoder) { fatalError() }
+
+    func configure(title: String, practiceTypes: [WordPractice.PracticeType]) {
+        titleLabel.text = title
+        iconStack?.removeFromSuperview()
+
+        let icons = practiceTypes.compactMap { type -> UIImage? in
+            return PhraseReviewWordSelectionViewController.practiceTypeIcon(for: type)
+        }
+        guard !icons.isEmpty else { return }
+
+        let stack = UIStackView()
+        stack.axis = .horizontal
+        stack.spacing = 6
+        stack.alignment = .center
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        for icon in icons {
+            let iv = UIImageView(image: icon.withRenderingMode(.alwaysTemplate))
+            iv.tintColor = .secondaryLabel
+            iv.contentMode = .scaleAspectFit
+            iv.translatesAutoresizingMaskIntoConstraints = false
+            NSLayoutConstraint.activate([
+                iv.widthAnchor.constraint(equalToConstant: 16),
+                iv.heightAnchor.constraint(equalToConstant: 16),
+            ])
+            stack.addArrangedSubview(iv)
+        }
+        contentView.addSubview(stack)
+        NSLayoutConstraint.activate([
+            stack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            stack.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+        ])
+        iconStack = stack
+    }
+}
+
+// MARK: - Entry
 
 private struct WordSelectionEntry {
     let key: String
     let meaning: String
     let periodIndex: Int
     let nextReviewDate: Date
+    let practiceCounts: [Int]
+    let annotationCompleted: [Bool]  // per-type bold display flag
+    let isAnnotationReady: Bool      // true when all existing practices are annotated
+    let practiceTypes: [WordPractice.PracticeType]
+
     var isAvailable: Bool { nextReviewDate <= Date() }
+    var isReadyToPractice: Bool { isAvailable && isAnnotationReady }
 }
+
+// MARK: - View Controller
 
 class PhraseReviewWordSelectionViewController: UITableViewController {
 
@@ -76,6 +167,8 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
     private var selectedKeys: Set<String> = []
 
     private static let defaultSelectionCount = 6
+    private static let headerReuseId = "phraseReviewHeader"
+    private static let cellReuseId = "cell"
 
     // MARK: - Init
 
@@ -83,13 +176,8 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
         super.viewDidLoad()
 
         title = Strings.phraseReview
-        tableView.register(WordSelectionCell.self, forCellReuseIdentifier: "cell")
-
-        loadEntries()
-        DispatchQueue.global(qos: .userInitiated).async {
-            self.generatePracticesForAvailableWords()
-            DispatchQueue.main.async { self.tableView.reloadData() }
-        }
+        tableView.register(WordSelectionCell.self, forCellReuseIdentifier: Self.cellReuseId)
+        tableView.register(PhraseReviewSectionHeaderView.self, forHeaderFooterViewReuseIdentifier: Self.headerReuseId)
 
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             title: Strings.cancel,
@@ -111,34 +199,119 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
             name: .wordPracticeCounterUpdated,
             object: nil
         )
+
+        // Load and display entries synchronously — fast enough to run on the main thread.
+        loadEntries()
+        tableView.reloadData()
+        updateStartButton()
+
+        // Background: generate missing practices + translations, then refresh counts.
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.backgroundRefresh()
+            self.loadEntries()
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+                self.updateStartButton()
+            }
+        }
     }
+
+    // MARK: - Data Loading
 
     private func loadEntries() {
         let lang = LangCode.currentLanguage
         var schedule = EbbinghausSchedule.load(for: lang)
+        let cachedPractices = WordPracticeProducer.loadCachedPractices(for: lang)
+        let reinforcementStore = ReinforcementWords.load(for: lang)
+        let enabledTypes = lang.configs.phraseReviewEnabledPracticeTypes
 
-        // Collect all known word keys: from schedule + from cached practices.
-        let cachedEntries = WordPracticeProducer.uniqueWordEntries(for: lang)
+        // Derive unique word entries from already-loaded cachedPractices to avoid
+        // loading the large cached practices file a second time via uniqueWordEntries().
+        let cachedEntries: [(key: String, meaning: String)] = {
+            var seen = Set<String>()
+            var meaningByKey: [String: String] = [:]
+            var result: [(key: String, meaning: String)] = []
+            for p in cachedPractices {
+                let k = WordPracticeProducer.normalizedKey(from: p.word)
+                if seen.insert(k).inserted {
+                    result.append((key: k, meaning: ""))
+                }
+                if meaningByKey[k] == nil {
+                    switch (p.practiceType, p.direction) {
+                    case (.meaningSelection, .textToMeaning), (.meaningFilling, .textToMeaning):
+                        meaningByKey[k] = p.key
+                    case (.meaningSelection, .meaningToText), (.meaningFilling, .meaningToText):
+                        meaningByKey[k] = p.query
+                    default:
+                        break
+                    }
+                }
+            }
+            return result.map { (key: $0.key, meaning: meaningByKey[$0.key] ?? "") }
+        }()
 
         var allKeys = Set(schedule.keys)
         for e in cachedEntries { allKeys.insert(e.key) }
 
-        // Build selection entries.
+        // Pre-build a lookup: [normalizedKey: [periodIndex: [type: [practice]]]]
+        // to avoid O(keys × practices) filter loops below.
+        var practicesByKeyAndPeriod: [String: [Int: [WordPractice.PracticeType: [WordPractice]]]] = [:]
+        for p in cachedPractices {
+            let k = WordPracticeProducer.normalizedKey(from: p.word)
+            let period = p.periodIndex ?? 0
+            practicesByKeyAndPeriod[k, default: [:]][period, default: [:]][p.practiceType, default: []].append(p)
+        }
+
         var allEntries: [WordSelectionEntry] = []
         for key in allKeys {
             let schedEntry = EbbinghausSchedule.entry(forKey: key, in: schedule)
-            // Skip completed words (no longer in schedule after all periods done).
             if EbbinghausSchedule.isCompleted(schedEntry) { continue }
-            // Ensure schedule is persisted for words discovered via cached practices.
             if schedule[key] == nil {
                 schedule[key] = schedEntry
             }
-            let meaning = cachedEntries.first(where: { $0.key == key })?.meaning ?? ""
+
+            // Meaning: prefer reinforcement store, fall back to cached practices.
+            let meaning: String
+            if let stored = reinforcementStore[key], !stored.meaning.isEmpty {
+                meaning = stored.meaning
+            } else {
+                meaning = cachedEntries.first(where: { $0.key == key })?.meaning ?? ""
+            }
+
+            let periodIndex = schedEntry.periodIndex
+            let typesForPeriod = EbbinghausSchedule.effectivePracticeTypes(
+                for: periodIndex,
+                enabledTypes: enabledTypes
+            )
+
+            // Count practices per type for this word/period using pre-built lookup.
+            let practicesByType = practicesByKeyAndPeriod[key]?[periodIndex] ?? [:]
+            let repetitions = lang.configs.wordPracticeRepetition
+            var counts: [Int] = []
+            var annotatedFlags: [Bool] = []   // for bold display: true only when has practices AND annotated
+            var allTypesAnnotated = true       // for isReadyToPractice: empty types don't block
+            for type in typesForPeriod {
+                let matching = practicesByType[type] ?? []
+                let uniqueCount = min(matching.count, repetitions)
+                counts.append(uniqueCount)
+                let isAnnotated = matching.isEmpty || matching.allSatisfy {
+                    ($0.isAccentAnnotationCompleted || !Self.requiresAccentAnnotation(lang))
+                    && ($0.isGrammarAnnotationCompleted || !Self.requiresGrammarAnnotation(lang))
+                }
+                if !isAnnotated { allTypesAnnotated = false }
+                // Bold only when annotated AND has practices.
+                annotatedFlags.append(isAnnotated && !matching.isEmpty)
+            }
+
             allEntries.append(WordSelectionEntry(
                 key: key,
                 meaning: meaning,
-                periodIndex: schedEntry.periodIndex,
-                nextReviewDate: schedEntry.nextReviewDate
+                periodIndex: periodIndex,
+                nextReviewDate: schedEntry.nextReviewDate,
+                practiceCounts: counts,
+                annotationCompleted: annotatedFlags,
+                isAnnotationReady: allTypesAnnotated,
+                practiceTypes: typesForPeriod
             ))
         }
         EbbinghausSchedule.save(&schedule, for: lang)
@@ -150,57 +323,127 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
             return (periodIndex: period, entries: sorted)
         }
 
-        // Default-select first N available words.
-        var selected = 0
-        for section in sections {
-            for entry in section.entries where entry.isAvailable {
-                if selected < Self.defaultSelectionCount {
-                    selectedKeys.insert(entry.key)
-                    selected += 1
+        // Default-select first N ready-to-practice words.
+        selectedKeys = selectedKeys.filter { key in
+            sections.flatMap { $0.entries }.contains { $0.key == key }
+        }
+        if selectedKeys.isEmpty {
+            var selected = 0
+            for section in sections {
+                for entry in section.entries where entry.isReadyToPractice {
+                    if selected < Self.defaultSelectionCount {
+                        selectedKeys.insert(entry.key)
+                        selected += 1
+                    }
                 }
             }
         }
     }
 
-    private func generatePracticesForAvailableWords() {
+    // MARK: - Background Refresh (1(1) + 1(2))
+
+    private func backgroundRefresh() {
         let lang = LangCode.currentLanguage
-        let counter = WordPracticeProducer.countWordPractices(for: lang)
-        let availableWithoutPractices = sections
-            .flatMap { $0.entries }
-            .filter { $0.isAvailable && !counter.keys.contains($0.key) }
-            .map { $0.key }
-
-        guard !availableWithoutPractices.isEmpty else { return }
-
-        // We need a producer with the full word list to generate practices.
         let words = Word.load(for: lang)
         let articles = Article.load(for: lang)
+        let enabledTypes = lang.configs.phraseReviewEnabledPracticeTypes
+        let schedule = EbbinghausSchedule.load(for: lang)
+        let cachedPractices = WordPracticeProducer.loadCachedPractices(for: lang)
+        let reinforcementStore = ReinforcementWords.load(for: lang)
+
+        // (1) Supplement missing current-round practices.
         let producer = WordPracticeProducer(words: words, articles: articles)
-        producer.makeAndCachePractices(for: availableWithoutPractices, skipDuplicates: false)
+        let repetitions = lang.configs.wordPracticeRepetition
+        let sortedSchedule = schedule.sorted { a, b in
+            let aAvailable = EbbinghausSchedule.isAvailable(a.value)
+            let bAvailable = EbbinghausSchedule.isAvailable(b.value)
+            if aAvailable != bAvailable { return aAvailable }
+            return a.key < b.key
+        }
+        for (key, schedEntry) in sortedSchedule {
+            guard !EbbinghausSchedule.isCompleted(schedEntry) else { continue }
+            let periodIndex = schedEntry.periodIndex
+            let typesForPeriod = EbbinghausSchedule.effectivePracticeTypes(
+                for: periodIndex,
+                enabledTypes: enabledTypes
+            )
+            let wordPractices = cachedPractices.filter {
+                WordPracticeProducer.normalizedKey(from: $0.word) == key
+                    && ($0.periodIndex ?? 0) == periodIndex
+            }
+            let needsGeneration = typesForPeriod.contains { type in
+                let count = wordPractices.filter { $0.practiceType == type }.count
+                return count < repetitions
+            }
+            if needsGeneration {
+                producer.makeAndCachePractices(for: [key], skipDuplicates: true)
+            }
+        }
+
+        // (2) Supplement missing meanings from reinforcement store.
+        let translator = MachineTranslator(srcLang: lang, trgLang: lang.configs.languageForTranslation)
+        let dispatchGroup = DispatchGroup()
+        let sortedReinforcement = reinforcementStore
+            .filter { $0.value.meaning.isEmpty }
+            .sorted { a, b in
+                let aEntry = EbbinghausSchedule.entry(forKey: a.key, in: schedule)
+                let bEntry = EbbinghausSchedule.entry(forKey: b.key, in: schedule)
+                let aAvailable = EbbinghausSchedule.isAvailable(aEntry)
+                let bAvailable = EbbinghausSchedule.isAvailable(bEntry)
+                if aAvailable != bAvailable { return aAvailable }
+                return a.key < b.key
+            }
+        for (key, entry) in sortedReinforcement {
+            dispatchGroup.enter()
+            let wordToTranslate = entry.word
+            translator.translate(query: wordToTranslate) { translations, _ in
+                if let meaning = translations.first, !meaning.isEmpty {
+                    ReinforcementWords.updateMeaning(meaning, forWord: key, for: lang)
+                }
+                dispatchGroup.leave()
+            }
+        }
+        dispatchGroup.wait()
+    }
+
+    // MARK: - Helpers
+
+    static func practiceTypeIcon(for type: WordPractice.PracticeType) -> UIImage? {
+        let name: String
+        switch type {
+        case .meaningSelection:   name = "list.bullet"
+        case .meaningFilling:     name = "pencil"
+        case .contextSelection:   name = "text.bubble"
+        case .reordering:         name = "arrow.left.arrow.right"
+        case .phraseConstruction: name = "puzzlepiece"
+        case .imageSelection:     name = "photo"
+        case .imageFilling:       name = "photo.badge.plus"
+        case .accentSelection:    name = "textformat.abc"
+        }
+        return UIImage(systemName: name)
+    }
+
+    private static func requiresAccentAnnotation(_ lang: LangCode) -> Bool {
+        return lang == .ja || lang == .ru
+    }
+
+    private static func requiresGrammarAnnotation(_ lang: LangCode) -> Bool {
+        return lang.configs.shouldShowVerbAspectsInPractices
+            || lang.configs.shouldShowNounCasesInPractices
     }
 
     @objc private func onPracticeCounterUpdated() {
-        DispatchQueue.main.async {
-            self.tableView.reloadData()
-            self.updateStartButton()
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.loadEntries()
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+                self.updateStartButton()
+            }
         }
     }
 
     private func updateStartButton() {
         navigationItem.rightBarButtonItem?.isEnabled = !selectedKeys.isEmpty
-    }
-
-    private func practiceTypeLabel(_ type: WordPractice.PracticeType) -> String {
-        switch type {
-        case .meaningSelection:   return "MeanSel"
-        case .meaningFilling:     return "MeanFill"
-        case .contextSelection:   return "CtxSel"
-        case .reordering:         return "Reorder"
-        case .phraseConstruction: return "Phrase"
-        case .imageSelection:     return "ImgSel"
-        case .imageFilling:       return "ImgFill"
-        case .accentSelection:    return "Accent"
-        }
     }
 
     // MARK: - Table view data source
@@ -209,9 +452,20 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
         return sections.count
     }
 
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        let period = sections[section].periodIndex
-        return Strings.periodHeader.replacingOccurrences(of: "#", with: String(period + 1))
+    override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let header = tableView.dequeueReusableHeaderFooterView(
+            withIdentifier: Self.headerReuseId
+        ) as! PhraseReviewSectionHeaderView
+        let periodIndex = sections[section].periodIndex
+        let title = Strings.periodHeader.replacingOccurrences(of: "#", with: String(periodIndex + 1))
+        let enabledTypes = LangCode.currentLanguage.configs.phraseReviewEnabledPracticeTypes
+        let types = EbbinghausSchedule.effectivePracticeTypes(for: periodIndex, enabledTypes: enabledTypes)
+        header.configure(title: title, practiceTypes: types)
+        return header
+    }
+
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        return 36
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -219,7 +473,7 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! WordSelectionCell
+        let cell = tableView.dequeueReusableCell(withIdentifier: Self.cellReuseId, for: indexPath) as! WordSelectionCell
         let entry = sections[indexPath.section].entries[indexPath.row]
 
         let attrText = NSMutableAttributedString(
@@ -230,34 +484,37 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
         cell.wordLabel.attributedText = attrText
         cell.selectionStyle = .none
 
-        let cachedPractices = WordPracticeProducer.loadCachedPractices(for: LangCode.currentLanguage)
-        let generatedTypes = cachedPractices
-            .filter { WordPracticeProducer.normalizedKey(from: $0.word) == entry.key }
-            .map { $0.practiceType }
-        let uniqueTypes = Array(NSOrderedSet(array: generatedTypes)) as! [WordPractice.PracticeType]
-        let typesText = uniqueTypes.map { practiceTypeLabel($0) }.joined(separator: ", ")
+        let isReady = entry.isReadyToPractice
+        let isAvailable = entry.isAvailable
 
-        if entry.isAvailable {
-            cell.wordLabel.alpha = 1.0
-            cell.isUserInteractionEnabled = true
-            cell.accessoryType = selectedKeys.contains(entry.key) ? .checkmark : .none
-            cell.dateLabel.text = ""
-            cell.dateLabel.textColor = Colors.weakTextColor
-            cell.meaningLabel.text = entry.meaning
-            cell.meaningLabel.textColor = Colors.weakTextColor
-            cell.typesLabel.text = typesText
-            cell.typesLabel.textColor = Colors.weakTextColor
+        // Color scheme:
+        // - ready to practice: word=black, others=dark gray
+        // - not yet available: all light gray
+        let wordColor: UIColor
+        let secondaryColor: UIColor
+        if isReady {
+            wordColor = .label
+            secondaryColor = Colors.weakTextColor
         } else {
-            cell.wordLabel.alpha = 0.4
-            cell.isUserInteractionEnabled = false
-            cell.accessoryType = .none
-            cell.dateLabel.text = entry.nextReviewDate.repr(of: Date.defaultDateFormat)
-            cell.dateLabel.textColor = Colors.inactiveTextColor
-            cell.meaningLabel.text = entry.meaning
-            cell.meaningLabel.textColor = Colors.inactiveTextColor
-            cell.typesLabel.text = typesText
-            cell.typesLabel.textColor = Colors.inactiveTextColor
+            wordColor = Colors.inactiveTextColor
+            secondaryColor = Colors.inactiveTextColor
         }
+
+        cell.wordLabel.textColor = wordColor
+        cell.isUserInteractionEnabled = isReady
+        cell.backgroundColor = (isReady && selectedKeys.contains(entry.key)) ? Colors.lightBlue : .clear
+
+        cell.setCountsText(entry.practiceCounts, annotated: entry.annotationCompleted, color: secondaryColor)
+
+        cell.meaningLabel.text = entry.meaning.isEmpty ? " " : entry.meaning
+        cell.meaningLabel.textColor = secondaryColor
+
+        if isAvailable {
+            cell.dateLabel.text = ""
+        } else {
+            cell.dateLabel.text = entry.nextReviewDate.repr(of: Date.defaultDateFormat)
+        }
+        cell.dateLabel.textColor = secondaryColor
 
         return cell
     }
@@ -266,7 +523,9 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        let key = sections[indexPath.section].entries[indexPath.row].key
+        let entry = sections[indexPath.section].entries[indexPath.row]
+        guard entry.isReadyToPractice else { return }
+        let key = entry.key
         if selectedKeys.contains(key) {
             selectedKeys.remove(key)
         } else {
@@ -288,10 +547,12 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
             )
             alert.addAction(UIAlertAction(title: Strings.cancel, style: .cancel) { _ in completion(false) })
             alert.addAction(UIAlertAction(title: Strings.delete, style: .destructive) { _ in
-                WordPracticeProducer.deleteWordPractices(forKey: entry.key, lang: LangCode.currentLanguage)
-                var schedule = EbbinghausSchedule.load(for: LangCode.currentLanguage)
+                let lang = LangCode.currentLanguage
+                WordPracticeProducer.deleteWordPractices(forKey: entry.key, lang: lang)
+                var schedule = EbbinghausSchedule.load(for: lang)
                 schedule.removeValue(forKey: entry.key)
-                EbbinghausSchedule.save(&schedule, for: LangCode.currentLanguage)
+                EbbinghausSchedule.save(&schedule, for: lang)
+                ReinforcementWords.remove(word: entry.key, for: lang)
                 self.selectedKeys.remove(entry.key)
                 var sectionEntries = self.sections[indexPath.section].entries
                 sectionEntries.remove(at: indexPath.row)

@@ -10,7 +10,6 @@ import UIKit
 
 protocol PracticeDurationsSettingsViewControllerDelegate: AnyObject {
     func practiceDurationsDidUpdate(
-        phraseReview: Int,
         listening: Int,
         videoShadowing: Int,
         speaking: Int,
@@ -25,12 +24,11 @@ class PracticeDurationsSettingsViewController: SettingsViewController {
 
     override func saveSettings() {
         delegate?.practiceDurationsDidUpdate(
-            phraseReview: Int((cells[0][0] as! SettingsSlidingCell).slider.value),
-            listening: Int((cells[0][1] as! SettingsSlidingCell).slider.value),
-            videoShadowing: Int((cells[0][2] as! SettingsSlidingCell).slider.value),
-            speaking: Int((cells[0][3] as! SettingsSlidingCell).slider.value),
-            reading: Int((cells[0][4] as! SettingsSlidingCell).slider.value),
-            podcast: Int((cells[0][5] as! SettingsSlidingCell).slider.value)
+            listening: Int((cells[0][0] as! SettingsSlidingCell).slider.value),
+            videoShadowing: Int((cells[0][1] as! SettingsSlidingCell).slider.value),
+            speaking: Int((cells[0][2] as! SettingsSlidingCell).slider.value),
+            reading: Int((cells[0][3] as! SettingsSlidingCell).slider.value),
+            podcast: Int((cells[0][4] as! SettingsSlidingCell).slider.value)
         )
     }
 
@@ -40,19 +38,6 @@ class PracticeDurationsSettingsViewController: SettingsViewController {
         headers = [nil]
         cells = [
             [
-                {
-                    let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
-                    cell.imageView?.image = Images.wordPracticeImage
-                    cell.step = 5
-                    cell.slider.minimumValue = 5
-                    cell.slider.maximumValue = 30
-                    cell.slider.value = Float(LangCode.currentLanguage.configs.phraseReviewPracticeDuration)
-                    cell.formatingFunc = { (sliderVal: Float) -> String in
-                        return "\(String(Int(sliderVal))) mins"  // TODO: - Update localization
-                    }
-                    cell.label.text = cell.formatingFunc(cell.slider.value)
-                    return cell
-                }(),
                 {
                     let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
                     cell.imageView?.image = Images.listeningPracticeImage

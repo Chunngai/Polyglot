@@ -329,7 +329,27 @@ You are a language tutor helping a \(meaningLangName) speaker learn \(textLangNa
                 self?.chatDelegate?.chatDidFinish()
             },
             onError: { [weak self] in
-                self?.chatDelegate?.chatDidFail()
+                guard let self = self else { return }
+                guard generationType == .translation else {
+                    self.chatDelegate?.chatDidFail()
+                    return
+                }
+                // LLM translation failed — fall back to Google Translate.
+                let googleTranslator = GoogleTranslator(
+                    srcLang: self.textLang,
+                    trgLang: self.meaningLang
+                )
+                googleTranslator.translate(query: word) { [weak self] translations in
+                    guard let self = self else { return }
+                    DispatchQueue.main.async {
+                        if let first = translations.first, !first.isEmpty {
+                            self.chatDelegate?.chatDidReceiveChunk(first)
+                            self.chatDelegate?.chatDidFinish()
+                        } else {
+                            self.chatDelegate?.chatDidFail()
+                        }
+                    }
+                }
             }
         )
     }
@@ -699,24 +719,40 @@ extension WordMarkingTextView {
     
     @objc
     private func reinforceMenuItemTapped() {
-        
-        // Obtain the word to reinforce, its selected range, and its selected text range.
-        if let selectedTextRange = selectedTextRange,
-            !selectedTextRange.isEmpty,
-            let word = text(in: selectedTextRange) {
 
-            // Store the info of the reinforcement word.
-            reinforcementWordsInfo.append(WordInfo(
-                textRange: selectedTextRange,
-                word: word,
-                meaning: ""
-            ))
-            underline(
-                selectedTextRange,
-                with: Colors.newReinforcementWordUnderlineColor
-            )
+        // Obtain the word to reinforce, its selected range, and its selected text range.
+        guard
+            let selectedTextRange = selectedTextRange,
+            !selectedTextRange.isEmpty,
+            let word = text(in: selectedTextRange)
+        else { return }
+
+        // Find the sentence in the full text that contains this word.
+        let fullText = self.text ?? ""
+        let sentenceTokenizer = textLang.sentenceTokenizer
+        let sentences = fullText.tokenized(with: sentenceTokenizer)
+        let contextSentence = sentences.first(where: { $0.contains(word) }) ?? fullText
+
+        // Build the WordInfo with an empty meaning for now; meaning will be filled
+        // by the background translation below.
+        let wordInfo = WordInfo(
+            textRange: selectedTextRange,
+            word: word,
+            meaning: "",
+            contextSentence: contextSentence
+        )
+        reinforcementWordsInfo.append(wordInfo)
+        underline(selectedTextRange, with: Colors.newReinforcementWordUnderlineColor)
+
+        // Fire background translation so it is ready when practices are generated.
+        let index = reinforcementWordsInfo.count - 1
+        wordTranslator.translate(query: word) { [weak self] translations, _ in
+            guard let self = self else { return }
+            guard let meaning = translations.first, !meaning.isEmpty else { return }
+            if index < self.reinforcementWordsInfo.count {
+                self.reinforcementWordsInfo[index].meaning = meaning
+            }
         }
-        
     }
     
     @objc func cancelReinforcementMenuItemTapped() {
@@ -857,14 +893,17 @@ extension WordMarkingTextView: NewWordBottomViewDelegate {
 
 struct WordInfo {
     // For storing the info of a newly added word.
-    
+
     var textRange: UITextRange
-    
+
     var word: String
     var meaning: String
-    
+
+    /// The annotated sentence containing this word; used for reinforcement practices.
+    var contextSentence: String = ""
+
     var canDelete: Bool = true
-    
+
 }
 
 extension WordMarkingTextView {

@@ -406,6 +406,7 @@ struct LangConfigs: Codable {
     var wordPracticeRepetition: Int
     var listeningPracticeRepetition: Int
     var speakingPracticeRepetition: Int
+    var phraseReviewDefaultSelectionCount: Int
 
     var phraseReviewEnabledPracticeTypes: Set<WordPractice.PracticeType>
 
@@ -435,6 +436,7 @@ struct LangConfigs: Codable {
         wordPracticeRepetition: Int,
         listeningPracticeRepetition: Int,
         speakingPracticeRepetition: Int,
+        phraseReviewDefaultSelectionCount: Int = 5,
         isDuolingoOnlyForShadowing: Bool,
         isDuolingoOnlyForSpeaking: Bool,
         isDuolingoOnlyForReading: Bool,
@@ -458,6 +460,7 @@ struct LangConfigs: Codable {
         self.wordPracticeRepetition = wordPracticeRepetition
         self.listeningPracticeRepetition = listeningPracticeRepetition
         self.speakingPracticeRepetition = speakingPracticeRepetition
+        self.phraseReviewDefaultSelectionCount = phraseReviewDefaultSelectionCount
         self.isDuolingoOnlyForShadowing = isDuolingoOnlyForShadowing
         self.isDuolingoOnlyForSpeaking = isDuolingoOnlyForSpeaking
         self.isDuolingoOnlyForReading = isDuolingoOnlyForReading
@@ -488,6 +491,7 @@ struct LangConfigs: Codable {
         case wordPracticeRepetition
         case listeningPracticeRepetition
         case speakingPracticeRepetition
+        case phraseReviewDefaultSelectionCount
 
         case isDuolingoOnlyForShadowing
         case isDuolingoOnlyForSpeaking
@@ -520,6 +524,7 @@ struct LangConfigs: Codable {
         try container.encode(wordPracticeRepetition, forKey: .wordPracticeRepetition)
         try container.encode(listeningPracticeRepetition, forKey: .listeningPracticeRepetition)
         try container.encode(speakingPracticeRepetition, forKey: .speakingPracticeRepetition)
+        try container.encode(phraseReviewDefaultSelectionCount, forKey: .phraseReviewDefaultSelectionCount)
         try container.encode(isDuolingoOnlyForShadowing, forKey: .isDuolingoOnlyForShadowing)
         try container.encode(isDuolingoOnlyForSpeaking, forKey: .isDuolingoOnlyForSpeaking)
         try container.encode(isDuolingoOnlyForReading, forKey: .isDuolingoOnlyForReading)
@@ -587,6 +592,11 @@ struct LangConfigs: Codable {
             speakingPracticeRepetition = try values.decode(Int.self, forKey: .speakingPracticeRepetition)
         } catch {
             speakingPracticeRepetition = try values.decode(Int.self, forKey: .practiceRepetition)
+        }
+        do {
+            phraseReviewDefaultSelectionCount = try values.decode(Int.self, forKey: .phraseReviewDefaultSelectionCount)
+        } catch {
+            phraseReviewDefaultSelectionCount = Self.defaultConfigs.phraseReviewDefaultSelectionCount
         }
         do {
             isDuolingoOnlyForShadowing = try values.decode(Bool.self, forKey: .isDuolingoOnlyForShadowing)

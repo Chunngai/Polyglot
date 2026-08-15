@@ -8,6 +8,7 @@
 
 import UIKit
 import IQKeyboardManagerSwift
+import SafariServices
 
 class ReadingEditViewController: UIViewController {
     
@@ -120,12 +121,14 @@ class ReadingEditViewController: UIViewController {
     func updateValues(article: Article, query: String?) {
         self.article = article
         self.query = query
-        
+
         self.captionEvents = article.captionEvents
         if !self.captionEvents.isEmpty {
             self.cells[Self.bodyIdentifier].textView.isEditable = false
             self.addPromptForYoutubeVideoBodyText()
         }
+
+        applySourceURLStyleIfNeeded()
     }
 }
  
@@ -274,8 +277,96 @@ extension ReadingEditViewController {
         ]
     }
     
+    // MARK: - Source URL display
+
+    func applySourceURLStyleIfNeeded() {
+        let sourceTextView = cells[Self.sourceIdentifier].textView
+        let urlString = sourceTextView.content.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !urlString.isEmpty,
+              let url = URL(string: urlString),
+              url.scheme == "http" || url.scheme == "https" else {
+            return
+        }
+        applySourceURLStyle()
+    }
+
+    private func applySourceURLStyle() {
+        let sourceTextView = cells[Self.sourceIdentifier].textView
+        let urlString = sourceTextView.content.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !urlString.isEmpty else { return }
+
+        sourceTextView.isEditable = false
+        sourceTextView.isSelectable = true
+
+        // Apply blue + underline to the content portion only (after the prompt).
+        let fullText = sourceTextView.text ?? ""
+        let promptLen = sourceTextView.prompt?.count ?? 0
+        let contentRange = NSRange(location: promptLen, length: fullText.utf16.count - promptLen)
+        let attrText = NSMutableAttributedString(attributedString: sourceTextView.attributedText)
+        attrText.addAttributes([
+            .foregroundColor: Colors.activeSystemButtonColor,
+            .underlineStyle: NSUnderlineStyle.single.rawValue
+        ], range: contentRange)
+        sourceTextView.attributedText = attrText
+
+        // Tap to open URL.
+        sourceTextView.gestureRecognizers?
+            .filter { $0 is UITapGestureRecognizer && $0.name == "sourceURLTap" }
+            .forEach { sourceTextView.removeGestureRecognizer($0) }
+        let tap = UITapGestureRecognizer(target: self, action: #selector(sourceURLTapped))
+        tap.name = "sourceURLTap"
+        sourceTextView.addGestureRecognizer(tap)
+
+        // Long press to switch to edit mode.
+        sourceTextView.gestureRecognizers?
+            .filter { $0 is UILongPressGestureRecognizer && $0.name == "sourceURLLongPress" }
+            .forEach { sourceTextView.removeGestureRecognizer($0) }
+        let longPress = UILongPressGestureRecognizer(target: self, action: #selector(sourceURLLongPressed))
+        longPress.name = "sourceURLLongPress"
+        sourceTextView.addGestureRecognizer(longPress)
+    }
+
+    private func restoreSourceEditingStyle() {
+        let sourceTextView = cells[Self.sourceIdentifier].textView
+        sourceTextView.isEditable = true
+
+        // Remove URL style — restore normal text attributes.
+        let attrs = Self.textAttributes[Self.sourceIdentifier] ?? [:]
+        let fullText = sourceTextView.text ?? ""
+        let promptLen = sourceTextView.prompt?.count ?? 0
+        let contentRange = NSRange(location: promptLen, length: fullText.utf16.count - promptLen)
+        let attrText = NSMutableAttributedString(attributedString: sourceTextView.attributedText)
+        attrText.addAttributes(attrs, range: contentRange)
+        attrText.removeAttribute(.underlineStyle, range: contentRange)
+        sourceTextView.attributedText = attrText
+
+        sourceTextView.gestureRecognizers?
+            .filter { ($0 is UITapGestureRecognizer && $0.name == "sourceURLTap")
+                || ($0 is UILongPressGestureRecognizer && $0.name == "sourceURLLongPress") }
+            .forEach { sourceTextView.removeGestureRecognizer($0) }
+
+        sourceTextView.becomeFirstResponder()
+    }
+
+    @objc private func sourceURLTapped() {
+        let urlString = cells[Self.sourceIdentifier].textView.content
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let url = URL(string: urlString),
+              url.scheme == "http" || url.scheme == "https" else {
+            restoreSourceEditingStyle()
+            return
+        }
+        let safariVC = SFSafariViewController(url: url)
+        present(safariVC, animated: true)
+    }
+
+    @objc private func sourceURLLongPressed(_ gesture: UILongPressGestureRecognizer) {
+        guard gesture.state == .began else { return }
+        restoreSourceEditingStyle()
+    }
+
     func handleSharedURLFromYoutube(url: URL) {
-        
+
         self.cells[Self.sourceIdentifier].textView.text = url.absoluteString.replacingOccurrences(
             of: "\(Constants.youtubeURLSchemeName)://\(Constants.youtubeURLHostName)?url=",
             with: ""
@@ -284,7 +375,8 @@ extension ReadingEditViewController {
             with: "="
         )
         self.maybeGenerateBodyText()
-        
+        self.applySourceURLStyleIfNeeded()
+
     }
     
 }
@@ -584,17 +676,18 @@ extension ReadingEditViewController: AutoResizingTextViewWithPromptDelegate {
     // MARK: - AutoResizingTextViewWithPromptDelegate
     
     func textViewDidEndEditing(_ textView: UITextView) {
-        
+
         if textView.tag == Self.sourceIdentifier {
-            
+
             self.maybeGenerateBodyText()
-            
+            self.applySourceURLStyleIfNeeded()
+
         } else if textView.tag == Self.bodyIdentifier {
-            
+
             self.splitBodyText()
-            
+
         }
-        
+
     }
     
 }

@@ -244,12 +244,21 @@ extension TextMeaningPracticeViewController {
 extension TextMeaningPracticeViewController {
     
     func generateWordPractices(from reinforcementWordsInfo: [WordInfo]) {
- 
+
+        let lang = LangCode.currentLanguage
         var reinforcementWords: [String] = []
         for reinforcementWordInfo in reinforcementWordsInfo {
-            reinforcementWords.append(reinforcementWordInfo.word)
+            let word = reinforcementWordInfo.word
+            reinforcementWords.append(word)
+            // Persist this word to disk so the phrase-review list can find it later.
+            ReinforcementWords.add(
+                word: word,
+                contextSentence: reinforcementWordInfo.contextSentence,
+                meaning: reinforcementWordInfo.meaning,
+                for: lang
+            )
         }
-        
+
         DispatchQueue.global(qos: .userInitiated).async {
             let wordPracticeProducer = WordPracticeProducer(
                 words: self.words,

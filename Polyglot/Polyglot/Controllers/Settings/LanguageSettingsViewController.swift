@@ -54,6 +54,7 @@ class LanguageSettingsViewController: SettingsViewController {
     var wordPracticeRepetition = LangCode.currentLanguage.configs.wordPracticeRepetition
     var listeningPracticeRepetition = LangCode.currentLanguage.configs.listeningPracticeRepetition
     var speakingPracticeRepetition = LangCode.currentLanguage.configs.speakingPracticeRepetition
+    var phraseReviewDefaultSelectionCount = LangCode.currentLanguage.configs.phraseReviewDefaultSelectionCount
 
     override func saveSettings() {
         let base = hasDuolingoArticles ? 1 : 0
@@ -74,6 +75,7 @@ class LanguageSettingsViewController: SettingsViewController {
             wordPracticeRepetition: wordPracticeRepetition,
             listeningPracticeRepetition: listeningPracticeRepetition,
             speakingPracticeRepetition: speakingPracticeRepetition,
+            phraseReviewDefaultSelectionCount: phraseReviewDefaultSelectionCount,
 
             isDuolingoOnlyForShadowing: practiceType2isDuolingoOnly[.shadowing]!,
             isDuolingoOnlyForSpeaking: practiceType2isDuolingoOnly[.speaking]!,
@@ -343,14 +345,12 @@ extension LanguageSettingsViewController: NounCaseSettingsViewControllerDelegate
 extension LanguageSettingsViewController: PracticeDurationsSettingsViewControllerDelegate {
 
     func practiceDurationsDidUpdate(
-        phraseReview: Int,
         listening: Int,
         videoShadowing: Int,
         speaking: Int,
         reading: Int,
         podcast: Int
     ) {
-        phraseReviewPracticeDuration = phraseReview
         listeningPracticeDuration = listening
         videoShadowingPracticeDuration = videoShadowing
         speakingPracticeDuration = speaking
@@ -362,10 +362,11 @@ extension LanguageSettingsViewController: PracticeDurationsSettingsViewControlle
 
 extension LanguageSettingsViewController: PracticeRepetitionsSettingsViewControllerDelegate {
 
-    func practiceRepetitionsDidUpdate(word: Int, listening: Int, speaking: Int) {
+    func practiceRepetitionsDidUpdate(word: Int, listening: Int, speaking: Int, phraseReviewDefaultSelectionCount: Int) {
         wordPracticeRepetition = word
         listeningPracticeRepetition = listening
         speakingPracticeRepetition = speaking
+        self.phraseReviewDefaultSelectionCount = phraseReviewDefaultSelectionCount
     }
 
 }

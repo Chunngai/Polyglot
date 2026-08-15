@@ -144,6 +144,8 @@ extension WordPracticeProducer {
         let newPeriod = consumedPeriodIndex + 1
         if newPeriod >= EbbinghausSchedule.practiceGroups.count {
             schedule.removeValue(forKey: key)
+            // Remove from persistent reinforcement words now that all periods are done.
+            ReinforcementWords.remove(word: key, for: self.lang)
         } else {
             var entry = EbbinghausSchedule.entry(forKey: key, in: schedule)
             entry.periodIndex = newPeriod
@@ -509,13 +511,6 @@ extension WordPracticeProducer {
         preferredWords: [Word] = []
     ) -> WordPractice? {
 
-        let candidates = articles.paraCandidates(for: query)
-        guard candidates.count != 0,
-              let candidate = candidates.randomElement()
-        else {
-            return nil
-        }
-
         guard let choices = choices(
             for: query,
             textForChoice: { $0.text },
@@ -523,7 +518,33 @@ extension WordPracticeProducer {
         ) else {
             return nil
         }
-        
+
+        // Try to use stored context sentence from ReinforcementWords first (item 1(2)a).
+        let reinforcementStore = ReinforcementWords.load(for: self.lang)
+        let key = Self.normalizedKey(from: word)
+        let contextText: String?
+        var articleId: String? = nil
+        var paragraphId: String? = nil
+
+        if let stored = reinforcementStore[key], !stored.contextSentence.isEmpty {
+            contextText = stored.contextSentence
+        } else {
+            // Fall back to article paragraph if no stored context sentence.
+            let candidates = articles.paraCandidates(for: query)
+            guard candidates.count != 0,
+                  let candidate = candidates.randomElement()
+            else {
+                return nil
+            }
+            contextText = candidate.text
+            articleId = candidate.articleId
+            paragraphId = candidate.paraId
+        }
+
+        guard let contextText = contextText else {
+            return nil
+        }
+
         return WordPractice(
             practiceType: .contextSelection,
             word: word,
@@ -531,16 +552,16 @@ extension WordPracticeProducer {
             key: query,
             prompt: prompt(for: .contextSelection, withWord: query),
             choices: choices,
-            context: candidate.text.replacingOccurrences(
+            context: contextText.replacingOccurrences(
                 of: query,
                 with: Strings.underscoreToken,
                 options: [.caseInsensitive, .diacriticInsensitive]
             ),
-            articleId: candidate.articleId,
-            paragraphId: candidate.paraId,
+            articleId: articleId,
+            paragraphId: paragraphId,
             direction: .text
         )
-        
+
     }
     
     private func makeAccentSelectionPractice(

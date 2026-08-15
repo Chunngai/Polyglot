@@ -72,8 +72,16 @@ extension WordBank: UICollectionViewDataSource {
             return UICollectionViewCell()
         }
         
-        cell.label.font = itemFont
-        cell.label.text = words[indexPath.row]
+        let word = words[indexPath.row]
+        let attrStr = NSMutableAttributedString(
+            string: word,
+            attributes: [
+                .font: itemFont as Any,
+                .foregroundColor: Colors.normalTextColor
+            ]
+        )
+        GrammarAnnotationHelper.applyAccentBold(to: attrStr)
+        cell.label.attributedText = attrStr
         
         return cell
     }

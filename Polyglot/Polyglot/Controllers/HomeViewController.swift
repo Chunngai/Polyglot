@@ -789,9 +789,7 @@ extension HomeViewController {
             let row = indexPath.row
 
             var isEnabled = true
-            if section == HomeViewController.phraseReviewSection {
-                isEnabled = self.isWordPracticeEnabled
-            } else if section == HomeViewController.shadowingSection && row == 0 {
+            if section == HomeViewController.shadowingSection && row == 0 {
                 isEnabled = self.isPracticeEnabled
             } else if section == HomeViewController.shadowingSection && row == 1 {
                 isEnabled = self.isVideoShadowingPracticeEnabled
@@ -1119,11 +1117,9 @@ extension HomeViewController: UICollectionViewDelegate {
             }
 
         } else if section == HomeViewController.phraseReviewSection {
-            
-            guard isWordPracticeEnabled else {
-                return
-            }
-            
+
+            guard isWordPracticeEnabled else { return }
+
             let vc = PhraseReviewWordSelectionViewController()
             vc.practiceDuration = LangCode.currentLanguage.configs.phraseReviewPracticeDuration
             vc.practiceDelegate = self

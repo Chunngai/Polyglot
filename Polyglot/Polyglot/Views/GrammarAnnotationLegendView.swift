@@ -199,6 +199,30 @@ class GrammarAnnotationLegendView: UIStackView {
 // without needing a legend view (e.g., for button titles).
 enum GrammarAnnotationHelper {
 
+    /// Removes all accent-symbol characters (Token.accentSymbol) from the string
+    /// and bolds the letter immediately preceding each removed symbol.
+    /// Call this BEFORE applying grammar-annotation colours so that position
+    /// offsets in the annotations still match the cleaned string.
+    static func applyAccentBold(to attrStr: NSMutableAttributedString, fontSize: CGFloat = Sizes.smallFontSize) {
+        let accentSymbol = String(Token.accentSymbol)
+        while true {
+            let fullRange = NSRange(location: 0, length: attrStr.length)
+            let symbolLoc = (attrStr.string as NSString).range(of: accentSymbol, options: [], range: fullRange).location
+            guard symbolLoc != NSNotFound else { break }
+            attrStr.deleteCharacters(in: NSRange(location: symbolLoc, length: 1))
+            if symbolLoc > 0 {
+                let charLoc = symbolLoc - 1
+                let existingFont = attrStr.attribute(.font, at: charLoc, effectiveRange: nil) as? UIFont
+                let size = existingFont?.pointSize ?? fontSize
+                attrStr.addAttribute(
+                    .font,
+                    value: UIFont.systemFont(ofSize: size, weight: .bold),
+                    range: NSRange(location: charLoc, length: 1)
+                )
+            }
+        }
+    }
+
     static func applyVerbAspects(_ annotations: [VerbAspectAnnotation], to attrStr: NSMutableAttributedString) {
         guard LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices else { return }
         for annotation in annotations {

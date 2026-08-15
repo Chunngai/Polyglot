@@ -58,6 +58,7 @@
 		C6A22FEE2C7118A200484B59 /* BaiduTranslator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A22FED2C7118A200484B59 /* BaiduTranslator.swift */; };
 		C6A22FF22C712DBC00484B59 /* LangCodeExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A22FF12C712DBC00484B59 /* LangCodeExtensions.swift */; };
 		C6A406A02DCB5CF400C27F63 /* HomeScreenTopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A4069F2DCB5CF400C27F63 /* HomeScreenTopView.swift */; };
+		C6A42049302E1CE900DCC540 /* ReinforcementWords.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A42046302E1CE900DCC540 /* ReinforcementWords.swift */; };
 		C6A666F72B75EC03002B4DEE /* US2UKSpellingMapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A666F62B75EC03002B4DEE /* US2UKSpellingMapping.swift */; };
 		C6AA00022FFA865E0088DBE9 /* PracticeDurationsSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6AA00012FFA865E0088DBE9 /* PracticeDurationsSettingsViewController.swift */; };
 		C6AA00042FFA865E0088DBE9 /* PracticeRepetitionsSettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6AA00032FFA865E0088DBE9 /* PracticeRepetitionsSettingsViewController.swift */; };
@@ -279,6 +280,7 @@
 		C6A22FED2C7118A200484B59 /* BaiduTranslator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaiduTranslator.swift; sourceTree = "<group>"; };
 		C6A22FF12C712DBC00484B59 /* LangCodeExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LangCodeExtensions.swift; sourceTree = "<group>"; };
 		C6A4069F2DCB5CF400C27F63 /* HomeScreenTopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreenTopView.swift; sourceTree = "<group>"; };
+		C6A42046302E1CE900DCC540 /* ReinforcementWords.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReinforcementWords.swift; sourceTree = "<group>"; };
 		C6A666F62B75EC03002B4DEE /* US2UKSpellingMapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = US2UKSpellingMapping.swift; sourceTree = "<group>"; };
 		C6AA00012FFA865E0088DBE9 /* PracticeDurationsSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeDurationsSettingsViewController.swift; sourceTree = "<group>"; };
 		C6AA00032FFA865E0088DBE9 /* PracticeRepetitionsSettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeRepetitionsSettingsViewController.swift; sourceTree = "<group>"; };
@@ -545,6 +547,7 @@
 				C606260E2B8076A000429BAF /* TextGranularity.swift */,
 				C60626102B8076AF00429BAF /* TextSource.swift */,
 				A1EB00002B8076AF00429BAF /* EbbinghausSchedule.swift */,
+				C6A42046302E1CE900DCC540 /* ReinforcementWords.swift */,
 				FF69103229956F65003A925A /* PracticeProducers */,
 				C69F76612B7D19360006828A /* PracticeItems */,
 			);
@@ -1210,6 +1213,7 @@
 				C6A666F72B75EC03002B4DEE /* US2UKSpellingMapping.swift in Sources */,
 				FF495E8E2958F38800EA7EA9 /* UITableViewExtensions.swift in Sources */,
 				FF4AB0032A9B4C4400908062 /* ContentCreator.swift in Sources */,
+				C6A42049302E1CE900DCC540 /* ReinforcementWords.swift in Sources */,
 				C6057B322FFA865E0088DBE9 /* NounCaseSettingsViewController.swift in Sources */,
 				C6AA00022FFA865E0088DBE9 /* PracticeDurationsSettingsViewController.swift in Sources */,
 				C6AA00042FFA865E0088DBE9 /* PracticeRepetitionsSettingsViewController.swift in Sources */,

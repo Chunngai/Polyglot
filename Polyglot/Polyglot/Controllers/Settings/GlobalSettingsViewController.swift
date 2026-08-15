@@ -19,15 +19,11 @@ struct GlobalConfigs: Codable {
     var ChatGPTImageAPIKey: String?
     var ChatGPTImageModel: String?
 
-    var baiduTranslateAPPID: String?
-    var baiduTranslateAPIKey: String?
-
     var backupEmailAddr: String?
 
     init(
         ChatGPTAPIURL: String? = nil, ChatGPTAPIKey: String? = nil, ChatGPTModel: String? = nil,
         ChatGPTImageAPIURL: String? = nil, ChatGPTImageAPIKey: String? = nil, ChatGPTImageModel: String? = nil,
-        baiduTranslateAPPID: String? = nil, baiduTranslateAPIKey: String? = nil,
         backupEmailAddr: String? = nil
     ) {
         self.ChatGPTAPIURL = ChatGPTAPIURL
@@ -36,8 +32,6 @@ struct GlobalConfigs: Codable {
         self.ChatGPTImageAPIURL = ChatGPTImageAPIURL
         self.ChatGPTImageAPIKey = ChatGPTImageAPIKey
         self.ChatGPTImageModel = ChatGPTImageModel
-        self.baiduTranslateAPPID = baiduTranslateAPPID
-        self.baiduTranslateAPIKey = baiduTranslateAPIKey
         self.backupEmailAddr = backupEmailAddr
     }
 
@@ -53,9 +47,6 @@ struct GlobalConfigs: Codable {
         case ChatGPTImageAPIKey
         case ChatGPTImageModel
 
-        case baiduTranslateAPPID
-        case baiduTranslateAPIKey
-
         case backupEmailAddr
     }
 
@@ -68,8 +59,6 @@ struct GlobalConfigs: Codable {
         try container.encode(ChatGPTImageAPIURL, forKey: .ChatGPTImageAPIURL)
         try container.encode(ChatGPTImageAPIKey, forKey: .ChatGPTImageAPIKey)
         try container.encode(ChatGPTImageModel, forKey: .ChatGPTImageModel)
-        try container.encode(baiduTranslateAPPID, forKey: .baiduTranslateAPPID)
-        try container.encode(baiduTranslateAPIKey, forKey: .baiduTranslateAPIKey)
         try container.encode(backupEmailAddr, forKey: .backupEmailAddr)
     }
 
@@ -82,8 +71,6 @@ struct GlobalConfigs: Codable {
         do { ChatGPTImageAPIURL = try values.decode(String?.self, forKey: .ChatGPTImageAPIURL) } catch { ChatGPTImageAPIURL = nil }
         do { ChatGPTImageAPIKey = try values.decode(String?.self, forKey: .ChatGPTImageAPIKey) } catch { ChatGPTImageAPIKey = nil }
         do { ChatGPTImageModel = try values.decode(String?.self, forKey: .ChatGPTImageModel) } catch { ChatGPTImageModel = nil }
-        do { baiduTranslateAPPID = try values.decode(String?.self, forKey: .baiduTranslateAPPID) } catch { baiduTranslateAPPID = nil }
-        do { baiduTranslateAPIKey = try values.decode(String?.self, forKey: .baiduTranslateAPIKey) } catch { baiduTranslateAPIKey = nil }
         backupEmailAddr = try values.decode(String?.self, forKey: .backupEmailAddr)
     }
     
@@ -144,9 +131,7 @@ class GlobalSettingsViewController: SettingsViewController {
             ChatGPTImageAPIURL: (cells[1][0] as! SettingsInputCell).textField.text?.strip(),
             ChatGPTImageAPIKey: (cells[1][1] as! SettingsInputCell).textField.text?.strip(),
             ChatGPTImageModel: (cells[1][2] as! SettingsInputCell).textField.text?.strip(),
-            baiduTranslateAPPID: (cells[2][0] as! SettingsInputCell).textField.text?.strip(),
-            baiduTranslateAPIKey: (cells[2][1] as! SettingsInputCell).textField.text?.strip(),
-            backupEmailAddr: (cells[3][0] as! SettingsInputCell).textField.text?.strip()
+            backupEmailAddr: (cells[2][0] as! SettingsInputCell).textField.text?.strip()
         )
     }
     
@@ -159,7 +144,6 @@ class GlobalSettingsViewController: SettingsViewController {
         headers = [
             "Text Generation",
             "Image Generation",
-            "Machine Translation",
             "Data Backup"
         ]
         cells = [
@@ -210,22 +194,6 @@ class GlobalSettingsViewController: SettingsViewController {
                     cell.textField.text = globalConfigs.ChatGPTImageModel
                     return cell
                 }(),
-            ],
-            [
-                {
-                    let cell = SettingsInputCell(style: .default, reuseIdentifier: "")
-                    cell.imageView?.image = UIImage(systemName: "app")!
-                    cell.textField.placeholder = "Baidu translate APP ID"
-                    cell.textField.text = globalConfigs.baiduTranslateAPPID
-                    return cell
-                }(),
-                {
-                    let cell = SettingsInputCell(style: .default, reuseIdentifier: "")
-                    cell.imageView?.image = UIImage(systemName: "key")!
-                    cell.textField.placeholder = "Baidu translate API key"
-                    cell.textField.text = globalConfigs.baiduTranslateAPIKey
-                    return cell
-                }()
             ],
             // Data backup.
             [

@@ -677,6 +677,8 @@ extension Strings {
     static func chatPlaceholder(for lang: LangCode) -> String {
         return _chatPlaceholderTokens[lang] ?? "Ask a question…"
     }
+
+    static let chatErrorMessage = "Failed to get a response. Tap ↻ to retry."
     
     private static let _searchMenuItemStrings: [LangCode : String] = [
         LangCode.en : "Search",

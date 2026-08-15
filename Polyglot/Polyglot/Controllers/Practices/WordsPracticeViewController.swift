@@ -17,6 +17,22 @@ class WordsPracticeViewController: PracticeViewController {
 
     private let grammarAnnotationLegendView: GrammarAnnotationLegendView = GrammarAnnotationLegendView()
 
+    // Progress bar shown in the nav title when launched as phrase review.
+    // Styled to match TimingBar: same height, full-width, rounded, same colors.
+    private lazy var phraseReviewProgressBar: UIProgressView = {
+        let bar = UIProgressView(progressViewStyle: .bar)
+        bar.trackTintColor = Colors.timingBarTintColor
+        bar.progressTintColor = Colors.lightBlue
+        bar.progress = 0
+        bar.layer.masksToBounds = true
+        bar.layer.cornerRadius = Sizes.smallCornerRadius
+        // Match TimingBar's width and height constraints.
+        bar.translatesAutoresizingMaskIntoConstraints = false
+        bar.widthAnchor.constraint(equalToConstant: 280 / 414 * UIScreen.main.bounds.width).isActive = true
+        bar.heightAnchor.constraint(equalToConstant: 20).isActive = true
+        return bar
+    }()
+
     private lazy var practiceProducer: WordPracticeProducer = {
         let producer = WordPracticeProducer(words: words, articles: articles)
         if let keys = selectedWordKeys {
@@ -33,9 +49,31 @@ class WordsPracticeViewController: PracticeViewController {
                     selected.append(practice)
                 }
             }
-            producer.practiceList = selected
+            // Deduplicate: for each (word, practiceType) pair keep only up to
+            // wordPracticeRepetition entries. This prevents inflated counts when
+            // the cache contains multiple historical periods for the same word.
+            let maxPerType = LangCode.currentLanguage.configs.wordPracticeRepetition
+            var seenCounts: [String: Int] = [:]
+            var deduped: [BasePractice] = []
+            for practice in selected {
+                if let wp = practice as? WordPractice {
+                    let dedupeKey = "\(WordPracticeProducer.normalizedKey(from: wp.word))|\(wp.practiceType.rawValue)"
+                    let count = seenCounts[dedupeKey, default: 0]
+                    if count < maxPerType {
+                        seenCounts[dedupeKey] = count + 1
+                        deduped.append(wp)
+                    }
+                } else {
+                    deduped.append(practice)
+                }
+            }
+
+            producer.practiceList = deduped
             producer.practiceList.shuffle()
             producer.excludedPractices = excluded
+            // Write the capped list back to disk so the phrase review list
+            // reflects the trimmed count after returning from practice.
+            producer.cache()
         }
         producer.practiceList.sort { a, b in
             guard let wa = a as? WordPractice, let wb = b as? WordPractice else { return false }
@@ -143,6 +181,14 @@ class WordsPracticeViewController: PracticeViewController {
 
         mainView.addSubview(grammarAnnotationLegendView)
         grammarAnnotationLegendView.isHidden = true
+
+        // When launched as phrase review (selectedWordKeys is set), replace the
+        // timing bar in the nav title with a UIProgressView.
+        if selectedWordKeys != nil {
+            timingBar.pause()
+            timingBar.isHidden = true
+            navigationItem.titleView = phraseReviewProgressBar
+        }
     }
 
     override func updateLayouts() {
@@ -255,13 +301,24 @@ class WordsPracticeViewController: PracticeViewController {
 //            for: currentPractice.query
 //        )
         grammarAnnotationLegendView.reset()
-        if let rangeOfPracticeWord = currentPractice.prompt.range(
-            of: currentPractice.query,
+
+        // Strip accent symbols and bold the preceding letter BEFORE applying
+        // grammar annotations, so annotation positions (computed on accent-free
+        // text) remain correct after the removal of the ' characters.
+        GrammarAnnotationHelper.applyAccentBold(to: promptAttributes)
+
+        // Strip accent symbols from the query key too so we can locate it in the
+        // now-stripped prompt string.
+        let strippedQuery = currentPractice.query
+            .replacingOccurrences(of: String(Token.accentSymbol), with: "")
+
+        if let rangeOfPracticeWord = promptAttributes.string.range(
+            of: strippedQuery,
             options: .backwards
         ) {
             let nsRangeOfPracticeWord = NSRange(
                 rangeOfPracticeWord,
-                in: currentPractice.prompt
+                in: promptAttributes.string
             )
             promptAttributes.addAttributes(
                 Attributes.practiceWordAttributes,
@@ -290,9 +347,16 @@ class WordsPracticeViewController: PracticeViewController {
                 grammarAnnotationLegendView.markShortAdjectives(in: promptAttributes, at: offsetAnnotations)
             }
         }
+        // Always keep the legend hidden (item 1(7): legend is never shown).
+        grammarAnnotationLegendView.isHidden = true
         promptLabel.attributedText = promptAttributes
         let completed = initialPracticeCount - practiceProducer.practiceList.count
         progressLabel.text = "\(completed)/\(initialPracticeCount)"
+        // Update phrase review progress bar.
+        if selectedWordKeys != nil && initialPracticeCount > 0 {
+            let progress = Float(completed) / Float(initialPracticeCount)
+            phraseReviewProgressBar.setProgress(progress, animated: true)
+        }
         
         // Remove the old practice view.
         if practiceView != nil {
@@ -359,9 +423,30 @@ extension WordsPracticeViewController: WordPracticeViewDelegate {
 }
 
 extension WordsPracticeViewController {
-    
+
     // MARK: - Selectors
-    
+
+    @objc override func toggleButtonTapped() {
+        guard selectedWordKeys != nil else {
+            // Normal practice mode: let the parent handle timing bar toggle.
+            super.toggleButtonTapped()
+            return
+        }
+        // Phrase review mode: no timing bar — drive mask/interaction directly.
+        if toggleButton.image == Icons.pauseIcon {
+            // Pause: show the mask and block interaction.
+            maskView.isHidden = false
+            mainView.isUserInteractionEnabled = false
+            view.bringSubviewToFront(maskView)
+            toggleButton.image = Icons.startIcon
+        } else {
+            // Resume: hide the mask and restore interaction.
+            maskView.isHidden = true
+            mainView.isUserInteractionEnabled = true
+            toggleButton.image = Icons.pauseIcon
+        }
+    }
+
     @objc override func doneButtonTapped() {
         super.doneButtonTapped()
         
@@ -380,14 +465,36 @@ extension WordsPracticeViewController {
         }
     }
     
-    @objc override func nextButtonTapped() {   
-        
+    @objc override func nextButtonTapped() {
+
         guard !shouldFinishPracticing else {
             practiceMetaData["recentWordPracticeDate"] = Date().repr(of: Date.defaultDateAndTimeFormat)
             self.stopPracticing()
             return
         }
-        
+
+        // When in phrase-review mode, pre-generate next-round practices in the background
+        // for the word we are about to finish.
+        if selectedWordKeys != nil,
+           let currentWordPractice = practiceProducer.currentPractice as? WordPractice {
+            let wordForNextRound = currentWordPractice.word
+            let lang = LangCode.currentLanguage
+            DispatchQueue.global(qos: .background).async { [weak self] in
+                guard let self = self else { return }
+                let schedule = EbbinghausSchedule.load(for: lang)
+                let key = WordPracticeProducer.normalizedKey(from: wordForNextRound)
+                guard let entry = schedule[key] else { return }
+                let nextPeriod = entry.periodIndex + 1
+                guard nextPeriod < EbbinghausSchedule.practiceGroups.count else { return }
+                // Only pre-generate if no cached practices for this word in the next period exist yet.
+                let cached = WordPracticeProducer.loadCachedPractices(for: lang)
+                let hasNextRound = cached.contains { WordPracticeProducer.normalizedKey(from: $0.word) == key && ($0.periodIndex ?? 0) == nextPeriod }
+                guard !hasNextRound else { return }
+                let producer = WordPracticeProducer(words: self.words, articles: self.articles)
+                producer.makeAndCachePractices(for: [wordForNextRound], skipDuplicates: false)
+            }
+        }
+
         super.nextButtonTapped()
         practiceProducer.next()
         if practiceProducer.practiceList.isEmpty {
@@ -395,7 +502,7 @@ extension WordsPracticeViewController {
             stopPracticing()
             return
         }
-        
+
         updatePracticeView()
     }
 }

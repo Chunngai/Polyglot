@@ -69,7 +69,7 @@ class PracticeViewController: UIViewController {
         let label = UILabel()
         label.textAlignment = .right
         label.font = UIFont.systemFont(ofSize: Sizes.smallFontSize)
-        label.textColor = Colors.weakTextColor
+        label.textColor = Colors.inactiveTextColor
         return label
     }()
     
@@ -208,7 +208,7 @@ class PracticeViewController: UIViewController {
 
         progressLabel.snp.makeConstraints { (make) in
             make.leading.equalTo(promptLabel.snp.leading)
-            make.bottom.equalTo(doneButton.snp.bottom).offset(-8)
+            make.bottom.equalTo(doneButton.snp.bottom).offset(-6)
         }
         
         doneButton.snp.makeConstraints { (make) in

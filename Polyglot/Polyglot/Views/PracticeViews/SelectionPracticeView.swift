@@ -151,6 +151,8 @@ class SelectionPracticeView: WordPracticeView {
                 string: textViewText,
                 attributes: Attributes.defaultLongTextAttributes(fontSize: Sizes.smallFontSize)
             )
+            // Apply accent bold FIRST so grammar annotation positions are correct.
+            GrammarAnnotationHelper.applyAccentBold(to: attrStr, fontSize: Sizes.smallFontSize)
             GrammarAnnotationHelper.applyVerbAspects(contextVerbAspectAnnotations, to: attrStr)
             GrammarAnnotationHelper.applyNounCases(contextNounCaseAnnotations, to: attrStr)
             textView.attributedText = attrStr
