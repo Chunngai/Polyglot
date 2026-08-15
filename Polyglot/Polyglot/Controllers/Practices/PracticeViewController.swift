@@ -206,9 +206,11 @@ class PracticeViewController: UIViewController {
             make.centerX.equalToSuperview()
         }
 
-        progressLabel.snp.makeConstraints { (make) in
-            make.leading.equalTo(promptLabel.snp.leading)
-            make.bottom.equalTo(doneButton.snp.bottom).offset(-6)
+        if progressLabel.superview != nil {
+            progressLabel.snp.makeConstraints { (make) in
+                make.leading.equalTo(promptLabel.snp.leading)
+                make.bottom.equalTo(doneButton.snp.bottom).offset(-6)
+            }
         }
         
         doneButton.snp.makeConstraints { (make) in

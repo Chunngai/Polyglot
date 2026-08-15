@@ -87,11 +87,7 @@ extension WordPracticeProducer {
         }
 
         let originalWord = practice.word
-        
-        practice.word = practice.word.replacingOccurrences(
-            of: originalWord,
-            with: accentedWord
-        )
+
         practice.query = practice.query.replacingOccurrences(
             of: originalWord,
             with: accentedWord
@@ -114,15 +110,22 @@ extension WordPracticeProducer {
         }
         
         if practice.choices != nil {
-            for (i, choice) in practice.choices!.enumerated() {
-                if choice == originalWord {
-                    practice.choices![i] = accentedWord
+            // Only replace choices that are in the target language (not meaning/translation text).
+            let choicesAreTargetLanguage = practice.direction != .textToMeaning
+                || (practice.practiceType != .meaningSelection && practice.practiceType != .meaningFilling)
+            if choicesAreTargetLanguage {
+                for (i, choice) in practice.choices!.enumerated() {
+                    if choice == originalWord {
+                        practice.choices![i] = accentedWord
+                    }
                 }
             }
         }
         
         if practice.reorderingWordList != nil {
-            practice.reorderingWordList = practice.key.split(with: Strings.wordSeparator)
+            practice.reorderingWordList = practice.key
+                .split(with: Strings.wordSeparator)
+                .map { $0.replacingOccurrences(of: String(Token.accentSymbol), with: "") }
         }
             
     }

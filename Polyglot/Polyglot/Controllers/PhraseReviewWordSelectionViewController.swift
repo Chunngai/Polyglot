@@ -166,7 +166,7 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
     private var sections: [(periodIndex: Int, entries: [WordSelectionEntry])] = []
     private var selectedKeys: Set<String> = []
 
-    private static let defaultSelectionCount = 6
+    private var defaultSelectionCount: Int { LangCode.currentLanguage.configs.phraseReviewDefaultSelectionCount }
     private static let headerReuseId = "phraseReviewHeader"
     private static let cellReuseId = "cell"
 
@@ -175,7 +175,6 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        title = Strings.phraseReview
         tableView.register(WordSelectionCell.self, forCellReuseIdentifier: Self.cellReuseId)
         tableView.register(PhraseReviewSectionHeaderView.self, forHeaderFooterViewReuseIdentifier: Self.headerReuseId)
 
@@ -221,6 +220,12 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
     private func loadEntries() {
         let lang = LangCode.currentLanguage
         var schedule = EbbinghausSchedule.load(for: lang)
+        // Remove corrupted keys that contain spaces (produced by old addAccents bug).
+        let corruptedKeys = schedule.keys.filter { $0.contains(" ") }
+        if !corruptedKeys.isEmpty {
+            for k in corruptedKeys { schedule.removeValue(forKey: k) }
+            EbbinghausSchedule.save(&schedule, for: lang)
+        }
         let cachedPractices = WordPracticeProducer.loadCachedPractices(for: lang)
         let reinforcementStore = ReinforcementWords.load(for: lang)
         let enabledTypes = lang.configs.phraseReviewEnabledPracticeTypes
@@ -250,8 +255,7 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
             return result.map { (key: $0.key, meaning: meaningByKey[$0.key] ?? "") }
         }()
 
-        var allKeys = Set(schedule.keys)
-        for e in cachedEntries { allKeys.insert(e.key) }
+        let allKeys = Set(schedule.keys)
 
         // Pre-build a lookup: [normalizedKey: [periodIndex: [type: [practice]]]]
         // to avoid O(keys × practices) filter loops below.
@@ -316,10 +320,17 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
         }
         EbbinghausSchedule.save(&schedule, for: lang)
 
-        // Group by periodIndex, sort sections ascending, entries alphabetically.
+        // Group by periodIndex, sort sections ascending.
+        // Within each section: ready-to-practice entries first, then not-ready;
+        // within each group sort by nextReviewDate ascending (earlier = created earlier).
         let grouped = Dictionary(grouping: allEntries, by: { $0.periodIndex })
         sections = grouped.keys.sorted().map { period in
-            let sorted = grouped[period]!.sorted { $0.key < $1.key }
+            let sorted = grouped[period]!.sorted { a, b in
+                if a.isReadyToPractice != b.isReadyToPractice {
+                    return a.isReadyToPractice
+                }
+                return a.nextReviewDate < b.nextReviewDate
+            }
             return (periodIndex: period, entries: sorted)
         }
 
@@ -331,7 +342,7 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
             var selected = 0
             for section in sections {
                 for entry in section.entries where entry.isReadyToPractice {
-                    if selected < Self.defaultSelectionCount {
+                    if selected < defaultSelectionCount {
                         selectedKeys.insert(entry.key)
                         selected += 1
                     }
@@ -444,6 +455,10 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
 
     private func updateStartButton() {
         navigationItem.rightBarButtonItem?.isEnabled = !selectedKeys.isEmpty
+        let count = selectedKeys.count
+        title = count > 0
+            ? "\(Strings.phraseReview) (\(count))"
+            : Strings.phraseReview
     }
 
     // MARK: - Table view data source

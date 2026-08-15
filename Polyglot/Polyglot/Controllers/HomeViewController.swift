@@ -141,9 +141,10 @@ class HomeViewController: UIViewController {
             image: Images.wordPracticeImage,
             text: Strings.phraseReview,
             secondaryText: {
-                let total = ebbinghausSchedule.count
+                let active = ebbinghausSchedule.values.filter { !EbbinghausSchedule.isCompleted($0) }
+                let total = active.count
                 if total == 0 { return nil }
-                let available = ebbinghausSchedule.values.filter { EbbinghausSchedule.isAvailable($0) }.count
+                let available = active.filter { EbbinghausSchedule.isAvailable($0) }.count
                 let s = Strings.nPhrasesToReview.replacingOccurrences(of: "#", with: String(available))
                 return "\(s) / \(total)"
             }()

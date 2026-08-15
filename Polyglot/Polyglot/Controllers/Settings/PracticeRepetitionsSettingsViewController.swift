@@ -26,14 +26,14 @@ class PracticeRepetitionsSettingsViewController: SettingsViewController {
             word: Int((cells[0][0] as! SettingsSlidingCell).slider.value),
             listening: Int((cells[0][1] as! SettingsSlidingCell).slider.value),
             speaking: Int((cells[0][2] as! SettingsSlidingCell).slider.value),
-            phraseReviewDefaultSelectionCount: Int((cells[0][3] as! SettingsSlidingCell).slider.value)
+            phraseReviewDefaultSelectionCount: Int((cells[1][0] as! SettingsSlidingCell).slider.value)
         )
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        headers = [nil]
+        headers = ["Practice Repetitions", "Phrase Review"]
         cells = [
             [
                 {
@@ -44,7 +44,7 @@ class PracticeRepetitionsSettingsViewController: SettingsViewController {
                     cell.slider.maximumValue = 5
                     cell.slider.value = Float(LangCode.currentLanguage.configs.wordPracticeRepetition)
                     cell.formatingFunc = { (sliderVal: Float) -> String in
-                        return "\(String(Int(sliderVal))) times"  // TODO: - Update localization
+                        return "\(String(Int(sliderVal))) times"
                     }
                     cell.label.text = cell.formatingFunc(cell.slider.value)
                     return cell
@@ -57,7 +57,7 @@ class PracticeRepetitionsSettingsViewController: SettingsViewController {
                     cell.slider.maximumValue = 5
                     cell.slider.value = Float(LangCode.currentLanguage.configs.listeningPracticeRepetition)
                     cell.formatingFunc = { (sliderVal: Float) -> String in
-                        return "\(String(Int(sliderVal))) times"  // TODO: - Update localization
+                        return "\(String(Int(sliderVal))) times"
                     }
                     cell.label.text = cell.formatingFunc(cell.slider.value)
                     return cell
@@ -70,11 +70,13 @@ class PracticeRepetitionsSettingsViewController: SettingsViewController {
                     cell.slider.maximumValue = 5
                     cell.slider.value = Float(LangCode.currentLanguage.configs.speakingPracticeRepetition)
                     cell.formatingFunc = { (sliderVal: Float) -> String in
-                        return "\(String(Int(sliderVal))) times"  // TODO: - Update localization
+                        return "\(String(Int(sliderVal))) times"
                     }
                     cell.label.text = cell.formatingFunc(cell.slider.value)
                     return cell
-                }(),
+                }()
+            ],
+            [
                 {
                     let cell = SettingsSlidingCell(style: .default, reuseIdentifier: "")
                     cell.imageView?.image = UIImage(systemName: "checklist")
@@ -83,7 +85,7 @@ class PracticeRepetitionsSettingsViewController: SettingsViewController {
                     cell.slider.maximumValue = 20
                     cell.slider.value = Float(LangCode.currentLanguage.configs.phraseReviewDefaultSelectionCount)
                     cell.formatingFunc = { (sliderVal: Float) -> String in
-                        return "\(String(Int(sliderVal))) words"  // TODO: - Update localization
+                        return "\(String(Int(sliderVal))) words"
                     }
                     cell.label.text = cell.formatingFunc(cell.slider.value)
                     return cell
@@ -94,7 +96,7 @@ class PracticeRepetitionsSettingsViewController: SettingsViewController {
 
     override func updateViews() {
         super.updateViews()
-        navigationItem.title = "Practice Repetitions"  // TODO: - Update localization
+        navigationItem.title = "Number Settings"
     }
 
 }

@@ -185,7 +185,7 @@ class LanguageSettingsViewController: SettingsViewController {
                     let cell = UITableViewCell(style: .value1, reuseIdentifier: "")
                     cell.selectionStyle = .none
                     cell.imageView?.image = UIImage(systemName: "repeat")
-                    cell.textLabel?.text = "Practice Repetitions"  // TODO: - Update localization
+                    cell.textLabel?.text = "Number Settings"  // TODO: - Update localization
                     cell.textLabel?.font = UIFont.systemFont(ofSize: Sizes.mediumFontSize)
                     cell.textLabel?.textColor = Colors.normalTextColor
                     cell.accessoryType = .disclosureIndicator

@@ -183,11 +183,16 @@ class WordsPracticeViewController: PracticeViewController {
         grammarAnnotationLegendView.isHidden = true
 
         // When launched as phrase review (selectedWordKeys is set), replace the
-        // timing bar in the nav title with a UIProgressView.
+        // timing bar in the nav title with a UIProgressView, and move the
+        // progress label ("3/10") into the nav bar right side.
         if selectedWordKeys != nil {
             timingBar.pause()
             timingBar.isHidden = true
             navigationItem.titleView = phraseReviewProgressBar
+
+            progressLabel.removeFromSuperview()
+            progressLabel.textColor = Colors.weakTextColor
+            navigationItem.rightBarButtonItem = UIBarButtonItem(customView: progressLabel)
         }
     }
 
