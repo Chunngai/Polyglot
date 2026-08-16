@@ -40,6 +40,11 @@ class ThreeButtonSelectionStack: UIStackView {
     }
     private var storedVerbAspectAnnotations: [[VerbAspectAnnotation]] = []
     private var storedNounCaseAnnotations: [[NounCaseAnnotation]] = []
+    // Whether the stored texts are target-language text (and therefore may legitimately
+    // contain Token.accentSymbol ("'") as an accent mark) as opposed to meaning/translation
+    // text, where a "'" is just regular punctuation (e.g., "don't") and must not be stripped
+    // or bolded by GrammarAnnotationHelper.applyAccentBold.
+    private var storedShouldApplyAccentBold: Bool = true
         
     // MARK: - Controllers
     
@@ -130,10 +135,11 @@ extension ThreeButtonSelectionStack {
 
 extension ThreeButtonSelectionStack {
 
-    func set(texts: [String], verbAspectAnnotations: [[VerbAspectAnnotation]] = [], nounCaseAnnotations: [[NounCaseAnnotation]] = []) {
+    func set(texts: [String], verbAspectAnnotations: [[VerbAspectAnnotation]] = [], nounCaseAnnotations: [[NounCaseAnnotation]] = [], isTargetLanguageText: Bool = true) {
         storedTexts = texts
         storedVerbAspectAnnotations = verbAspectAnnotations
         storedNounCaseAnnotations = nounCaseAnnotations
+        storedShouldApplyAccentBold = isTargetLanguageText
 
         for i in 0..<buttons.count {
             let attrStr = NSMutableAttributedString(
@@ -141,7 +147,11 @@ extension ThreeButtonSelectionStack {
                 attributes: Attributes.inactiveSelectionButtonTextAttributes
             )
             // Apply accent bold FIRST so grammar annotation positions are correct.
-            GrammarAnnotationHelper.applyAccentBold(to: attrStr)
+            // Only for target-language text: meaning/translation text may contain a
+            // literal "'" (e.g., "don't") that is not an accent mark.
+            if isTargetLanguageText {
+                GrammarAnnotationHelper.applyAccentBold(to: attrStr)
+            }
             if !verbAspectAnnotations.isEmpty && i < verbAspectAnnotations.count {
                 GrammarAnnotationHelper.applyVerbAspects(verbAspectAnnotations[i], to: attrStr)
             }
@@ -172,7 +182,10 @@ extension ThreeButtonSelectionStack {
                 : button.currentAttributedTitle!.string
             let attrStr = NSMutableAttributedString(string: rawText, attributes: textAttributes)
             // Apply accent bold FIRST so grammar annotation positions are correct.
-            GrammarAnnotationHelper.applyAccentBold(to: attrStr)
+            // Only for target-language text (see `set(texts:...)`'s isTargetLanguageText).
+            if storedShouldApplyAccentBold {
+                GrammarAnnotationHelper.applyAccentBold(to: attrStr)
+            }
             if buttonIndex < storedVerbAspectAnnotations.count {
                 GrammarAnnotationHelper.applyVerbAspects(storedVerbAspectAnnotations[buttonIndex], to: attrStr)
             }

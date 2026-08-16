@@ -227,7 +227,8 @@ class WordsPracticeViewController: PracticeViewController {
                     practiceView.updateValues(
                         selectionTexts: currentPractice.choices!,
                         verbAspectAnnotations: currentPractice.choiceVerbAspectAnnotations,
-                        nounCaseAnnotations: currentPractice.choiceNounCaseAnnotations
+                        nounCaseAnnotations: currentPractice.choiceNounCaseAnnotations,
+                        isTargetLanguageText: currentPractice.choicesAreTargetLanguage
                     )
                     practiceView.delegate = self
                     return practiceView
@@ -247,7 +248,8 @@ class WordsPracticeViewController: PracticeViewController {
                         verbAspectAnnotations: currentPractice.choiceVerbAspectAnnotations,
                         nounCaseAnnotations: currentPractice.choiceNounCaseAnnotations,
                         contextVerbAspectAnnotations: currentPractice.contextVerbAspectAnnotations,
-                        contextNounCaseAnnotations: currentPractice.contextNounCaseAnnotations
+                        contextNounCaseAnnotations: currentPractice.contextNounCaseAnnotations,
+                        isTargetLanguageText: currentPractice.choicesAreTargetLanguage
                     )
                     practiceView.delegate = self
                     return practiceView
@@ -255,7 +257,10 @@ class WordsPracticeViewController: PracticeViewController {
             case .accentSelection:
                 return {
                     let practiceView = SelectionPracticeView()
-                    practiceView.updateValues(selectionTexts: currentPractice.choices!)
+                    practiceView.updateValues(
+                        selectionTexts: currentPractice.choices!,
+                        isTargetLanguageText: currentPractice.choicesAreTargetLanguage
+                    )
                     practiceView.delegate = self
                     return practiceView
                 }()
@@ -286,7 +291,8 @@ class WordsPracticeViewController: PracticeViewController {
                         selectionTexts: currentPractice.choices!,
                         imageUrl: currentPractice.imageUrl!,
                         verbAspectAnnotations: currentPractice.choiceVerbAspectAnnotations,
-                        nounCaseAnnotations: currentPractice.choiceNounCaseAnnotations
+                        nounCaseAnnotations: currentPractice.choiceNounCaseAnnotations,
+                        isTargetLanguageText: currentPractice.choicesAreTargetLanguage
                     )
                     practiceView.delegate = self
                     return practiceView

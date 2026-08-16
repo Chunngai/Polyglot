@@ -39,6 +39,10 @@ class TranslationPracticeViewController: TextMeaningPracticeViewController {
 
     override func updateLayouts() {
         super.updateLayouts()
+        progressLabel.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.centerY.equalTo(doneButton)
+        }
         loadingIndicator.snp.makeConstraints { make in
             make.center.equalToSuperview()
         }

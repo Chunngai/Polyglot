@@ -54,6 +54,7 @@ class TranslationPracticeView: TextMeaningPracticeView {
         lowerString = text
         if isTextMachineTranslated {
             upperIcon = translatorIcon
+            lowerIcon = nil
         }
         if textSource == .chatGpt {
             lowerIcon = Icons.chatgptIcon

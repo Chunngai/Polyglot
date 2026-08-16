@@ -140,9 +140,9 @@ class SelectionPracticeView: WordPracticeView {
         }
     }
     
-    func updateValues(selectionTexts: [String], textViewText: String? = nil, verbAspectAnnotations: [[VerbAspectAnnotation]] = [], nounCaseAnnotations: [[NounCaseAnnotation]] = [], contextVerbAspectAnnotations: [VerbAspectAnnotation] = [], contextNounCaseAnnotations: [NounCaseAnnotation] = []) {
+    func updateValues(selectionTexts: [String], textViewText: String? = nil, verbAspectAnnotations: [[VerbAspectAnnotation]] = [], nounCaseAnnotations: [[NounCaseAnnotation]] = [], contextVerbAspectAnnotations: [VerbAspectAnnotation] = [], contextNounCaseAnnotations: [NounCaseAnnotation] = [], isTargetLanguageText: Bool = true) {
 
-        selectionStack.set(texts: selectionTexts, verbAspectAnnotations: verbAspectAnnotations, nounCaseAnnotations: nounCaseAnnotations)
+        selectionStack.set(texts: selectionTexts, verbAspectAnnotations: verbAspectAnnotations, nounCaseAnnotations: nounCaseAnnotations, isTargetLanguageText: isTargetLanguageText)
 
         if let textViewText = textViewText {
             textViewBackgroundView.isHidden = false

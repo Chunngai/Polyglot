@@ -968,3 +968,39 @@ closure #5 in WordPracticeProducer.makeAndCachePractices(for:skipDuplicates:)
 （3）点击对话泡泡下面的复制按钮，不需要全选文本。但是，需要有反馈看出来已复制
 原因：复制动作调用 selectAll 会高亮文本，且无复制成功的视觉反馈
 修复：移除 selectAll，复制后将图标切换为 checkmark 持续 1.5s 再还原
+
+# 新需求 3
+
+1. Phrase review
+（1）列表 cell：长单词导致 cell 右上角单词类型/数量显示不完整
+原因：WordSelectionCell（PhraseReviewWordSelectionViewController.swift 内联类）里 wordLabel 和 countsLabel 水平压缩阻力优先级都是默认的 750，两者相同；两者之间只有一条 required 的 wordLabel.trailing == countsLabel.leading - 8 约束，countsLabel 没有独立 leading 约束，只有"最多不超过 35% 宽度"的上限约束，没有下限保护。单词很长时 wordLabel 挤占空间，countsLabel 被压缩到低于文字所需宽度，加上默认 numberOfLines=1 + .byTruncatingTail 就被截断。同 cell 下面一行 meaningLabel/dateLabel 已经用了"左边 .defaultLow、右边 .required"的正确模式，只是没有同步套用到这一行。
+修复：给 wordLabel 设置 .defaultLow 水平压缩阻力，countsLabel 设置 .required 压缩阻力 + hugging 优先级。
+
+（2）不可练习的单词也需要支持删除
+原因：两层拦截叠加。trailingSwipeActionsConfigurationForRowAt 里 guard entry.isAvailable else { return nil }，把"是否到复习时间"当成能否滑出删除按钮的前提，冷却期内直接不显示任何滑动菜单；cellForRowAt 里 cell.isUserInteractionEnabled = entry.isReadyToPractice，未就绪时整个 cell 手势响应链被禁用，即使放开第一层，滑动手势也会被吞掉。
+修复：删除操作的可用性要和"是否可练习"解耦——去掉 swipe action 里的 isAvailable 判断，isUserInteractionEnabled 的禁用范围收窄为只影响点击进入练习的 tap 逻辑（比如挪到 didSelectRowAt 里判断），不要连累滑动删除手势。
+
+（3）俄语 meaning selection：prompt 是俄语词，selection stack 是英语词（meaning），英语 meaning 的字母被重音标注加粗了
+原因：生成端（WordPracticeProducer.swift 的 addAccents）本身是对的，已经用 choicesAreTargetLanguage 判断只给俄语/日语目标语言词加重音符号，不会碰英语 meaning。真正的 bug 在渲染端：GrammarAnnotationLegendView.swift 的 applyAccentBold 无差别扫描任意字符串里的 '（Token.accentSymbol 就是普通单引号字符），发现就删掉并给前一个字母加粗，不判断语言或文本来源。英语 meaning 里天然存在的 '（如 don't、cat's）被当成重音符号误处理，ThreeButtonSelectionStack.swift 对每个选项文案都无条件调用了这个方法。
+修复：不能靠"文本里有没有 '"判断是否加重音，需要在调用 applyAccentBold 时按语言/文本来源做门槛（只对目标语言原词调用，不对 meaning/英语文本调用），或者给真正的重音标记换一个不会跟自然文本冲突的符号（如非打印 Unicode 占位符）。
+
+（4）列表，有单词但没有可练习单词：能点击进入；无单词：不可点击且 inactive 颜色
+原因：HomeViewController.swift 里 isWordPracticeEnabled 用的是 ebbinghausSchedule.values.contains { isAvailable }，即"是否存在至少一条已到复习时间的记录"，粒度用错了——对应的是"有没有可练习单词"，而需求要的是"有没有单词"。且 createListCellRegistration 里根本没有对 phraseReviewSection 计算 isEnabled，导致这个入口 cell 永远显示可用色，从不置灰。
+修复：跳转前的判断改成 !ebbinghausSchedule.isEmpty（有单词就能点，不管是否可练习），并在 createListCellRegistration 里给 phraseReviewSection 补上 isEnabled = !ebbinghausSchedule.isEmpty 的置灰逻辑。
+
+2. Speaking practice（选择文章进入）
+（1）底部没进度，应该和 reading practice 一样有进度
+原因：进度标签约束只在 PracticeViewController.updateLayouts() 里添加，但 TextMeaningPracticeViewController.updateLayouts() 完全重写且没有调用 super.updateLayouts()，导致基类给共享 progressLabel 加约束的代码永远不会执行。Reading 之所以能显示，是因为它绕开了共享 progressLabel，自己定义了独立的 paragraphProgressLabel 并在子类里补了约束；Speaking（实际类名 TranslationPracticeViewController）虽然设置了 progressLabel.text/isHidden，却从没补约束，frame 始终为 .zero 不可见。此问题只在文章模式（selectedArticle != nil）下会被用户感知，因为非文章模式下该 label 本就 isHidden = true。
+修复：在 TranslationPracticeViewController.updateLayouts() 里参照 ReadingPracticeViewController 的做法，显式给 progressLabel 补上 SnapKit 约束。
+
+（2）对于 speaking，可以点击翻译按钮更换翻译语言的应该是译文，不是原文
+原因：TextMeaningPracticeView 父类默认语义是 upperString = 原文, lowerString = 译文，并在 isTextMachineTranslated 时把 lowerIcon = translatorIcon（对应译文行）。SpeakingPracticeView.swift 里 TranslationPracticeView.init 把 upper/lower 对调为 upperString = 译文, lowerString = 原文，同时新增 upperIcon = translatorIcon，但没有清空父类已经设置好的 lowerIcon = translatorIcon。结果 upperIcon 和 lowerIcon 同时等于 translatorIcon；提交后 displayLower() 命中 lowerIcon == translatorIcon 分支，把翻译追踪区间从"译文（upper）"覆盖成了"原文（lower）"。此 bug 不限文章模式，只要该句译文来自机器翻译（isTextMachineTranslated == true）且非 ChatGPT 来源就会触发。
+修复：在 SpeakingPracticeView.swift 对调 upper/lower 语义后，显式把 lowerIcon 重置为 nil，只保留新设的 upperIcon = translatorIcon。
+
+（3）点击 next 之后会很卡，无法显示下一句的练习（reading practice 不会）
+原因：SpeakingPracticeProducer.next() 在文章模式下，practiceList 为空时会在按钮点击所在的主线程同步调用 make()。make() 的文章分支只为第一段生成 1 条 practice（firstPractice），用 Thread.sleep(0.05) 忙等翻译网络请求，还有 accentSemaphore.wait(timeout: 10s)；其余段落靠后台任务异步补，每段也只产 1 条。由于 speaking 每段仅产出 1 条练习，后台补充节奏经常跟不上用户点击 next 的速度，practiceList 容易被耗尽,从而频繁命中同步阻塞路径。Reading 的 make() 结构类似（同样是"list 空则同步 make()"），但每次为整个段落的所有句子一次性生成 practice（远多于 1 条），practiceList 消耗更慢，很少触发同步兜底路径，所以感觉不卡。
+修复：让 speaking 也像 reading 一样一次性把整段的所有句子都转成 practice（配合下面第 4 点的修复），减少同步兜底触发频率；同时在 next() 检测到 practiceList 即将耗尽 / 已耗尽时，参考 ReadingPracticeViewController.updatePracticeView() 的模式用 loading indicator + DispatchQueue.global 包裹加载，避免在按钮回调线程里同步阻塞。
+
+（4）文本加载，需要确认是否按顺序一段一段，一句一句加载？感觉现在会跳过一些句子
+原因：SpeakingPracticeProducer.makePractice(fromArticle:atParaIndex:) 是文章模式下生成练习的唯一入口，但只取 sentences.first ?? para.text，其余句子被完全丢弃；make() 里段落推进机制是"访问一次这个段落就推进到下一段"，不管这段有几句。对比 ReadingPracticeProducer.make() 用 for (sentenceId, sentence) in sentences.enumerated() 遍历段落内全部句子，句子用完才换下一段。也就是说 speaking 不是过滤或 off-by-one，而是在段落粒度上直接丢弃了除首句外的所有句子。
+修复：把 makePractice(fromArticle:atParaIndex:) 改成和 ReadingPracticeProducer 一致的逐句遍历 + 句内计数（记录 sentenceIndex，句子用完才推进 paraIndex），而不是每段只固定取第一句。

@@ -41,8 +41,8 @@ class ImageSelectionPracticeView: WordPracticeView {
 
     required init?(coder: NSCoder) { super.init(coder: coder) }
 
-    func updateValues(selectionTexts: [String], imageUrl: String, verbAspectAnnotations: [[VerbAspectAnnotation]] = [], nounCaseAnnotations: [[NounCaseAnnotation]] = []) {
-        selectionStack.set(texts: selectionTexts, verbAspectAnnotations: verbAspectAnnotations, nounCaseAnnotations: nounCaseAnnotations)
+    func updateValues(selectionTexts: [String], imageUrl: String, verbAspectAnnotations: [[VerbAspectAnnotation]] = [], nounCaseAnnotations: [[NounCaseAnnotation]] = [], isTargetLanguageText: Bool = true) {
+        selectionStack.set(texts: selectionTexts, verbAspectAnnotations: verbAspectAnnotations, nounCaseAnnotations: nounCaseAnnotations, isTargetLanguageText: isTargetLanguageText)
         let fullPath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
             .appendingPathComponent(imageUrl).path
         DispatchQueue.global(qos: .userInitiated).async {

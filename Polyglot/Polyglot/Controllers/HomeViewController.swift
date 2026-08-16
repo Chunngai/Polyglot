@@ -111,6 +111,9 @@ class HomeViewController: UIViewController {
     var isWordPracticeEnabled: Bool {
         return ebbinghausSchedule.values.contains { EbbinghausSchedule.isAvailable($0) }
     }
+    var hasAnyWordsForReview: Bool {
+        return !ebbinghausSchedule.isEmpty
+    }
     
     // MARK: - Collection view.
     
@@ -796,6 +799,8 @@ extension HomeViewController {
                 isEnabled = self.isVideoShadowingPracticeEnabled
             } else if section == HomeViewController.practiceSection {
                 isEnabled = self.isPracticeEnabled
+            } else if section == HomeViewController.phraseReviewSection {
+                isEnabled = self.hasAnyWordsForReview
             }
 
             let accentColor = isEnabled
@@ -1119,7 +1124,7 @@ extension HomeViewController: UICollectionViewDelegate {
 
         } else if section == HomeViewController.phraseReviewSection {
 
-            guard isWordPracticeEnabled else { return }
+            guard hasAnyWordsForReview else { return }
 
             let vc = PhraseReviewWordSelectionViewController()
             vc.practiceDuration = LangCode.currentLanguage.configs.phraseReviewPracticeDuration

@@ -291,6 +291,16 @@ extension WordPractice {
         
     }
     
+    // Whether `choices` (and, more generally, any selection-button text derived from this
+    // practice) is text in the target language rather than a meaning/translation. Only the
+    // meaningSelection/meaningFilling practices, when going text -> meaning, show meaning
+    // (translation) text as choices; every other combination shows target-language text.
+    // Kept in sync with WordPracticeProducer.addAccents' local `choicesAreTargetLanguage`.
+    var choicesAreTargetLanguage: Bool {
+        direction != .textToMeaning
+            || (practiceType != .meaningSelection && practiceType != .meaningFilling)
+    }
+
     func checkCorrectness(answer: String) {
         
         // Do not normalize for accent practices,

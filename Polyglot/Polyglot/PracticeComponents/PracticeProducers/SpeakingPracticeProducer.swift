@@ -70,7 +70,11 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
                 return []
             }
 
-            // How many practices can we actually make (capped by remaining paragraphs).
+            // How many paragraphs can we actually consume (capped by remaining paragraphs).
+            // Progress still advances at paragraph granularity: a paragraph's sentences
+            // are always produced together within the same make() call, never split
+            // across calls, so no extra "sentence within paragraph" progress needs to
+            // be persisted (mirrors ReadingPracticeProducer).
             let remaining = article.paras.count - storedIndex
             let count = min(batchSize, remaining)
 
@@ -79,19 +83,48 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
             pendingStartParaIndex = storedIndex
             currentSelectedParaIndex = storedIndex + count
 
+            // Expand every paragraph in this batch into all of its sentences, instead
+            // of only the first, so no sentence is permanently skipped.
+            var entries: [(paraIndex: Int, sentence: String, sentenceIndex: Int?)] = []
+            for i in 0..<count {
+                let paraIndex = storedIndex + i
+                let para = article.paras[paraIndex]
+                for (sentence, sentenceIndex) in sentenceEntries(for: para) {
+                    guard LangCode.isText(sentence, in: LangCode.currentLanguage) else { continue }
+                    entries.append((paraIndex: paraIndex, sentence: sentence, sentenceIndex: sentenceIndex))
+                }
+            }
+
+            guard !entries.isEmpty else {
+                // None of the paragraphs in this batch yielded usable text. If we can't
+                // persist progress past them (user cancelled mid-load), bail out with an
+                // empty result instead of recursing, since storedIndex would stay the
+                // same on the next call and we'd loop forever.
+                guard !cancelledDuringLoading else { return [] }
+                var updatedMeta = metaData
+                updatedMeta[SpeakingPracticeProducer.paragraphMetaKey(for: article.id)] = String(storedIndex + count)
+                SpeakingPracticeProducer.saveParagraphMetaData(&updatedMeta, for: LangCode.currentLanguage)
+                if storedIndex + count >= article.paras.count {
+                    isArticleComplete = true
+                    return []
+                }
+                // Progress advanced, so it's safe to look for the next usable batch.
+                return self.make()
+            }
+
+            let firstEntry = entries[0]
+            let remainingEntries = Array(entries.dropFirst())
+
             // Concurrently start translation and accent analysis for the first practice.
             let needsAccent = LangCode.currentLanguage.shouldAddAccentMarksToTextInPractices
             let needsAspect = LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices
+            let needsNounCase = LangCode.currentLanguage.configs.shouldShowNounCasesInPractices
             let accentSemaphore = DispatchSemaphore(value: 0)
 
-            // Extract the sentence upfront so accent analysis can run in parallel with translation.
-            let firstPara = article.paras[storedIndex]
-            let firstSentence = firstPara.text.tokenized(with: LangCode.currentLanguage.sentenceTokenizer).first
-                ?? firstPara.text
             var firstAccentTokens: [Token] = []
             var firstAccentFixedText: String? = nil
             if needsAccent || needsAspect {
-                analyzeAccents(for: firstSentence) { tokens, fixedText, _ in
+                analyzeAccents(for: firstEntry.sentence) { tokens, fixedText, _ in
                     firstAccentTokens = tokens
                     firstAccentFixedText = fixedText
                     accentSemaphore.signal()
@@ -99,7 +132,12 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
             }
 
             var firstPractice: SpeakingPractice? = nil
-            makePractice(fromArticle: article, atParaIndex: storedIndex) { practice in
+            makePractice(
+                fromArticle: article,
+                atParaIndex: firstEntry.paraIndex,
+                sentence: firstEntry.sentence,
+                sentenceIndex: firstEntry.sentenceIndex
+            ) { practice in
                 firstPractice = practice
             }
             while firstPractice == nil { Thread.sleep(forTimeInterval: 0.05) }
@@ -119,6 +157,9 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
                     if needsAspect {
                         first.verbAspectAnnotations = calculateVerbAspectAnnotations(for: first.text, with: firstAccentTokens)
                     }
+                    if needsNounCase {
+                        first.nounCaseAnnotations = calculateNounCaseAnnotations(for: first.text, with: firstAccentTokens)
+                    }
                 }
             }
 
@@ -136,13 +177,17 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
             // called even when make() was triggered from the initial-load path via
             // currentPractice) cannot fire a second make() while this one is still
             // appending practices — which would interleave batches out of order.
-            if count > 1 {
+            if !remainingEntries.isEmpty {
                 isBackgroundMakeInProgress = true
                 DispatchQueue.global(qos: .userInitiated).async {
-                    var slots: [SpeakingPractice?] = Array(repeating: nil, count: count - 1)
-                    for i in 1..<count {
-                        let slotIndex = i - 1
-                        self.makePractice(fromArticle: article, atParaIndex: storedIndex + i) { practice in
+                    var slots: [SpeakingPractice?] = Array(repeating: nil, count: remainingEntries.count)
+                    for (slotIndex, entry) in remainingEntries.enumerated() {
+                        self.makePractice(
+                            fromArticle: article,
+                            atParaIndex: entry.paraIndex,
+                            sentence: entry.sentence,
+                            sentenceIndex: entry.sentenceIndex
+                        ) { practice in
                             slots[slotIndex] = practice
                             self.calculateAccentLocsForText(in: practice)
                         }
@@ -277,15 +322,26 @@ extension SpeakingPracticeProducer {
 
     }
 
+    // Tokenizes a paragraph into its (sentence, sentenceIndex) pairs, matching
+    // ReadingPracticeProducer's per-sentence enumeration. sentenceIndex is nil
+    // only when the tokenizer yields no sentences and the whole paragraph text
+    // is used as a single fallback "sentence" (mirrors the previous behavior).
+    private func sentenceEntries(for para: Paragraph) -> [(String, Int?)] {
+        let sentences = para.text.tokenized(with: LangCode.currentLanguage.sentenceTokenizer)
+        if sentences.isEmpty {
+            return [(para.text, nil)]
+        }
+        return sentences.enumerated().map { ($1, $0) }
+    }
+
     private func makePractice(
         fromArticle article: Article,
         atParaIndex paraIndex: Int,
+        sentence: String,
+        sentenceIndex: Int?,
         callBack: @escaping (SpeakingPractice) -> Void
     ) {
         let para = article.paras[paraIndex]
-        let sentences = para.text.tokenized(with: LangCode.currentLanguage.sentenceTokenizer)
-        let sentence = sentences.first ?? para.text
-        let sentenceIndex = sentences.isEmpty ? nil : 0
 
         let textSource = TextSource.article(
             articleId: article.id,

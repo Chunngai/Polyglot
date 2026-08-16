@@ -21,10 +21,13 @@ private class WordSelectionCell: UITableViewCell {
         super.init(style: .default, reuseIdentifier: reuseIdentifier)
 
         wordLabel.font = UIFont.systemFont(ofSize: 17)
+        wordLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         wordLabel.translatesAutoresizingMaskIntoConstraints = false
 
         countsLabel.font = UIFont.systemFont(ofSize: 14)
         countsLabel.textAlignment = .right
+        countsLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        countsLabel.setContentHuggingPriority(.required, for: .horizontal)
         countsLabel.translatesAutoresizingMaskIntoConstraints = false
 
         meaningLabel.font = UIFont.systemFont(ofSize: 14)
@@ -546,7 +549,6 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
         }
 
         cell.wordLabel.textColor = wordColor
-        cell.isUserInteractionEnabled = isReady
         cell.backgroundColor = (isReady && selectedKeys.contains(entry.key)) ? Colors.lightBlue : .clear
 
         cell.setCountsText(entry.practiceCounts, annotated: entry.annotationCompleted, color: secondaryColor)
@@ -583,7 +585,6 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
         let entry = sections[indexPath.section].entries[indexPath.row]
-        guard entry.isAvailable else { return nil }
         let deleteAction = UIContextualAction(style: .destructive, title: Strings.delete) { [weak self] _, _, completion in
             guard let self = self else { completion(false); return }
             let alert = UIAlertController(
