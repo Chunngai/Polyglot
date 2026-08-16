@@ -153,7 +153,6 @@ private struct WordSelectionEntry {
     let annotationCompleted: [Bool]  // per-type bold display flag
     let isAnnotationReady: Bool      // true when all existing practices are annotated
     let practiceTypes: [WordPractice.PracticeType]
-    var annotatingItems: [String] = []  // non-empty while background annotation is running
 
     var isAvailable: Bool { nextReviewDate <= Date() }
     var isReadyToPractice: Bool { isAvailable && isAnnotationReady && !meaning.isEmpty }
@@ -168,8 +167,6 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
 
     private var sections: [(periodIndex: Int, entries: [WordSelectionEntry])] = []
     private var selectedKeys: Set<String> = []
-    // Keys where user tapped to see meaning instead of annotation status.
-    private var meaningDisplayKeys: Set<String> = []
 
     private var defaultSelectionCount: Int { LangCode.currentLanguage.configs.phraseReviewDefaultSelectionCount }
     private static let headerReuseId = "phraseReviewHeader"
@@ -203,13 +200,6 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
             name: .wordPracticeCounterUpdated,
             object: nil
         )
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(onAnnotationStatusChanged(_:)),
-            name: .wordAnnotationStatusChanged,
-            object: nil
-        )
-
         // Load and display entries synchronously — fast enough to run on the main thread.
         loadEntries()
         tableView.reloadData()
@@ -230,13 +220,7 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
 
     private func loadEntries() {
         let lang = LangCode.currentLanguage
-        var schedule = EbbinghausSchedule.load(for: lang)
-        // Remove corrupted keys that contain spaces (produced by old addAccents bug).
-        let corruptedKeys = schedule.keys.filter { $0.contains(" ") }
-        if !corruptedKeys.isEmpty {
-            for k in corruptedKeys { schedule.removeValue(forKey: k) }
-            EbbinghausSchedule.save(&schedule, for: lang)
-        }
+        let schedule = EbbinghausSchedule.load(for: lang)
         let cachedPractices = WordPracticeProducer.loadCachedPractices(for: lang)
         let reinforcementStore = ReinforcementWords.load(for: lang)
         let enabledTypes = lang.configs.phraseReviewEnabledPracticeTypes
@@ -281,9 +265,8 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
         for key in allKeys {
             let schedEntry = EbbinghausSchedule.entry(forKey: key, in: schedule)
             if EbbinghausSchedule.isCompleted(schedEntry) { continue }
-            if schedule[key] == nil {
-                schedule[key] = schedEntry
-            }
+            // Note: `key` ranges over `schedule.keys` itself (via `allKeys`), so
+            // `schedEntry` is always already present in `schedule` here -- no write-back needed.
 
             // Meaning: prefer reinforcement store, fall back to cached practices.
             let meaning: String
@@ -329,7 +312,6 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
                 practiceTypes: typesForPeriod
             ))
         }
-        EbbinghausSchedule.save(&schedule, for: lang)
 
         // Group by periodIndex, sort sections ascending.
         // Within each section: ready-to-practice entries first, then not-ready;
@@ -340,7 +322,12 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
                 if a.isReadyToPractice != b.isReadyToPractice {
                     return a.isReadyToPractice
                 }
-                return a.nextReviewDate < b.nextReviewDate
+                if a.nextReviewDate != b.nextReviewDate {
+                    return a.nextReviewDate < b.nextReviewDate
+                }
+                // Deterministic tie-breaker so list order doesn't shuffle across reloads
+                // when readiness and nextReviewDate are equal (e.g. both .distantPast).
+                return a.key < b.key
             }
             return (periodIndex: period, entries: sorted)
         }
@@ -399,6 +386,7 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
                 wordPractices.filter { $0.practiceType == type }.count < repetitions
             }
             if needsGeneration {
+                print("[backgroundRefresh] \(key): generating missing practices")
                 producer.makeAndCachePractices(for: [key], skipDuplicates: true)
             }
 
@@ -411,30 +399,47 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
                 !$0.isAccentAnnotationCompleted || !$0.isGrammarAnnotationCompleted
             }
             if needsAnnotation {
+                print("[backgroundRefresh] \(key): annotating (accent/grammar)")
                 let semaphore = DispatchSemaphore(value: 0)
                 producer.annotateExistingPractices(for: key) { semaphore.signal() }
                 semaphore.wait()
             }
 
             // (3) Supplement missing meaning for this word.
+            // Meaning may already be present via cached meaningSelection/meaningFilling practices
+            // even without a reinforcementStore entry (e.g. words added before the reinforcement
+            // flow existed). Only fetch a translation if it's missing everywhere.
             let reinforcementStore = ReinforcementWords.load(for: lang)
-            if let entry = reinforcementStore[key], entry.meaning.isEmpty {
-                NotificationCenter.default.post(
-                    name: .wordAnnotationStatusChanged,
-                    object: nil,
-                    userInfo: ["key": key, "annotatingItems": [Strings.annotatingMeaning]]
-                )
+            let hasStoredMeaning = !(reinforcementStore[key]?.meaning ?? "").isEmpty
+            let hasCachedMeaning = practicesAfterGen.contains { practice in
+                switch (practice.practiceType, practice.direction) {
+                case (.meaningSelection, .textToMeaning), (.meaningFilling, .textToMeaning):
+                    return !practice.key.isEmpty
+                case (.meaningSelection, .meaningToText), (.meaningFilling, .meaningToText):
+                    return !practice.query.isEmpty
+                default:
+                    return false
+                }
+            }
+            if !hasStoredMeaning && !hasCachedMeaning {
+                print("[backgroundRefresh] \(key): fetching meaning")
+                let rawWord = reinforcementStore[key]?.word ?? practicesAfterGen.first?.word ?? key
+                let wordToTranslate = rawWord.replacingOccurrences(of: String(Token.accentSymbol), with: "")
                 let dispatchGroup = DispatchGroup()
                 dispatchGroup.enter()
-                translator.translate(query: entry.word) { translations, _ in
+                translator.translate(query: wordToTranslate) { translations, _ in
                     if let meaning = translations.first, !meaning.isEmpty {
-                        ReinforcementWords.updateMeaning(meaning, forWord: key, for: lang)
+                        if reinforcementStore[key] != nil {
+                            ReinforcementWords.updateMeaning(meaning, forWord: wordToTranslate, for: lang)
+                        } else {
+                            ReinforcementWords.add(
+                                word: wordToTranslate,
+                                contextSentence: "",
+                                meaning: meaning,
+                                for: lang
+                            )
+                        }
                     }
-                    NotificationCenter.default.post(
-                        name: .wordAnnotationStatusChanged,
-                        object: nil,
-                        userInfo: ["key": key, "annotatingItems": [String]()]
-                    )
                     dispatchGroup.leave()
                 }
                 dispatchGroup.wait()
@@ -476,26 +481,6 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
                 self.updateStartButton()
             }
         }
-    }
-
-    @objc private func onAnnotationStatusChanged(_ notification: Notification) {
-//        guard let key = notification.userInfo?["key"] as? String,
-//              let items = notification.userInfo?["annotatingItems"] as? [String] else { return }
-//
-//        DispatchQueue.main.async {
-//            for s in 0..<self.sections.count {
-//                for r in 0..<self.sections[s].entries.count {
-//                    if self.sections[s].entries[r].key == key {
-//                        self.sections[s].entries[r].annotatingItems = items
-//                        // Clear toggle override when annotation finishes.
-//                        if items.isEmpty { self.meaningDisplayKeys.remove(key) }
-//                        let indexPath = IndexPath(row: r, section: s)
-//                        self.tableView.reloadRows(at: [indexPath], with: .none)
-//                        return
-//                    }
-//                }
-//            }
-//        }
     }
 
     private func updateStartButton() {
@@ -610,9 +595,9 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
             alert.addAction(UIAlertAction(title: Strings.delete, style: .destructive) { _ in
                 let lang = LangCode.currentLanguage
                 WordPracticeProducer.deleteWordPractices(forKey: entry.key, lang: lang)
-                var schedule = EbbinghausSchedule.load(for: lang)
-                schedule.removeValue(forKey: entry.key)
-                EbbinghausSchedule.save(&schedule, for: lang)
+                EbbinghausSchedule.update(for: lang) { schedule in
+                    schedule.removeValue(forKey: entry.key)
+                }
                 ReinforcementWords.remove(word: entry.key, for: lang)
                 self.selectedKeys.remove(entry.key)
                 var sectionEntries = self.sections[indexPath.section].entries

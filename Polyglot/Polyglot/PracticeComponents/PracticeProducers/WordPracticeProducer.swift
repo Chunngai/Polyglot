@@ -13,9 +13,18 @@ import NaturalLanguage
 class WordPracticeProducer: BasePracticeProducer {
     
     private var lang: LangCode = LangCode.currentLanguage
-    
+
     private var wordPracticeCounter: [String: Int] = [:]
     var excludedPractices: [WordPractice] = []
+
+    /// Recomputes `wordPracticeCounter` from the current `practiceList`. Callers that replace
+    /// `practiceList` after init (e.g. filtering down to a selected word set and deduplicating)
+    /// must call this afterward -- otherwise the counter stays based on the stale pre-filter
+    /// snapshot and `next()` never reaches zero for a word, so its Ebbinghaus period never
+    /// advances even after all its practices are answered.
+    func resetWordPracticeCounter() {
+        self.wordPracticeCounter = WordPracticeProducer.countWordPractices(from: self.practiceList)
+    }
     
     // MARK: - Init
     
@@ -143,19 +152,32 @@ extension WordPracticeProducer {
     }
     
     private func advanceEbbinghausSchedule(forKey key: String, consumedPeriodIndex: Int) {
-        var schedule = EbbinghausSchedule.load(for: self.lang)
         let newPeriod = consumedPeriodIndex + 1
+        EbbinghausSchedule.update(for: self.lang) { schedule in
+            if newPeriod >= EbbinghausSchedule.practiceGroups.count {
+                schedule.removeValue(forKey: key)
+            } else {
+                var entry = EbbinghausSchedule.entry(forKey: key, in: schedule)
+                entry.periodIndex = newPeriod
+                entry.nextReviewDate = EbbinghausSchedule.nextReviewDate(afterPeriod: consumedPeriodIndex)
+                schedule[key] = entry
+            }
+        }
         if newPeriod >= EbbinghausSchedule.practiceGroups.count {
-            schedule.removeValue(forKey: key)
             // Remove from persistent reinforcement words now that all periods are done.
             ReinforcementWords.remove(word: key, for: self.lang)
-        } else {
-            var entry = EbbinghausSchedule.entry(forKey: key, in: schedule)
-            entry.periodIndex = newPeriod
-            entry.nextReviewDate = EbbinghausSchedule.nextReviewDate(afterPeriod: consumedPeriodIndex)
-            schedule[key] = entry
         }
-        EbbinghausSchedule.save(&schedule, for: self.lang)
+        // Purge this word's practices for the period just consumed (and any earlier stale
+        // period) from the cache. Otherwise old-period records linger alongside newly
+        // generated next-period ones; since the practice list is shuffled and per-type dedup
+        // doesn't distinguish period, a stale old-period record can be picked back up for
+        // "practice" instead of the real next-period one, making it look like progress never
+        // advances.
+        Self.update(for: self.lang) { practices in
+            practices.removeAll {
+                Self.normalizedKey(from: $0.word) == key && ($0.periodIndex ?? 0) <= consumedPeriodIndex
+            }
+        }
     }
 
     func makeAndCachePractices(for words: [String], skipDuplicates: Bool = true) {
@@ -164,6 +186,12 @@ extension WordPracticeProducer {
         let enabledTypes = self.lang.configs.phraseReviewEnabledPracticeTypes
 
         var schedule = EbbinghausSchedule.load(for: self.lang)
+        // Snapshot of what's already on disk (independent of `wordPracticeCounter`, which only
+        // reflects what's currently in this instance's in-memory `practiceList`). Used to gate
+        // generation per (word, type) so re-running this on an already-populated word doesn't
+        // pile on duplicates -- this is checked instead of `skipDuplicates`'s whole-word skip so
+        // partially-generated words (e.g. one type failed/pending) still get topped up correctly.
+        let onDiskPractices = Self.loadCachedPractices(for: self.lang)
 
         for word in words {
 
@@ -175,14 +203,36 @@ extension WordPracticeProducer {
 
             // Ensure a schedule entry exists for this word.
             if schedule[key] == nil {
-                schedule[key] = WordReviewEntry(wordKey: key, periodIndex: 0, nextReviewDate: .distantPast)
-                EbbinghausSchedule.save(&schedule, for: self.lang)
+                let newEntry = WordReviewEntry(wordKey: key, periodIndex: 0, nextReviewDate: .distantPast)
+                schedule[key] = newEntry
+                // Write atomically against the persisted file rather than overwriting it with
+                // this possibly-stale in-memory `schedule` snapshot.
+                EbbinghausSchedule.update(for: self.lang) { persisted in
+                    if persisted[key] == nil {
+                        persisted[key] = newEntry
+                    }
+                }
             }
             let periodIndex = schedule[key]!.periodIndex
             let typesToUse = EbbinghausSchedule.effectivePracticeTypes(
                 for: periodIndex,
                 enabledTypes: enabledTypes
             )
+
+            // Existing on-disk count per type for this word+period, so we only generate the
+            // deficit per type instead of a full batch every time this word is revisited.
+            let existingForWord = onDiskPractices.filter {
+                Self.normalizedKey(from: $0.word) == key && ($0.periodIndex ?? 0) == periodIndex
+            }
+            func neededCount(for type: WordPractice.PracticeType) -> Int {
+                guard typesToUse.contains(type) else { return 0 }
+                let existing = existingForWord.filter { $0.practiceType == type }.count
+                let needed = max(0, nRepetitions - existing)
+                print("[makeAndCachePractices] \(key) / \(type): existing=\(existing), generating=\(needed)")
+                return needed
+            }
+
+            let neededAccentSelection = neededCount(for: .accentSelection)
 
             var practicesForWord: [WordPractice] = []
 
@@ -198,46 +248,47 @@ extension WordPracticeProducer {
                 return p
             }
 
-            if typesToUse.contains(.meaningSelection) || typesToUse.contains(.meaningFilling) {
+            let neededMeaningSelection = neededCount(for: .meaningSelection)
+            let neededMeaningFilling = neededCount(for: .meaningFilling)
+            if neededMeaningSelection > 0 || neededMeaningFilling > 0 {
                 machineTranslator.translate(query: word) { translations, _ in
                     guard !translations.isEmpty else { return }
                     let meaning = translations.joined(separator: "; ")
 
-                    for _ in 0..<nRepetitions {
-                        if typesToUse.contains(.meaningSelection) {
-                            if let p = self.makeMeaningSelectionPractice(
-                                word: word, query: word, key: meaning,
-                                direction: .textToMeaning, preferredWords: candidateWords
-                            ) {
-                                self.practiceList.append(stamp(p))
-                                self.wordPracticeCounter[key]! += 1
-                                practicesForWord.append(p)
-                            }
-                            if let p = self.makeMeaningSelectionPractice(
-                                word: word, query: meaning, key: word,
-                                direction: .meaningToText, preferredWords: candidateWords
-                            ) {
-                                self.practiceList.append(stamp(p))
-                                self.wordPracticeCounter[key]! += 1
-                                practicesForWord.append(p)
-                            }
-                        }
-                        if typesToUse.contains(.meaningFilling) {
-                            let p = self.makeMeaningFillingPractice(
-                                word: word, query: meaning, key: word, direction: .meaningToText
-                            )
+                    for _ in 0..<neededMeaningSelection {
+                        if let p = self.makeMeaningSelectionPractice(
+                            word: word, query: word, key: meaning,
+                            direction: .textToMeaning, preferredWords: candidateWords
+                        ) {
                             self.practiceList.append(stamp(p))
                             self.wordPracticeCounter[key]! += 1
                             practicesForWord.append(p)
                         }
+                        if let p = self.makeMeaningSelectionPractice(
+                            word: word, query: meaning, key: word,
+                            direction: .meaningToText, preferredWords: candidateWords
+                        ) {
+                            self.practiceList.append(stamp(p))
+                            self.wordPracticeCounter[key]! += 1
+                            practicesForWord.append(p)
+                        }
+                    }
+                    for _ in 0..<neededMeaningFilling {
+                        let p = self.makeMeaningFillingPractice(
+                            word: word, query: meaning, key: word, direction: .meaningToText
+                        )
+                        self.practiceList.append(stamp(p))
+                        self.wordPracticeCounter[key]! += 1
+                        practicesForWord.append(p)
                     }
                     self.cache()
                     self.sendWordPracticeCounterUpdateNotification()
                 }
             }
 
-            if typesToUse.contains(.contextSelection) {
-                for _ in 0..<nRepetitions {
+            let neededContextSelection = neededCount(for: .contextSelection)
+            if neededContextSelection > 0 {
+                for _ in 0..<neededContextSelection {
                     if let p = makeContextSelectionPractice(word: word, query: word, preferredWords: candidateWords) {
                         practiceList.append(stamp(p))
                         wordPracticeCounter[key]! += 1
@@ -248,8 +299,9 @@ extension WordPracticeProducer {
             self.cache()
             self.sendWordPracticeCounterUpdateNotification()
 
-            if typesToUse.contains(.reordering) {
-                for _ in 0..<nRepetitions {
+            let neededReordering = neededCount(for: .reordering)
+            if neededReordering > 0 {
+                for _ in 0..<neededReordering {
                     makeReorderingPractice(word: word, query: word) { practice in
                         if let p = practice {
                             self.practiceList.append(stamp(p))
@@ -262,20 +314,13 @@ extension WordPracticeProducer {
                 }
             }
 
-            let needsImage = typesToUse.contains(.imageSelection) || typesToUse.contains(.imageFilling)
-            if needsImage {
+            let neededImageSelection = neededCount(for: .imageSelection)
+            let neededImageFilling = neededCount(for: .imageFilling)
+            if neededImageSelection > 0 || neededImageFilling > 0 {
                 imageCreator.generateImage(for: word) { imageUrl in
                     guard let imageUrl = imageUrl else { return }
-                    for _ in 0..<nRepetitions {
-                        if typesToUse.contains(.imageSelection) {
-                            if let p = self.makeImageSelectionPractice(word: word, imageUrl: imageUrl, preferredWords: candidateWords) {
-                                self.practiceList.append(stamp(p))
-                                self.wordPracticeCounter[key]! += 1
-                                practicesForWord.append(p)
-                            }
-                        }
-                        if typesToUse.contains(.imageFilling) {
-                            let p = self.makeImageFillingPractice(word: word, imageUrl: imageUrl)
+                    for _ in 0..<neededImageSelection {
+                        if let p = self.makeImageSelectionPractice(word: word, imageUrl: imageUrl, preferredWords: candidateWords) {
                             self.practiceList.append(stamp(p))
                             self.wordPracticeCounter[key]! += 1
                             practicesForWord.append(p)
@@ -283,11 +328,20 @@ extension WordPracticeProducer {
                         self.cache()
                         self.sendWordPracticeCounterUpdateNotification()
                     }
+                    for _ in 0..<neededImageFilling {
+                        let p = self.makeImageFillingPractice(word: word, imageUrl: imageUrl)
+                        self.practiceList.append(stamp(p))
+                        self.wordPracticeCounter[key]! += 1
+                        practicesForWord.append(p)
+                        self.cache()
+                        self.sendWordPracticeCounterUpdateNotification()
+                    }
                 }
             }
 
-            if typesToUse.contains(.phraseConstruction) {
-                for _ in 0..<nRepetitions {
+            let neededPhraseConstruction = neededCount(for: .phraseConstruction)
+            if neededPhraseConstruction > 0 {
+                for _ in 0..<neededPhraseConstruction {
                     if let p = makePhraseConstructionPractice(word: word) {
                         practiceList.append(stamp(p))
                         wordPracticeCounter[key]! += 1
@@ -356,15 +410,13 @@ extension WordPracticeProducer {
                     practice.isAccentAnnotationCompleted = true
                 }
 
-                for _ in 0..<nRepetitions {
-                    if typesToUse.contains(.accentSelection) {
-                        if let p = self.makeAccentSelectionPractice(
-                            word: fixedText ?? text, query: fixedText ?? text, tokens: tokens
-                        ) {
-                            p.periodIndex = periodIndex
-                            self.practiceList.append(p)
-                            self.wordPracticeCounter[key]! += 1
-                        }
+                for _ in 0..<neededAccentSelection {
+                    if let p = self.makeAccentSelectionPractice(
+                        word: fixedText ?? text, query: fixedText ?? text, tokens: tokens
+                    ) {
+                        p.periodIndex = periodIndex
+                        self.practiceList.append(p)
+                        self.wordPracticeCounter[key]! += 1
                     }
                 }
                 self.cache()
@@ -374,7 +426,6 @@ extension WordPracticeProducer {
     }
 
     /// Re-annotate existing cached practices for a word that are missing accent or grammar annotations.
-    /// Posts `wordAnnotationStatusChanged` notifications as annotation progresses.
     func annotateExistingPractices(for key: String, completion: (() -> Void)? = nil) {
         let lang = self.lang
         let needsAccent = lang == .ja || lang == .ru
@@ -382,7 +433,7 @@ extension WordPracticeProducer {
         let needsNounCase = lang.configs.shouldShowNounCasesInPractices
         guard needsAccent || needsAspect || needsNounCase else { completion?(); return }
 
-        var allPractices = Self.loadCachedPractices(for: lang)
+        let allPractices = Self.loadCachedPractices(for: lang)
         let schedule = EbbinghausSchedule.load(for: lang)
         let periodIndex = EbbinghausSchedule.entry(forKey: key, in: schedule).periodIndex
 
@@ -395,23 +446,8 @@ extension WordPracticeProducer {
 
         let word = targets.first!.word
 
-        var annotatingItems: [String] = []
-        if needsAccent { annotatingItems.append(Strings.annotatingAccent) }
-        if needsAspect || needsNounCase { annotatingItems.append(Strings.annotatingGrammar) }
-
-        NotificationCenter.default.post(
-            name: .wordAnnotationStatusChanged,
-            object: nil,
-            userInfo: ["key": key, "annotatingItems": annotatingItems]
-        )
-
         analyzeAccents(for: word) { tokens, _, _ in
             guard !tokens.isEmpty else {
-                NotificationCenter.default.post(
-                    name: .wordAnnotationStatusChanged,
-                    object: nil,
-                    userInfo: ["key": key, "annotatingItems": [String]()]
-                )
                 completion?()
                 return
             }
@@ -461,13 +497,18 @@ extension WordPracticeProducer {
                 }
             }
 
-            WordPracticeProducer.save(&allPractices, for: lang)
+            // Re-read the file fresh and splice in the mutated targets by id, instead of
+            // overwriting with the `allPractices` snapshot taken before this async work
+            // started -- avoids clobbering concurrent writes from other callers.
+            let mutatedById = Dictionary(uniqueKeysWithValues: targets.map { ($0.id, $0) })
+            WordPracticeProducer.update(for: lang) { practices in
+                for i in practices.indices {
+                    if let mutated = mutatedById[practices[i].id] {
+                        practices[i] = mutated
+                    }
+                }
+            }
 
-            NotificationCenter.default.post(
-                name: .wordAnnotationStatusChanged,
-                object: nil,
-                userInfo: ["key": key, "annotatingItems": [String]()]
-            )
             completion?()
         }
     }
@@ -973,8 +1014,37 @@ extension WordPracticeProducer {
     static func fileName(for lang: String) -> String {
         return "cachedWordPractices.\(lang).json"
     }
-    
+
     static func loadCachedPractices(for lang: LangCode) -> [WordPractice] {
+        withFileLock(fileName(for: lang.rawValue)) {
+            loadCachedPracticesUnlocked(for: lang)
+        }
+    }
+
+    static func save(_ practicesToCache: inout [WordPractice], for lang: LangCode) {
+        let captured = practicesToCache
+        withFileLock(fileName(for: lang.rawValue)) {
+            saveUnlocked(captured, for: lang)
+        }
+    }
+
+    /// Atomically loads, mutates, and saves the cached practices -- eliminates the
+    /// read-modify-write race between this and any other caller (on any thread)
+    /// that also goes through `loadCachedPractices`/`save`/`update`.
+    @discardableResult
+    static func update<T>(
+        for lang: LangCode,
+        _ mutate: (inout [WordPractice]) -> T
+    ) -> T {
+        withFileLock(fileName(for: lang.rawValue)) {
+            var practices = loadCachedPracticesUnlocked(for: lang)
+            let result = mutate(&practices)
+            saveUnlocked(practices, for: lang)
+            return result
+        }
+    }
+
+    private static func loadCachedPracticesUnlocked(for lang: LangCode) -> [WordPractice] {
         do {
             let practices = try readDataFromJson(
                 fileName: WordPracticeProducer.fileName(for: lang.rawValue),
@@ -987,8 +1057,8 @@ extension WordPracticeProducer {
             return []
         }
     }
-    
-    static func save(_ practicesToCache: inout [WordPractice], for lang: LangCode) {
+
+    private static func saveUnlocked(_ practicesToCache: [WordPractice], for lang: LangCode) {
         do {
             try writeDataToJson(
                 fileName: WordPracticeProducer.fileName(for: lang.rawValue),
@@ -998,7 +1068,7 @@ extension WordPracticeProducer {
             print(error)
         }
     }
-    
+
 }
 
 extension WordPracticeProducer {
@@ -1027,9 +1097,9 @@ extension WordPracticeProducer {
     }
 
     static func deleteWordPractices(forKey key: String, lang: LangCode) {
-        var practices = Self.loadCachedPractices(for: lang)
-        practices.removeAll { normalizedKey(from: $0.word) == key }
-        Self.save(&practices, for: lang)
+        Self.update(for: lang) { practices in
+            practices.removeAll { normalizedKey(from: $0.word) == key }
+        }
     }
 
     static func uniqueWordEntries(for lang: LangCode) -> [(key: String, meaning: String)] {
@@ -1086,5 +1156,4 @@ extension WordPracticeProducer {
 
 extension Notification.Name {
     static let wordPracticeCounterUpdated = Notification.Name("wordPracticeCounterUpdated")
-    static let wordAnnotationStatusChanged = Notification.Name("wordAnnotationStatusChanged")
 }

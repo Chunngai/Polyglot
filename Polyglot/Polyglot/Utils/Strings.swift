@@ -340,42 +340,6 @@ extension Strings {
         return Strings._periodHeader[LangCode.currentLanguage]!
     }
 
-    static let _annotatingAccent: [LangCode: String] = [
-        LangCode.en: "Annotating accents",
-        LangCode.ja: "アクセント標注中",
-        LangCode.es: "Anotando acentos",
-        LangCode.ru: "Расстановка ударений",
-        LangCode.ko: "악센트 주석 중",
-        LangCode.de: "Akzente werden annotiert",
-    ]
-    static var annotatingAccent: String {
-        return Strings._annotatingAccent[LangCode.currentLanguage]!
-    }
-
-    static let _annotatingGrammar: [LangCode: String] = [
-        LangCode.en: "Annotating grammar",
-        LangCode.ja: "文法標注中",
-        LangCode.es: "Anotando gramática",
-        LangCode.ru: "Разметка грамматики",
-        LangCode.ko: "문법 주석 중",
-        LangCode.de: "Grammatik wird annotiert",
-    ]
-    static var annotatingGrammar: String {
-        return Strings._annotatingGrammar[LangCode.currentLanguage]!
-    }
-
-    static let _annotatingMeaning: [LangCode: String] = [
-        LangCode.en: "Fetching meaning",
-        LangCode.ja: "意味取得中",
-        LangCode.es: "Obteniendo significado",
-        LangCode.ru: "Получение значения",
-        LangCode.ko: "의미 가져오는 중",
-        LangCode.de: "Bedeutung wird abgerufen",
-    ]
-    static var annotatingMeaning: String {
-        return Strings._annotatingMeaning[LangCode.currentLanguage]!
-    }
-
 }
 
 extension Strings {

@@ -71,6 +71,10 @@ class WordsPracticeViewController: PracticeViewController {
             producer.practiceList = deduped
             producer.practiceList.shuffle()
             producer.excludedPractices = excluded
+            // Recompute the counter from the filtered+deduped list -- it was built in init()
+            // from the full unfiltered cache, so it must be refreshed now or `next()` will
+            // never hit zero for a word and its Ebbinghaus period will never advance.
+            producer.resetWordPracticeCounter()
             // Write the capped list back to disk so the phrase review list
             // reflects the trimmed count after returning from practice.
             producer.cache()
@@ -184,7 +188,7 @@ class WordsPracticeViewController: PracticeViewController {
 
         // When launched as phrase review (selectedWordKeys is set), replace the
         // timing bar in the nav title with a UIProgressView, and move the
-        // progress label ("3/10") into the nav bar right side.
+        // progress label ("42%") into the nav bar right side.
         if selectedWordKeys != nil {
             timingBar.pause()
             timingBar.isHidden = true
@@ -192,6 +196,11 @@ class WordsPracticeViewController: PracticeViewController {
 
             progressLabel.removeFromSuperview()
             progressLabel.textColor = Colors.weakTextColor
+            // `removeFromSuperview()` drops the SnapKit constraints that used to size this
+            // label inside mainView, so its frame is left at whatever size it last had there
+            // (e.g. sized for empty/short text). UIBarButtonItem(customView:) uses that stale
+            // frame as-is and doesn't re-layout it, so wider text like "100%" gets clipped.
+            progressLabel.sizeToFit()
             navigationItem.rightBarButtonItem = UIBarButtonItem(customView: progressLabel)
         }
     }
@@ -356,11 +365,16 @@ class WordsPracticeViewController: PracticeViewController {
         grammarAnnotationLegendView.isHidden = true
         promptLabel.attributedText = promptAttributes
         let completed = initialPracticeCount - practiceProducer.practiceList.count
-        progressLabel.text = "\(completed)/\(initialPracticeCount)"
-        // Update phrase review progress bar.
         if selectedWordKeys != nil && initialPracticeCount > 0 {
             let progress = Float(completed) / Float(initialPracticeCount)
+            progressLabel.text = "\(Int((progress * 100).rounded()))%"
+            // No superview constraints once used as a UIBarButtonItem customView (see
+            // updateViews()), so re-fit after every text change or the frame stays clipped
+            // to whatever width the previous text needed.
+            progressLabel.sizeToFit()
             phraseReviewProgressBar.setProgress(progress, animated: true)
+        } else {
+            progressLabel.text = "\(completed)/\(initialPracticeCount)"
         }
         
         // Remove the old practice view.
@@ -476,28 +490,6 @@ extension WordsPracticeViewController {
             practiceMetaData["recentWordPracticeDate"] = Date().repr(of: Date.defaultDateAndTimeFormat)
             self.stopPracticing()
             return
-        }
-
-        // When in phrase-review mode, pre-generate next-round practices in the background
-        // for the word we are about to finish.
-        if selectedWordKeys != nil,
-           let currentWordPractice = practiceProducer.currentPractice as? WordPractice {
-            let wordForNextRound = currentWordPractice.word
-            let lang = LangCode.currentLanguage
-            DispatchQueue.global(qos: .background).async { [weak self] in
-                guard let self = self else { return }
-                let schedule = EbbinghausSchedule.load(for: lang)
-                let key = WordPracticeProducer.normalizedKey(from: wordForNextRound)
-                guard let entry = schedule[key] else { return }
-                let nextPeriod = entry.periodIndex + 1
-                guard nextPeriod < EbbinghausSchedule.practiceGroups.count else { return }
-                // Only pre-generate if no cached practices for this word in the next period exist yet.
-                let cached = WordPracticeProducer.loadCachedPractices(for: lang)
-                let hasNextRound = cached.contains { WordPracticeProducer.normalizedKey(from: $0.word) == key && ($0.periodIndex ?? 0) == nextPeriod }
-                guard !hasNextRound else { return }
-                let producer = WordPracticeProducer(words: self.words, articles: self.articles)
-                producer.makeAndCachePractices(for: [wordForNextRound], skipDuplicates: false)
-            }
         }
 
         super.nextButtonTapped()

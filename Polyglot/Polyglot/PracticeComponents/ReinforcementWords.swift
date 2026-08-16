@@ -26,61 +26,97 @@ enum ReinforcementWords {
     }
 
     static func load(for lang: LangCode) -> [String: ReinforcementWordEntry] {
+        withFileLock(fileName(for: lang)) {
+            loadUnlocked(for: lang)
+        }
+    }
+
+    static func save(_ entries: inout [String: ReinforcementWordEntry], for lang: LangCode) {
+        let captured = entries
+        withFileLock(fileName(for: lang)) {
+            saveUnlocked(captured, for: lang)
+        }
+    }
+
+    /// Atomically loads, mutates, and saves -- eliminates the read-modify-write race
+    /// between this and any other caller (on any thread) that also goes through
+    /// `load`/`save`/`update`.
+    @discardableResult
+    static func update<T>(
+        for lang: LangCode,
+        _ mutate: (inout [String: ReinforcementWordEntry]) -> T
+    ) -> T {
+        withFileLock(fileName(for: lang)) {
+            var entries = loadUnlocked(for: lang)
+            let result = mutate(&entries)
+            saveUnlocked(entries, for: lang)
+            return result
+        }
+    }
+
+    static func add(word: String, contextSentence: String, meaning: String, for lang: LangCode) {
+        let key = WordPracticeProducer.normalizedKey(from: word)
+        update(for: lang) { entries in
+            if entries[key] == nil {
+                entries[key] = ReinforcementWordEntry(
+                    word: word,
+                    contextSentence: contextSentence,
+                    meaning: meaning
+                )
+            }
+        }
+    }
+
+    static func remove(word: String, for lang: LangCode) {
+        let key = WordPracticeProducer.normalizedKey(from: word)
+        update(for: lang) { entries in
+            entries.removeValue(forKey: key)
+        }
+    }
+
+    static func updateMeaning(_ meaning: String, forWord word: String, for lang: LangCode) {
+        let key = WordPracticeProducer.normalizedKey(from: word)
+        update(for: lang) { entries in
+            if entries[key] != nil {
+                entries[key]!.meaning = meaning
+            }
+        }
+    }
+
+    static func updateContextSentence(_ sentence: String, forWord word: String, for lang: LangCode) {
+        let key = WordPracticeProducer.normalizedKey(from: word)
+        update(for: lang) { entries in
+            if entries[key] != nil {
+                entries[key]!.contextSentence = sentence
+            }
+        }
+    }
+
+    private static func loadUnlocked(for lang: LangCode) -> [String: ReinforcementWordEntry] {
         do {
             let entries = try readDataFromJson(
                 fileName: fileName(for: lang),
                 type: [ReinforcementWordEntry].self
             ) as? [ReinforcementWordEntry] ?? []
-            return Dictionary(uniqueKeysWithValues: entries.map { ($0.word, $0) })
+            // Use normalizedKey (not the raw word) as the dictionary key: keeps entries keyed
+            // consistently with add()/updateMeaning()/etc, and tolerates any legacy duplicate
+            // raw-word text on disk instead of crashing on Dictionary construction.
+            var result: [String: ReinforcementWordEntry] = [:]
+            for entry in entries {
+                result[WordPracticeProducer.normalizedKey(from: entry.word)] = entry
+            }
+            return result
         } catch {
             return [:]
         }
     }
 
-    static func save(_ entries: inout [String: ReinforcementWordEntry], for lang: LangCode) {
+    private static func saveUnlocked(_ entries: [String: ReinforcementWordEntry], for lang: LangCode) {
         do {
             let arr = Array(entries.values)
             try writeDataToJson(fileName: fileName(for: lang), data: arr)
         } catch {
             print(error)
-        }
-    }
-
-    static func add(word: String, contextSentence: String, meaning: String, for lang: LangCode) {
-        var entries = load(for: lang)
-        let key = WordPracticeProducer.normalizedKey(from: word)
-        if entries[key] == nil {
-            entries[key] = ReinforcementWordEntry(
-                word: word,
-                contextSentence: contextSentence,
-                meaning: meaning
-            )
-            save(&entries, for: lang)
-        }
-    }
-
-    static func remove(word: String, for lang: LangCode) {
-        var entries = load(for: lang)
-        let key = WordPracticeProducer.normalizedKey(from: word)
-        entries.removeValue(forKey: key)
-        save(&entries, for: lang)
-    }
-
-    static func updateMeaning(_ meaning: String, forWord word: String, for lang: LangCode) {
-        var entries = load(for: lang)
-        let key = WordPracticeProducer.normalizedKey(from: word)
-        if entries[key] != nil {
-            entries[key]!.meaning = meaning
-            save(&entries, for: lang)
-        }
-    }
-
-    static func updateContextSentence(_ sentence: String, forWord word: String, for lang: LangCode) {
-        var entries = load(for: lang)
-        let key = WordPracticeProducer.normalizedKey(from: word)
-        if entries[key] != nil {
-            entries[key]!.contextSentence = sentence
-            save(&entries, for: lang)
         }
     }
 }

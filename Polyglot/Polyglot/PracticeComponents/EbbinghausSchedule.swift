@@ -91,6 +91,35 @@ enum EbbinghausSchedule {
     }
 
     static func load(for lang: LangCode) -> [String: WordReviewEntry] {
+        withFileLock(fileName(for: lang)) {
+            loadUnlocked(for: lang)
+        }
+    }
+
+    static func save(_ schedule: inout [String: WordReviewEntry], for lang: LangCode) {
+        let captured = schedule
+        withFileLock(fileName(for: lang)) {
+            saveUnlocked(captured, for: lang)
+        }
+    }
+
+    /// Atomically loads the schedule, applies `mutate`, and saves the result --
+    /// eliminates the read-modify-write race between this and any other caller
+    /// (on any thread) that also goes through `load`/`save`/`update`.
+    @discardableResult
+    static func update<T>(
+        for lang: LangCode,
+        _ mutate: (inout [String: WordReviewEntry]) -> T
+    ) -> T {
+        withFileLock(fileName(for: lang)) {
+            var schedule = loadUnlocked(for: lang)
+            let result = mutate(&schedule)
+            saveUnlocked(schedule, for: lang)
+            return result
+        }
+    }
+
+    private static func loadUnlocked(for lang: LangCode) -> [String: WordReviewEntry] {
         do {
             let entries = try readDataFromJson(
                 fileName: fileName(for: lang),
@@ -102,7 +131,7 @@ enum EbbinghausSchedule {
         }
     }
 
-    static func save(_ schedule: inout [String: WordReviewEntry], for lang: LangCode) {
+    private static func saveUnlocked(_ schedule: [String: WordReviewEntry], for lang: LangCode) {
         do {
             let entries = Array(schedule.values)
             try writeDataToJson(fileName: fileName(for: lang), data: entries)

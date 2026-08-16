@@ -8,6 +8,30 @@
 
 import Foundation
 
+// Serializes all reads/writes to a given JSON file so concurrent callers
+// (e.g. background annotation refresh vs. foreground practice submission)
+// never interleave a read-modify-write cycle and corrupt the file on disk.
+private var fileIOQueues: [String: DispatchQueue] = [:]
+private let fileIOQueuesLock = NSLock()
+
+private func fileIOQueue(for fileName: String) -> DispatchQueue {
+    fileIOQueuesLock.lock()
+    defer { fileIOQueuesLock.unlock() }
+    if let existing = fileIOQueues[fileName] {
+        return existing
+    }
+    let queue = DispatchQueue(label: "com.polyglot.io.\(fileName)")
+    fileIOQueues[fileName] = queue
+    return queue
+}
+
+/// Runs `body` exclusively with respect to any other `withFileLock` call for the same `fileName`.
+/// Callers must not call `withFileLock` again for the same `fileName` from within `body`
+/// (GCD serial queues are not reentrant and will deadlock).
+func withFileLock<T>(_ fileName: String, _ body: () throws -> T) rethrows -> T {
+    try fileIOQueue(for: fileName).sync(execute: body)
+}
+
 func constructFileUrl(from fileName: String, create: Bool) throws -> URL {
     do {
         let fileURL = try FileManager
