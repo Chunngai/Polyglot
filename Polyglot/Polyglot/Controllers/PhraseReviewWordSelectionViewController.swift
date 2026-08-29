@@ -184,6 +184,10 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
     // (backgroundRefresh's own thread, onPracticeCounterUpdated's notification handler).
     // Serialize the read-modify-write of the state above to avoid races between them.
     private let stateLock = NSLock()
+    // Only auto-scroll once, right after the initial load — not on every background
+    // reload, otherwise the list would keep jumping back under the user while they're
+    // scrolling around.
+    private var hasScrolledToSelection = false
 
     private var defaultSelectionCount: Int { LangCode.currentLanguage.configs.phraseReviewDefaultSelectionCount }
     private static let headerReuseId = "phraseReviewHeader"
@@ -221,6 +225,7 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
         loadEntries()
         tableView.reloadData()
         updateStartButton()
+        scrollToFirstSelectedWordIfNeeded()
 
         // Background: generate missing practices + translations, then refresh counts.
         DispatchQueue.global(qos: .userInitiated).async {
@@ -229,6 +234,7 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
             DispatchQueue.main.async {
                 self.tableView.reloadData()
                 self.updateStartButton()
+                self.scrollToFirstSelectedWordIfNeeded()
             }
         }
     }
@@ -521,6 +527,21 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
     private static func requiresGrammarAnnotation(_ lang: LangCode) -> Bool {
         return lang.configs.shouldShowVerbAspectsInPractices
             || lang.configs.shouldShowNounCasesInPractices
+    }
+
+    private func scrollToFirstSelectedWordIfNeeded() {
+        guard !hasScrolledToSelection else { return }
+        for (sectionIndex, section) in sections.enumerated() {
+            if let rowIndex = section.entries.firstIndex(where: { selectedKeys.contains($0.key) }) {
+                hasScrolledToSelection = true
+                tableView.scrollToRow(
+                    at: IndexPath(row: rowIndex, section: sectionIndex),
+                    at: .middle,
+                    animated: false
+                )
+                return
+            }
+        }
     }
 
     @objc private func onPracticeCounterUpdated() {
