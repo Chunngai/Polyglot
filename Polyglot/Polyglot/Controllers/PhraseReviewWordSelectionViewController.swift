@@ -149,6 +149,7 @@ private class PhraseReviewSectionHeaderView: UITableViewHeaderFooterView {
 
 private struct WordSelectionEntry {
     let key: String
+    let displayWord: String
     let meaning: String
     let periodIndex: Int
     let nextReviewDate: Date
@@ -259,10 +260,18 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
         // Pre-build a lookup: [normalizedKey: [periodIndex: [type: [practice]]]]
         // to avoid O(keys × practices) filter loops below.
         var practicesByKeyAndPeriod: [String: [Int: [WordPractice.PracticeType: [WordPractice]]]] = [:]
+        // `normalizedKey` deliberately strips whitespace around punctuation so words like
+        // "a, b" and "a,b" match as the same key -- but that makes the key unsuitable for
+        // display (it loses the original spacing). Keep the first raw word seen for each
+        // key, so the list can show the original text instead of the matching key.
+        var displayWordByKey: [String: String] = [:]
         for p in cachedPractices {
             let k = WordPracticeProducer.normalizedKey(from: p.word)
             let period = p.periodIndex ?? 0
             practicesByKeyAndPeriod[k, default: [:]][period, default: [:]][p.practiceType, default: []].append(p)
+            if displayWordByKey[k] == nil {
+                displayWordByKey[k] = p.word.replacingOccurrences(of: String(Token.accentSymbol), with: "")
+            }
         }
 
         var allEntries: [WordSelectionEntry] = []
@@ -307,6 +316,7 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
 
             allEntries.append(WordSelectionEntry(
                 key: key,
+                displayWord: displayWordByKey[key] ?? key,
                 meaning: meaning,
                 periodIndex: periodIndex,
                 nextReviewDate: schedEntry.nextReviewDate,
@@ -529,7 +539,7 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
             string: "\(indexPath.row + 1). ",
             attributes: [.foregroundColor: Colors.weakTextColor]
         )
-        attrText.append(NSAttributedString(string: entry.key))
+        attrText.append(NSAttributedString(string: entry.displayWord))
         cell.wordLabel.attributedText = attrText
         cell.selectionStyle = .none
 

@@ -404,7 +404,7 @@ extension WordPracticeProducer {
                     practice.isGrammarAnnotationCompleted = true
                 }
 
-                let accentedWord = tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)
+                let accentedWord = Self.joinTokensPreservingPunctuation(tokens.accentedPronunciations, separator: Strings.wordSeparator)
                 for practice in practicesForWord {
                     self.addAccents(to: practice, with: accentedWord)
                     practice.isAccentAnnotationCompleted = true
@@ -491,7 +491,7 @@ extension WordPracticeProducer {
                     practice.isGrammarAnnotationCompleted = true
                 }
                 if !practice.isAccentAnnotationCompleted {
-                    let accentedWord = tokens.accentedPronunciations.joined(separator: Strings.wordSeparator)
+                    let accentedWord = Self.joinTokensPreservingPunctuation(tokens.accentedPronunciations, separator: Strings.wordSeparator)
                     self.addAccents(to: practice, with: accentedWord)
                     practice.isAccentAnnotationCompleted = true
                 }
@@ -742,7 +742,7 @@ extension WordPracticeProducer {
             }
             
             let accentedTokenPronunciations = languageSpecificPreprocess(tokens.accentedPronunciations)
-            let accentedWord = accentedTokenPronunciations.joined(separator: Strings.wordSeparator)
+            let accentedWord = Self.joinTokensPreservingPunctuation(accentedTokenPronunciations, separator: Strings.wordSeparator)
             return accentedWord
         }
         
@@ -838,7 +838,7 @@ extension WordPracticeProducer {
         }
         
         let accentedTokenPronunciations = languageSpecificPreprocess(tokens.accentedPronunciations)
-        let accentedWord = accentedTokenPronunciations.joined(separator: Strings.wordSeparator)
+        let accentedWord = Self.joinTokensPreservingPunctuation(accentedTokenPronunciations, separator: Strings.wordSeparator)
         // Not needed for Russian words without accents.
         if LangCode.currentLanguage == .ru && tokens.pronunciations == tokens.accentedPronunciations {
             return nil
@@ -966,7 +966,7 @@ extension WordPracticeProducer {
                 practiceType: .reordering,
                 word: word,
                 query: query,
-                key: words.joined(separator: Strings.wordSeparator),
+                key: Self.joinTokensPreservingPunctuation(words, separator: Strings.wordSeparator),
                 prompt: self.prompt(for: .reordering, withWord: query),
                 reorderingWordList: words,
                 reorderingTextTranslation: translation,
@@ -1013,7 +1013,7 @@ extension WordPracticeProducer {
             practiceType: .phraseConstruction,
             word: word,
             query: word,
-            key: chunks.joined(separator: Strings.wordSeparator),
+            key: Self.joinTokensPreservingPunctuation(chunks, separator: Strings.wordSeparator),
             prompt: prompt(for: .phraseConstruction, withWord: word),
             reorderingWordList: chunks,
             direction: .text
@@ -1109,6 +1109,21 @@ extension WordPracticeProducer {
     static func normalizedKey(from word: String) -> String {
         let stripped = makeKeyForWordPracticeCount(from: word).lowercased()
         return stripped.replacingOccurrences(of: #"\s*([^\w\s])\s*"#, with: "$1", options: .regularExpression)
+    }
+
+    /// Joins tokens with `separator`, but omits the separator before a token
+    /// that is pure punctuation (e.g. ",") -- otherwise tokenizing a phrase
+    /// like "a, b" and rejoining with a space separator produces "a , b".
+    static func joinTokensPreservingPunctuation(_ tokens: [String], separator: String) -> String {
+        var result = ""
+        for token in tokens {
+            let isPunctuation = token.range(of: #"^[^\w\s]+$"#, options: .regularExpression) != nil
+            if !result.isEmpty && !isPunctuation {
+                result += separator
+            }
+            result += token
+        }
+        return result
     }
 
     static func deleteWordPractices(forKey key: String, lang: LangCode) {

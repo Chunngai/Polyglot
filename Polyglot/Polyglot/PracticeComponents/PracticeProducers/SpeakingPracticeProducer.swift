@@ -132,6 +132,7 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
             }
 
             var firstPractice: SpeakingPractice? = nil
+            let translationSemaphore = DispatchSemaphore(value: 0)
             makePractice(
                 fromArticle: article,
                 atParaIndex: firstEntry.paraIndex,
@@ -139,8 +140,9 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
                 sentenceIndex: firstEntry.sentenceIndex
             ) { practice in
                 firstPractice = practice
+                translationSemaphore.signal()
             }
-            while firstPractice == nil { Thread.sleep(forTimeInterval: 0.05) }
+            translationSemaphore.wait()
 
             // Wait for accent with 5s timeout, then apply directly (avoids the
             // self.practiceList search in calculateAccentLocsForText which would fail
@@ -189,13 +191,13 @@ class SpeakingPracticeProducer: TextMeaningPracticeProducer {
                             sentenceIndex: entry.sentenceIndex
                         ) { practice in
                             slots[slotIndex] = practice
-                            self.calculateAccentLocsForText(in: practice)
                         }
                     }
                     while slots.contains(where: { $0 == nil }) {
                         Thread.sleep(forTimeInterval: 0.1)
                     }
                     self.practiceList.append(contentsOf: slots.compactMap { $0 })
+                    self.updateMeaningsAndExistingPhrasesAndAccentLocs()
                     self.isBackgroundMakeInProgress = false
                 }
             } else {

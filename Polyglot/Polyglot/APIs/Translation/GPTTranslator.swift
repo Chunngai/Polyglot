@@ -53,6 +53,7 @@ struct GPTTranslator: TranslationProtocol {
     func systemPrompt() -> String {
         return """
 Translate the given text from \(self.enNameOfSrcLang!) to \(self.enNameOfTrgLang!).
+Output ONLY the translated text. Do NOT include explanations, notes, alternatives, or any other content.
 
 # Format
 <input> input text
