@@ -310,7 +310,13 @@ extension WordPractice {
             || practiceType == .imageFilling
         )
         
-        let key = self.key.normalized(
+        // For reordering, the word-bank labels have accent symbols stripped by
+        // applyAccentBold, so strip them from the key too (covers cached practices
+        // that were saved before the producer stripped them at generation time).
+        let rawKey = practiceType == .reordering
+            ? self.key.replacingOccurrences(of: String(Token.accentSymbol), with: "")
+            : self.key
+        let key = rawKey.normalized(
             caseInsensitive: shouldIgnoreCaseAndAccent,
             diacriticInsensitive: shouldIgnoreCaseAndAccent
         )

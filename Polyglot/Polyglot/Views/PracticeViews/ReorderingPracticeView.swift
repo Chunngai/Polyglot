@@ -301,14 +301,16 @@ class ReorderingPracticeView: WordPracticeView {
                         
                     ])
                 )
-                attrText.append(NSAttributedString(
+                let keyAttr = NSMutableAttributedString(
                     string: key,
                     attributes: [
                         .foregroundColor : Colors.normalTextColor,
                         .font : textLabelFont,
                         .paragraphStyle: textLabelParaStyle
-                    ])
+                    ]
                 )
+                GrammarAnnotationHelper.applyAccentBold(to: keyAttr, fontSize: textLabelFont.pointSize)
+                attrText.append(keyAttr)
                 return attrText
             }()
         }

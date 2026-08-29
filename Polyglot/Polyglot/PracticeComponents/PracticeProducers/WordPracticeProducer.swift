@@ -578,10 +578,21 @@ extension WordPracticeProducer {
 
         var choices: [String] = [wordToPractice]
 
+        // Normalize for dedup: strip accent symbols then normalize (case-insensitive)
+        // so variants like "сло'во"/"слово" or "Hello"/"hello" are not both added as choices.
+        func normalized(_ s: String) -> String {
+            s.replacingOccurrences(of: String(Token.accentSymbol), with: "")
+             .normalized(caseInsensitive: true)
+        }
+        func choicesContains(_ candidate: String) -> Bool {
+            let n = normalized(candidate)
+            return choices.contains { normalized($0) == n }
+        }
+
         var shuffledPreferred = preferredWords.shuffled()
         while choices.count < Self.defaultChoiceNumber && !shuffledPreferred.isEmpty {
             let choice = textForChoice(shuffledPreferred.removeFirst())
-            if !choices.contains(choice) {
+            if !choicesContains(choice) {
                 choices.append(choice)
             }
         }
@@ -589,7 +600,7 @@ extension WordPracticeProducer {
         var loopCount = 0
         while choices.count < Self.defaultChoiceNumber {
             let choice = textForChoice(self.words.randomElement()!)
-            if !choices.contains(choice) || loopCount >= Self.maxChoiceLoopCount {
+            if !choicesContains(choice) || loopCount >= Self.maxChoiceLoopCount {
                 choices.append(choice)
             }
             loopCount += 1
@@ -695,7 +706,7 @@ extension WordPracticeProducer {
             key: query,
             prompt: prompt(for: .contextSelection, withWord: query),
             choices: choices,
-            context: contextText.replacingOccurrences(
+            context: contextText.trimmingCharacters(in: .whitespaces).replacingOccurrences(
                 of: query,
                 with: Strings.underscoreToken,
                 options: [.caseInsensitive, .diacriticInsensitive]
@@ -934,6 +945,10 @@ extension WordPracticeProducer {
             completion(nil)
             return
         }
+
+        // Strip accent symbols so displayed word-bank labels (which applyAccentBold
+        // already strips) match the key during correctness checking.
+        words = words.map { $0.replacingOccurrences(of: String(Token.accentSymbol), with: "") }
         
         // Check line number.
         // TODO: - Update here. It's not proper to call calculateRowNumber() here.
