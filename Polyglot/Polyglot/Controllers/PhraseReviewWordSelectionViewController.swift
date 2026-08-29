@@ -172,6 +172,18 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
 
     private var sections: [(periodIndex: Int, entries: [WordSelectionEntry])] = []
     private var selectedKeys: Set<String> = []
+    // Freezes each section's on-screen row order across reloads: only newly-appeared
+    // keys are positioned by the sort formula, existing ones keep their prior slot so
+    // background annotation/generation completing doesn't make rows jump around.
+    private var orderedKeysByPeriod: [Int: [String]] = [:]
+    // Default selection is computed only once per view-controller lifetime; afterwards
+    // background reloads must not re-run it (that caused the selection to keep changing
+    // as annotation completed and readiness flipped mid-load).
+    private var hasAppliedDefaultSelection = false
+    // loadEntries() can be invoked concurrently from multiple background queues
+    // (backgroundRefresh's own thread, onPracticeCounterUpdated's notification handler).
+    // Serialize the read-modify-write of the state above to avoid races between them.
+    private let stateLock = NSLock()
 
     private var defaultSelectionCount: Int { LangCode.currentLanguage.configs.phraseReviewDefaultSelectionCount }
     private static let headerReuseId = "phraseReviewHeader"
@@ -331,8 +343,13 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
         // Within each section: ready-to-practice entries first, then not-ready;
         // within each group sort by nextReviewDate ascending (earlier = created earlier).
         let grouped = Dictionary(grouping: allEntries, by: { $0.periodIndex })
+        let entryByKey = Dictionary(uniqueKeysWithValues: allEntries.map { ($0.key, $0) })
+
+        stateLock.lock()
+        defer { stateLock.unlock() }
+
         sections = grouped.keys.sorted().map { period in
-            let sorted = grouped[period]!.sorted { a, b in
+            let sortedByFormula = grouped[period]!.sorted { a, b in
                 if a.isReadyToPractice != b.isReadyToPractice {
                     return a.isReadyToPractice
                 }
@@ -343,22 +360,41 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
                 // when readiness and nextReviewDate are equal (e.g. both .distantPast).
                 return a.key < b.key
             }
-            return (periodIndex: period, entries: sorted)
-        }
 
-        // Default-select first N ready-to-practice words.
+            // Freeze row order: keep previously-shown keys in their existing slot
+            // (dropping ones that disappeared), and append newly-appeared keys in the
+            // order the sort formula would place them. This prevents background
+            // annotation/generation completing from re-sorting rows that are already
+            // on screen out from under the user.
+            let currentKeysInPeriod = Set(grouped[period]!.map { $0.key })
+            var previousOrder = (orderedKeysByPeriod[period] ?? []).filter { currentKeysInPeriod.contains($0) }
+            let previousOrderSet = Set(previousOrder)
+            for entry in sortedByFormula where !previousOrderSet.contains(entry.key) {
+                previousOrder.append(entry.key)
+            }
+            orderedKeysByPeriod[period] = previousOrder
+
+            let orderedEntries = previousOrder.compactMap { entryByKey[$0] }
+            return (periodIndex: period, entries: orderedEntries)
+        }
+        // Drop periods that no longer have any entries.
+        let currentPeriods = Set(grouped.keys)
+        orderedKeysByPeriod = orderedKeysByPeriod.filter { currentPeriods.contains($0.key) }
+
+        // Default-select first N ready-to-practice words, preferring words with more
+        // already-generated practices. Runs only once per view-controller lifetime so
+        // the selection doesn't keep changing as background annotation completes.
         selectedKeys = selectedKeys.filter { key in
             sections.flatMap { $0.entries }.contains { $0.key == key }
         }
-        if selectedKeys.isEmpty {
-            var selected = 0
-            for section in sections {
-                for entry in section.entries where entry.isReadyToPractice {
-                    if selected < defaultSelectionCount {
-                        selectedKeys.insert(entry.key)
-                        selected += 1
-                    }
-                }
+        if !hasAppliedDefaultSelection {
+            let candidates = sections
+                .flatMap { $0.entries }
+                .filter { $0.isReadyToPractice }
+                .sorted { $0.practiceCounts.reduce(0, +) > $1.practiceCounts.reduce(0, +) }
+            if !candidates.isEmpty {
+                selectedKeys = Set(candidates.prefix(defaultSelectionCount).map { $0.key })
+                hasAppliedDefaultSelection = true
             }
         }
     }
