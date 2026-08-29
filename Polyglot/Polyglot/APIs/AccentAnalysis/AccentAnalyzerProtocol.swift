@@ -208,6 +208,21 @@ func looksLikeAdjective(_ text: String) -> Bool {
 // text -- typically the preposition governing the noun at index i.
 // Returns "" if the budget is exhausted before finding a non-skippable token.
 private let conjunctions: Set<String> = ["и", "или", "но", "да"]
+
+// Restrictive particles that can sit between two nouns in a genitive construction
+// (e.g. "чашка только чая") without breaking the noun-noun relationship.
+private let restrictiveParticles: Set<String> = ["только"]
+
+// Scans backwards from index i-1 over restrictive particles and returns the index
+// of the nearest non-particle token, or -1 if none found.
+private func precedingIndexSkippingParticles(_ i: Int, in tokens: [Token]) -> Int {
+    var j = i - 1
+    while j >= 0 && restrictiveParticles.contains(tokens[j].text.lowercased()) {
+        j -= 1
+    }
+    return j
+}
+
 private func findPrecedingNonAdjective(_ i: Int, in tokens: [Token], maxSkip: Int = 5) -> String {
     var j = i - 1
     var skipped = 0
@@ -291,14 +306,18 @@ func calculateNounCaseAnnotations(for text: String, with tokens: [Token]) -> [No
         guard tokenStarts[i] >= 0, var nounCase = token.nounCase else { continue }
 
         let prevText = i > 0 ? tokens[i - 1].text.lowercased() : ""
+        // Rule A looks past restrictive particles (e.g. "только") so "noun1 только noun2"
+        // still resolves noun2 as genitive via the preceding noun.
+        let skipIdx = precedingIndexSkippingParticles(i, in: tokens)
+        let skipText = skipIdx >= 0 ? tokens[skipIdx].text.lowercased() : ""
 
         if nounCase.hasPrefix("ambiguous_") {
             let ambiguousCases = Set(nounCase.dropFirst("ambiguous_".count).components(separatedBy: "_"))
 
             // Rule A: try gen via нет/quantity word before, prev token ends with ого/его, or prev token is also a noun.
-            let prevEndsWithOgo = prevText.hasSuffix("ого") || prevText.hasSuffix("его")
-            let prevIsNoun = i > 0 && tokens[i - 1].nounCase != nil
-            let prevIsQuantity = quantityWords.contains(prevText)
+            let prevEndsWithOgo = skipText.hasSuffix("ого") || skipText.hasSuffix("его")
+            let prevIsNoun = skipIdx >= 0 && tokens[skipIdx].nounCase != nil
+            let prevIsQuantity = quantityWords.contains(skipText)
             if ambiguousCases.contains("gen") && (prevIsQuantity || prevEndsWithOgo || prevIsNoun) {
                 nounCase = "gen"
             } else if let prepCases = prepToCase[findPrecedingNonAdjective(i, in: tokens)] {

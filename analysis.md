@@ -98,6 +98,30 @@ if yearWords.contains(token.text.lowercased()) && i >= 2 {
 
 ---
 
+### 1.4 名词-名词 gen. 结构被 "только" 阻断
+
+**现象**：noun1 только noun2 中，noun2 应确定为 gen.（跟随 noun1 的名词-名词属格结构），但因 "только" 挡在中间，无法向前找到 noun1 确定 case。
+
+**原因**：`AccentAnalyzerProtocol.swift` 第 306-317 行（`calculateNounCaseAnnotations` 的 Rule A）直接用 `tokens[i - 1]` 判断前一个 token 是否为名词（`prevIsNoun`），未做任何跳词处理。"только" 本身没有 `nounCase`，导致 `prevIsNoun` 为 false，gen. 判定失败。
+
+**修复**：新增 `restrictiveParticles` 集合（目前只含 "только"）和 `precedingIndexSkippingParticles()` 函数，向前跳过限定性副词/助词，找到真正的前驱 token 再判断：
+
+```swift
+private let restrictiveParticles: Set<String> = ["только"]
+
+private func precedingIndexSkippingParticles(_ i: Int, in tokens: [Token]) -> Int {
+    var j = i - 1
+    while j >= 0 && restrictiveParticles.contains(tokens[j].text.lowercased()) {
+        j -= 1
+    }
+    return j
+}
+```
+
+Rule A 中的 `prevText`/`prevIsNoun`/`prevEndsWithOgo`/`prevIsQuantity` 改用跳过 "только" 后的 token（`skipIdx`/`skipText`）计算，其余逻辑不变。
+
+---
+
 ## 2. 动词 Aspect 标注
 
 ### 2.1 берет 未识别为动词 *(暂不处理)*
@@ -987,6 +1011,10 @@ closure #5 in WordPracticeProducer.makeAndCachePractices(for:skipDuplicates:)
 （4）列表，有单词但没有可练习单词：能点击进入；无单词：不可点击且 inactive 颜色
 原因：HomeViewController.swift 里 isWordPracticeEnabled 用的是 ebbinghausSchedule.values.contains { isAvailable }，即"是否存在至少一条已到复习时间的记录"，粒度用错了——对应的是"有没有可练习单词"，而需求要的是"有没有单词"。且 createListCellRegistration 里根本没有对 phraseReviewSection 计算 isEnabled，导致这个入口 cell 永远显示可用色，从不置灰。
 修复：跳转前的判断改成 !ebbinghausSchedule.isEmpty（有单词就能点，不管是否可练习），并在 createListCellRegistration 里给 phraseReviewSection 补上 isEnabled = !ebbinghausSchedule.isEmpty 的置灰逻辑。
+
+（5）Cell 右上角显示 "000"（该词当轮所有练习类型均未生成任何练习）时，不允许选择该词进入练习
+原因：PhraseReviewWordSelectionViewController.swift 第 161 行 isReadyToPractice 只检查 isAvailable && isAnnotationReady && !meaning.isEmpty，未检查 practiceCounts 是否全为 0。isAnnotationReady 的计算（loadEntries() 第 298 行）把"某类型 matching 为空"直接视为"该类型已标注"（matching.isEmpty || matching.allSatisfy { ... }），本意是"空类型不该拦住可选性"，但副作用是全部类型都是 0 条练习时 isAnnotationReady 恒为 true，导致显示 000 的 cell 仍满足 isReadyToPractice。
+修复：isReadyToPractice 增加条件，要求 practiceCounts 至少有一项 > 0，即 practiceCounts.contains(where: { $0 > 0 })，全 0 时视为未就绪，不可选择。
 
 2. Speaking practice（选择文章进入）
 （1）底部没进度，应该和 reading practice 一样有进度

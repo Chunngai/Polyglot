@@ -158,7 +158,8 @@ private struct WordSelectionEntry {
     let practiceTypes: [WordPractice.PracticeType]
 
     var isAvailable: Bool { nextReviewDate <= Date() }
-    var isReadyToPractice: Bool { isAvailable && isAnnotationReady && !meaning.isEmpty }
+    var hasGeneratedPractices: Bool { practiceCounts.contains(where: { $0 > 0 }) }
+    var isReadyToPractice: Bool { isAvailable && isAnnotationReady && !meaning.isEmpty && hasGeneratedPractices }
 }
 
 // MARK: - View Controller
