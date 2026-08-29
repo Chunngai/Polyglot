@@ -168,6 +168,18 @@ Rule A 中的 `prevText`/`prevIsNoun`/`prevEndsWithOgo`/`prevIsQuantity` 改用�
 
 ---
 
+### 2.3 形动词着色错位（受重音符号插入影响）
+
+**现象**：начинающих 期望 начинаю 用 aspect 颜色、щих 用 case 颜色，实际只有 начина 有颜色，ющих 无色；научившемуся 期望 научив/шему/ся 三段分色，实际只有 науч 和 ус（诡异碎片）有颜色，其余无色。
+
+**原因**：`WordPracticeProducer.swift`，`calculateVerbAspectAnnotations`/`calculateNounCaseAnnotations`（约第 423/426、519/522 行）在 `practice.query` **还是纯净词形**（无重音符号）时计算 verb-root/adjectival-suffix/ся 三段的 position/length。随后 `addAccents()`（约第 468、556 行）把 `practice.query` 替换成带 `Token.accentSymbol`（单引号 `'`）的重音词形，每个 token 插入一个符号，字符串变长，插入点之后的所有字符整体右移。已经算好的三段 annotation 坐标没有跟着调整，导致插入点之后的分段整体错位：始终不受影响的前段（插入点之前的动词词根）颜色正常，插入点之后的段落（形容词后缀、ся）整体错位或消失。这不是形动词专属问题，是任何"先算标注坐标、后插重音符号"的路径共有的隐性 bug，只是形动词因为多段分色，错位效果最明显。
+
+**修复**：不改变计算顺序，改为在 `addAccents()` 之后对已计算的三个 annotation 数组做一次位置修正。新增 `shiftForAccentInsertions()` 计算给定 position/length 在若干重音插入点（用已有的 `calculateAccentLocs(for:with:)` 取得，坐标系与算标注时的纯净词形一致）下的修正后坐标：插入点在 position 之前则 position+1；插入点落在 [position, position+length) 内则 position+1 且 length+1。对 `[VerbAspectAnnotation]`/`[NounCaseAnnotation]`/`[ShortAdjectiveAnnotation]` 各写一个重载调用它，汇总成 `adjustAnnotationsForAccentInsertions(of:tokens:word:)`，在两处 `addAccents()` 调用之后（`makeAndCachePractices()` 约第 468 行、`annotateExistingPractices()` 约第 556 行）分别调用。choices/context 的 annotation 走独立的 `analyzeAccents(for: choice/context)`，未经过 `addAccents()`，字符串未被插入符号，不受影响，无需修正。
+
+实现：✅ 已修复（WordPracticeProducer.swift：新增 `shiftForAccentInsertions`/`adjustForAccentInsertions`（三个重载）/`adjustAnnotationsForAccentInsertions`；两处 `addAccents()` 调用后接入修正）
+
+---
+
 ## 3. Phrase Review
 
 ### 3.1 case/aspect 标注不一致，且缺少重音标注（使用 3.10 修复，不使用这点的修复方法）

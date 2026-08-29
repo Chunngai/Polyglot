@@ -71,9 +71,8 @@ class WordPracticeProducer: BasePracticeProducer {
 }
 
 extension WordPracticeProducer {
-    
+
     private func addAccents(to practice: BasePractice, with accentedWord: String) {
-        
         guard 
             self.lang == .ja
             || self.lang == .ru
@@ -136,9 +135,70 @@ extension WordPracticeProducer {
                 .split(with: Strings.wordSeparator)
                 .map { $0.replacingOccurrences(of: String(Token.accentSymbol), with: "") }
         }
-            
+
     }
-    
+
+    // Grammar annotations (verb aspect / noun case / short adjective) are computed on the
+    // plain, un-accented practice.query. addAccents() then inserts one Token.accentSymbol
+    // per token into practice.query, shifting every character at or after each insertion
+    // point by +1. Without this correction, annotation position/length -- especially the
+    // verb-root/adjectival-suffix/reflexive-ся split for participles -- point at the wrong
+    // characters once the accent symbols are in place.
+    private func shiftForAccentInsertions(position: Int, length: Int, accentLocs: [Int]) -> (position: Int, length: Int) {
+        var shift = 0
+        var length = length
+        for loc in accentLocs.sorted() {
+            if loc < position {
+                shift += 1
+            } else if loc < position + length {
+                shift += 1
+                length += 1
+            }
+        }
+        return (position + shift, length)
+    }
+
+    private func adjustForAccentInsertions(_ annotations: inout [VerbAspectAnnotation], accentLocs: [Int]) {
+        guard !accentLocs.isEmpty else { return }
+        for i in annotations.indices {
+            let (position, length) = shiftForAccentInsertions(
+                position: annotations[i].position, length: annotations[i].length, accentLocs: accentLocs
+            )
+            annotations[i].position = position
+            annotations[i].length = length
+        }
+    }
+
+    private func adjustForAccentInsertions(_ annotations: inout [NounCaseAnnotation], accentLocs: [Int]) {
+        guard !accentLocs.isEmpty else { return }
+        for i in annotations.indices {
+            let (position, length) = shiftForAccentInsertions(
+                position: annotations[i].position, length: annotations[i].length, accentLocs: accentLocs
+            )
+            annotations[i].position = position
+            annotations[i].length = length
+        }
+    }
+
+    private func adjustForAccentInsertions(_ annotations: inout [ShortAdjectiveAnnotation], accentLocs: [Int]) {
+        guard !accentLocs.isEmpty else { return }
+        for i in annotations.indices {
+            let (position, length) = shiftForAccentInsertions(
+                position: annotations[i].position, length: annotations[i].length, accentLocs: accentLocs
+            )
+            annotations[i].position = position
+            annotations[i].length = length
+        }
+    }
+
+    private func adjustAnnotationsForAccentInsertions(of practice: WordPractice, tokens: [Token], word: String) {
+        let accentLocs = calculateAccentLocs(for: word, with: tokens)
+        guard !accentLocs.isEmpty else { return }
+        adjustForAccentInsertions(&practice.verbAspectAnnotations, accentLocs: accentLocs)
+        adjustForAccentInsertions(&practice.nounCaseAnnotations, accentLocs: accentLocs)
+        adjustForAccentInsertions(&practice.shortAdjectiveAnnotations, accentLocs: accentLocs)
+    }
+
     private func sendWordPracticeCounterUpdateNotification() {
         // // https://stackoverflow.com/questions/55382533/how-to-observe-the-value-of-a-global-variable-and-act-on-a-change-within-the-vie
         NotificationCenter.default.post(Notification(
@@ -408,6 +468,7 @@ extension WordPracticeProducer {
                 for practice in practicesForWord {
                     self.addAccents(to: practice, with: accentedWord)
                     practice.isAccentAnnotationCompleted = true
+                    self.adjustAnnotationsForAccentInsertions(of: practice, tokens: tokens, word: word)
                 }
 
                 for _ in 0..<neededAccentSelection {
@@ -494,6 +555,7 @@ extension WordPracticeProducer {
                     let accentedWord = Self.joinTokensPreservingPunctuation(tokens.accentedPronunciations, separator: Strings.wordSeparator)
                     self.addAccents(to: practice, with: accentedWord)
                     practice.isAccentAnnotationCompleted = true
+                    self.adjustAnnotationsForAccentInsertions(of: practice, tokens: tokens, word: word)
                 }
             }
 
