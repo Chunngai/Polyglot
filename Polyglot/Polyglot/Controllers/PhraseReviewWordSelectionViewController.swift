@@ -534,11 +534,17 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
         for (sectionIndex, section) in sections.enumerated() {
             if let rowIndex = section.entries.firstIndex(where: { selectedKeys.contains($0.key) }) {
                 hasScrolledToSelection = true
-                tableView.scrollToRow(
-                    at: IndexPath(row: rowIndex, section: sectionIndex),
-                    at: .middle,
-                    animated: false
-                )
+                let indexPath = IndexPath(row: rowIndex, section: sectionIndex)
+                // scrollToRow(at: .top) aligns the row with the table's visible top edge,
+                // but the section header floats (sticky) at that same edge and would cover
+                // the row. Push the row down by the header's height so it lands below it.
+                tableView.layoutIfNeeded()
+                tableView.scrollToRow(at: indexPath, at: .top, animated: false)
+                let headerHeight = tableView.rectForHeader(inSection: sectionIndex).height
+                if headerHeight > 0 {
+                    let adjustedOffsetY = max(tableView.contentOffset.y - headerHeight, -tableView.contentInset.top)
+                    tableView.setContentOffset(CGPoint(x: tableView.contentOffset.x, y: adjustedOffsetY), animated: false)
+                }
                 return
             }
         }
