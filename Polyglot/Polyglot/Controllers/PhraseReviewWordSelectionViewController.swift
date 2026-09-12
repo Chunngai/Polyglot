@@ -438,11 +438,11 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
                 WordPracticeProducer.normalizedKey(from: $0.word) == key
                     && ($0.periodIndex ?? 0) == periodIndex
             }
-            let needsGeneration = typesForPeriod.contains { type in
+            let missingTypes = typesForPeriod.filter { type in
                 wordPractices.filter { $0.practiceType == type }.count < repetitions
             }
-            if needsGeneration {
-                print("[backgroundRefresh] \(key): generating missing practices")
+            if !missingTypes.isEmpty {
+                print("[backgroundRefresh] \(key): generating missing practices for types \(missingTypes)")
                 producer.makeAndCachePractices(for: [key], skipDuplicates: true)
             }
 

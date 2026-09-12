@@ -215,9 +215,11 @@ extension ContentCreator {
               let baseURLString = apiURL,
               let baseURL = URL(string: baseURLString)
         else {
+            print("[generateImage] \(word): missing or invalid config, apiKey set: \(apiKey != nil), apiURL: \(apiURL ?? "nil")")
             completion(nil)
             return
         }
+        print("[generateImage] \(word): starting, apiURL: \(baseURLString), model: \(model ?? "nil")")
         let url = baseURL.appendingPathComponent("v1/images/generations")
 
         var request = URLRequest(url: url, timeoutInterval: requestTimeLimit)
@@ -229,8 +231,8 @@ extension ContentCreator {
                 "model": model ?? "",
                 "prompt": "A clear, simple illustration representing '\(word)' WITHOUT TEXT",
                 "n": 1,
-                "size": "256x256",
-                "response_format": "b64_json"
+                "size": "1:1",
+                "async": true
             ])
         } catch {
             completion(nil)
@@ -238,14 +240,103 @@ extension ContentCreator {
         }
 
         URLSession.shared.dataTask(with: request) { data, _, error in
-            
+
             guard let data = data, error == nil,
                   let json = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any],
-                  let dataArr = json["data"] as? [[String: Any]],
-                  let b64 = dataArr.first?["b64_json"] as? String,
-                  let imageData = Data(base64Encoded: b64)
+                  let taskId = json["task_id"] as? String
             else {
+                print("[generateImage] \(word): submission failed, error: \(error?.localizedDescription ?? "unknown"), response: \(data.flatMap { String(data: $0, encoding: .utf8) } ?? "nil")")
                 completion(nil)
+                return
+            }
+
+            print("[generateImage] \(word): task submitted, task_id: \(taskId)")
+            self.pollImageTask(word: word, taskId: taskId, apiKey: apiKey, baseURL: baseURL, attemptsLeft: 30, completion: completion)
+        }.resume()
+
+    }
+
+    // The draw endpoint is asynchronous: submitting a prompt returns a
+    // task_id, and the result (a hosted image URL) has to be fetched by
+    // polling a separate task-status endpoint at the API's root domain
+    // (not under the same path as the draw endpoint).
+    private func pollImageTask(word: String, taskId: String, apiKey: String, baseURL: URL, attemptsLeft: Int, completion: @escaping (String?) -> Void) {
+
+        guard attemptsLeft > 0 else {
+            print("[generateImage] \(word): task \(taskId) timed out waiting for completion")
+            completion(nil)
+            return
+        }
+
+        guard var rootURL = URLComponents(url: baseURL, resolvingAgainstBaseURL: false) else {
+            completion(nil)
+            return
+        }
+        rootURL.path = "/v1/tasks/\(taskId)"
+        guard let statusURL = rootURL.url else {
+            completion(nil)
+            return
+        }
+
+        var request = URLRequest(url: statusURL, timeoutInterval: requestTimeLimit)
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+
+        URLSession.shared.dataTask(with: request) { data, _, error in
+
+            guard let data = data, error == nil,
+                  let json = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
+            else {
+                print("[generateImage] \(word): task \(taskId) status check failed, error: \(error?.localizedDescription ?? "unknown")")
+                completion(nil)
+                return
+            }
+
+            if let dataArr = json["data"] as? [[String: Any]],
+               let imageURLString = dataArr.first?["url"] as? String,
+               let imageURL = URL(string: imageURLString) {
+                print("[generateImage] \(word): task \(taskId) completed, image url: \(imageURLString)")
+                self.downloadImage(word: word, from: imageURL, attemptsLeft: 10, completion: completion)
+                return
+            }
+
+            if let status = json["status"] as? String, status == "failed" {
+                print("[generateImage] \(word): task \(taskId) failed, response: \(json)")
+                completion(nil)
+                return
+            }
+
+            let progress = json["progress"] as? Int ?? 0
+            let status = json["status"] as? String ?? "unknown"
+            print("[generateImage] \(word): task \(taskId) in progress, status: \(status), progress: \(progress)%, attempts left: \(attemptsLeft - 1)")
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                self.pollImageTask(word: word, taskId: taskId, apiKey: apiKey, baseURL: baseURL, attemptsLeft: attemptsLeft - 1, completion: completion)
+            }
+        }.resume()
+
+    }
+
+    // The hosted image URL returned by the task-status endpoint can 404 for
+    // a few seconds right after the task completes, so retry briefly.
+    private func downloadImage(word: String, from imageURL: URL, attemptsLeft: Int, completion: @escaping (String?) -> Void) {
+
+        guard attemptsLeft > 0 else {
+            print("[generateImage] \(word): giving up downloading image after repeated 404s: \(imageURL)")
+            completion(nil)
+            return
+        }
+
+        URLSession.shared.dataTask(with: imageURL) { data, response, error in
+
+            guard let data = data, error == nil,
+                  let httpResponse = response as? HTTPURLResponse,
+                  httpResponse.statusCode == 200
+            else {
+                let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
+                print("[generateImage] \(word): image not ready yet (status \(statusCode)), retrying, attempts left: \(attemptsLeft - 1)")
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                    self.downloadImage(word: word, from: imageURL, attemptsLeft: attemptsLeft - 1, completion: completion)
+                }
                 return
             }
 
@@ -253,9 +344,11 @@ extension ContentCreator {
             let fileURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
                 .appendingPathComponent(fileName)
             do {
-                try imageData.write(to: fileURL)
+                try data.write(to: fileURL)
+                print("[generateImage] \(word): image downloaded and saved as \(fileName)")
                 completion(fileName)
             } catch {
+                print("[generateImage] \(word): failed to write image to disk: \(error.localizedDescription)")
                 completion(nil)
             }
         }.resume()
