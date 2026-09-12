@@ -251,7 +251,7 @@ extension ContentCreator {
             }
 
             print("[generateImage] \(word): task submitted, task_id: \(taskId)")
-            self.pollImageTask(word: word, taskId: taskId, apiKey: apiKey, baseURL: baseURL, attemptsLeft: 30, completion: completion)
+            self.pollImageTask(word: word, taskId: taskId, apiKey: apiKey, baseURL: baseURL, attemptsLeft: 50, completion: completion)
         }.resume()
 
     }

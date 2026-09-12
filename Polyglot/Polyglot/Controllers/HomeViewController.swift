@@ -328,9 +328,13 @@ class HomeViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+
         navigationController?.navigationBar.isHidden = true
         UIApplication.shared.statusBarUIView?.backgroundColor = .systemGroupedBackground
+
+        self.wordPracticeCounter = WordPracticeProducer.countWordPractices(for: LangCode.currentLanguage)
+        self.ebbinghausSchedule = EbbinghausSchedule.load(for: LangCode.currentLanguage)
+        self.applySnapShots()
     }
     
     override func viewWillDisappear(_ animated: Bool) {

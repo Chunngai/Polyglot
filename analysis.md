@@ -1160,3 +1160,18 @@ struct WordReviewEntry: Codable {
 
 原因：补齐逻辑只按磁盘现存数量与目标值比较，无法区分"从未生成够"和"生成够后被消耗"，导致已消耗的练习被误当作缺口重新生成。
 修复：在 WordReviewEntry 增加 completedGenerationTypes 字段，标记本轮各类型是否已生成够目标数量，生成/补齐逻辑改为先查该标记再决定是否生成，periodIndex 前进时清空标记；上线时对现有数据跑一次性迁移回填标记，避免旧数据触发一次性误补。
+
+2. 列表删除单词后，回到 home 界面单词计数没更新
+
+**现象**：在 phrase review 单词列表（`PhraseReviewWordSelectionViewController`）里删除一个单词后，返回 Home 界面，phrase review 卡片上的计数（"n/total"）没有更新，还是删除前的旧值。
+
+**原因**：
+
+- 删除逻辑在 `PhraseReviewWordSelectionViewController.swift`（`trailingSwipeActionsConfigurationForRowAt` 里的删除 alert action，约 693–699 行）：依次调用 `WordPracticeProducer.deleteWordPractices(forKey:lang:)`、`EbbinghausSchedule.update(for:) { schedule.removeValue(forKey:) }`、`ReinforcementWords.remove(word:for:)`，只更新磁盘和自身 `sections`/`tableView`，**没有发出任何通知**。
+- `HomeViewController.swift` 里 `wordPracticeCounter`/`ebbinghausSchedule`（约 109–110 行）是**加载一次后缓存在内存里的实例变量**，`phraseReviewItems`（约 142–155 行）计算计数时读的是这两个缓存变量，不是实时读磁盘。
+- `HomeViewController` 里唯一会重新加载这两个缓存变量并刷新 UI（`applySnapShots()`）的地方：
+  - `.wordPracticeCounterUpdated` 通知观察者（约 360–379 行），但只在 `notification.userInfo["wordPracticeCounter"]` 存在时才刷新；
+  - `appMovedToForeground()`（约 414–419 行），只在 app 从后台回到前台（`UIApplication.willEnterForegroundNotification`）时触发。
+- `PhraseReviewWordSelectionViewController` 是以 modal 形式 present 出来的（`HomeViewController.swift` 约 1133–1137 行），dismiss 关闭 modal 并不会触发上面两条路径中的任何一条：不发通知、不进入后台。`viewWillAppear`/`viewDidAppear`（约 321–334 行）目前也完全没有重新加载 `ebbinghausSchedule`/`wordPracticeCounter` 的逻辑。所以从删除单词返回 Home 后，缓存的计数一直是旧值，直到下次 app 切后台再回前台，或者碰巧收到一个带 `wordPracticeCounter` payload 的 `.wordPracticeCounterUpdated` 通知。
+
+**修复方向**：在 `HomeViewController.viewWillAppear(_:)` 里增加一次 `wordPracticeCounter`/`ebbinghausSchedule` 的重新加载并调用 `applySnapShots()`（做法与现有 `appMovedToForeground()` 一致），这样无论是从 modal 关闭返回、还是其它任何方式回到 Home，都会用磁盘最新状态刷新计数，不依赖具体是谁触发了变化、也不需要在每个可能修改数据的地方都记得发通知。
