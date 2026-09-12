@@ -1175,3 +1175,48 @@ struct WordReviewEntry: Codable {
 - `PhraseReviewWordSelectionViewController` 是以 modal 形式 present 出来的（`HomeViewController.swift` 约 1133–1137 行），dismiss 关闭 modal 并不会触发上面两条路径中的任何一条：不发通知、不进入后台。`viewWillAppear`/`viewDidAppear`（约 321–334 行）目前也完全没有重新加载 `ebbinghausSchedule`/`wordPracticeCounter` 的逻辑。所以从删除单词返回 Home 后，缓存的计数一直是旧值，直到下次 app 切后台再回前台，或者碰巧收到一个带 `wordPracticeCounter` payload 的 `.wordPracticeCounterUpdated` 通知。
 
 **修复方向**：在 `HomeViewController.viewWillAppear(_:)` 里增加一次 `wordPracticeCounter`/`ebbinghausSchedule` 的重新加载并调用 `applySnapShots()`（做法与现有 `appMovedToForeground()` 一致），这样无论是从 modal 关闭返回、还是其它任何方式回到 Home，都会用磁盘最新状态刷新计数，不依赖具体是谁触发了变化、也不需要在每个可能修改数据的地方都记得发通知。
+
+# 新需求 7
+
+1. `makeAndCachePractices` 整词 `skipDuplicates` gate 导致缺失类型（如 imageSelection）永远补不上
+
+**现象**：`backgroundRefresh()` 正确识别出某单词缺 `imageSelection` 练习（日志打印 `generating missing practices for types [...imageSelection]`），紧接着调用 `producer.makeAndCachePractices(for: [key], skipDuplicates: true)`，但 `[generateImage]` 日志从未出现，图片练习始终没生成。
+
+**原因**：`WordPracticeProducer.swift`（`makeAndCachePractices`，约 257–263 行）在按类型精细生成逻辑（`neededCount`/`completedGenerationTypes`，新需求 6 引入）之前，仍保留了一个更早版本的整词粒度短路：
+
+```swift
+if skipDuplicates && wordPracticeCounter.keys.contains(Self.normalizedKey(from: word)) {
+    continue
+}
+```
+
+`backgroundRefresh()`/`generateWordPractices()` 每次调用都会 `WordPracticeProducer(words:articles:)` 新建一个 producer 实例，其 `wordPracticeCounter` 在 `init()` 里从磁盘全部缓存练习预填充（`countWordPractices(from:)`）。只要该单词**任意一种类型**已有缓存练习（几乎所有非全新单词都满足），`wordPracticeCounter.keys.contains(key)` 就为真，直接 `continue` 跳过该单词的整个处理体——包括后面本该执行的按类型 `neededCount`/`generateImage`/`makeAndCachePractices` 内部逐类型生成逻辑。也就是说，只有从未生成过任何练习的全新单词才能进入循环体；一旦某单词已有第一种类型的练习，其余类型（比如 imageSelection）永远补不上。
+
+紧邻的注释（约 250–254 行）写道"用 `onDiskPractices`/`existingForWord` 精细判断代替 `skipDuplicates` 的整词跳过"，说明这一整词 `continue` 本应在引入按类型判断时被删除，但实际代码里从未删掉，导致注释与代码自相矛盾、按类型逻辑形同虚设。
+
+**修复**：
+- 删除 `makeAndCachePractices` 里整词 `skipDuplicates` 的 `continue` 短路，完全交给已存在的 `neededCount(for:)`/`completedGenerationTypes` 按类型判断决定是否需要生成（该机制已经能正确处理"部分类型已生成够/部分未生成够"的情况，不需要整词粒度的重复保护）。
+- `wordPracticeCounter[key] = 0` 改为只在 key 不存在时才初始化为 0（`if wordPracticeCounter[key] == nil { wordPracticeCounter[key] = 0 }`），避免对已有内存计数的单词（该计数被 `next()` 用于判断何时推进 Ebbinghaus 轮次）造成重置。
+- `skipDuplicates` 参数因此不再被使用，一并从函数签名和两处调用点（`PhraseReviewWordSelectionViewController.backgroundRefresh()`、隐含默认值的 `TextMeaningPracticeViewController.generateWordPractices`）移除。
+
+# 新需求 8（新需求 4 的实现）
+
+1. Reinforcement 单词标注/翻译复用：reinforce 时存 tokens，生成/补标注时直接复用，不重新调用 `analyzeAccents`/`translate`
+
+**现象/需求**：新需求 4 已描述目标（reinforce 时存已标注的 `contextSentence` 对应 tokens 和翻译好的 meaning，生成练习/补标注时直接复用，避免重复调用 `analyzeAccents`/翻译接口），但截至新需求 6 完成时仍未落地——`ReinforcementWordEntry` 只存了纯文本 `contextSentence`/`meaning`，没有 tokens 字段，`WordPracticeProducer` 的生成和补标注逻辑仍无条件重新调用 `analyzeAccents`。
+
+**修复（分步，已实现 (1)(2)(3)，(4) 待实现）**：
+
+1. `ReinforcementWords.swift`：`ReinforcementWordEntry` 新增 `contextTokens: [Token]?` 字段（Codable，nil 表示尚未分析完成），`add()` 增加 `contextTokens` 参数。
+2. `WordMarkingTextView.swift`：`WordInfo` 新增 `contextTokens: [Token]? = nil`；`reinforceMenuItemTapped()` 在现有翻译请求之外，额外后台调用 `analyzeAccents(for: contextSentence)`，结果写入对应 `reinforcementWordsInfo[index].contextTokens`。
+3. `TextMeaningPracticeViewController.swift`：`generateWordPractices(from:)` 调用 `ReinforcementWords.add(...)` 时传入 `contextTokens: reinforcementWordInfo.contextTokens`。
+4. **待实现**：`WordPracticeProducer.swift`
+   - 意思相关练习生成（`neededMeaningSelection`/`neededMeaningFilling` 分支，约 349–387 行）：调用 `machineTranslator.translate(query: word)` 前先查 `ReinforcementWords.load(for: self.lang)[key]?.meaning`，非空则直接使用，跳过翻译请求。
+   - `makeContextSelectionPractice` 已经复用了 `contextSentence` 纯文本（3.1 节之外新增，非本次需求），但其上下文标注仍会重新触发 `analyzeAccents`；以及 `annotateExistingPractices`（约 536–619 行）：两处对 context 调用 `analyzeAccents(for: context)` 前，先查 `ReinforcementWords.load(for: self.lang)[key]?.contextTokens`，若非空且对应 `contextSentence` 与当前 context 文本一致，则直接用存好的 tokens 现算标注（`calculateVerbAspectAnnotations`/`calculateNounCaseAnnotations`/`calculateShortAdjectiveAnnotations`/`calculateAccentLocs`），不再调用 `analyzeAccents`。
+
+原因：`analyzeAccents`（日语走网络请求、俄语走 Core Data 查询）和翻译接口都是昂贵调用，reinforce 时已经拿到了同一份 `contextSentence` 的分析结果，生成/补标注阶段应直接复用而非重算。
+修复：`ReinforcementWordEntry` 增加 `contextTokens` 存储分析结果，reinforce 时后台分析并存入，生成练习/补标注时优先查询复用，缺失时才回退到现有的 `analyzeAccents`/翻译逻辑。
+
+**实施范围限定**：`makeContextSelectionPractice` 构造 `practice.context` 时已经把目标词替换成 `Strings.underscoreToken`（占位符），如果直接把 `contextTokens`（针对未替换的原始 `contextSentence` 分析出的 tokens）喂给 `calculateVerbAspectAnnotations(for: context, with: contextTokens)`，会因为 `context` 文本里已经没有目标词的原文而匹配失败/错位（`calculateVerbAspectAnnotations`/`calculateNounCaseAnnotations` 都是按 token.text 在 text 里顺序查找子串定位，查不到会导致该 token 之后的标注整体丢失）。这正是本节前面"已知需要处理的细节"里提到的遮空替换偏移问题，标注为"非阻塞、实施时展开"，本次不处理。
+
+本次先落地风险可控、收益明确的一步：`makeAndCachePractices`/`annotateExistingPractices` 里对**主词本身**的 `analyzeAccents(for: word)` 调用，改为先查 `ReinforcementWords[key].contextTokens`，若非空则从里面按 `token.text` 与 `word` 做规范化匹配抠出对应的 token（一般是 1 个，含前后缀变化时可能需要模糊匹配 baseForm），命中则直接用，跳过 `analyzeAccents(for: word)`；未命中或 tokens 为空则照旧调用 `analyzeAccents`。`context`/`choices` 的标注逻辑本次不改，仍调用 `analyzeAccents(for: context)`/`analyzeAccents(for: choice)`。

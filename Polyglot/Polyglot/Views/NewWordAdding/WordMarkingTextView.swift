@@ -753,6 +753,17 @@ extension WordMarkingTextView {
                 self.reinforcementWordsInfo[index].meaning = meaning
             }
         }
+
+        // Fire background accent/grammar analysis of the context sentence so it can be
+        // persisted and reused by practice generation/annotation instead of being
+        // recomputed later.
+        analyzeAccents(for: contextSentence) { [weak self] tokens, _, _ in
+            guard let self = self else { return }
+            guard !tokens.isEmpty else { return }
+            if index < self.reinforcementWordsInfo.count {
+                self.reinforcementWordsInfo[index].contextTokens = tokens
+            }
+        }
     }
     
     @objc func cancelReinforcementMenuItemTapped() {
@@ -899,8 +910,12 @@ struct WordInfo {
     var word: String
     var meaning: String
 
-    /// The annotated sentence containing this word; used for reinforcement practices.
+    /// The sentence containing this word; used for reinforcement practices.
     var contextSentence: String = ""
+    /// Accent/grammar analysis of `contextSentence`, filled in by a background call fired
+    /// at reinforce-tap time so it's ready to persist alongside the word without requiring
+    /// a fresh analysis later during practice generation.
+    var contextTokens: [Token]? = nil
 
     var canDelete: Bool = true
 

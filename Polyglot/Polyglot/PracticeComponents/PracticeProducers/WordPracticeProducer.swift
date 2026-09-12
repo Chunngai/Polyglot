@@ -241,7 +241,7 @@ extension WordPracticeProducer {
         }
     }
 
-    func makeAndCachePractices(for words: [String], skipDuplicates: Bool = true) {
+    func makeAndCachePractices(for words: [String]) {
 
         let nRepetitions = self.lang.configs.wordPracticeRepetition
         let enabledTypes = self.lang.configs.phraseReviewEnabledPracticeTypes
@@ -250,17 +250,18 @@ extension WordPracticeProducer {
         // Snapshot of what's already on disk (independent of `wordPracticeCounter`, which only
         // reflects what's currently in this instance's in-memory `practiceList`). Used to gate
         // generation per (word, type) so re-running this on an already-populated word doesn't
-        // pile on duplicates -- this is checked instead of `skipDuplicates`'s whole-word skip so
-        // partially-generated words (e.g. one type failed/pending) still get topped up correctly.
+        // pile on duplicates -- this replaces an earlier whole-word skip (`if wordPracticeCounter
+        // .keys.contains(word) { continue }`) that used to short-circuit ANY word with an existing
+        // practice of ANY type, silently preventing missing types (e.g. imageSelection) on an
+        // otherwise-populated word from ever being generated.
         let onDiskPractices = Self.loadCachedPractices(for: self.lang)
 
         for word in words {
 
-            if skipDuplicates && wordPracticeCounter.keys.contains(Self.normalizedKey(from: word)) {
-                continue
-            }
             let key = Self.normalizedKey(from: word)
-            wordPracticeCounter[key] = 0
+            if wordPracticeCounter[key] == nil {
+                wordPracticeCounter[key] = 0
+            }
 
             // Ensure a schedule entry exists for this word.
             if schedule[key] == nil {
@@ -332,6 +333,11 @@ extension WordPracticeProducer {
 
             let neededAccentSelection = neededCount(for: .accentSelection)
 
+            // Reuse the tokens analyzed at reinforce-tap time (stored against the untouched
+            // `contextSentence`) instead of re-running `analyzeAccents(for: word)`, when a
+            // contiguous run of stored tokens matches `word`.
+            let storedWordTokens = Self.tokens(forWord: word, in: ReinforcementWords.load(for: self.lang)[key]?.contextTokens ?? [])
+
             var practicesForWord: [WordPractice] = []
 
             let now = Date()
@@ -349,9 +355,20 @@ extension WordPracticeProducer {
             let neededMeaningSelection = neededCount(for: .meaningSelection)
             let neededMeaningFilling = neededCount(for: .meaningFilling)
             if neededMeaningSelection > 0 || neededMeaningFilling > 0 {
-                machineTranslator.translate(query: word) { translations, _ in
-                    guard !translations.isEmpty else { return }
-                    let meaning = translations.joined(separator: "; ")
+                // Reuse the meaning captured at reinforce-tap time (already translated then)
+                // instead of re-translating the same word here.
+                let storedMeaning = ReinforcementWords.load(for: self.lang)[key]?.meaning
+                func withMeaning(_ completion: @escaping (String) -> Void) {
+                    if let storedMeaning = storedMeaning, !storedMeaning.isEmpty {
+                        completion(storedMeaning)
+                        return
+                    }
+                    machineTranslator.translate(query: word) { translations, _ in
+                        guard !translations.isEmpty else { return }
+                        completion(translations.joined(separator: "; "))
+                    }
+                }
+                withMeaning { meaning in
 
                     for _ in 0..<neededMeaningSelection {
                         if let p = self.makeMeaningSelectionPractice(
@@ -457,7 +474,14 @@ extension WordPracticeProducer {
                 self.sendWordPracticeCounterUpdateNotification()
             }
 
-            analyzeAccents(for: word) { tokens, fixedText, text in
+            func withWordTokens(_ completion: @escaping ([Token], String?, String) -> Void) {
+                if let storedWordTokens = storedWordTokens {
+                    completion(storedWordTokens, nil, word)
+                    return
+                }
+                analyzeAccents(for: word, completion: completion)
+            }
+            withWordTokens { tokens, fixedText, text in
                 guard !tokens.isEmpty else { return }
 
                 let needsAspect = LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices
@@ -553,7 +577,17 @@ extension WordPracticeProducer {
 
         let word = targets.first!.word
 
-        analyzeAccents(for: word) { tokens, _, _ in
+        // Reuse tokens analyzed at reinforce-tap time if available, instead of re-running
+        // `analyzeAccents(for: word)`.
+        let storedWordTokens = Self.tokens(forWord: word, in: ReinforcementWords.load(for: lang)[key]?.contextTokens ?? [])
+        func withWordTokens(_ completion: @escaping ([Token], String?, String) -> Void) {
+            if let storedWordTokens = storedWordTokens {
+                completion(storedWordTokens, nil, word)
+                return
+            }
+            analyzeAccents(for: word, completion: completion)
+        }
+        withWordTokens { tokens, _, _ in
             guard !tokens.isEmpty else {
                 completion?()
                 return
@@ -1217,6 +1251,25 @@ extension WordPracticeProducer {
     static func normalizedKey(from word: String) -> String {
         let stripped = makeKeyForWordPracticeCount(from: word).lowercased()
         return stripped.replacingOccurrences(of: #"\s*([^\w\s])\s*"#, with: "$1", options: .regularExpression)
+    }
+
+    /// Extracts the contiguous run of `tokens` (analyzed against some larger context sentence)
+    /// whose joined text matches `word`, so it can be reused as-is instead of re-running
+    /// `analyzeAccents(for: word)`. Returns nil if no contiguous run matches.
+    static func tokens(forWord word: String, in tokens: [Token]) -> [Token]? {
+        guard !tokens.isEmpty else { return nil }
+        let targetKey = normalizedKey(from: word)
+        for start in 0..<tokens.count {
+            var joined = ""
+            for end in start..<tokens.count {
+                joined += tokens[end].text
+                if normalizedKey(from: joined) == targetKey {
+                    return Array(tokens[start...end])
+                }
+                if joined.count > word.count { break }
+            }
+        }
+        return nil
     }
 
     /// Joins tokens with `separator`, but omits the separator before a token

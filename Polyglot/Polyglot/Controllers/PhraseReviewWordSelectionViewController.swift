@@ -466,7 +466,7 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
             }
             if !missingTypes.isEmpty {
                 print("[backgroundRefresh] \(key): generating missing practices for types \(missingTypes)")
-                producer.makeAndCachePractices(for: [key], skipDuplicates: true)
+                producer.makeAndCachePractices(for: [key])
             }
 
             // (2) Supplement missing annotations for this word.

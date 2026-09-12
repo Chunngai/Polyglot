@@ -254,6 +254,7 @@ extension TextMeaningPracticeViewController {
             ReinforcementWords.add(
                 word: word,
                 contextSentence: reinforcementWordInfo.contextSentence,
+                contextTokens: reinforcementWordInfo.contextTokens,
                 meaning: reinforcementWordInfo.meaning,
                 for: lang
             )

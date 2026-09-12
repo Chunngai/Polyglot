@@ -11,8 +11,12 @@ import Foundation
 /// Persistent record of a word added to reinforcement practice from a text-meaning session.
 struct ReinforcementWordEntry: Codable {
     var word: String
-    /// The annotated sentence that contains this word (accent/grammar annotations already applied).
+    /// The sentence that contains this word.
     var contextSentence: String
+    /// Accent/grammar analysis of `contextSentence`, computed once at reinforce time so
+    /// practice generation and annotation backfill can reuse it instead of re-running
+    /// `analyzeAccents` on the same text. Nil until the reinforce-tap analysis completes.
+    var contextTokens: [Token]?
     /// Machine-translated meaning of the word. Empty string until translation completes.
     var meaning: String
 }
@@ -54,13 +58,14 @@ enum ReinforcementWords {
         }
     }
 
-    static func add(word: String, contextSentence: String, meaning: String, for lang: LangCode) {
+    static func add(word: String, contextSentence: String, contextTokens: [Token]? = nil, meaning: String, for lang: LangCode) {
         let key = WordPracticeProducer.normalizedKey(from: word)
         update(for: lang) { entries in
             if entries[key] == nil {
                 entries[key] = ReinforcementWordEntry(
                     word: word,
                     contextSentence: contextSentence,
+                    contextTokens: contextTokens,
                     meaning: meaning
                 )
             }
