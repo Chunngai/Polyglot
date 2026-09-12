@@ -28,7 +28,7 @@ class ReorderingPracticeView: WordPracticeView {
             return (item as! UILabel).text!
         }
         
-        let answer = wordsInRowStack.joined(separator: Strings.wordSeparator)
+        let answer = WordPracticeProducer.joinTokensPreservingPunctuation(wordsInRowStack, separator: Strings.wordSeparator)
         return answer
     }
     

@@ -1044,3 +1044,78 @@ closure #5 in WordPracticeProducer.makeAndCachePractices(for:skipDuplicates:)
 （4）文本加载，需要确认是否按顺序一段一段，一句一句加载？感觉现在会跳过一些句子
 原因：SpeakingPracticeProducer.makePractice(fromArticle:atParaIndex:) 是文章模式下生成练习的唯一入口，但只取 sentences.first ?? para.text，其余句子被完全丢弃；make() 里段落推进机制是"访问一次这个段落就推进到下一段"，不管这段有几句。对比 ReadingPracticeProducer.make() 用 for (sentenceId, sentence) in sentences.enumerated() 遍历段落内全部句子，句子用完才换下一段。也就是说 speaking 不是过滤或 off-by-one，而是在段落粒度上直接丢弃了除首句外的所有句子。
 修复：把 makePractice(fromArticle:atParaIndex:) 改成和 ReadingPracticeProducer 一致的逐句遍历 + 句内计数（记录 sentenceIndex，句子用完才推进 paraIndex），而不是每段只固定取第一句。
+
+# 新需求 4
+
+1. Phrase review 标注复用方案（细化并取代 新需求1(2) 的实现方式）
+
+现象：单词进入 phrase review 后频繁触发后台标注（analyzeAccents），按设计本应在 reinforce 时存好标注，生成练习时直接复用。
+
+原因：`ReinforcementWordEntry`（ReinforcementWords.swift 12-18 行）目前只存 `contextSentence: String` 纯文本，没存任何标注结果（Token 数组）。`WordPracticeProducer.makeAndCachePractices`/`annotateExistingPractices`（WordPracticeProducer.swift 355-424、429-514 行）不管 context 来源如何，都无条件对 `practice.context` 重新调用 `analyzeAccents`，导致"存了句子=省了重新标注"的设计意图完全没有落地。
+
+修复方向（存 tokens，不存算好的 annotation 数组）：
+
+- `Token`（Models/Word.swift）已是 Codable，且 `calculateVerbAspectAnnotations`/`calculateNounCaseAnnotations`/`calculateShortAdjectiveAnnotations`/`calculateAccentLocs`（AccentAnalyzerProtocol.swift）都是纯函数：`(text, tokens) -> annotations`，不碰 CoreData。存 `(contextSentence, contextTokens)` 这一对，比存"某几种已算好的 annotation 数组"更根本——以后任何练习类型需要什么标注维度，都能从同一份 `(text, tokens)` 现算，不用重新走 analyzeAccents，也不用为每种练习额外多存一份数据。
+- `ReinforcementWordEntry` 新增字段 `contextTokens: [Token] = []`（Codable，`init(from decoder:)` 里用 `do { ... } catch { contextTokens = [] }` 兼容旧 JSON，参照 WordPractice.swift 176-190 行的模式）。
+
+**数据流三个阶段：**
+
+a. **reinforce 点击时**（WordMarkingTextView.swift 720-756 行 `reinforceMenuItemTapped()`）：只做"抄现有数据"，不触发任何新标注调用。检查该单词所在的 practice（如 ReadingPractice）此刻的 `verbAspectAnnotations`/`textAccentLocs` 等是否已算好（即该段落标注是否已完成）。已完成 → 需要能拿到对应的 tokens（当前 TextMeaningPractice 只存了算好的 annotation 数组，没存 tokens 本身，需要给 TextMeaningPractice 也补一个 `tokens: [Token]` 字段，在 TextMeaningPracticeProducer.calculateAccentLocsForText 里一并存下），裁出 contextSentence 范围内的 tokens 存入 WordInfo/ReinforcementWordEntry。未完成 → contextTokens 留空，不等待、不补标注，直接存空。
+
+b. **打开 phrase review 列表时**（PhraseReviewWordSelectionViewController.backgroundRefresh()，404-498 行）：这是唯一允许触发"补标注"的地方。在现有"(2) 补充缺失标注"步骤基础上扩展：扫描 reinforcementStore，对 `contextTokens` 为空的词，调一次 `analyzeAccents(for: contextSentence)`，写回 `ReinforcementWordEntry.contextTokens`。
+
+c. **生成练习时**（WordPracticeProducer.makeContextSelectionPractice / makeAndCachePractices / annotateExistingPractices）：`contextTokens` 非空 → 直接 `calculateVerbAspectAnnotations(for: contextSentence, with: contextTokens)` 等现算所需字段，赋值给 `practice.contextVerbAspectAnnotations` 等，`isGrammarAnnotationCompleted`/`isAccentAnnotationCompleted` 直接置 true，不调用 analyzeAccents。仍为空（backgroundRefresh 还没跑到）→ fallback 到现有的临时 analyzeAccents 逻辑，保正确性。meaningSelection 等只需要"单词本身"标注的练习，从 contextTokens 里按 word 匹配对应 token 现算即可，同样不用重新分析。
+
+**已知需要处理的细节**（实施时展开，非阻塞）：
+- 遮空替换：`makeContextSelectionPractice` 会把 context 里的目标词替换成 `Strings.underscoreToken`（6 字符占位符），现算的 annotation position 需要按替换前后长度差做偏移修正。
+- contextSentence 在整段 practice.text 中的 offset 定位：裁剪 tokens 时用 `practice.text.range(of: contextSentence)` 找起始位置，减去 offset 得到相对 contextSentence 自身的 position。
+
+**验证计划**：利用现有日志 `[makeAndCachePractices]`（WordPracticeProducer.swift 291 行）、`[backgroundRefresh]`（PhraseReviewWordSelectionViewController.swift 439/452/475 行），reinforce 几个单词后打开 phrase review 列表，确认 `annotateExistingPractices` 只在 contextTokens 缺失的词上触发一次，生成练习阶段不再对已有 contextTokens 的词调用 analyzeAccents。
+
+# 新需求 5
+
+1. "двигаться дальше" 标注颜色错位（掐头且多咬一口）
+
+**现象**：短语中"двигаться"的 aspect 颜色只覆盖"вигаться д"（丢了首字母"д"，且多咬了下一个词"дальше"的首字母）。
+
+**原因**：`WordPracticeProducer.swift` `shiftForAccentInsertions()` 中，重音插入点落在 annotation 区间**内部**（`loc < position + length`）时，错误地同时执行了 `shift += 1` 和 `length += 1`。内部命中本应只让区间变宽（`length += 1`），不该移动起点；但多余的 `shift += 1` 把 `position` 也错误右移了一位，导致整个高亮窗口整体右移，掐掉开头一个字符，同时在末尾多纳入一个不属于该词的字符。
+
+**修复**：删掉内部命中分支里多余的 `shift += 1`，只保留 `length += 1`。
+
+实现：✅ 已修复（WordPracticeProducer.swift `shiftForAccentInsertions`）
+
+---
+
+2. GPT 翻译带说明文字，`<output>`/`</output>` 方案未生效
+
+**原因**：`GPTTranslator.swift` 的 prompt 示例（Format 说明 + 两条 Examples）从未展示过闭合标签 `</output>` 该怎么写，模型学的是"单行、不闭合"格式。当模型想附加说明时，因为没有闭合边界，说明文字会跟在 `<output>` 后面（通常另起一行），而解析代码找不到 `</output>` 时会退化为"从 `<output>` 到字符串末尾"，把说明也纳入了。
+
+**修复**：把 prompt 格式从 `<input>`/`<output>` 标签风格改为纯文本 `input:`/`output:` 风格（systemPrompt/userPrompt 统一格式），解析逻辑改为提取 `output:` 之后的内容，再按换行取第一行作为兜底（应对模型仍在翻译后附加说明的情况）。
+
+实现：✅ 已修复（GPTTranslator.swift systemPrompt/userPrompt/translate）
+
+---
+
+3. TextMeaningPracticeView 双击选中会覆盖用户手动输入的内容
+
+**原因**：`textViewDidChangeSelection()` 双击选中文本后无条件把结果写入 `chatTextField.text`，没有区分"文本是选中填入的"还是"用户手动输入的"，导致用户手动编辑后再双击别处文字，输入框内容被意外覆盖。
+
+**修复**：新增 `textFieldValueSetBySelection: String?` 属性记录上次由选中逻辑写入的值。双击填入前先判断当前文本是否为空或等于该值，只有满足才允许覆盖并更新该属性；`chatTextFieldChanged()`（绑定 `.editingChanged`）检测到文本不等于该值时清空它（代表用户手动改过）；`chatSendButtonTapped()`、`chatDidSendMessage()` 两处清空 `chatTextField.text` 时同步清空该属性。
+
+实现：✅ 已修复（TextMeaningPracticeView.swift textViewDidChangeSelection/chatTextFieldChanged/chatSendButtonTapped/chatDidSendMessage）
+
+---
+
+4. Reordering 拼词练习中，含逗号短语丢失逗号
+
+**现象**："правда в том, что" 这类含逗号短语，reordering 练习的 key 和用户能拖拽拼出的答案都不含逗号，导致永远无法拼出正确答案。
+
+**原因（两处叠加）**：
+- `Text.swift` `syllabifyPhrase()` 用 `CharacterSet(charactersIn: " -,")` 做分隔符，逗号被直接当分隔符丢弃，而不是保留为独立 token。下游 `joinTokensPreservingPunctuation()` 的"跳过标点前分隔符"逻辑因为逗号已经不存在而完全无效。
+- `ReorderingPracticeView.swift` 的 `answer` 计算属性用普通 `joined(separator:)` 拼接用户拖拽结果，没有用 `joinTokensPreservingPunctuation`，即使 token 里有逗号也会在逗号前插入多余空格。
+
+**修复**：
+- `syllabifyPhrase()` 改为先按空格/连字符分割，再对每个分割结果内部按逗号切分，把逗号保留为独立 token（例如"том,"→"том"、","两个 token）。
+- `ReorderingPracticeView.answer` 改用 `WordPracticeProducer.joinTokensPreservingPunctuation` 拼接，和 key 的生成方式保持一致。
+
+实现：✅ 已修复（Text.swift syllabifyPhrase；ReorderingPracticeView.swift answer）

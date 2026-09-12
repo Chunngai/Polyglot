@@ -74,10 +74,24 @@ func syllabifyPhrase(_ phrase: String, lang: LangCode) -> [String] {
     case .ja: return _splitJapanese(phrase)
     case .ko: return _splitKorean(phrase)
     default:
-        return phrase
-            .components(separatedBy: CharacterSet(charactersIn: " -,"))
-            .filter { !$0.isEmpty }
-            .flatMap { _syllabifyAlpha($0, lang: lang) }
+        // Split on whitespace/hyphen only. Commas are kept as their own token
+        // (rather than dropped) so that rejoining tokens with
+        // joinTokensPreservingPunctuation() can reconstruct the original
+        // comma placement (e.g. "том, что" instead of "том что").
+        var result: [String] = []
+        for part in phrase.components(separatedBy: CharacterSet(charactersIn: " -")) {
+            guard !part.isEmpty else { continue }
+            let commaParts = part.components(separatedBy: ",")
+            for (i, commaPart) in commaParts.enumerated() {
+                if !commaPart.isEmpty {
+                    result.append(contentsOf: _syllabifyAlpha(commaPart, lang: lang))
+                }
+                if i < commaParts.count - 1 {
+                    result.append(",")
+                }
+            }
+        }
+        return result
     }
 }
 

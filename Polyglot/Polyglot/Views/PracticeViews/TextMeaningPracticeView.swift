@@ -142,6 +142,10 @@ class TextMeaningPracticeView: BasePracticeView {
     private weak var currentAIBubbleLabel: UITextView?
     private var currentAIBubbleText: String = ""
     private var lastSentMessage: String = ""
+    // Tracks the last value written into chatTextField by double-tap
+    // selection, so a later selection only overwrites the field if the user
+    // hasn't typed something else in the meantime.
+    private var textFieldValueSetBySelection: String?
 
     // Chat input bar.
     lazy var chatInputBar: UIView = {
@@ -639,12 +643,18 @@ extension TextMeaningPracticeView: UITextViewDelegate {
             }
         }
 
-        // Populate chat input with selected text.
+        // Populate chat input with selected text, but only if the field is
+        // empty or still holds a value we previously wrote here. Otherwise
+        // a later double-tap selection would clobber text the user typed in
+        // by hand.
         let finalRange = textView.selectedRange
         if finalRange.length > 0,
            let selected = (textView.attributedText.string as NSString).substring(with: finalRange) as String?,
-           !selected.isEmpty {
-            chatTextField.text = "\"\(selected)\""
+           !selected.isEmpty,
+           chatTextField.text?.isEmpty ?? true || chatTextField.text == textFieldValueSetBySelection {
+            let newValue = "\"\(selected)\""
+            chatTextField.text = newValue
+            textFieldValueSetBySelection = newValue
             updateChatSendButton()
         }
     }
@@ -841,6 +851,7 @@ extension TextMeaningPracticeView {
     func chatSendButtonTapped() {
         guard let msg = chatTextField.text?.strip(), !msg.isEmpty else { return }
         chatTextField.text = ""
+        textFieldValueSetBySelection = nil
         chatTextField.resignFirstResponder()
         updateChatSendButton()
         textView.sendChatMessage(msg)
@@ -848,6 +859,12 @@ extension TextMeaningPracticeView {
 
     @objc
     private func chatTextFieldChanged() {
+        // If the user edits the field by hand, stop treating it as
+        // selection-populated -- otherwise a later double-tap would
+        // overwrite what they just typed.
+        if chatTextField.text != textFieldValueSetBySelection {
+            textFieldValueSetBySelection = nil
+        }
         updateChatSendButton()
     }
 
@@ -987,6 +1004,7 @@ extension TextMeaningPracticeView: WordMarkingTextViewChatDelegate {
     func chatDidSendMessage(_ userMessage: String) {
         lastSentMessage = userMessage
         chatTextField.text = ""
+        textFieldValueSetBySelection = nil
         chatSendButton.isEnabled = false
         let (row, _) = makeBubble(text: userMessage, isUser: true)
         chatBubblesStack.addArrangedSubview(row)

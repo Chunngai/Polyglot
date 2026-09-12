@@ -53,26 +53,27 @@ struct GPTTranslator: TranslationProtocol {
     func systemPrompt() -> String {
         return """
 Translate the given text from \(self.enNameOfSrcLang!) to \(self.enNameOfTrgLang!).
-Output ONLY the translated text. Do NOT include explanations, notes, alternatives, or any other content.
 
 # Format
-<input> input text
-<output> output text
+input: [input text]
+output: [output text]
 
 # Examples
 
-<input> \(promptText1[self.srcLang]!)
-<output> \(promptText1[self.trgLang]!)
+input: \(promptText1[self.srcLang]!)
+output: \(promptText1[self.trgLang]!)
 
-<input> \(promptText2[self.srcLang]!)
-<output> \(promptText2[self.trgLang]!)
+input: \(promptText2[self.srcLang]!)
+output: \(promptText2[self.trgLang]!)
+
+Output ONLY the translated text. Do NOT include explanations, notes, alternatives, or any other content.
 """
     }
 
     func userPrompt(with query: String) -> String {
         return """
-<input> \(query)
-<output>
+input: \(query)
+output:
 """
     }
 
@@ -92,11 +93,19 @@ Output ONLY the translated text. Do NOT include explanations, notes, alternative
                 return
             }
             var result = translation.strip()
-            if let range = result.range(of: "<output>", options: .caseInsensitive) {
+            if let range = result.range(of: "output:", options: .caseInsensitive) {
                 result = String(result[range.upperBound...]).strip()
             }
-            if let range = result.range(of: "</output>", options: .caseInsensitive) {
-                result = String(result[..<range.lowerBound]).strip()
+//            if let range = result.range(of: "</output>", options: .caseInsensitive) {
+//                result = String(result[..<range.lowerBound]).strip()
+//            }
+            // The prompt's examples show the translation on a single line right
+            // after <output>, with no closing tag. When the model tacks on an
+            // explanation, it lands on a following line, so keep only the first
+            // line -- </output> alone can't be relied on since the model rarely
+            // emits it.
+            if let newlineRange = result.range(of: "\n") {
+                result = String(result[..<newlineRange.lowerBound]).strip()
             }
             completion([result])
         }

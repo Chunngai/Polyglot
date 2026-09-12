@@ -151,7 +151,6 @@ extension WordPracticeProducer {
             if loc < position {
                 shift += 1
             } else if loc < position + length {
-                shift += 1
                 length += 1
             }
         }
