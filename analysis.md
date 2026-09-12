@@ -1219,4 +1219,41 @@ if skipDuplicates && wordPracticeCounter.keys.contains(Self.normalizedKey(from: 
 
 **实施范围限定**：`makeContextSelectionPractice` 构造 `practice.context` 时已经把目标词替换成 `Strings.underscoreToken`（占位符），如果直接把 `contextTokens`（针对未替换的原始 `contextSentence` 分析出的 tokens）喂给 `calculateVerbAspectAnnotations(for: context, with: contextTokens)`，会因为 `context` 文本里已经没有目标词的原文而匹配失败/错位（`calculateVerbAspectAnnotations`/`calculateNounCaseAnnotations` 都是按 token.text 在 text 里顺序查找子串定位，查不到会导致该 token 之后的标注整体丢失）。这正是本节前面"已知需要处理的细节"里提到的遮空替换偏移问题，标注为"非阻塞、实施时展开"，本次不处理。
 
+# 新需求 9
+
+1. Phrase review 列表数字状态在生成图片期间反复横跳（如 220 ↔ 222）
+
+**现象**：phrase review 列表里第三位数字（imageSelection 已生成数量）在图片批量生成期间，会在正确值和回退值之间来回跳动，而不是单调递增到目标值。
+
+**原因**：`WordPracticeProducer` 的 `wordPracticeCounter: [String: Int]`（`WordPracticeProducer.swift:17`）和继承的 `practiceList`（`BasePracticeProducer.swift:17`）都是普通、无锁保护的可变属性。`makeAndCachePractices(for:)`（约 244 行起）里 `for word in words` 主循环（259 行）对每个单词会触发多个**互相独立、互不等待**的异步分支：意思翻译回调（361–404 行）、组词练习回调（423–434 行）、**图片生成回调**（438–461 行，走 `ContentCreator.generateImage`/`pollImageTask`，是耗时最长的异步轮询）、accent selection 回调（484–555 行）。每个回调各自对 `wordPracticeCounter[key]! += 1` 做读改写、对 `practiceList.append(...)` 做追加，多个回调并发执行时构成经典的 lost-update 竟态（字典/数组本身也不是线程安全的，并发写属于未定义行为）。
+
+更严重的是：`PhraseReviewWordSelectionViewController.backgroundRefresh()`、`TextMeaningPracticeViewController.generateWordPractices()`、`WordsPracticeViewController` 各自独立 `WordPracticeProducer(words:articles:)` 创建自己的 producer 实例，每个实例 `init()` 时各自从磁盘加载一份 `practiceList`/`wordPracticeCounter` 快照（`loadCachedPractices`）。`cache()`（61–70 行）每次都是把**当前实例内存中的整份 `practiceList` 快照**覆盖写入磁盘文件（`save`→`saveUnlocked`，走 `IO.swift:31` 的文件锁——锁只保证单次写入的字节不损坏，不能防止一个 producer 用较旧的快照覆盖另一个 producer 刚写入的更新状态）。图片生成是所有异步分支里耗时最长的，因此最容易在其它分支/其它 producer 实例已经把计数刷新到磁盘之后，被自己持有的旧快照 `cache()` 覆盖回去，表现为数字先涨到 222 又跌回 220，如此反复直到所有分支都结束。
+
+**修复**：
+- `WordPracticeProducer` 内所有对 `wordPracticeCounter`/`practiceList` 的读改写以及紧随其后的 `cache()` 调用，统一通过一个串行队列（或锁）保护，避免并发的 `+= 1`/`append`/整体覆盖写交错。
+- 更彻底的修复：把 `cache()` 改成同 `EbbinghausSchedule.update(for:)`/`WordPracticeProducer.update`（`EbbinghausSchedule.swift:140–150`、`WordPracticeProducer.swift:1191–1202`）一样的"文件锁下 load-mutate-save"模式——每次写入前先重新读一次磁盘最新状态、把本次新增的练习合并进去再写回，而不是无条件覆盖整份内存快照，这样即使多个 producer 实例并发运行，也不会互相覆盖对方已经落盘的新增练习。
+
+2. Phrase review 列表单词文本在两种大小写/标点变体间反复横跳
+
+**现象**：同一个单词的显示文本会在 `"двигаться дальше,и"`（全小写、逗号两侧无空格）和 `"Двигаться дальше, и"`（首字母大写、逗号后有空格）之间交替出现。
+
+**原因**：与 `analyzeAccents`/`fixedText` 无关（俄语 `fixedText` 只处理 е→ё 替换，不改变大小写和标点空格，见 `RussianAccentAnalyzer.fixJeJo`，`RussianAccentAnalyzer.swift:177–209`）。真正原因是两处不同调用把不同的字符串当作"单词显示文本"写入了 `WordPractice.word`：
+
+- 原始大小写版本（如 `"Двигаться дальше, и"`）：来自用户在 `WordMarkingTextView.reinforceMenuItemTapped()`（`WordMarkingTextView.swift:727`，`let word = text(in: selectedTextRange)`）选中的原文，经 `TextMeaningPracticeViewController.generateWordPractices()`（`TextMeaningPracticeViewController.swift:268`）原样传入 `makeAndCachePractices(for:)`。
+- 归一化 key 版本（如 `"двигаться дальше,и"`）：`PhraseReviewWordSelectionViewController.backgroundRefresh()` 检测到某单词缺练习类型时，调用 `producer.makeAndCachePractices(for: [key])`（约 469 行），这里的 `key` 是 `EbbinghausSchedule` 字典的 key，本身就是 `WordPracticeProducer.normalizedKey(from:)`（`WordPracticeProducer.swift:1251–1254`：全小写 + 去除标点两侧空格）的输出——**把归一化 key 误当作显示用单词文本传了进去**。该字符串随后原样进入 `makeAccentSelectionPractice`/`makeImageSelectionPractice` 等构造函数的 `word` 参数，新生成的 `WordPractice.word` 就是丑化后的归一化字符串，和该单词此前已有的原始大小写记录混在同一份缓存里。
+
+`PhraseReviewWordSelectionViewController.loadEntries()`（约 285–292 行）构建 `displayWordByKey` 时按磁盘数组顺序"谁先出现就用谁"：
+```swift
+if displayWordByKey[k] == nil {
+    displayWordByKey[k] = p.word.replacingOccurrences(of: String(Token.accentSymbol), with: "")
+}
+```
+而数组顺序取决于原始 reinforce 生成批次和后续 `backgroundRefresh` 补齐批次的写入时机交错，每次 `.wordPracticeCounterUpdated` 通知触发重新 `loadEntries()`（这个通知因上一条竟态问题触发得很频繁）时，两个变体谁先出现在数组里是不确定的，导致显示文本随之交替横跳。
+
+**修复**：`backgroundRefresh()` 第 469 行不应直接传归一化 key，应改为查询该 key 对应的原始显示文本（如已构建好的 `displayWordByKey[key]`，或 `ReinforcementWords.load(for: lang)[key]?.word`）传给 `makeAndCachePractices(for:)`，从源头上避免把归一化字符串写入 `WordPractice.word`。（若磁盘上已存在被污染的归一化版本记录，需要额外一次性清理/合并，本次先阻断新增污染，历史脏数据清理视情况再定。）
+
+**已修复 ✅**（两条都已实施）：
+1. `WordPracticeProducer.swift`：新增私有 `stateQueue`（`DispatchQueue(label:)`）和 `mutate(_:)` 辅助方法，把 `wordPracticeCounter`/`practiceList` 所有读改写操作（`next()`、`cache()`、`resetWordPracticeCounter()`、`makeAndCachePractices` 内所有 `practiceList.append`/`wordPracticeCounter[...] += 1`/`markTypeCompletedIfQuotaMet` 的计数读取）统一收进 `mutate { ... }` 闭包，用 `stateQueue.sync` 串行化，消除并发读改写竟态。`cache()` 单独调用 `mutate` 取出快照后立即返回，不在 `mutate` 内部嵌套调用自身或其它 `mutate`，避免死锁。跨 producer 实例之间的整体覆盖写竟态（多个 producer 各自 `cache()` 互相覆盖）未处理，留作后续更彻底的"文件锁下 load-mutate-save"改造（已在原因分析中说明）。
+2. `PhraseReviewWordSelectionViewController.swift`（`backgroundRefresh()` 约 467–477 行）：不再直接传 `key`，改为 `wordPractices.first?.word ?? ReinforcementWords.load(for: lang)[key]?.word ?? key` 解析出原始显示文本后传给 `makeAndCachePractices(for:)`。历史已污染的归一化版本记录未清理，仅阻断新增污染。
+
 本次先落地风险可控、收益明确的一步：`makeAndCachePractices`/`annotateExistingPractices` 里对**主词本身**的 `analyzeAccents(for: word)` 调用，改为先查 `ReinforcementWords[key].contextTokens`，若非空则从里面按 `token.text` 与 `word` 做规范化匹配抠出对应的 token（一般是 1 个，含前后缀变化时可能需要模糊匹配 baseForm），命中则直接用，跳过 `analyzeAccents(for: word)`；未命中或 tokens 为空则照旧调用 `analyzeAccents`。`context`/`choices` 的标注逻辑本次不改，仍调用 `analyzeAccents(for: context)`/`analyzeAccents(for: choice)`。

@@ -466,7 +466,15 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
             }
             if !missingTypes.isEmpty {
                 print("[backgroundRefresh] \(key): generating missing practices for types \(missingTypes)")
-                producer.makeAndCachePractices(for: [key])
+                // Resolve the original display-cased/spaced text for this word instead of
+                // passing `key` itself -- `key` is `normalizedKey(from:)`'s output (lowercased,
+                // whitespace-around-punctuation stripped) and would otherwise get written
+                // verbatim into newly generated `WordPractice.word`, corrupting the display text
+                // for this word going forward (see analysis.md 新需求 9).
+                let displayWord = wordPractices.first?.word
+                    ?? ReinforcementWords.load(for: lang)[key]?.word
+                    ?? key
+                producer.makeAndCachePractices(for: [displayWord])
             }
 
             // (2) Supplement missing annotations for this word.

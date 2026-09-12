@@ -11,11 +11,26 @@ import UIKit
 import NaturalLanguage
 
 class WordPracticeProducer: BasePracticeProducer {
-    
+
     private var lang: LangCode = LangCode.currentLanguage
 
     private var wordPracticeCounter: [String: Int] = [:]
     var excludedPractices: [WordPractice] = []
+
+    // `makeAndCachePractices` fires several independent async branches per word (meaning
+    // translation, reordering, image generation, accent analysis) that all mutate
+    // `wordPracticeCounter`/`practiceList` and call `cache()` from their own completion
+    // callbacks, with no guarantee about relative ordering or which thread they land on.
+    // Without serialization this is a lost-update race on the counter dictionary and a
+    // data race on the practiceList array (both undefined behavior for concurrent mutation),
+    // which is what caused the displayed practice-count digit to visibly bounce between
+    // correct and stale values while image generation was in flight (analysis.md 新需求 9).
+    private let stateQueue = DispatchQueue(label: "com.polyglot.wordPracticeProducer.state")
+
+    @discardableResult
+    private func mutate<T>(_ body: () -> T) -> T {
+        stateQueue.sync(execute: body)
+    }
 
     /// Recomputes `wordPracticeCounter` from the current `practiceList`. Callers that replace
     /// `practiceList` after init (e.g. filtering down to a selected word set and deduplicating)
@@ -23,7 +38,9 @@ class WordPracticeProducer: BasePracticeProducer {
     /// snapshot and `next()` never reaches zero for a word, so its Ebbinghaus period never
     /// advances even after all its practices are answered.
     func resetWordPracticeCounter() {
-        self.wordPracticeCounter = WordPracticeProducer.countWordPractices(from: self.practiceList)
+        mutate {
+            self.wordPracticeCounter = WordPracticeProducer.countWordPractices(from: self.practiceList)
+        }
     }
     
     // MARK: - Init
@@ -42,27 +59,38 @@ class WordPracticeProducer: BasePracticeProducer {
     }
     
     override func next() {
-        
-        let wordPractice = self.practiceList.removeFirst()
-        if let wordPractice = wordPractice as? WordPractice {
-            let key = Self.normalizedKey(from: wordPractice.word)
-            if self.wordPracticeCounter.keys.contains(key) {
-                self.wordPracticeCounter[key]! -= 1
-                if self.wordPracticeCounter[key]! <= 0 {
-                    self.wordPracticeCounter.removeValue(forKey: key)
-                    self.advanceEbbinghausSchedule(forKey: key, consumedPeriodIndex: wordPractice.periodIndex ?? 0)
+
+        var consumed: (key: String, periodIndex: Int)? = nil
+        mutate {
+            let wordPractice = self.practiceList.removeFirst()
+            if let wordPractice = wordPractice as? WordPractice {
+                let key = Self.normalizedKey(from: wordPractice.word)
+                if self.wordPracticeCounter.keys.contains(key) {
+                    self.wordPracticeCounter[key]! -= 1
+                    if self.wordPracticeCounter[key]! <= 0 {
+                        self.wordPracticeCounter.removeValue(forKey: key)
+                        consumed = (key, wordPractice.periodIndex ?? 0)
+                    }
                 }
             }
+        }
+        if let consumed = consumed {
+            self.advanceEbbinghausSchedule(forKey: consumed.key, consumedPeriodIndex: consumed.periodIndex)
         }
         sendWordPracticeCounterUpdateNotification()
         
     }
     
     override func cache() {
-        guard let selected = self.practiceList as? [WordPractice] else {
+        let practicesToCache: [WordPractice]? = mutate {
+            guard let selected = self.practiceList as? [WordPractice] else {
+                return nil
+            }
+            return selected + excludedPractices
+        }
+        guard var practicesToCache = practicesToCache else {
             return
         }
-        var practicesToCache = selected + excludedPractices
         WordPracticeProducer.save(
             &practicesToCache,
             for: self.lang
@@ -259,8 +287,10 @@ extension WordPracticeProducer {
         for word in words {
 
             let key = Self.normalizedKey(from: word)
-            if wordPracticeCounter[key] == nil {
-                wordPracticeCounter[key] = 0
+            mutate {
+                if wordPracticeCounter[key] == nil {
+                    wordPracticeCounter[key] = 0
+                }
             }
 
             // Ensure a schedule entry exists for this word.
@@ -318,11 +348,13 @@ extension WordPracticeProducer {
             // "fully generated this round" so later calls (including backgroundRefresh) don't
             // regenerate a practice of this type that gets consumed by practicing.
             func markTypeCompletedIfQuotaMet(_ type: WordPractice.PracticeType) {
-                let currentCount = self.practiceList.compactMap { $0 as? WordPractice }.filter {
-                    Self.normalizedKey(from: $0.word) == key
-                        && ($0.periodIndex ?? 0) == periodIndex
-                        && $0.practiceType == type
-                }.count
+                let currentCount: Int = mutate {
+                    self.practiceList.compactMap { $0 as? WordPractice }.filter {
+                        Self.normalizedKey(from: $0.word) == key
+                            && ($0.periodIndex ?? 0) == periodIndex
+                            && $0.practiceType == type
+                    }.count
+                }
                 guard currentCount >= nRepetitions else { return }
                 EbbinghausSchedule.update(for: self.lang) { persisted in
                     guard var entry = persisted[key], entry.periodIndex == periodIndex else { return }
@@ -375,16 +407,20 @@ extension WordPracticeProducer {
                             word: word, query: word, key: meaning,
                             direction: .textToMeaning, preferredWords: candidateWords
                         ) {
-                            self.practiceList.append(stamp(p))
-                            self.wordPracticeCounter[key]! += 1
+                            self.mutate {
+                                self.practiceList.append(stamp(p))
+                                self.wordPracticeCounter[key]! += 1
+                            }
                             practicesForWord.append(p)
                         }
                         if let p = self.makeMeaningSelectionPractice(
                             word: word, query: meaning, key: word,
                             direction: .meaningToText, preferredWords: candidateWords
                         ) {
-                            self.practiceList.append(stamp(p))
-                            self.wordPracticeCounter[key]! += 1
+                            self.mutate {
+                                self.practiceList.append(stamp(p))
+                                self.wordPracticeCounter[key]! += 1
+                            }
                             practicesForWord.append(p)
                         }
                     }
@@ -392,8 +428,10 @@ extension WordPracticeProducer {
                         let p = self.makeMeaningFillingPractice(
                             word: word, query: meaning, key: word, direction: .meaningToText
                         )
-                        self.practiceList.append(stamp(p))
-                        self.wordPracticeCounter[key]! += 1
+                        self.mutate {
+                            self.practiceList.append(stamp(p))
+                            self.wordPracticeCounter[key]! += 1
+                        }
                         practicesForWord.append(p)
                     }
                     if neededMeaningSelection > 0 { markTypeCompletedIfQuotaMet(.meaningSelection) }
@@ -407,8 +445,10 @@ extension WordPracticeProducer {
             if neededContextSelection > 0 {
                 for _ in 0..<neededContextSelection {
                     if let p = makeContextSelectionPractice(word: word, query: word, preferredWords: candidateWords) {
-                        practiceList.append(stamp(p))
-                        wordPracticeCounter[key]! += 1
+                        mutate {
+                            practiceList.append(stamp(p))
+                            wordPracticeCounter[key]! += 1
+                        }
                         practicesForWord.append(p)
                     }
                 }
@@ -422,8 +462,10 @@ extension WordPracticeProducer {
                 for _ in 0..<neededReordering {
                     makeReorderingPractice(word: word, query: word) { practice in
                         if let p = practice {
-                            self.practiceList.append(stamp(p))
-                            self.wordPracticeCounter[key]! += 1
+                            self.mutate {
+                                self.practiceList.append(stamp(p))
+                                self.wordPracticeCounter[key]! += 1
+                            }
                             practicesForWord.append(p)
                             markTypeCompletedIfQuotaMet(.reordering)
                             self.cache()
@@ -440,8 +482,10 @@ extension WordPracticeProducer {
                     guard let imageUrl = imageUrl else { return }
                     for _ in 0..<neededImageSelection {
                         if let p = self.makeImageSelectionPractice(word: word, imageUrl: imageUrl, preferredWords: candidateWords) {
-                            self.practiceList.append(stamp(p))
-                            self.wordPracticeCounter[key]! += 1
+                            self.mutate {
+                                self.practiceList.append(stamp(p))
+                                self.wordPracticeCounter[key]! += 1
+                            }
                             practicesForWord.append(p)
                         }
                         markTypeCompletedIfQuotaMet(.imageSelection)
@@ -450,8 +494,10 @@ extension WordPracticeProducer {
                     }
                     for _ in 0..<neededImageFilling {
                         let p = self.makeImageFillingPractice(word: word, imageUrl: imageUrl)
-                        self.practiceList.append(stamp(p))
-                        self.wordPracticeCounter[key]! += 1
+                        self.mutate {
+                            self.practiceList.append(stamp(p))
+                            self.wordPracticeCounter[key]! += 1
+                        }
                         practicesForWord.append(p)
                         markTypeCompletedIfQuotaMet(.imageFilling)
                         self.cache()
@@ -464,8 +510,10 @@ extension WordPracticeProducer {
             if neededPhraseConstruction > 0 {
                 for _ in 0..<neededPhraseConstruction {
                     if let p = makePhraseConstructionPractice(word: word) {
-                        practiceList.append(stamp(p))
-                        wordPracticeCounter[key]! += 1
+                        mutate {
+                            practiceList.append(stamp(p))
+                            wordPracticeCounter[key]! += 1
+                        }
                         practicesForWord.append(p)
                     }
                 }
@@ -545,8 +593,10 @@ extension WordPracticeProducer {
                         word: fixedText ?? text, query: fixedText ?? text, tokens: tokens
                     ) {
                         p.periodIndex = periodIndex
-                        self.practiceList.append(p)
-                        self.wordPracticeCounter[key]! += 1
+                        self.mutate {
+                            self.practiceList.append(p)
+                            self.wordPracticeCounter[key]! += 1
+                        }
                     }
                 }
                 if neededAccentSelection > 0 { markTypeCompletedIfQuotaMet(.accentSelection) }
