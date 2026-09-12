@@ -55,6 +55,7 @@ class WordsPracticeViewController: PracticeViewController {
             let maxPerType = LangCode.currentLanguage.configs.wordPracticeRepetition
             var seenCounts: [String: Int] = [:]
             var deduped: [BasePractice] = []
+            var droppedIds: Set<UUID> = []
             for practice in selected {
                 if let wp = practice as? WordPractice {
                     let dedupeKey = "\(WordPracticeProducer.normalizedKey(from: wp.word))|\(wp.practiceType.rawValue)"
@@ -62,6 +63,8 @@ class WordsPracticeViewController: PracticeViewController {
                     if count < maxPerType {
                         seenCounts[dedupeKey] = count + 1
                         deduped.append(wp)
+                    } else {
+                        droppedIds.insert(wp.id)
                     }
                 } else {
                     deduped.append(practice)
@@ -75,6 +78,15 @@ class WordsPracticeViewController: PracticeViewController {
             // from the full unfiltered cache, so it must be refreshed now or `next()` will
             // never hit zero for a word and its Ebbinghaus period will never advance.
             producer.resetWordPracticeCounter()
+            // `cache()` now upserts by id instead of overwriting the whole file (to avoid
+            // clobbering other producer instances' writes -- analysis.md 新需求 9.3), so it
+            // can no longer delete these over-quota duplicates on its own. Delete them from
+            // disk explicitly first, then cache() persists the deduped/shuffled list.
+            if !droppedIds.isEmpty {
+                WordPracticeProducer.update(for: LangCode.currentLanguage) { practices in
+                    practices.removeAll { droppedIds.contains($0.id) }
+                }
+            }
             // Write the capped list back to disk so the phrase review list
             // reflects the trimmed count after returning from practice.
             producer.cache()

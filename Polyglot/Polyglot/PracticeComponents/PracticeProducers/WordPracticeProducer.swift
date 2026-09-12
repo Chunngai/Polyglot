@@ -88,13 +88,29 @@ class WordPracticeProducer: BasePracticeProducer {
             }
             return selected + excludedPractices
         }
-        guard var practicesToCache = practicesToCache else {
+        guard let practicesToCache = practicesToCache else {
             return
         }
-        WordPracticeProducer.save(
-            &practicesToCache,
-            for: self.lang
-        )
+        // Upsert by `id` into a freshly-read copy of the on-disk array instead of
+        // blindly overwriting it with this instance's in-memory snapshot. Multiple
+        // independent `WordPracticeProducer` instances (backgroundRefresh, reinforcement
+        // from reading/listening practices, the word list itself) each hold their own
+        // stale snapshot; a blind overwrite here would clobber annotation flags/practices
+        // another instance already persisted after this snapshot was taken (analysis.md
+        // 新需求 9.3).
+        let byId = Dictionary(uniqueKeysWithValues: practicesToCache.map { ($0.id, $0) })
+        WordPracticeProducer.update(for: self.lang) { practices in
+            var seenIds = Set<UUID>()
+            for i in practices.indices {
+                if let updated = byId[practices[i].id] {
+                    practices[i] = updated
+                    seenIds.insert(practices[i].id)
+                }
+            }
+            for practice in practicesToCache where !seenIds.contains(practice.id) {
+                practices.append(practice)
+            }
+        }
     }
 }
 
@@ -1225,13 +1241,6 @@ extension WordPracticeProducer {
     static func loadCachedPractices(for lang: LangCode) -> [WordPractice] {
         withFileLock(fileName(for: lang.rawValue)) {
             loadCachedPracticesUnlocked(for: lang)
-        }
-    }
-
-    static func save(_ practicesToCache: inout [WordPractice], for lang: LangCode) {
-        let captured = practicesToCache
-        withFileLock(fileName(for: lang.rawValue)) {
-            saveUnlocked(captured, for: lang)
         }
     }
 

@@ -1252,8 +1252,21 @@ if displayWordByKey[k] == nil {
 
 **修复**：`backgroundRefresh()` 第 469 行不应直接传归一化 key，应改为查询该 key 对应的原始显示文本（如已构建好的 `displayWordByKey[key]`，或 `ReinforcementWords.load(for: lang)[key]?.word`）传给 `makeAndCachePractices(for:)`，从源头上避免把归一化字符串写入 `WordPractice.word`。（若磁盘上已存在被污染的归一化版本记录，需要额外一次性清理/合并，本次先阻断新增污染，历史脏数据清理视情况再定。）
 
-**已修复 ✅**（两条都已实施）：
-1. `WordPracticeProducer.swift`：新增私有 `stateQueue`（`DispatchQueue(label:)`）和 `mutate(_:)` 辅助方法，把 `wordPracticeCounter`/`practiceList` 所有读改写操作（`next()`、`cache()`、`resetWordPracticeCounter()`、`makeAndCachePractices` 内所有 `practiceList.append`/`wordPracticeCounter[...] += 1`/`markTypeCompletedIfQuotaMet` 的计数读取）统一收进 `mutate { ... }` 闭包，用 `stateQueue.sync` 串行化，消除并发读改写竟态。`cache()` 单独调用 `mutate` 取出快照后立即返回，不在 `mutate` 内部嵌套调用自身或其它 `mutate`，避免死锁。跨 producer 实例之间的整体覆盖写竟态（多个 producer 各自 `cache()` 互相覆盖）未处理，留作后续更彻底的"文件锁下 load-mutate-save"改造（已在原因分析中说明）。
+**已修复 ✅**（三条都已实施）：
+1. `WordPracticeProducer.swift`：新增私有 `stateQueue`（`DispatchQueue(label:)`）和 `mutate(_:)` 辅助方法，把 `wordPracticeCounter`/`practiceList` 所有读改写操作（`next()`、`cache()`、`resetWordPracticeCounter()`、`makeAndCachePractices` 内所有 `practiceList.append`/`wordPracticeCounter[...] += 1`/`markTypeCompletedIfQuotaMet` 的计数读取）统一收进 `mutate { ... }` 闭包，用 `stateQueue.sync` 串行化，消除并发读改写竟态。`cache()` 单独调用 `mutate` 取出快照后立即返回，不在 `mutate` 内部嵌套调用自身或其它 `mutate`，避免死锁。
 2. `PhraseReviewWordSelectionViewController.swift`（`backgroundRefresh()` 约 467–477 行）：不再直接传 `key`，改为 `wordPractices.first?.word ?? ReinforcementWords.load(for: lang)[key]?.word ?? key` 解析出原始显示文本后传给 `makeAndCachePractices(for:)`。历史已污染的归一化版本记录未清理，仅阻断新增污染。
+3. `WordPracticeProducer.cache()`（约 84–113 行）：改为按 `WordPractice.id` 的 upsert——通过 `WordPracticeProducer.update(for:)` 重新读一份磁盘最新数组，把本实例快照里的每条记录按 id 覆盖已存在的、追加不存在的，而不再无条件用本实例快照整体替换磁盘数组。原来专门做整体覆盖写的 `static func save(_:for:)` 已删除（改用 `cache()` 后已无调用方）。副作用：`WordsPracticeViewController` 里"按配额裁剪重复练习"的逻辑之前依赖 `cache()` 的整体覆盖来把超额的旧记录从磁盘删掉，改成 upsert 后不会再删除任何记录，因此在裁剪前额外调用一次 `WordPracticeProducer.update(for:)` 显式按 id 删除被裁掉的记录（`WordsPracticeViewController.swift` 约 58、67、85–89 行）。
 
 本次先落地风险可控、收益明确的一步：`makeAndCachePractices`/`annotateExistingPractices` 里对**主词本身**的 `analyzeAccents(for: word)` 调用，改为先查 `ReinforcementWords[key].contextTokens`，若非空则从里面按 `token.text` 与 `word` 做规范化匹配抠出对应的 token（一般是 1 个，含前后缀变化时可能需要模糊匹配 baseForm），命中则直接用，跳过 `analyzeAccents(for: word)`；未命中或 tokens 为空则照旧调用 `analyzeAccents`。`context`/`choices` 的标注逻辑本次不改，仍调用 `analyzeAccents(for: context)`/`analyzeAccents(for: choice)`。
+
+3. Phrase review 列表数字加粗状态反复横跳（如 "222" 有时全加粗，有时只有前两个加粗）
+
+**现象**：用户报告数字计数的加粗状态（表示 `isAccentAnnotationCompleted`/`isGrammarAnnotationCompleted` 是否完成）会在同一个词的不同练习类型之间反复变化，猜测是"重音/语法标注的写入没加锁"。
+
+**验证**：`annotateExistingPractices`（`WordPracticeProducer.swift:610–706`）自身的落盘路径是正确的——它重新从磁盘读一份 `allPractices`（617 行），只对匹配的 `targets` 做标注，再通过 `WordPracticeProducer.update(for:)`（696–705 行）按 `id` 把 mutate 后的 `targets` 拼回**最新**读取的数组再写回，这是文件锁下的 load-mutate-save，本身不会丢更新。
+
+**真正原因**：问题在 `cache()`（`WordPracticeProducer.swift:84–98`），它被 `makeAndCachePractices` 内部大量异步完成回调调用（如 439、457、471、492、503、521、560、575、603 行），每次都是把**当前 producer 实例内存里的整份 `practiceList`+`excludedPractices` 快照**通过 `WordPracticeProducer.save()`（1231–1236 行）无条件覆盖写入磁盘，不会先重新读一次磁盘最新内容再合并。而 `PhraseReviewWordSelectionViewController.backgroundRefresh()`、`TextMeaningPracticeViewController.generateWordPractices()`、`WordsPracticeViewController` 各自会创建**独立的** `WordPracticeProducer` 实例，每个实例在自己 `init()` 时各自从磁盘加载一份快照。当同一个词被多个实例并发处理时（例如 backgroundRefresh 正在跑 `annotateExistingPractices`/`makeAndCachePractices`，同时用户又触发了另一条路径新建了 producer），任意一个实例的 `cache()` 都可能用自己较旧的内存快照（标注 flag 还是 false）整体覆盖掉另一个实例刚刚已经落盘的新标注结果（flag 已是 true），表现为同一个词的三个类型的加粗状态各自随机地被覆盖回未完成，产生"有时全加粗、有时只有部分加粗"的现象。这与已修复的"数字计数横跳"是同一类根因（`cache()`/`save()` 的整体覆盖写竟态），此前在新需求 9 第 1 条里已经点名留作后续修复。
+
+**修复方案**：把 `cache()` 改成同 `annotateExistingPractices`/`advanceEbbinghausSchedule` 一样的"文件锁下 load-mutate-save"模式：读取磁盘最新数组，按 `WordPractice.id` 把本实例快照中的每条记录 upsert 进去（已存在的 id 用本实例的版本覆盖，不存在的 id 追加），而不是无条件用本实例快照整体替换磁盘数组。这样即使多个实例并发调用 `cache()`，只要不是同一个 `id` 被两个实例同时改写，各自的更新都能保留，不会互相清空对方已经落盘、而自己快照里没有的其它词/其它 id 的数据。
+
+**已知残余风险**（本次不处理，作为已知局限记录）：若两个实例都持有**同一个 `id`** 的、**新旧不同**的本地副本（同一条 practice 被两个实例并发标注/更新），按 id upsert 时后写入的一方仍会用自己的（可能更旧的）版本覆盖先写入的一方——即"同 id 并发写"仍是最后写者胜，未做字段级合并或版本号/时间戳仲裁。这种情况比"整篇覆盖"窄得多（只发生在同一条记录被两个独立 producer 实例同时持有并同时打算写回时），暂不处理。
