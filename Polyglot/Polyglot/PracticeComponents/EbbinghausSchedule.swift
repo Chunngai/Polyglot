@@ -12,6 +12,36 @@ struct WordReviewEntry: Codable {
     var wordKey: String
     var periodIndex: Int
     var nextReviewDate: Date
+    // Practice types whose full quota (`wordPracticeRepetition`) has already been generated
+    // for the current `periodIndex`. Once a type is marked here, generation/backfill logic must
+    // not top it back up even if practices of that type get consumed down below the quota --
+    // otherwise a practiced-and-consumed practice looks identical to "never generated enough"
+    // and gets regenerated, which defeats the point of consuming it. Cleared when `periodIndex`
+    // advances to the next round.
+    var completedGenerationTypes: Set<WordPractice.PracticeType>
+
+    init(wordKey: String, periodIndex: Int, nextReviewDate: Date, completedGenerationTypes: Set<WordPractice.PracticeType> = []) {
+        self.wordKey = wordKey
+        self.periodIndex = periodIndex
+        self.nextReviewDate = nextReviewDate
+        self.completedGenerationTypes = completedGenerationTypes
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case wordKey, periodIndex, nextReviewDate, completedGenerationTypes
+    }
+
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        wordKey = try values.decode(String.self, forKey: .wordKey)
+        periodIndex = try values.decode(Int.self, forKey: .periodIndex)
+        nextReviewDate = try values.decode(Date.self, forKey: .nextReviewDate)
+        do {
+            completedGenerationTypes = try values.decode(Set<WordPractice.PracticeType>.self, forKey: .completedGenerationTypes)
+        } catch {
+            completedGenerationTypes = []
+        }
+    }
 }
 
 enum EbbinghausSchedule {

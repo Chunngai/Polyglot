@@ -1119,3 +1119,44 @@ c. **生成练习时**（WordPracticeProducer.makeContextSelectionPractice / mak
 - `ReorderingPracticeView.answer` 改用 `WordPracticeProducer.joinTokensPreservingPunctuation` 拼接，和 key 的生成方式保持一致。
 
 实现：✅ 已修复（Text.swift syllabifyPhrase；ReorderingPracticeView.swift answer）
+
+# 新需求 6
+
+1. 当轮练习数量被"补"回去（消耗后又被重新生成）
+
+**现象**：某单词当轮某类型练习已生成够目标数量（如 2 条，显示 "222"），练习消耗掉一条后剩 1 条（显示变成 "122"），但下次进列表/后台补齐时，又被重新生成回 2 条（变回 "222"）。
+
+**原因**：目前"是否需要补生成"完全靠**实时计数比较**，没有任何"本轮该类型已生成完毕"的持久化标记：
+
+- `WordPracticeProducer.swift`（`makeAndCachePractices` 内 `neededCount(for:)`，约 286–292 行）：`needed = max(0, nRepetitions - existing)`，`existing` 是磁盘上现存的该 (word, periodIndex, type) 记录数。
+- `PhraseReviewWordSelectionViewController.swift`（`backgroundRefresh()`，约 435–447 行）：`missingTypes = typesForPeriod.filter { existing count < repetitions }`，同样只看实时计数。
+- 单条练习被正确完成后（`WordPracticeProducer.next()`，约 44–59 行），只从内存 `practiceList` 移除，并不会立刻从磁盘 `cachedWordPractices.<lang>.json` 里删除该条；真正的磁盘同步发生在整批 `cache()`/`save()` 重写时（如 `stopPracticing()` 调 `cache()`）,重写后磁盘计数才会跟着掉到 1。掉到 1 之后，`existing(1) < nRepetitions(2)` 为真，两处补齐逻辑都会误判为"这轮还没生成够"，把消耗掉的那条重新补出来。
+- 全字段搜索确认：`WordReviewEntry`（`EbbinghausSchedule.swift` 11–15 行：`wordKey`/`periodIndex`/`nextReviewDate`）、`ReinforcementWordEntry`（`ReinforcementWords.swift` 12–18 行）、`WordSelectionEntry`（view 层，非持久化）均没有任何"某类型本轮已生成完毕"的字段。
+
+**修复方向**：
+
+在 `WordReviewEntry`（`EbbinghausSchedule.swift`）新增持久化字段，按当前 `periodIndex` 记录"哪些练习类型本轮已经生成够目标数量"：
+
+```swift
+struct WordReviewEntry: Codable {
+    var wordKey: String
+    var periodIndex: Int
+    var nextReviewDate: Date
+    var completedGenerationTypes: [String] = []  // 新增：本轮已生成够数量的 practiceType.rawValue 集合
+}
+```
+
+（`init(from decoder:)` 用 try? / do-catch 兼容旧 JSON，默认空数组。）
+
+- **写入时机**：`WordPracticeProducer.makeAndCachePractices()` 生成完某个 type 后，若 `existing + 本次新生成数量 >= nRepetitions`，将该 type 的 rawValue 加入对应 `WordReviewEntry.completedGenerationTypes`，通过 `EbbinghausSchedule.update(for:)` 持久化。
+- **读取/拦截时机**：
+  - `neededCount(for:)`：若该 type 已在 `completedGenerationTypes` 中，直接返回 0（不管磁盘现存数量是多少，不再补）。
+  - `backgroundRefresh()` 的 `missingTypes` 过滤：同样先排除已标记 completed 的 type，只对未标记的 type 按现有计数判断是否需要补。
+- **清除时机**：`advanceEbbinghausSchedule()`（`WordPracticeProducer.swift` 约 213–224 行）里 `periodIndex` 推进到下一轮时，同步把该 entry 的 `completedGenerationTypes` 清空（新一轮重新开始生成、重新允许标记完成）。
+
+**处理已有练习（迁移/兼容）**：上线时磁盘上可能已经存在部分已生成够数量、甚至已被消耗过的练习记录，而 `completedGenerationTypes` 字段全部是空的（因为是新加的字段，旧 JSON 解出来默认空数组）。若不处理，第一次触发 `neededCount`/`backgroundRefresh` 检查时会把这些"看起来缺一条"的 type 当成真缺口再补一次，等于旧数据引发一次性的误补，之后才会稳定。
+
+修复：在 `EbbinghausSchedule` 加载完成的入口（`load(for:)` 或首次调用 `update(for:)` 之前）跑一次一次性迁移：对每个 `WordReviewEntry`，用现有的磁盘 `cachedWordPractices` 按 `(wordKey, periodIndex, type)` 统计实际数量，若某 type 现存数量 `>= nRepetitions`（说明本轮该类型本来就已经生成够，不管是否被消耗过），直接把该 type 加入 `completedGenerationTypes` 并落盘。这一步只做"回填标记"，不改变任何现有练习数据本身，跑一次后旧数据和新数据在补齐逻辑下表现一致。
+
+原因：补齐逻辑只按磁盘现存数量与目标值比较，无法区分"从未生成够"和"生成够后被消耗"，导致已消耗的练习被误当作缺口重新生成。
+修复：在 WordReviewEntry 增加 completedGenerationTypes 字段，标记本轮各类型是否已生成够目标数量，生成/补齐逻辑改为先查该标记再决定是否生成，periodIndex 前进时清空标记；上线时对现有数据跑一次性迁移回填标记，避免旧数据触发一次性误补。

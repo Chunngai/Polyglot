@@ -438,8 +438,31 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
                 WordPracticeProducer.normalizedKey(from: $0.word) == key
                     && ($0.periodIndex ?? 0) == periodIndex
             }
+
+            // One-time migration for data that predates `completedGenerationTypes`: if a type's
+            // on-disk count already meets quota but isn't flagged yet, flag it now. This must run
+            // before the missing-types check below, otherwise a type that was fully generated pre-
+            // migration and has since been partially consumed would look identical to "never
+            // finished generating" and get topped back up.
+            let typesAlreadyAtQuota = typesForPeriod.filter { type in
+                !schedEntry.completedGenerationTypes.contains(type)
+                    && wordPractices.filter { $0.practiceType == type }.count >= repetitions
+            }
+            if !typesAlreadyAtQuota.isEmpty {
+                EbbinghausSchedule.update(for: lang) { persisted in
+                    guard var entry = persisted[key], entry.periodIndex == periodIndex else { return }
+                    entry.completedGenerationTypes.formUnion(typesAlreadyAtQuota)
+                    persisted[key] = entry
+                }
+            }
+            let effectiveCompletedTypes = schedEntry.completedGenerationTypes.union(typesAlreadyAtQuota)
+
             let missingTypes = typesForPeriod.filter { type in
-                wordPractices.filter { $0.practiceType == type }.count < repetitions
+                // A type already marked as fully generated this round must not be topped back
+                // up just because a practicing session consumed one of its instances -- that
+                // consumption is the desired outcome, not a generation gap.
+                guard !effectiveCompletedTypes.contains(type) else { return false }
+                return wordPractices.filter { $0.practiceType == type }.count < repetitions
             }
             if !missingTypes.isEmpty {
                 print("[backgroundRefresh] \(key): generating missing practices for types \(missingTypes)")

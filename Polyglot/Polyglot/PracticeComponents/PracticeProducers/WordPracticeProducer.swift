@@ -219,6 +219,8 @@ extension WordPracticeProducer {
                 var entry = EbbinghausSchedule.entry(forKey: key, in: schedule)
                 entry.periodIndex = newPeriod
                 entry.nextReviewDate = EbbinghausSchedule.nextReviewDate(afterPeriod: consumedPeriodIndex)
+                // New round: allow each type to be generated up to quota again.
+                entry.completedGenerationTypes = []
                 schedule[key] = entry
             }
         }
@@ -277,6 +279,10 @@ extension WordPracticeProducer {
                 for: periodIndex,
                 enabledTypes: enabledTypes
             )
+            // Types already generated to quota for this round -- must not be topped back up
+            // even if practices of that type were since consumed by practicing. Only clearing
+            // this (which happens when `periodIndex` advances) re-allows generation.
+            let completedTypes = schedule[key]!.completedGenerationTypes
 
             // Existing on-disk count per type for this word+period, so we only generate the
             // deficit per type instead of a full batch every time this word is revisited.
@@ -285,10 +291,43 @@ extension WordPracticeProducer {
             }
             func neededCount(for type: WordPractice.PracticeType) -> Int {
                 guard typesToUse.contains(type) else { return 0 }
+                guard !completedTypes.contains(type) else { return 0 }
                 let existing = existingForWord.filter { $0.practiceType == type }.count
                 let needed = max(0, nRepetitions - existing)
                 print("[makeAndCachePractices] \(key) / \(type): existing=\(existing), generating=\(needed)")
                 return needed
+            }
+
+            // Migration for pre-existing data: if a type already had quota met on disk before
+            // this per-type "completed" tracking existed, `completedTypes` won't have it yet.
+            // Mark it now from the already-known `existingForWord` snapshot so this word doesn't
+            // get topped back up the next time one of its practices is consumed.
+            for type in typesToUse where !completedTypes.contains(type) {
+                let existing = existingForWord.filter { $0.practiceType == type }.count
+                guard existing >= nRepetitions else { continue }
+                EbbinghausSchedule.update(for: self.lang) { persisted in
+                    guard var entry = persisted[key], entry.periodIndex == periodIndex else { return }
+                    entry.completedGenerationTypes.insert(type)
+                    persisted[key] = entry
+                }
+            }
+
+            // Call after appending newly generated practices of `type` to `practiceList`. If the
+            // (word, period, type) count on the live list has reached quota, persist that as
+            // "fully generated this round" so later calls (including backgroundRefresh) don't
+            // regenerate a practice of this type that gets consumed by practicing.
+            func markTypeCompletedIfQuotaMet(_ type: WordPractice.PracticeType) {
+                let currentCount = self.practiceList.compactMap { $0 as? WordPractice }.filter {
+                    Self.normalizedKey(from: $0.word) == key
+                        && ($0.periodIndex ?? 0) == periodIndex
+                        && $0.practiceType == type
+                }.count
+                guard currentCount >= nRepetitions else { return }
+                EbbinghausSchedule.update(for: self.lang) { persisted in
+                    guard var entry = persisted[key], entry.periodIndex == periodIndex else { return }
+                    entry.completedGenerationTypes.insert(type)
+                    persisted[key] = entry
+                }
             }
 
             let neededAccentSelection = neededCount(for: .accentSelection)
@@ -340,6 +379,8 @@ extension WordPracticeProducer {
                         self.wordPracticeCounter[key]! += 1
                         practicesForWord.append(p)
                     }
+                    if neededMeaningSelection > 0 { markTypeCompletedIfQuotaMet(.meaningSelection) }
+                    if neededMeaningFilling > 0 { markTypeCompletedIfQuotaMet(.meaningFilling) }
                     self.cache()
                     self.sendWordPracticeCounterUpdateNotification()
                 }
@@ -354,6 +395,7 @@ extension WordPracticeProducer {
                         practicesForWord.append(p)
                     }
                 }
+                markTypeCompletedIfQuotaMet(.contextSelection)
             }
             self.cache()
             self.sendWordPracticeCounterUpdateNotification()
@@ -366,6 +408,7 @@ extension WordPracticeProducer {
                             self.practiceList.append(stamp(p))
                             self.wordPracticeCounter[key]! += 1
                             practicesForWord.append(p)
+                            markTypeCompletedIfQuotaMet(.reordering)
                             self.cache()
                             self.sendWordPracticeCounterUpdateNotification()
                         }
@@ -384,6 +427,7 @@ extension WordPracticeProducer {
                             self.wordPracticeCounter[key]! += 1
                             practicesForWord.append(p)
                         }
+                        markTypeCompletedIfQuotaMet(.imageSelection)
                         self.cache()
                         self.sendWordPracticeCounterUpdateNotification()
                     }
@@ -392,6 +436,7 @@ extension WordPracticeProducer {
                         self.practiceList.append(stamp(p))
                         self.wordPracticeCounter[key]! += 1
                         practicesForWord.append(p)
+                        markTypeCompletedIfQuotaMet(.imageFilling)
                         self.cache()
                         self.sendWordPracticeCounterUpdateNotification()
                     }
@@ -407,6 +452,7 @@ extension WordPracticeProducer {
                         practicesForWord.append(p)
                     }
                 }
+                markTypeCompletedIfQuotaMet(.phraseConstruction)
                 self.cache()
                 self.sendWordPracticeCounterUpdateNotification()
             }
@@ -479,6 +525,7 @@ extension WordPracticeProducer {
                         self.wordPracticeCounter[key]! += 1
                     }
                 }
+                if neededAccentSelection > 0 { markTypeCompletedIfQuotaMet(.accentSelection) }
                 self.cache()
                 self.sendWordPracticeCounterUpdateNotification()
             }
