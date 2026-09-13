@@ -394,15 +394,66 @@ class PhraseReviewWordSelectionViewController: UITableViewController {
             sections.flatMap { $0.entries }.contains { $0.key == key }
         }
         if !hasAppliedDefaultSelection {
-            let candidates = sections
-                .flatMap { $0.entries }
-                .filter { $0.isReadyToPractice }
-                .sorted { $0.practiceCounts.reduce(0, +) > $1.practiceCounts.reduce(0, +) }
-            if !candidates.isEmpty {
-                selectedKeys = Set(candidates.prefix(defaultSelectionCount).map { $0.key })
+            selectedKeys = Set(Self.computeDefaultSelection(
+                sections: sections,
+                count: defaultSelectionCount
+            ))
+            if !selectedKeys.isEmpty {
                 hasAppliedDefaultSelection = true
             }
         }
+    }
+
+    /// Picks up to `count` ready-to-practice words, spreading the selection across periods
+    /// instead of letting one period's high-scoring words fill every slot. Each round finds
+    /// the highest total practiceCounts score still available among *any* remaining
+    /// candidate, keeps only the periods that currently have an entry at that score, and
+    /// takes one (random, if several tie) from each such period -- largest periodIndex
+    /// first. Once a period runs out of entries at the current round's score, it's skipped
+    /// in later rounds; the score itself is recomputed each round since it can drop once the
+    /// top-scoring words are exhausted.
+    private static func computeDefaultSelection(
+        sections: [(periodIndex: Int, entries: [WordSelectionEntry])],
+        count: Int
+    ) -> [String] {
+        var remainingByPeriod: [Int: [WordSelectionEntry]] = [:]
+        for section in sections {
+            let ready = section.entries.filter { $0.isReadyToPractice }
+            if !ready.isEmpty {
+                remainingByPeriod[section.periodIndex] = ready
+            }
+        }
+
+        var selected: [String] = []
+        while selected.count < count {
+            let allRemaining = remainingByPeriod.values.flatMap { $0 }
+            guard let maxScore = allRemaining.map({ $0.practiceCounts.reduce(0, +) }).max() else {
+                break
+            }
+            let periodsThisRound = remainingByPeriod.keys
+                .filter { period in
+                    remainingByPeriod[period]!.contains { $0.practiceCounts.reduce(0, +) == maxScore }
+                }
+                .sorted(by: >)
+
+            var madeProgress = false
+            for period in periodsThisRound {
+                guard selected.count < count else { break }
+                guard var entries = remainingByPeriod[period] else { continue }
+                let maxEntries = entries.enumerated().filter { $0.element.practiceCounts.reduce(0, +) == maxScore }
+                guard let pick = maxEntries.randomElement() else { continue }
+                selected.append(pick.element.key)
+                entries.remove(at: pick.offset)
+                if entries.isEmpty {
+                    remainingByPeriod.removeValue(forKey: period)
+                } else {
+                    remainingByPeriod[period] = entries
+                }
+                madeProgress = true
+            }
+            guard madeProgress else { break }
+        }
+        return selected
     }
 
     // MARK: - Background Refresh
