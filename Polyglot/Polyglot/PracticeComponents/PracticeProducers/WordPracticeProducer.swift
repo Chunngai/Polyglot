@@ -32,6 +32,33 @@ class WordPracticeProducer: BasePracticeProducer {
         stateQueue.sync(execute: body)
     }
 
+    // Multiple independent `WordPracticeProducer` instances (reinforcement while reading,
+    // `PhraseReviewWordSelectionViewController.backgroundRefresh()`, the word-practice list
+    // itself) can call `makeAndCachePractices` for the same word at nearly the same time.
+    // `makeAndCachePractices` decides how many practices of each type to generate from a
+    // snapshot of what's already on disk (`neededCount`), taken once per call -- with no
+    // cross-instance mutual exclusion, two concurrent calls can each see "0 existing" and
+    // both generate a full batch, producing duplicate `WordPractice` records with different
+    // `id`s for what should be a single practice slot (analysis.md 新需求 9, bug 4a). This
+    // process-wide gate makes "is word X currently being generated" a single source of truth
+    // so a second concurrent call for the same word skips entirely instead of duplicating.
+    private static let generationGateLock = NSLock()
+    private static var keysInGeneration: Set<String> = []
+
+    private static func tryBeginGeneration(for key: String) -> Bool {
+        generationGateLock.lock()
+        defer { generationGateLock.unlock() }
+        guard !keysInGeneration.contains(key) else { return false }
+        keysInGeneration.insert(key)
+        return true
+    }
+
+    private static func endGeneration(for key: String) {
+        generationGateLock.lock()
+        defer { generationGateLock.unlock() }
+        keysInGeneration.remove(key)
+    }
+
     /// Recomputes `wordPracticeCounter` from the current `practiceList`. Callers that replace
     /// `practiceList` after init (e.g. filtering down to a selected word set and deduplicating)
     /// must call this afterward -- otherwise the counter stays based on the stale pre-filter
@@ -300,9 +327,40 @@ extension WordPracticeProducer {
         // otherwise-populated word from ever being generated.
         let onDiskPractices = Self.loadCachedPractices(for: self.lang)
 
+        // The phrase-review list: every word that has an Ebbinghaus schedule entry (i.e. has
+        // been added to reinforcement/review at some point), regardless of whether it's
+        // currently due. Choices/context annotation lookups search this pool. Computed once
+        // (O(self.words.count)) rather than inside the loop below -- `self.words` doesn't
+        // change across this call, and `schedule` only ever gains entries here, never loses
+        // them, so a single filter plus incremental appends (below, when a new schedule entry
+        // is created for a word in this batch) keeps it correct without refiltering per word.
+        var reviewListWords = self.words.filter {
+            schedule[Self.normalizedKey(from: $0.text)] != nil
+        }
+
         for word in words {
 
             let key = Self.normalizedKey(from: word)
+
+            // Skip entirely if another producer instance (this one or a different one, e.g.
+            // `backgroundRefresh`'s own producer) is already generating for this word --
+            // otherwise both would independently see "0 existing" for the same (word, type)
+            // and each generate a full batch, producing duplicate `WordPractice` records with
+            // different `id`s for what should be a single practice slot (bug 4a).
+            guard Self.tryBeginGeneration(for: key) else {
+                print("[makeAndCachePractices] \(key): generation already in progress elsewhere, skipping")
+                continue
+            }
+            // Tracks every async branch (meaning translation, reordering, image generation,
+            // token/accent analysis, and the per-choice/context accent analysis nested inside
+            // annotation) fired for this word, so the generation gate is released only once
+            // all of them have actually finished -- not merely once this synchronous pass
+            // through the loop body returns.
+            let generationGroup = DispatchGroup()
+            generationGroup.notify(queue: .main) {
+                Self.endGeneration(for: key)
+            }
+
             mutate {
                 if wordPracticeCounter[key] == nil {
                     wordPracticeCounter[key] = 0
@@ -320,7 +378,23 @@ extension WordPracticeProducer {
                         persisted[key] = newEntry
                     }
                 }
+                // Keep `reviewListWords` in sync: this word just newly joined the review list,
+                // so later words in this same batch should be able to have their context
+                // annotated against it too.
+                if let newlyReviewedWord = self.words.first(where: { Self.normalizedKey(from: $0.text) == key }) {
+                    reviewListWords.append(newlyReviewedWord)
+                }
             }
+            // Snapshot into a `let` before any async branch below captures it. The async
+            // branches (token/accent analysis, translation, image generation) run their
+            // completion on other queues/threads, and by the time they fire, later iterations
+            // of this loop may already be mutating the outer `var reviewListWords` (via the
+            // append above) on the calling thread -- concurrent mutation and read of the same
+            // `Array` from different threads without synchronization is undefined behavior.
+            // Capturing an immutable snapshot here instead means each iteration's closures see
+            // a fixed, safely-shared array (Array's CoW buffer is safe to read concurrently from
+            // multiple threads as long as nothing mutates it, which this snapshot never does).
+            let reviewListWordsSnapshot = reviewListWords
             let periodIndex = schedule[key]!.periodIndex
             let typesToUse = EbbinghausSchedule.effectivePracticeTypes(
                 for: periodIndex,
@@ -386,14 +460,14 @@ extension WordPracticeProducer {
             // contiguous run of stored tokens matches `word`.
             let storedWordTokens = Self.tokens(forWord: word, in: ReinforcementWords.load(for: self.lang)[key]?.contextTokens ?? [])
 
-            var practicesForWord: [WordPractice] = []
-
             let now = Date()
             let candidateWords = self.words.filter {
                 guard $0.text != word else { return false }
                 guard let entry = schedule[Self.normalizedKey(from: $0.text)] else { return false }
                 return entry.nextReviewDate <= now
             }
+            // `reviewListWords` (computed once, outside this loop, above) is the phrase-review
+            // pool used for choices/context annotation lookups.
 
             func stamp(_ p: WordPractice) -> WordPractice {
                 p.periodIndex = periodIndex
@@ -402,141 +476,11 @@ extension WordPracticeProducer {
 
             let neededMeaningSelection = neededCount(for: .meaningSelection)
             let neededMeaningFilling = neededCount(for: .meaningFilling)
-            if neededMeaningSelection > 0 || neededMeaningFilling > 0 {
-                // Reuse the meaning captured at reinforce-tap time (already translated then)
-                // instead of re-translating the same word here.
-                let storedMeaning = ReinforcementWords.load(for: self.lang)[key]?.meaning
-                func withMeaning(_ completion: @escaping (String) -> Void) {
-                    if let storedMeaning = storedMeaning, !storedMeaning.isEmpty {
-                        completion(storedMeaning)
-                        return
-                    }
-                    machineTranslator.translate(query: word) { translations, _ in
-                        guard !translations.isEmpty else { return }
-                        completion(translations.joined(separator: "; "))
-                    }
-                }
-                withMeaning { meaning in
-
-                    for _ in 0..<neededMeaningSelection {
-                        if let p = self.makeMeaningSelectionPractice(
-                            word: word, query: word, key: meaning,
-                            direction: .textToMeaning, preferredWords: candidateWords
-                        ) {
-                            self.mutate {
-                                self.practiceList.append(stamp(p))
-                                self.wordPracticeCounter[key]! += 1
-                            }
-                            practicesForWord.append(p)
-                        }
-                        if let p = self.makeMeaningSelectionPractice(
-                            word: word, query: meaning, key: word,
-                            direction: .meaningToText, preferredWords: candidateWords
-                        ) {
-                            self.mutate {
-                                self.practiceList.append(stamp(p))
-                                self.wordPracticeCounter[key]! += 1
-                            }
-                            practicesForWord.append(p)
-                        }
-                    }
-                    for _ in 0..<neededMeaningFilling {
-                        let p = self.makeMeaningFillingPractice(
-                            word: word, query: meaning, key: word, direction: .meaningToText
-                        )
-                        self.mutate {
-                            self.practiceList.append(stamp(p))
-                            self.wordPracticeCounter[key]! += 1
-                        }
-                        practicesForWord.append(p)
-                    }
-                    if neededMeaningSelection > 0 { markTypeCompletedIfQuotaMet(.meaningSelection) }
-                    if neededMeaningFilling > 0 { markTypeCompletedIfQuotaMet(.meaningFilling) }
-                    self.cache()
-                    self.sendWordPracticeCounterUpdateNotification()
-                }
-            }
-
             let neededContextSelection = neededCount(for: .contextSelection)
-            if neededContextSelection > 0 {
-                for _ in 0..<neededContextSelection {
-                    if let p = makeContextSelectionPractice(word: word, query: word, preferredWords: candidateWords) {
-                        mutate {
-                            practiceList.append(stamp(p))
-                            wordPracticeCounter[key]! += 1
-                        }
-                        practicesForWord.append(p)
-                    }
-                }
-                markTypeCompletedIfQuotaMet(.contextSelection)
-            }
-            self.cache()
-            self.sendWordPracticeCounterUpdateNotification()
-
             let neededReordering = neededCount(for: .reordering)
-            if neededReordering > 0 {
-                for _ in 0..<neededReordering {
-                    makeReorderingPractice(word: word, query: word) { practice in
-                        if let p = practice {
-                            self.mutate {
-                                self.practiceList.append(stamp(p))
-                                self.wordPracticeCounter[key]! += 1
-                            }
-                            practicesForWord.append(p)
-                            markTypeCompletedIfQuotaMet(.reordering)
-                            self.cache()
-                            self.sendWordPracticeCounterUpdateNotification()
-                        }
-                    }
-                }
-            }
-
             let neededImageSelection = neededCount(for: .imageSelection)
             let neededImageFilling = neededCount(for: .imageFilling)
-            if neededImageSelection > 0 || neededImageFilling > 0 {
-                imageCreator.generateImage(for: word) { imageUrl in
-                    guard let imageUrl = imageUrl else { return }
-                    for _ in 0..<neededImageSelection {
-                        if let p = self.makeImageSelectionPractice(word: word, imageUrl: imageUrl, preferredWords: candidateWords) {
-                            self.mutate {
-                                self.practiceList.append(stamp(p))
-                                self.wordPracticeCounter[key]! += 1
-                            }
-                            practicesForWord.append(p)
-                        }
-                        markTypeCompletedIfQuotaMet(.imageSelection)
-                        self.cache()
-                        self.sendWordPracticeCounterUpdateNotification()
-                    }
-                    for _ in 0..<neededImageFilling {
-                        let p = self.makeImageFillingPractice(word: word, imageUrl: imageUrl)
-                        self.mutate {
-                            self.practiceList.append(stamp(p))
-                            self.wordPracticeCounter[key]! += 1
-                        }
-                        practicesForWord.append(p)
-                        markTypeCompletedIfQuotaMet(.imageFilling)
-                        self.cache()
-                        self.sendWordPracticeCounterUpdateNotification()
-                    }
-                }
-            }
-
             let neededPhraseConstruction = neededCount(for: .phraseConstruction)
-            if neededPhraseConstruction > 0 {
-                for _ in 0..<neededPhraseConstruction {
-                    if let p = makePhraseConstructionPractice(word: word) {
-                        mutate {
-                            practiceList.append(stamp(p))
-                            wordPracticeCounter[key]! += 1
-                        }
-                        practicesForWord.append(p)
-                    }
-                }
-                markTypeCompletedIfQuotaMet(.phraseConstruction)
-                self.cache()
-                self.sendWordPracticeCounterUpdateNotification()
-            }
 
             func withWordTokens(_ completion: @escaping ([Token], String?, String) -> Void) {
                 if let storedWordTokens = storedWordTokens {
@@ -545,70 +489,241 @@ extension WordPracticeProducer {
                 }
                 analyzeAccents(for: word, completion: completion)
             }
+
+            // Resolve tokens FIRST, then run every generation branch inside this callback, so
+            // each practice can be annotated the instant it's created (via `annotate` below)
+            // instead of only annotating whatever happened to already be in a local snapshot
+            // array by the time this callback fired. Previously, slow async branches (image
+            // generation in particular) appended their practices to `practicesForWord` AFTER
+            // this callback had already run and set the completion flags -- those late records
+            // never got flagged here and stayed unannotated until a separate, later
+            // `annotateExistingPractices` pass happened to catch them (analysis.md 新需求 9,
+            // bug 4b). If token resolution itself fails (`tokens.isEmpty`), practices are still
+            // created below exactly as before -- `annotate` is simply a no-op per practice in
+            // that case, same as the prior behavior of skipping annotation entirely.
+            generationGroup.enter()
             withWordTokens { tokens, fixedText, text in
-                guard !tokens.isEmpty else { return }
+                defer { generationGroup.leave() }
 
                 let needsAspect = LangCode.currentLanguage.configs.shouldShowVerbAspectsInPractices
                 let needsNounCase = LangCode.currentLanguage.configs.shouldShowNounCasesInPractices
-                if needsAspect || needsNounCase {
-                    for practice in practicesForWord {
-                        if needsAspect {
-                            practice.verbAspectAnnotations = calculateVerbAspectAnnotations(for: practice.query, with: tokens)
-                        }
-                        if needsNounCase {
-                            practice.nounCaseAnnotations = calculateNounCaseAnnotations(for: practice.query, with: tokens)
-                            practice.shortAdjectiveAnnotations = calculateShortAdjectiveAnnotations(for: practice.query, with: tokens)
-                        }
-                        // Annotate Russian choices (meaningToText direction or contextSelection).
-                        if let choices = practice.choices,
-                           practice.direction == .meaningToText || practice.practiceType == .contextSelection {
-                            practice.choiceVerbAspectAnnotations = Array(repeating: [], count: choices.count)
-                            practice.choiceNounCaseAnnotations = Array(repeating: [], count: choices.count)
-                            for (i, choice) in choices.enumerated() {
-                                analyzeAccents(for: choice) { choiceTokens, _, _ in
-                                    guard !choiceTokens.isEmpty else { return }
-                                    if needsAspect {
-                                        practice.choiceVerbAspectAnnotations[i] = calculateVerbAspectAnnotations(for: choice, with: choiceTokens)
-                                    }
-                                    if needsNounCase {
-                                        practice.choiceNounCaseAnnotations[i] = calculateNounCaseAnnotations(for: choice, with: choiceTokens)
-                                    }
-                                    self.cache()
-                                }
-                            }
-                        }
+                let accentedWord = tokens.isEmpty ? "" : Self.joinTokensPreservingPunctuation(
+                    tokens.accentedPronunciations, separator: Strings.wordSeparator
+                )
 
-                        // Annotate Russian context sentence.
-                        if let context = practice.context, practice.practiceType == .contextSelection {
-                            analyzeAccents(for: context) { contextTokens, _, _ in
-                                guard !contextTokens.isEmpty else { return }
-                                if needsAspect {
-                                    practice.contextVerbAspectAnnotations = calculateVerbAspectAnnotations(for: context, with: contextTokens)
-                                }
-                                if needsNounCase {
-                                    practice.contextNounCaseAnnotations = calculateNounCaseAnnotations(for: context, with: contextTokens)
-                                }
-                                self.cache()
+                // Annotates a single freshly-created practice using the tokens resolved above.
+                // Safe to call immediately after creating/appending any practice, sync or async.
+                func annotate(_ practice: WordPractice) {
+                    guard !tokens.isEmpty else { return }
+                    if needsAspect {
+                        practice.verbAspectAnnotations = calculateVerbAspectAnnotations(for: practice.query, with: tokens)
+                    }
+                    if needsNounCase {
+                        practice.nounCaseAnnotations = calculateNounCaseAnnotations(for: practice.query, with: tokens)
+                        practice.shortAdjectiveAnnotations = calculateShortAdjectiveAnnotations(for: practice.query, with: tokens)
+                    }
+                    // Choices are drawn from the phrase-review list (`candidateWords`/
+                    // `reviewListWords`, or `word` itself -- see `choices(for:textForChoice:)`),
+                    // and every such `Word` already carries its own cached `tokens` from
+                    // whenever it was added to review. Reuse that cached data directly instead
+                    // of firing an `analyzeAccents` network call per choice -- if a choice has
+                    // no cached tokens (not on the review list, or not yet analyzed), just leave
+                    // it unannotated rather than calling out for it.
+                    func cachedTokens(forChoiceOrContextText text: String) -> [Token]? {
+                        if Self.normalizedKey(from: text) == key {
+                            return tokens
+                        }
+                        return reviewListWordsSnapshot.first {
+                            Self.normalizedKey(from: $0.text) == Self.normalizedKey(from: text)
+                        }?.tokens
+                    }
+
+                    // Annotate Russian choices (meaningToText direction or contextSelection).
+                    if let choices = practice.choices,
+                       practice.direction == .meaningToText || practice.practiceType == .contextSelection {
+                        practice.choiceVerbAspectAnnotations = Array(repeating: [], count: choices.count)
+                        practice.choiceNounCaseAnnotations = Array(repeating: [], count: choices.count)
+                        for (i, choice) in choices.enumerated() {
+                            guard let choiceTokens = cachedTokens(forChoiceOrContextText: choice), !choiceTokens.isEmpty else { continue }
+                            if needsAspect {
+                                practice.choiceVerbAspectAnnotations[i] = calculateVerbAspectAnnotations(for: choice, with: choiceTokens)
+                            }
+                            if needsNounCase {
+                                practice.choiceNounCaseAnnotations[i] = calculateNounCaseAnnotations(for: choice, with: choiceTokens)
                             }
                         }
                     }
-                }
-                for practice in practicesForWord {
+                    // Context sentence: the practiced word's own occurrence is already blanked
+                    // out to `Strings.underscoreToken` (see `makeContextSelectionPractice`), so
+                    // there's nothing of the practiced word left to annotate there. For any
+                    // OTHER word appearing in the context text, reuse ITS cached `tokens` from
+                    // the phrase-review list (`reviewListWords`) to annotate that span -- best
+                    // effort, skip whatever isn't on the review list rather than firing a
+                    // full-sentence `analyzeAccents` call.
+                    if let context = practice.context, practice.practiceType == .contextSelection {
+                        let (contextVerbAnns, contextNounAnns) = Self.annotateContextUsingReviewListTokens(
+                            context: context,
+                            reviewListWords: reviewListWordsSnapshot,
+                            needsAspect: needsAspect,
+                            needsNounCase: needsNounCase
+                        )
+                        if needsAspect { practice.contextVerbAspectAnnotations = contextVerbAnns }
+                        if needsNounCase { practice.contextNounCaseAnnotations = contextNounAnns }
+                    }
                     practice.isGrammarAnnotationCompleted = true
-                }
-
-                let accentedWord = Self.joinTokensPreservingPunctuation(tokens.accentedPronunciations, separator: Strings.wordSeparator)
-                for practice in practicesForWord {
                     self.addAccents(to: practice, with: accentedWord)
                     practice.isAccentAnnotationCompleted = true
                     self.adjustAnnotationsForAccentInsertions(of: practice, tokens: tokens, word: word)
                 }
 
+                if neededMeaningSelection > 0 || neededMeaningFilling > 0 {
+                    // Reuse the meaning captured at reinforce-tap time (already translated then)
+                    // instead of re-translating the same word here.
+                    let storedMeaning = ReinforcementWords.load(for: self.lang)[key]?.meaning
+                    func withMeaning(_ completion: @escaping (String) -> Void) {
+                        if let storedMeaning = storedMeaning, !storedMeaning.isEmpty {
+                            completion(storedMeaning)
+                            return
+                        }
+                        self.machineTranslator.translate(query: word) { translations, _ in
+                            guard !translations.isEmpty else { return }
+                            completion(translations.joined(separator: "; "))
+                        }
+                    }
+                    generationGroup.enter()
+                    withMeaning { meaning in
+                        defer { generationGroup.leave() }
+
+                        for _ in 0..<neededMeaningSelection {
+                            if let p = self.makeMeaningSelectionPractice(
+                                word: word, query: word, key: meaning,
+                                direction: .textToMeaning, preferredWords: candidateWords
+                            ) {
+                                annotate(p)
+                                self.mutate {
+                                    self.practiceList.append(stamp(p))
+                                    self.wordPracticeCounter[key]! += 1
+                                }
+                            }
+                            if let p = self.makeMeaningSelectionPractice(
+                                word: word, query: meaning, key: word,
+                                direction: .meaningToText, preferredWords: candidateWords
+                            ) {
+                                annotate(p)
+                                self.mutate {
+                                    self.practiceList.append(stamp(p))
+                                    self.wordPracticeCounter[key]! += 1
+                                }
+                            }
+                        }
+                        for _ in 0..<neededMeaningFilling {
+                            let p = self.makeMeaningFillingPractice(
+                                word: word, query: meaning, key: word, direction: .meaningToText
+                            )
+                            annotate(p)
+                            self.mutate {
+                                self.practiceList.append(stamp(p))
+                                self.wordPracticeCounter[key]! += 1
+                            }
+                        }
+                        if neededMeaningSelection > 0 { markTypeCompletedIfQuotaMet(.meaningSelection) }
+                        if neededMeaningFilling > 0 { markTypeCompletedIfQuotaMet(.meaningFilling) }
+                        self.cache()
+                        self.sendWordPracticeCounterUpdateNotification()
+                    }
+                }
+
+                if neededContextSelection > 0 {
+                    for _ in 0..<neededContextSelection {
+                        if let p = self.makeContextSelectionPractice(word: word, query: word, preferredWords: candidateWords) {
+                            annotate(p)
+                            self.mutate {
+                                self.practiceList.append(stamp(p))
+                                self.wordPracticeCounter[key]! += 1
+                            }
+                        }
+                    }
+                    markTypeCompletedIfQuotaMet(.contextSelection)
+                }
+                self.cache()
+                self.sendWordPracticeCounterUpdateNotification()
+
+                if neededReordering > 0 {
+                    for _ in 0..<neededReordering {
+                        generationGroup.enter()
+                        self.makeReorderingPractice(word: word, query: word) { practice in
+                            defer { generationGroup.leave() }
+                            if let p = practice {
+                                annotate(p)
+                                self.mutate {
+                                    self.practiceList.append(stamp(p))
+                                    self.wordPracticeCounter[key]! += 1
+                                }
+                                markTypeCompletedIfQuotaMet(.reordering)
+                                self.cache()
+                                self.sendWordPracticeCounterUpdateNotification()
+                            }
+                        }
+                    }
+                }
+
+                if neededImageSelection > 0 || neededImageFilling > 0 {
+                    generationGroup.enter()
+                    self.imageCreator.generateImage(for: word) { imageUrl in
+                        defer { generationGroup.leave() }
+                        guard let imageUrl = imageUrl else { return }
+                        for _ in 0..<neededImageSelection {
+                            if let p = self.makeImageSelectionPractice(word: word, imageUrl: imageUrl, preferredWords: candidateWords) {
+                                annotate(p)
+                                self.mutate {
+                                    self.practiceList.append(stamp(p))
+                                    self.wordPracticeCounter[key]! += 1
+                                }
+                            }
+                            markTypeCompletedIfQuotaMet(.imageSelection)
+                            self.cache()
+                            self.sendWordPracticeCounterUpdateNotification()
+                        }
+                        for _ in 0..<neededImageFilling {
+                            let p = self.makeImageFillingPractice(word: word, imageUrl: imageUrl)
+                            annotate(p)
+                            self.mutate {
+                                self.practiceList.append(stamp(p))
+                                self.wordPracticeCounter[key]! += 1
+                            }
+                            markTypeCompletedIfQuotaMet(.imageFilling)
+                            self.cache()
+                            self.sendWordPracticeCounterUpdateNotification()
+                        }
+                    }
+                }
+
+                if neededPhraseConstruction > 0 {
+                    for _ in 0..<neededPhraseConstruction {
+                        if let p = self.makePhraseConstructionPractice(word: word) {
+                            annotate(p)
+                            self.mutate {
+                                self.practiceList.append(stamp(p))
+                                self.wordPracticeCounter[key]! += 1
+                            }
+                        }
+                    }
+                    markTypeCompletedIfQuotaMet(.phraseConstruction)
+                    self.cache()
+                    self.sendWordPracticeCounterUpdateNotification()
+                }
+
+                // accentSelection practices are built directly from `tokens` (already-accented
+                // pronunciations); they don't need `annotate`'s query-rewrite/choice/context
+                // logic, but still need the completion flags set so the list view's "all
+                // matching records annotated" check (loadEntries) doesn't treat them as pending.
                 for _ in 0..<neededAccentSelection {
-                    if let p = self.makeAccentSelectionPractice(
+                    if !tokens.isEmpty, let p = self.makeAccentSelectionPractice(
                         word: fixedText ?? text, query: fixedText ?? text, tokens: tokens
                     ) {
                         p.periodIndex = periodIndex
+                        p.isGrammarAnnotationCompleted = true
+                        p.isAccentAnnotationCompleted = true
                         self.mutate {
                             self.practiceList.append(p)
                             self.wordPracticeCounter[key]! += 1
@@ -633,6 +748,12 @@ extension WordPracticeProducer {
         let allPractices = Self.loadCachedPractices(for: lang)
         let schedule = EbbinghausSchedule.load(for: lang)
         let periodIndex = EbbinghausSchedule.entry(forKey: key, in: schedule).periodIndex
+        // Same phrase-review-list scoping as `makeAndCachePractices`: choices/context should be
+        // annotated using tokens cached on words that are actually on the review list, not the
+        // full `self.words` word bank.
+        let reviewListWords = self.words.filter {
+            schedule[Self.normalizedKey(from: $0.text)] != nil
+        }
 
         let targets = allPractices.filter {
             Self.normalizedKey(from: $0.word) == key
@@ -668,32 +789,42 @@ extension WordPracticeProducer {
                         practice.nounCaseAnnotations = calculateNounCaseAnnotations(for: practice.query, with: tokens)
                         practice.shortAdjectiveAnnotations = calculateShortAdjectiveAnnotations(for: practice.query, with: tokens)
                     }
+                    // Reuse cached `Word.tokens` from the phrase-review list (`reviewListWords`)
+                    // instead of firing a fresh `analyzeAccents` call per choice/context --
+                    // choices are words/phrases on the review list (or the practiced word
+                    // itself), so their tokens were already analyzed and cached.
+                    func cachedTokens(forChoiceOrContextText text: String) -> [Token]? {
+                        if Self.normalizedKey(from: text) == key {
+                            return tokens
+                        }
+                        return reviewListWords.first {
+                            Self.normalizedKey(from: $0.text) == Self.normalizedKey(from: text)
+                        }?.tokens
+                    }
+
                     if let choices = practice.choices,
                        practice.direction == .meaningToText || practice.practiceType == .contextSelection {
                         practice.choiceVerbAspectAnnotations = Array(repeating: [], count: choices.count)
                         practice.choiceNounCaseAnnotations = Array(repeating: [], count: choices.count)
                         for (i, choice) in choices.enumerated() {
-                            analyzeAccents(for: choice) { choiceTokens, _, _ in
-                                guard !choiceTokens.isEmpty else { return }
-                                if needsAspect {
-                                    practice.choiceVerbAspectAnnotations[i] = calculateVerbAspectAnnotations(for: choice, with: choiceTokens)
-                                }
-                                if needsNounCase {
-                                    practice.choiceNounCaseAnnotations[i] = calculateNounCaseAnnotations(for: choice, with: choiceTokens)
-                                }
+                            guard let choiceTokens = cachedTokens(forChoiceOrContextText: choice), !choiceTokens.isEmpty else { continue }
+                            if needsAspect {
+                                practice.choiceVerbAspectAnnotations[i] = calculateVerbAspectAnnotations(for: choice, with: choiceTokens)
+                            }
+                            if needsNounCase {
+                                practice.choiceNounCaseAnnotations[i] = calculateNounCaseAnnotations(for: choice, with: choiceTokens)
                             }
                         }
                     }
                     if let context = practice.context, practice.practiceType == .contextSelection {
-                        analyzeAccents(for: context) { contextTokens, _, _ in
-                            guard !contextTokens.isEmpty else { return }
-                            if needsAspect {
-                                practice.contextVerbAspectAnnotations = calculateVerbAspectAnnotations(for: context, with: contextTokens)
-                            }
-                            if needsNounCase {
-                                practice.contextNounCaseAnnotations = calculateNounCaseAnnotations(for: context, with: contextTokens)
-                            }
-                        }
+                        let (contextVerbAnns, contextNounAnns) = Self.annotateContextUsingReviewListTokens(
+                            context: context,
+                            reviewListWords: reviewListWords,
+                            needsAspect: needsAspect,
+                            needsNounCase: needsNounCase
+                        )
+                        if needsAspect { practice.contextVerbAspectAnnotations = contextVerbAnns }
+                        if needsNounCase { practice.contextNounCaseAnnotations = contextNounAnns }
                     }
                     practice.isGrammarAnnotationCompleted = true
                 }
@@ -1329,6 +1460,41 @@ extension WordPracticeProducer {
             }
         }
         return nil
+    }
+
+    /// Annotates `context` using individual tokens from `reviewListWords`' cached `Word.tokens`
+    /// (not the whole phrase text) -- so a multi-word review phrase still contributes an
+    /// annotation for whichever single token of it actually shows up in `context`, and one
+    /// token's text can't accidentally swallow another token's annotation the way passing the
+    /// full phrase's token array into `calculateVerbAspectAnnotations`/`calculateNounCaseAnnotations`
+    /// would (those functions walk their token array in lock-step with occurrences in the text
+    /// and bail out at the first token they can't locate).
+    static func annotateContextUsingReviewListTokens(
+        context: String,
+        reviewListWords: [Word],
+        needsAspect: Bool,
+        needsNounCase: Bool
+    ) -> (verb: [VerbAspectAnnotation], noun: [NounCaseAnnotation]) {
+        var contextVerbAnns: [VerbAspectAnnotation] = []
+        var contextNounAnns: [NounCaseAnnotation] = []
+        let contextLower = context.lowercased()
+        var seenTokenTexts = Set<String>()
+        for candidate in reviewListWords {
+            guard let candidateTokens = candidate.tokens else { continue }
+            for token in candidateTokens {
+                let tokenTextLower = token.text.lowercased()
+                guard !tokenTextLower.isEmpty else { continue }
+                guard seenTokenTexts.insert(tokenTextLower).inserted else { continue }
+                guard contextLower.contains(tokenTextLower) else { continue }
+                if needsAspect {
+                    contextVerbAnns.append(contentsOf: calculateVerbAspectAnnotations(for: context, with: [token]))
+                }
+                if needsNounCase {
+                    contextNounAnns.append(contentsOf: calculateNounCaseAnnotations(for: context, with: [token]))
+                }
+            }
+        }
+        return (contextVerbAnns, contextNounAnns)
     }
 
     /// Joins tokens with `separator`, but omits the separator before a token

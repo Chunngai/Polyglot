@@ -1347,3 +1347,67 @@ textView.snp.makeConstraints { make in
 实现：❌ 已撤回（效果不理想，用户反馈"还是撤回吧，效果不太好"）。`VideoShadowingPracticeView.swift` 中按钮相关的样式改动（圆形背景、tint、imageEdgeInsets、`sideButtonSize` 常量、布局 inset 调整）已全部还原为改动前的写法；仅保留与本条无关的第 2 条字幕滚动修复。
 
 > **批注**：还是撤回吧，效果不太好。保留文本滚动的改动逻辑就好了
+
+# 新需求 11
+
+## Phrase review 列表数字加粗仍反复横跳（220 → 222 的过程中第一、第三个数字都出现过不加粗）
+
+**现象**：点击 reinforce 加单词后，列表显示 220（meaning selection / context selection / image selection）。第一个 2（meaning selection）一开始不加粗，过一会才加粗；第二个 2（context selection）一开始就加粗；第三个 0 是因为图片还没生成。图片生成后变成 222，此时第一个 2 又变回不加粗，第二个 2 保持加粗，第三个 2（image selection）不加粗；再过一会第一个 2 才又加粗。
+
+**原因（两个独立 bug，均在 `WordPracticeProducer.makeAndCachePractices`，`WordPracticeProducer.swift:315-696`）**：
+
+- **Bug A（跨实例重复生成竟态）**：`makeAndCachePractices` 在函数最外层一次性读取磁盘上已有的 practice 数量（`onDiskPractices`，原 328 行），`neededCount(for:)` 用这份快照决定每种类型还要生成几条。这个"读取现有数量 → 决定生成"是经典的 check-then-act，没有跨实例互斥。App 里同时存在多个独立的 `WordPracticeProducer` 实例（阅读页 reinforce 时临时创建一个、`PhraseReviewWordSelectionViewController.backgroundRefresh()` 自己创建一个、单词练习列表页再创建一个），两个实例几乎同时对同一个词调用 `makeAndCachePractices` 时，都会读到"现有数量不足"，于是各自生成一份——为同一个练习槽位生成出两条 `id` 不同的 `WordPractice` 记录。列表页判断"是否加粗"要求同一 (word, period, type) 下**所有**匹配记录都标注完成；只要这两条重复记录里有一条还没标注完，这一位数字就显示不加粗，直到后续某次单独的 `annotateExistingPractices` 把落下的那条也补标注完，才变回加粗——这解释了"第一个数字先不加粗、过一会才加粗"。
+
+- **Bug B（慢速异步分支生成的记录漏打标注完成 flag）**：原代码所有生成分支（meaning/context/reordering/image/phraseConstruction）各自往本地数组 `practicesForWord` 里 `append`，最后统一在 `withWordTokens { ... }` 回调里对 `practicesForWord` 当前的内容批量设置 `isGrammarAnnotationCompleted`/`isAccentAnnotationCompleted = true`。但 `withWordTokens` 在有 `storedWordTokens`（reinforce 时已分析过 token）时几乎是同步触发的，触发时间早于最慢的图片生成分支（网络请求+轮询）把新记录 append 进 `practicesForWord` 的时间。于是图片相关记录永远赶不上这趟"批量打标注"，一直停留在 `isAccentAnnotationCompleted=false`/`isGrammarAnnotationCompleted=false`，直到某次独立的 `annotateExistingPractices`（例如 `backgroundRefresh` 里的那次）恰好把它们捞出来补标注——这解释了"图片生成完变成 222 后，第三个数字仍不加粗"。
+
+**修复**（已实施，均在 `WordPracticeProducer.swift`）：
+
+1. **跨实例生成互斥**（`WordPracticeProducer.swift:36-58`）：新增进程级静态锁 `generationGateLock: NSLock` + `keysInGeneration: Set<String>`，配 `tryBeginGeneration(for:)`/`endGeneration(for:)`。`makeAndCachePractices` 的 per-word 循环体最前面调用 `tryBeginGeneration(for: key)`；拿不到就整词 `continue`（跳过这个词，不生成，避免与另一个正在处理该词的实例重复）。用一个 `DispatchGroup`（`generationGroup`）包住这个词涉及的所有异步分支（token/accent 解析、meaning 翻译、reordering、image 生成，以及标注阶段内部对 choices/context 的嵌套 `analyzeAccents`），`generationGroup.notify` 触发时才调用 `endGeneration(for:)` 释放锁——保证锁覆盖的是"这个词真正生成完"的全过程，而不只是这次函数调用同步返回的那一刻。
+
+2. **每条记录创建后立即标注**（`WordPracticeProducer.swift:456-696`）：把 `withWordTokens` 挪到最前面先解析出 tokens，然后把原来分散的 meaning/context/reordering/image/phraseConstruction 生成分支全部挪进这个回调内部执行，共用同一份已解析的 tokens。抽出一个局部函数 `annotate(_ practice:)`（原来批量打标注那段逻辑的等价物），每个分支创建出新记录后**立刻**调用 `annotate(p)`，不再等到某个统一时间点去处理一个"当时恰好存在"的快照数组。这样无论记录是同步创建的（meaning/context/phraseConstruction）还是异步创建的（reordering、图片生成，在各自 completion 里创建时立刻标注），标注完成 flag 都会跟着这条记录的创建同时落地，不会有"创建早、标注晚"的窗口。`accentSelection` 类型本身不需要 `annotate` 里的查询重写/choices/context 逻辑（直接由已解析的 `tokens` 构造），但也顺手在创建时直接置 `isGrammarAnnotationCompleted`/`isAccentAnnotationCompleted = true`（此前这类记录从未被这两个 flag 覆盖过，是一个更早就存在、但未被用户报告出来的同类小问题，顺带修掉）。
+
+若 token 解析本身失败（`tokens.isEmpty`），`annotate` 直接跳过标注（保持原来"标注失败就不标注，记录仍然创建"的行为不变）。
+
+> **批注**：直接改
+
+实现：✅ 已修复（`WordPracticeProducer.swift`：新增 `generationGateLock`/`keysInGeneration`/`tryBeginGeneration`/`endGeneration` 静态互斥；`makeAndCachePractices` 用 `DispatchGroup` 包裹所有异步分支并在词级别加互斥锁；抽出 `annotate(_:)` 局部函数，把所有生成分支移入 token 解析回调内部，做到"创建即标注"）
+
+### 11.1 choices/context 的标注来源：复用已缓存的 Word.tokens，而非额外发起 analyzeAccents
+
+**背景**：`annotate(_ practice:)` 最初的实现里，`choices`（非答案选项）和 `context`（例句）各自额外发起了一次 `analyzeAccents(for: choice)` / `analyzeAccents(for: context)` 异步分析请求来获取标注用的 tokens。
+
+> **批注**：各练习类型分析表格展示，太乱了
+> 1. context selection 的 choices：答案之外的 choices 应该也是需要练习的 phrase 吧？找到对应 phrase 的 tokens 就能拿信息了
+> 2. context selection 的 context：phrase 所在句保证有标注就好（已经可以满足），其他句子：看看其他 phrase 的 tokens 能不能给标注信息，可以就用，不可以就不管了
+> 3. image selection 的 choices：答案之外的 choices 应该也是需要练习的 phrase 吧？同 image selection，看从对应 phrase 的 tokens 能不能直接拿信息。meaning selection 的 meaning->text 方向同理。
+> 一个原则：尽量使用 tokens 信息，避免额外补标注。你再改改代码，并看看这样之后还有什么练习的内容需要额外标注
+
+**修复**：choices 本身是从 phrase review 列表（有 Ebbinghaus schedule 记录的词，即用户曾经加入复习的词）里挑出来的（或被练习的词本身）——见 `choices(for:textForChoice:preferredWords:)`（`WordPracticeProducer.swift:889-928`）以及调用处传入的 `candidateWords`（当前到期的复习词子集）；每个复习列表里的 `Word` 在被加入复习时已经通过 `analyzeAccents` 分析并缓存了 `tokens`（`Word.tokens`，见 `Word.swift:96`，写入点见 `WordsViewController.swift:254-262` 与 `TextMeaningPracticeViewController.swift:204-213`）。因此不需要重新发起分析请求，只需在复习列表里查到对应 `Word.tokens` 直接复用即可（新增局部函数 `cachedTokens(forChoiceOrContextText:)`）。
+
+> **批注（进一步修正）**：
+> 1. imageCreator 报错：Implicit use of 'self' in closure; use 'self.' to make capture semantics explicit
+> 2. selection 练习其他选项单词的标注：不应该使用 self.words 找 tokens，应该从 phrase review list 其他 phrase 的 tokens 找！！！因为练习选项的单词好像是先从 phrase review list 其他单词里面随机选的吧，如果我没记错
+> 3. context selection 的 context 标注：query 本身所在句子的其他单词：使用 query 本身单词对应 tokens 标注；query 本身所在句子以外的句子：也是从 phrase review list 其他单词的 tokens 找，而不是从 self.words 里面找！！！
+
+**再次修复**：
+- 补上 `self.imageCreator.generateImage(...)`、`self.machineTranslator.translate(...)` 的显式 `self.`（两处在转义闭包里隐式访问 `self` 属性，触发编译器警告）。
+- 新增 `reviewListWords`（`makeAndCachePractices` 与 `annotateExistingPractices` 内均有各自一份，定义为 `self.words.filter { schedule[normalizedKey] != nil }`，即所有在 Ebbinghaus schedule 里有记录的词）代替之前误用的 `self.words`（全量词库，包含从未加入复习的词）。choices 和 context 的缓存 tokens 查找都改为在 `reviewListWords` 里找。
+- 修正了一个此前对 `contextSelection` 的 context 的错误认识：被练习词在 context 里的出现**已经被替换为下划线占位符**（`makeContextSelectionPractice` 里 `replacingOccurrences(of: query, with: Strings.underscoreToken, ...)`），所以被练习词自己的 tokens 在 context 里没有对应文本可标注——之前一版分析"query 本身所在句子已经有标注"是错的，已撤回；context 的标注完全依赖扫描 `reviewListWords` 里其他词的缓存 tokens。
+
+- **choices**（`meaningToText` 方向 或 `contextSelection` 类型，覆盖 meaningSelection(meaning→text)/imageSelection/contextSelection 三者）：对每个 choice 文本查 `reviewListWords`（或匹配被练习词本身），查到就用其 `tokens` 计算 `choiceVerbAspectAnnotations`/`choiceNounCaseAnnotations`；查不到就保持空标注（不阻塞、不额外请求）。
+- **context**（仅 `contextSelection`）：被练习词在 context 里的出现已被替换为下划线占位符，本身无 tokens 可标注；标注其他内容时按**单个 token**（而非整个短语的完整文本）匹配 —— 遍历 `reviewListWords` 里每个词缓存的 `tokens` 数组，逐个 token 的文本单独判断是否出现在 context 里，出现就单独用这一个 token 计算标注再合并结果（新增静态函数 `annotateContextUsingReviewListTokens`）。这样即使某个 review word 是多词短语、context 里只出现了其中一个词，也能被匹配到并标注；同时避免了直接把整个短语的 tokens 数组传给 `calculateVerbAspectAnnotations`/`calculateNounCaseAnnotations`——这两个函数按 tokens 数组顺序逐个在文本里定位，遇到定位不到的 token 就直接返回，若短语只有一部分出现在 context 里会导致后续本该匹配到的 token 也被跳过。找不到匹配的 token 就不管，不发起额外分析。
+
+**结论（每种练习类型标注来源最终情况）**：
+
+- **meaningSelection / meaningFilling / imageFilling / phraseConstruction**：`query` 上的 verb aspect、noun case、accent 全部直接用被练习词本身解析出的 `tokens` 计算，无需额外标注。
+- **meaningSelection（meaningToText 方向）/ imageSelection 的 choices**：直接查 `reviewListWords` 里对应词的缓存 `tokens`，查不到就不标注。
+- **contextSelection 的 choices**：同上，查 `reviewListWords` 缓存 `tokens`。
+- **contextSelection 的 context**：被练习词的位置在 context 里已被替换为占位符，本身没有可标注内容；按单个 token（而非整个短语文本）在 `reviewListWords` 的缓存 tokens 里逐个匹配 context，命中的 token 单独标注，查不到的 token 跳过。
+- **accentSelection**：正确答案（被练习词本身）的重音直接由其 `tokens` 计算得出；错误选项不是查其他词的 tokens，而是在同一个词的 `tokens` 基础上用 `generateRandomAccentLocs`/`makePronunciationsWith`（`WordPracticeProducer.swift:1054+`）随机重新分配重音位置、重新拼出带重音文本，本质是"同一个词的多种重音假设"，不涉及 choices/context 那套跨词查找逻辑，也不需要额外标注（这些选项本身就是由 tokens 派生构造出来的，不是另外的词）。
+- **不再有任何练习类型需要为 choices/context 发起额外的 `analyzeAccents` 调用**——所有信息均来自被练习词自身或 phrase review 列表里其他词已缓存的 `tokens`，查不到就跳过，符合"尽量使用 tokens 信息，避免额外补标注"的原则。
+
+实现：✅ 已修复（`WordPracticeProducer.swift`：`self.imageCreator`/`self.machineTranslator` 补显式 self；`makeAndCachePractices` 与 `annotateExistingPractices` 内新增 `reviewListWords`，`cachedTokens(forChoiceOrContextText:)` 改为查 `reviewListWords` 而非 `self.words`；context 标注抽成共用静态函数 `Self.annotateContextUsingReviewListTokens(context:reviewListWords:needsAspect:needsNounCase:)`，按单个 token 而非整个短语文本匹配，两条通路——生成时标注 `annotate(_:)` 与事后补标注 `annotateExistingPractices`——共用同一份逻辑）。
+
+> **批注（性能修正）**：`makeAndCachePractices` 里最初把 `let reviewListWords = self.words.filter { schedule[...] != nil }` 写在 `for word in words` 循环内部——这个过滤谓词根本不依赖循环变量 `word`，放在循环里等于每处理一个词就把全量词库重新扫一遍，是 O(N×M)（N=本批词数，M=词库大小）。修复：把它提到循环外，改成 `var reviewListWords = ...`，整批只算一次（O(M)）；同时在循环内"为本词创建新 schedule 记录"的分支里，对刚新入 schedule 的词做一次 `reviewListWords.append(...)`（O(1)），保证同一批次里后面的词仍能查到前面词刚加入复习列表这件事，不影响正确性。
+
+> **批注（并发安全修正）**：上面的 `var reviewListWords` 提到循环外之后，产生了新问题——`annotate(_:)` 等标注逻辑是在 `withWordTokens`/`analyzeAccents`/`machineTranslator.translate`/`imageCreator.generateImage` 等异步回调里执行的，这些回调可能在其他线程/网络回调队列上，晚于本次循环的同步代码返回才触发；而下一轮循环体在调用线程上会继续对同一个外层 `var reviewListWords` 做 `append`。多个线程无同步地并发读写同一个 `Array` 变量是未定义行为（Swift `Array` 的 CoW 缓冲区只有"多线程只读"是安全的，一读一写会出问题，包括潜在崩溃）。修复：每轮循环开始（在本轮可能发生的 `append` 之后）立刻拍一个不可变快照 `let reviewListWordsSnapshot = reviewListWords`，本轮循环体内所有异步闭包一律捕获、读取这个快照而不是外层可变的 `reviewListWords`——`let` 数组在多线程间只读共享是安全的。`annotateExistingPractices` 里的 `reviewListWords` 本身就是每次调用只算一次的 `let`、不在任何循环里，不受影响，未改动。
