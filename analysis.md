@@ -1270,3 +1270,80 @@ if displayWordByKey[k] == nil {
 **修复方案**：把 `cache()` 改成同 `annotateExistingPractices`/`advanceEbbinghausSchedule` 一样的"文件锁下 load-mutate-save"模式：读取磁盘最新数组，按 `WordPractice.id` 把本实例快照中的每条记录 upsert 进去（已存在的 id 用本实例的版本覆盖，不存在的 id 追加），而不是无条件用本实例快照整体替换磁盘数组。这样即使多个实例并发调用 `cache()`，只要不是同一个 `id` 被两个实例同时改写，各自的更新都能保留，不会互相清空对方已经落盘、而自己快照里没有的其它词/其它 id 的数据。
 
 **已知残余风险**（本次不处理，作为已知局限记录）：若两个实例都持有**同一个 `id`** 的、**新旧不同**的本地副本（同一条 practice 被两个实例并发标注/更新），按 id upsert 时后写入的一方仍会用自己的（可能更旧的）版本覆盖先写入的一方——即"同 id 并发写"仍是最后写者胜，未做字段级合并或版本号/时间戳仲裁。这种情况比"整篇覆盖"窄得多（只发生在同一条记录被两个独立 producer 实例同时持有并同时打算写回时），暂不处理。
+
+# 新需求 10
+
+1. Video shadowing 界面不需要大模型对话（chat）功能
+
+**现象**：Video shadowing 练习界面继承自 `TextMeaningPracticeView`/`TextMeaningPracticeViewController`，连带继承了聊天助教 UI（`chatBubblesStack`/`chatInputBar`/`chatTextField`），但该功能对 shadowing 场景无意义（字幕内容来自 YouTube 解析，非 LLM 生成，用户在跟读时不需要和模型对话）。
+
+**原因（调查结果）**：
+
+- 字幕/文本来源确定性：`VideoShadowingPracticeProducer.swift`（约 93–94 行）构造 practice 时显式设置 `isTextMachineTranslated: false, machineTranslatorType: .none`，文本全部来自缓存的 YouTube `Article` 解析字幕（`YoutubeVideoParser.CaptionEvent`），不涉及机器翻译或 LLM 生成。
+- shadowing 专属四个文件（`VideoShadowingPractice.swift`、`VideoShadowingPracticeProducer.swift`、`VideoShadowingPracticeView.swift`、`VideoShadowingPracticeViewController.swift`）均没有直接调用 `ContentCreator`/GPT 的代码。
+- LLM 聊天功能定义在基类 `TextMeaningPracticeView`（`chatBubblesStack`/`chatInputBar`/`chatTextField`，systemPrompt 构造约 304–313、500–508 行）和 `WordMarkingTextView.sendChatMessage`（约 475 行）→ `ContentCreator.streamContent/createContent`（`ContentCreator.swift`），是所有"text+meaning"类练习（阅读、听读、播客、shadowing 等）共享的能力，非 shadowing 专属代码。
+- `VideoShadowingPracticeViewController.swift`（约 52–54 行）目前已经隐藏了 `speakButton`/`listenButton`/`repetitionsLabel`，但**未隐藏**继承自基类的聊天输入框/聊天气泡，用户理论上仍能在 shadowing 界面看到并使用聊天入口。
+
+**修复方向**：在 `VideoShadowingPracticeView`（或 `VideoShadowingPracticeViewController`，参照现有隐藏 `speakButton`/`listenButton` 的做法）中，隐藏继承自 `TextMeaningPracticeView` 的 `chatInputBar`/`chatBubblesStack`（以及依赖它们布局的相关约束，若有），不改动共享基类本身的聊天逻辑，只在 shadowing 场景下关闭该入口。
+
+> **批注**：可以，改吧
+
+实现：✅ 已修复（`VideoShadowingPracticeView.swift` `updateViews()`，`super.updateViews()` 之后设置 `chatInputBar.isHidden = true`、`chatBubblesStack.isHidden = true`）
+
+---
+
+2. Video shadowing 字幕无法上下滚动（可横向滚动，但不需要）；字幕不跟随视频播放/前进后退按钮滚动
+
+**现象**：字幕文本区域只能横向拖动（无意义），无法上下滚，也不会随视频播放进度自动滚动到当前字幕；点击前进/后退 5 秒按钮，视频进度会变但字幕不跟着滚。之前（reading/speaking 一样的写法时）是正常的，怀疑是后续改动带来的回归。
+
+**原因（调查确认，git blame 定位）**：
+
+`VideoShadowingPracticeView` 最初实现时（`be7f9a6`），`textView` 是 `mainView`（即 `self`）的直接子视图，约束为 `top/bottom/leading/trailing.equalToSuperview().inset(20)`，未设置 `isScrollEnabled`（默认 `true`），单独滚动。
+
+后来 `TextMeaningPracticeView.swift` 在 `8c9f042`（"support llm conversations"，引入聊天气泡功能）里把 `textView` 包进了新增的 `contentScrollView`：`contentScrollView.addSubview(textView)`（`updateViews()`），并在 `updateLayouts()` 里：
+```swift
+textView.isScrollEnabled = false
+textView.snp.makeConstraints { make in
+    make.top.leading.trailing.equalToSuperview()   // superview = contentScrollView
+    make.width.equalTo(contentScrollView)
+}
+```
+即：`textView` 不再自己滚动，而是内容自增高，交给外层 `contentScrollView` 统一滚动（配合下方的 `chatBubblesStack` 一起在同一个滚动容器里)。
+
+但 `VideoShadowingPracticeView` 从未跟着更新——它仍然假设 `textView` 是 `self` 的直接子视图，在自己的 `updateLayouts()`（约 224-228 行）里用 `textView.snp.makeConstraints`（不是 `remakeConstraints`）又加了一套新约束（相对 `youtubeWebView`/`youtubeControlsView`）。SnapKit 的 `makeConstraints` 是叠加不是替换，于是 `textView` 上同时存在两组冲突的 top/leading/trailing 必选约束（一组相对实际父视图 `contentScrollView`，一组相对 `youtubeWebView`/`youtubeControlsView`），Auto Layout 运行时被迫打破部分约束，`textView` 实际 frame 变得不确定——这就是横向出现意外可滚动空间的原因。同时 `textView.isScrollEnabled` 从未被重新打开，`scrollToTop(for:animated:)`（`UITextViewExtensions.swift:43`，直接对 `textView` 调用 `setContentOffset`）在 `isScrollEnabled == false` 时是视觉空操作——这解释了不能上下滚、不跟随播放/按钮点击（`updateHighlightedCaption`/`updateTextView` 里的高亮逻辑本身是对的，只是滚动调用被吞掉）。
+
+**修复**：让 `VideoShadowingPracticeView` 恢复"`textView` 直接归属 `self`、自己滚动"的原始设计，不再依赖基类新增的 `contentScrollView`：
+
+1. `updateViews()` 中把 `textView` 从 `contentScrollView` 移出，直接加到 `self`（`mainView`）上；不再需要 `contentScrollView`（聊天气泡已在本次改动中隐藏）。
+2. `updateLayouts()` 中 `textView.snp.makeConstraints` 改为 `remakeConstraints`，彻底替换掉基类那套冲突约束。
+3. 显式设置 `textView.isScrollEnabled = true`，覆盖基类的 `false`，恢复 `textView` 自身滚动的能力。
+
+原因：基类为支持聊天气泡功能引入 `contentScrollView` 包裹 `textView` 并禁用其自身滚动，但 `VideoShadowingPracticeView` 未同步更新，导致约束叠加冲突和滚动被禁用。
+修复：`VideoShadowingPracticeView` 恢复 `textView` 作为直属滚动视图的原始布局，脱离基类新增的 `contentScrollView`。
+
+实现：✅ 已修复（`VideoShadowingPracticeView.swift`：`updateViews()` 中 `textView.removeFromSuperview()` 后 `addSubview(textView)`、`contentScrollView.isHidden = true`；`updateLayouts()` 中 `textView.isScrollEnabled = true`，`textView.snp.makeConstraints` 改为 `textView.snp.remakeConstraints`）
+
+> **批注**：good。
+
+---
+
+3. Video shadowing 底部控件（rewind/play-pause/forward、hideText、markText）样式不够美观
+
+**现象**：底部视频控制按钮（`youtubeControlsView` 内的 `rewindButton`/`playPauseButton`/`forwardButton`）以及两侧的 `hideTextButton`/`markTextButton` 视觉上比较简陋，希望做得好看一点。
+
+**原因（调查结果）**：
+- `Buttons.createControlButton`（`Theme.swift:254-259`）只做了 `setImage` + `titleLabel` 字号，没有任何尺寸/背景/圆角/描边等样式；`youtubeControlsView` 本身其实已经复用了 `TextMeaningPracticeView.controlsView` 同款样式（`Colors.lightGrayBackgroundColor` 背景 + `Sizes.defaultCornerRadius` 圆角的横向 `fillEqually` stack），三个按钮显得单薄主要是因为按钮本身没有内边距/圆形背景，是纯图标贴在灰色条上。
+- `hideTextButton`/`markTextButton` 是完全没有样式的裸 `UIButton()`（无背景、无圆角、无固定尺寸），仅 `markTextButton` 有 tint 颜色切换（`Colors.activeSystemButtonColor`/`inactiveSystemButtonColor`，与 `reinforceButton` 同款 idiom）。二者的布局用 `Sizes.roundButtonRadius / 2`（27.5pt）做 inset，但按钮本身并不是 `Sizes.roundButtonRadius`（55pt）大小的圆形——这个 inset 假设了一个并不存在的圆形尺寸，是"漂浮感"的主要来源。
+- 全部图标都是系统 SF Symbol（`gobackward.5`/`play.fill`/`pause.fill`/`goforward.5`/`eye.slash`/`eye`/`highlighter`），非自定义素材图，不带 `.alwaysTemplate`，`UIButton(type: .system)` 默认即可跟随 tintColor。
+- 项目里已有的两种"精致"图标按钮范式：(a) `doneButton`/`nextButton`（`PracticeViewController.swift`）用的 `RoundButton`（`Sizes.roundButtonRadius` 圆形 + `Colors.lightBlue` 填充 + `Colors.borderColor`/`Sizes.defaultBorderWidth` 描边）；(b) `reinforceButton`/`markTextButton` 用的纯 tint 颜色切换 idiom（`Colors.activeSystemButtonColor`/`inactiveSystemButtonColor`），无背景/圆角。
+
+**修复方向**：不引入设计系统之外的新颜色/尺寸，复用现有 idiom：
+1. `hideTextButton`/`markTextButton` 改为固定尺寸的圆形图标按钮：背景 `Colors.lightGrayBackgroundColor`（与 `youtubeControlsView` 呼应）、`cornerRadius = frame.height / 2`，固定 `Sizes.roundButtonRadius`（缩小到合适大小，如直接用一个较小的显式常量或复用 `Sizes.defaultCornerRadius` 系尺寸），并给图标加 `imageEdgeInsets`/合适 padding，让其视觉上和 `youtubeControlsView` 的圆角矩形呼应；`hideTextButton` 也补上与 `markTextButton` 一致的 tint 切换（当前隱藏态用 `inactiveSystemButtonColor`，显示态用 `activeSystemButtonColor`）。
+2. `rewindButton`/`playPauseButton`/`forwardButton` 保持在 `youtubeControlsView` 内，但给按钮本身加 `imageEdgeInsets`（增大点击区域内的留白，视觉上不再贴边）。
+3. 三个按钮行与两侧按钮的尺寸/间距对齐（用 `Sizes.smallStackSpacing`/`Sizes.defaultStackSpacing` 统一间距，避免布局上 `Sizes.roundButtonRadius/2` 这种假设不存在尺寸的 inset）。
+
+> **批注**：good。video shadowing 底部的几个控件可以弄好看点吗
+
+实现：❌ 已撤回（效果不理想，用户反馈"还是撤回吧，效果不太好"）。`VideoShadowingPracticeView.swift` 中按钮相关的样式改动（圆形背景、tint、imageEdgeInsets、`sideButtonSize` 常量、布局 inset 调整）已全部还原为改动前的写法；仅保留与本条无关的第 2 条字幕滚动修复。
+
+> **批注**：还是撤回吧，效果不太好。保留文本滚动的改动逻辑就好了

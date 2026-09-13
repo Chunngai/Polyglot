@@ -118,7 +118,7 @@ class VideoShadowingPracticeView: TextMeaningPracticeView {
         )
         return button
     }()
-    
+
     lazy var markTextButton: UIButton = {
         let button = UIButton()
         button.addTarget(
@@ -132,7 +132,7 @@ class VideoShadowingPracticeView: TextMeaningPracticeView {
         )
         return button
     }()
-    
+
     // MARK: - Init
     
     init(
@@ -197,31 +197,52 @@ class VideoShadowingPracticeView: TextMeaningPracticeView {
     
     override func updateViews() {
         super.updateViews()
-        
+
+        // Video shadowing captions come from the parsed YouTube transcript, not
+        // an LLM, so the chat tutor inherited from TextMeaningPracticeView has
+        // no purpose here.
+        chatInputBar.isHidden = true
+        chatBubblesStack.isHidden = true
+
+        // Unlike TextMeaningPracticeView's default layout (where textView sits
+        // inside contentScrollView and grows with content, letting
+        // contentScrollView do the scrolling), video shadowing needs textView
+        // itself to scroll within a fixed frame between the video and its
+        // controls. Move it out of contentScrollView so it isn't laid out
+        // and constrained against the wrong superview.
+        textView.removeFromSuperview()
+        contentScrollView.isHidden = true
+        addSubview(textView)
+
         self.hideText()
-        
+
         addSubview(youtubeWebView)
         addSubview(youtubeControlsView)
         addSubview(hideTextButton)
         addSubview(markTextButton)
     }
-    
+
     override func updateLayouts() {
         super.updateLayouts()
-        
+
         youtubeWebView.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview().inset(20)
             make.height.equalTo(youtubeWebView.snp.width).multipliedBy(9.0/16.0) // 16:9比例
         }
-        
+
         youtubeControlsView.snp.makeConstraints { make in
             make.width.equalTo(200)
             make.centerX.equalToSuperview()
             make.bottom.equalToSuperview().inset(20)
             make.height.equalTo(60)
         }
-        
-        textView.snp.makeConstraints { make in
+
+        // textView scrolls itself here (unlike the base class, where it's a
+        // non-scrolling, content-driven view inside contentScrollView), so
+        // fully replace the base class's constraints rather than adding a
+        // conflicting second set.
+        textView.isScrollEnabled = true
+        textView.snp.remakeConstraints { make in
             make.top.equalTo(youtubeWebView.snp.bottom).offset(20)
             make.bottom.equalTo(youtubeControlsView.snp.top).offset(-20)
             make.leading.trailing.equalToSuperview().inset(20)
@@ -231,7 +252,7 @@ class VideoShadowingPracticeView: TextMeaningPracticeView {
             make.leading.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
             make.centerY.equalTo(youtubeControlsView.snp.centerY)
         }
-        
+
         markTextButton.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(Sizes.roundButtonRadius / 2)
             make.centerY.equalTo(youtubeControlsView.snp.centerY)
@@ -498,7 +519,7 @@ extension VideoShadowingPracticeView {
                 Images.videoShadowingPracticeShowTextImage,
                 for: .normal
             )
-            
+
             isTextHidden = true
             
             textView.setContentOffset(
@@ -517,7 +538,7 @@ extension VideoShadowingPracticeView {
                 Images.videoShadowingPracticeHideTextImage,
                 for: .normal
             )
-                        
+
             isTextHidden = false
             
             textView.setContentOffset(
